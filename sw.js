@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-online-v1';
-const ASSETS = ['./', './index.html', './config.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
+const CACHE = 'souq-shatra-design-v2';
+const ASSETS = ['./', './index.html', './config.js', './manifest.webmanifest', './icons/brand.png', './icons/icon-192.png', './icons/icon-512.png', './icons/shatra-river.jpeg', './icons/shatra-square.jpeg', './icons/shatra-bridge.jpeg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
