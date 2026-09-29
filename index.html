@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0F2A3F">
+<meta name="theme-color" content="#3D195F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="سوق الشطرة">
@@ -82,22 +82,44 @@ label{display:block;font-size:14px;color:var(--mut);margin-top:10px}
 #toast[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 </style>
+<style>
+/* واجهة سوق الشطرة البنفسجية */
+:root,:root[data-theme="dark"]{--bg:#F8F6FC;--card:#fff;--ink:#271D38;--mut:#776D85;--line:#E8E1F0;--navy:#3D195F;--gold:#71349C;--gi:#fff;--ok:#64338A;--tile:#F0EAF7}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#F8F6FC;--card:#fff;--ink:#271D38;--mut:#776D85;--line:#E8E1F0;--navy:#3D195F;--gold:#71349C;--gi:#fff;--ok:#64338A;--tile:#F0EAF7}}
+body{background:#F2EEF8}.app{background:var(--bg);padding-bottom:calc(108px + env(safe-area-inset-bottom,0px));box-shadow:0 0 35px #30134112}
+.top{display:block;background:linear-gradient(140deg,#33104D,#5D247C);padding:18px 18px 24px;border-radius:0 0 28px 28px;box-shadow:0 8px 25px #35125222}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-size:26px;letter-spacing:-.7px;white-space:nowrap}.brand svg{width:32px;height:32px}
+.top-actions{display:flex;gap:8px}.ib{font-size:21px;min-width:42px;min-height:42px;display:grid;place-items:center;background:#ffffff27;color:#fff}
+.wordmark{display:block;font-size:19px;line-height:1.1;font-weight:700;margin-top:20px;color:#fff;text-align:left}.wordmark small{display:block;font-size:11px;letter-spacing:3px;opacity:.75}
+.search{margin:12px 16px 0}.searchline{display:flex;gap:8px;align-items:center}.search input{flex:1;min-width:0;border:1px solid var(--line);box-shadow:none;border-radius:16px}.filter-btn{flex:none;width:52px;height:52px;border-radius:16px;background:var(--navy);color:#fff;font-size:24px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:22px 16px 12px}.section-title h2{margin:0;font-size:20px}.section-title button{color:var(--ok);font-weight:700}
+.category-cards{display:flex;gap:10px;padding:0 16px 5px;overflow-x:auto;scrollbar-width:none}.category-cards::-webkit-scrollbar{display:none}
+.category-card{flex:0 0 116px;min-height:116px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;padding:12px;font-weight:700;box-shadow:0 5px 15px #3914530a}.category-card span{font-size:31px}.category-card[aria-pressed="true"]{border-color:var(--gold);background:#EFE5F8}
+.grid{gap:12px}.p{border-radius:18px;box-shadow:0 6px 18px #36174b0c}.tile{border-radius:14px}.p em{color:var(--navy);font-size:17px}.p b{line-height:1.4}
+.tabs{grid-template-columns:repeat(5,1fr);border-radius:22px 22px 0 0;box-shadow:0 -7px 28px #30134115;border-top:0;min-height:78px;z-index:3}.tabs button{font-size:11px;padding:9px 2px 7px;line-height:1.3}.tabs .navicon{display:block;font-size:21px;line-height:1.5}.tabs button[aria-current="page"]{color:var(--gold);box-shadow:none}.tabs button[aria-current="page"]::before{content:"";display:block;position:absolute;top:0;width:32px;height:3px;background:var(--gold);border-radius:0 0 8px 8px}.tabs button{position:relative}.tabs .plus{width:54px;height:54px;border-radius:50%;background:var(--gold);color:#fff;font-size:34px;line-height:1;margin:-26px auto 4px;display:grid;place-items:center;border:4px solid var(--card);box-shadow:0 5px 14px #3211513b}.tabs button[aria-current="page"] .plus{background:var(--navy)}
+.sheet{border-radius:26px 26px 0 0}.sh{border-bottom:1px solid var(--line);padding-bottom:10px}.sh h2{font-size:21px}.filter-group{margin:20px 0}.filter-group h3{font-size:16px;margin:0 0 10px}.filter-chips{display:flex;gap:8px;flex-wrap:wrap}.filter-chips button{padding:8px 13px;border-radius:999px;background:var(--tile);border:1px solid var(--line)}.filter-chips button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#fff}.filter-range{display:flex;gap:10px}.filter-range label{flex:1;min-width:0}.filter-actions{display:flex;gap:10px;position:sticky;bottom:-18px;background:var(--card);padding:12px 0}.filter-actions button{margin:0}.faq details{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}.faq summary{cursor:pointer;font-weight:700}.faq p{color:var(--mut);margin:8px 0 0}.info-tabs{display:flex;gap:8px;margin:14px 0}.info-tabs button{flex:1;padding:10px;border-radius:12px;background:var(--tile)}.info-tabs button[aria-pressed="true"]{background:var(--gold);color:white}
+.account-head{background:linear-gradient(125deg,#4A1D6C,#73409A);color:#fff;margin:16px;border-radius:20px;padding:20px}.account-head small{display:block;opacity:.8}.account-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px}.account-shortcuts button{background:var(--card);border:1px solid var(--line);padding:16px;border-radius:16px;text-align:center}.loading-buddy{width:80px;height:80px;margin:0 auto 12px;background:#E8D8F3;border-radius:27px;display:grid;place-items:center;position:relative;animation:bob 1.6s ease-in-out infinite}.loading-buddy:before{content:"";width:46px;height:37px;background:#64338A;border-radius:12px 12px 18px 18px;position:absolute;top:18px}.loading-buddy:after{content:"•  •";color:#fff;font-size:23px;letter-spacing:3px;position:absolute;top:15px}.loading-buddy span{position:absolute;bottom:10px;font-size:13px;color:#64338A}.loading-buddy.still{animation:none}@keyframes bob{50%{transform:translateY(-6px)}}
+.loading-overlay{position:fixed;inset:0;background:#f8f6fcdd;z-index:8;display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--navy)}.loading-overlay[hidden]{display:none}
+.empty{padding:55px 24px}.box,.ord,.item{box-shadow:0 5px 15px #3914530a}.buy{background:var(--gold);color:#fff}
+@media(max-width:360px){.brand{font-size:20px}.top-actions{gap:3px}.ib{min-width:36px}.tabs button{font-size:10px}.tabs .navicon{font-size:18px}}
+</style>
 </head>
 <body>
 <div class="app">
-  <header class="top">
-    <div class="brand"><svg viewBox="0 0 48 48" width="34" height="34" aria-hidden="true"><path d="M6 18l4-10h28l4 10z" fill="#F2B33D"/><path d="M8 18v22h32V18" fill="none" stroke="#F2B33D" stroke-width="3"/><rect x="19" y="26" width="10" height="14" fill="#F2B33D"/></svg>سوق الشطرة</div>
-    <button class="ib" data-a="cart" aria-label="السلة">🛒<i id="cc" hidden></i></button>
-  </header>
-  <div class="search" id="sb"><input id="q" type="search" placeholder="ابحث عن منتج" aria-label="بحث"></div>
+  <header class="top"><div class="topline"><div class="brand">سوق الشطرة</div><div class="top-actions"><button class="ib" data-a="info" aria-label="عن سوق الشطرة">ⓘ</button><button class="ib" data-a="notifications" aria-label="الإشعارات">♧</button><button class="ib" data-a="searchfocus" aria-label="البحث">⌕</button><button class="ib" data-a="cart" aria-label="السلة">🛒<i id="cc" hidden></i></button></div></div><span class="wordmark">سوق الشطرة<small>سوقنا يجمعنا</small></span></header>
+  <div class="search" id="sb"><div class="searchline"><input id="q" type="search" placeholder="ابحث عن منتج..." aria-label="بحث"><button class="filter-btn" data-a="filters" aria-label="تصفية البحث">☷</button></div></div>
   <main id="view"></main>
   <nav class="tabs" aria-label="التنقل">
-    <button data-a="tab" data-v="market">السوق</button>
-    <button data-a="tab" data-v="orders">طلباتي</button>
-    <button data-a="tab" data-v="account">حسابي</button>
+    <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
+    <button data-a="tab" data-v="chats"><span class="navicon">▣</span>محادثات</button>
+    <button data-a="addentry"><span class="plus">+</span>إضافة إعلان</button>
+    <button data-a="tab" data-v="listings"><span class="navicon">▤</span>إعلاناتي</button>
+    <button data-a="tab" data-v="account"><span class="navicon">♙</span>حسابي</button>
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div id="loading" class="loading-overlay" hidden role="status"><div class="loading-buddy"><span>✦</span></div><b>لحظة، نجهز سوق الشطرة…</b></div>
 <div id="toast" hidden role="status"></div>
 
 <script type="module">
@@ -124,6 +146,8 @@ const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
   const id=++refreshId;
+  $('#loading').hidden=false;
+  try{
   const session=check(await db.auth.getSession());
   const nextUser=session.session?.user||null;
   const [pr,ms,ps,rs]=await Promise.all([
@@ -141,6 +165,7 @@ async function refresh(){
   D.me=profile?.role==='admin'?'owner':ownStore?.id||null;
   D.o=orders.map(o=>({...fromOrder(o),buyer_id:o.buyer_id}));
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();
+  }finally{if(id===refreshId)$('#loading').hidden=true}
 }
 async function act(f){try{await f()}catch(e){error(e)}}
 const $=s=>document.querySelector(s),fmt=n=>(+n||0).toLocaleString('en-US')+' د.ع';
@@ -155,7 +180,8 @@ const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https:
 const prod=id=>D.p.find(x=>x.id===id);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
 const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'short'});
-let tab='market',cat='all',q='',dt='p',cur=null;
+let tab='market',cat='all',q='',dt='p',cur=null,infoRole='seller';
+const filt={min:'',max:'',sort:'newest',condition:'all',location:''};
 
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
 function sheet(h){$('#sheet').innerHTML=h;$('#shade').hidden=false;const c=$('#sheet [data-a="close"]');c&&c.focus()}
@@ -168,13 +194,23 @@ function render(){
   const n=D.cart.reduce((s,c)=>s+c.q,0),cc=$('#cc');cc.textContent=n;cc.hidden=!n;
   document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===tab?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   $('#sb').hidden=tab!=='market';
-  ({market,orders,account})[tab]();
+  ({market,orders,account,chats,listings})[tab]();
 }
 function market(){
-  const l=D.p.filter(p=>p.active&&mok(p.mid)&&(cat==='all'||p.cat===cat)&&(p.name+' '+p.desc).includes(q.trim()));
-  $('#view').innerHTML=`<div class="chips">${['all',...CATS].map(c=>`<button class="chip" data-a="cat" data-v="${c}" aria-pressed="${c===cat}">${c==='all'?'الكل':c}</button>`).join('')}</div>`+
+  let l=D.p.filter(p=>p.active&&mok(p.mid)&&(cat==='all'||p.cat===cat)&&(p.name+' '+p.desc).toLocaleLowerCase('ar').includes(q.trim().toLocaleLowerCase('ar'))&&(!filt.min||p.price>=+filt.min)&&(!filt.max||p.price<=+filt.max));
+  if(filt.sort==='cheap')l.sort((a,b)=>a.price-b.price);else if(filt.sort==='expensive')l.sort((a,b)=>b.price-a.price);else if(filt.sort==='oldest')l.reverse();
+  $('#view').innerHTML=`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="allcat">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="cat" data-v="${c}" aria-pressed="${c===cat}"><span aria-hidden="true">${CI[i]}</span>${c}</button>`).join('')}</div><div class="section-title"><h2>${q||cat!=='all'?'نتائج البحث':'أحدث الإعلانات'}</h2><span class="note">${l.length} منتج</span></div>`+
   (l.length?`<div class="grid">${l.map(p=>`<button class="p" data-a="prod" data-v="${p.id}"><div class="tile">${thumb(p)}</div><b>${esc(p.name)}</b><span>${esc(mname(p.mid))}</span><em>${fmt(p.price)}</em>${p.stock<1?'<u>نفدت الكمية</u>':''}</button>`).join('')}</div>`:
   `<div class="empty">${D.p.length?'ما لقينا نتيجة. جرّب كلمة ثانية أو تصنيف آخر.':'السوق فاضي حالياً.<br>ادخل من «حسابي» وأضف أول منتج.'}</div>`);
+}
+function chats(){
+  $('#view').innerHTML='<div class="section-title"><h2>المحادثات</h2></div><div class="empty"><div style="font-size:38px" aria-hidden="true">▣</div>لا توجد محادثات حاليًا.<br><small>لم تُفعّل خدمة المحادثات بعد.</small></div>';
+}
+function listings(){
+  if(!user){$('#view').innerHTML='<div class="box"><h2>إعلاناتي</h2><p>سجّل الدخول لعرض منتجاتك وإدارتها.</p><button class="buy" data-a="login" data-v="m">دخول</button></div>';return}
+  if(!ownStore){$('#view').innerHTML='<div class="box"><h2>إعلاناتي</h2><p>سجّل متجرك أولًا لتضيف المنتجات. يمكن للأفراد أيضًا التسجيل لعرض ما يريدون بيعه.</p><button class="buy" data-a="login" data-v="store">تسجيل بائع</button></div>';return}
+  const mine=D.p.filter(p=>p.mid===ownStore.id);
+  $('#view').innerHTML=`<div class="section-title"><h2>إعلاناتي</h2><button data-a="pform" data-v="">إضافة منتج ＋</button></div><div class="chips"><span class="chip">الكل ${mine.length}</span></div>`+(mine.length?mine.map(p=>`<div class="item"><div class="tile">${thumb(p)}</div><div><b>${esc(p.name)}</b><small>${fmt(p.price)} · المتوفر ${p.stock}</small><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="pdel" data-v="${p.id}">حذف</button></div></div></div>`).join(''):'<div class="empty">لا توجد إعلانات بعد.</div>');
 }
 function ordCard(o,m){
   return `<div class="ord"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div><small>${when(o.ts)}</small>
@@ -189,9 +225,9 @@ function orders(){
 }
 function account(){
   if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>سجّل الدخول أو أنشئ حساباً للشراء أو لفتح متجر.</p><button class="buy" data-a="login" data-v="m">دخول</button><button class="alt" data-a="login" data-v="r">حساب جديد</button></div>`;return}
-  if(!D.me){$('#view').innerHTML=`<div class="box"><h2>حسابي</h2><p>${esc(user.email)}</p><button class="buy" data-a="login" data-v="store">تسجيل متجر</button><button class="alt" data-a="out">خروج</button></div>`;return}
+  if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حسابي</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="listings">▤<br>إعلاناتي</button></div><div class="box"><button class="buy" data-a="login" data-v="store">تسجيل بائع</button><button class="alt" data-a="out">خروج</button></div>`;return}
   const me=D.me,own=me==='owner',T=[...(ownStore?[['p','منتجاتي'],['o','الطلبات']]:[]),...(own?[['m','التجار والأرباح']]:[])];
-  let h=`<div class="dh"><div><b>${esc(mname(me))}</b>${mok(me)?'':'<small class="bad" style="display:block">بانتظار موافقة صاحب السوق. منتجاتك لا تظهر للزبائن قبلها.</small>'}</div><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
+  let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="listings">▤<br>إعلاناتي</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
   const mine=D.p.filter(p=>p.mid===(own?ownStore?.id:me)),mo=D.o.filter(o=>o.mid===(own?ownStore?.id:me));
   if(dt==='p'&&!ownStore)dt='m';
   if(dt==='p')h+=`<div style="padding:0 16px"><button class="buy" style="margin-top:0" data-a="pform" data-v="">＋ إضافة منتج</button></div>`+(mine.length?mine.map(p=>`<div class="item"><div class="tile">${thumb(p)}</div><div><b>${esc(p.name)}</b><small>${fmt(p.price)} · المتوفر ${p.stock}</small><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="pdel" data-v="${p.id}">حذف</button></div></div></div>`).join(''):'<div class="empty">ما أضفت منتجات بعد.</div>');
@@ -240,11 +276,35 @@ function fsheet(id){
   <label for="pimg">صورة المنتج</label><input id="pimg" type="file" accept="image/*"><div class="tile big" id="pv" style="max-width:120px">${p?thumb(p):'📷'}</div>
   <button class="buy" data-a="psave">حفظ المنتج</button>`);
 }
+function filterSheet(){
+  sheet(head('فلتر')+`<div class="filter-group"><h3>القسم</h3><div class="filter-chips">${['all',...CATS].map(c=>`<button data-a="fcat" data-v="${c}" aria-pressed="${cat===c}">${c==='all'?'الكل':c}</button>`).join('')}</div></div>
+  <div class="filter-group"><h3>الموقع</h3><p class="note">تصفية المحافظة ستتوفر حين تصبح مواقع المنتجات محفوظة في التطبيق.</p></div>
+  <div class="filter-group"><h3>السعر (د.ع)</h3><div class="filter-range"><label>من<input id="fmin" type="number" inputmode="numeric" min="0" placeholder="0" value="${esc(filt.min)}"></label><label>إلى<input id="fmax" type="number" inputmode="numeric" min="0" placeholder="بدون حد" value="${esc(filt.max)}"></label></div></div>
+  <div class="filter-group"><h3>الحالة</h3><p class="note">فلتر جديد أو مستعمل سيُفعّل بعد إضافة حالة المنتج إلى بيانات الإعلان.</p></div>
+  <div class="filter-group"><h3>الترتيب</h3><div class="filter-chips">${[['newest','الأحدث'],['oldest','الأقدم'],['cheap','السعر: الأقل أولًا'],['expensive','السعر: الأعلى أولًا']].map(([v,t])=>`<button data-a="fsort" data-v="${v}" aria-pressed="${filt.sort===v}">${t}</button>`).join('')}</div></div><div class="filter-actions"><button class="buy" data-a="fapply">عرض النتائج</button><button class="alt" data-a="fclear">حذف الفلاتر</button></div>`);
+}
+function infoSheet(){
+  const seller=[['من يستطيع البيع؟','يمكن لصاحب متجر عرض منتجاته، ويمكن لأي شخص عرض ما يملكه للبيع بعد تسجيله كبائع، حتى لو لم يكن لديه محل.'],['كيف أنشر منتجًا؟','أنشئ حسابًا، ثم سجّل كبائع. بعد قبول التسجيل، أضف اسم المنتج وصورته ووصفه وسعره والكمية المتوفرة.'],['هل توجد نسبة من البيع؟','أي رسوم أو نسبة مستقبلية ستُوضح للبائع قبل تطبيقها. لا يخصم التطبيق مالًا تلقائيًا من البيع النقدي.']];
+  const buyer=[['كيف أجد منتجًا؟','تصفح الأقسام أو اكتب اسم المنتج في البحث، واستعمل خيارات السعر والترتيب للوصول إلى ما يناسبك.'],['كيف أشتري؟','افتح المنتج، أضفه إلى السلة ثم أرسل الطلب. يمكنك متابعة حالته من حسابي ← طلباتي. الدفع عند الاستلام بحسب الاتفاق مع البائع.'],['هل أستطيع البيع أيضًا؟','نعم. سجّل كبائع واعرض المنتج الذي تملكه حتى لو لم يكن لديك متجر.']];
+  const rows=infoRole==='seller'?seller:buyer;
+  sheet(head('عن سوق الشطرة')+`<p class="note">سوق محلي يعرض منتجات المتاجر والأفراد في الشطرة.</p><div class="info-tabs"><button data-a="inforole" data-v="seller" aria-pressed="${infoRole==='seller'}">للبائع</button><button data-a="inforole" data-v="buyer" aria-pressed="${infoRole==='buyer'}">للمشتري</button></div><div class="faq">${rows.map(([title,body])=>`<details><summary>${title}</summary><p>${body}</p></details>`).join('')}</div>`);
+}
 
 /* ===== الإجراءات ===== */
 const A={
   tab:v=>{tab=v;render();scrollTo(0,0)},
   cat:v=>{cat=v;market()},
+  allcat:()=>{cat='all';market()},
+  searchfocus:()=>{tab='market';render();$('#q').focus()},
+  filters:filterSheet,
+  fcat:v=>{cat=v;filterSheet()},
+  fsort:v=>{filt.sort=v;filterSheet()},
+  fapply:()=>{const min=val('fmin'),max=val('fmax');if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}filt.min=min;filt.max=max;A.close();market()},
+  fclear:()=>{cat='all';filt.min='';filt.max='';filt.sort='newest';A.close();market()},
+  info:infoSheet,
+  inforole:v=>{infoRole=v;infoSheet()},
+  notifications:()=>sheet(head('الإشعارات')+'<div class="empty">لا توجد إشعارات حاليًا.</div>'),
+  addentry:()=>{if(!user){tab='account';render();lsheet('m');return}if(!ownStore){lsheet('store');return}fsheet('')},
   close:()=>{$('#shade').hidden=true},
   prod:v=>{cur={p:prod(v),n:1};psheet()},
   pq:v=>{cur.n=Math.min(cur.p.stock||1,Math.max(1,cur.n+ +v));psheet()},
