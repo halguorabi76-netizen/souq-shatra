@@ -175,7 +175,8 @@ const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
   const id=++refreshId;
-  $('#loading').hidden=false;
+  const firstLoad=!D.p.length&&!user;
+  if(firstLoad)$('#loading').hidden=false;
   try{
   const session=check(await withTimeout(db.auth.getSession()));
   const nextUser=session.session?.user||null;
