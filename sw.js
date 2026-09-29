@@ -1,4 +1,4 @@
-const CACHE = 'souq-shatra-design-v10';
+const CACHE = 'souq-shatra-design-v12';
 const CORE = ['./', './index.html', './config.js', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {

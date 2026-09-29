@@ -82,6 +82,29 @@ label{display:block;font-size:14px;color:var(--mut);margin-top:10px}
 #toast[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 .tabs{grid-template-columns:repeat(6,1fr)}.tabs button{font-size:10px}.tabs .navicon{font-size:23px}.welcome-roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.welcome-roles .welcome-option{display:block;text-align:center;padding:12px 4px}.welcome-roles .symbol{display:block;width:auto;font-size:25px}.welcome-roles strong{font-size:13px}.welcome-guest{background:none;color:var(--mut);text-decoration:underline;padding:12px}.role-badge{margin:14px 16px;padding:14px;border-radius:18px;background:#e9dbf5;color:#4e206e;font-weight:700}.setting-row{width:100%;display:block;text-align:right;background:#fff;padding:15px;border-bottom:1px solid var(--line);color:var(--ink)}.avatar{width:42px;height:42px;border-radius:50%;background:#e5d1f3;color:#4a1d6c;display:inline-grid;place-items:center;font-size:27px;vertical-align:middle;margin-inline-end:8px}
+
+/* توزيع شاشة البداية بحسب الصورة المرجعية */
+.welcome-mode .app{background:linear-gradient(180deg,#F2E6FA 0%,#F8F3FB 42%,#fff 100%);box-shadow:none}
+.welcome-mode .top{background:transparent;padding:18px 16px 0}
+.welcome-mode .top .header-icon{visibility:hidden}
+.welcome-mode .header-brand{width:230px}
+.welcome-mode .header-logo{width:230px;height:135px}
+.welcome-mode .header-brand-name{font-size:15px;margin-top:0}
+.welcome-mode .header-brand-name small{font-size:10px;margin-top:3px}
+.welcome-mode .mini-flag{top:9px;left:68px}
+.welcome-content{margin-top:clamp(54px,6vh,82px)}
+.welcome h1{font-size:clamp(25px,6vw,30px);margin-bottom:14px}
+.welcome p{font-size:16px;line-height:1.6;max-width:440px;margin:0 auto}
+.welcome-roles{margin-top:clamp(42px,5.5vh,62px)}
+.welcome-roles .welcome-option{gap:13px}
+.welcome-roles .symbol{width:92px;height:92px;border:0;box-shadow:none;background:#E6DCEF}
+.welcome-roles .welcome-option:nth-child(1) .symbol{background:#E2DFEC}
+.welcome-roles .welcome-option:nth-child(2) .symbol{background:#DAC3E8}
+.welcome-roles .welcome-option:nth-child(3) .symbol{background:#F0DEE8}
+.welcome-roles .symbol svg{width:65px;height:65px;stroke:#33243D;stroke-width:1.5}
+.welcome-roles strong{font-size:18px;color:#26142F;white-space:nowrap}
+.welcome-guest{font-size:16px;color:#6C6672;padding-bottom:5px}
+@media(max-width:360px){.welcome-mode .header-brand,.welcome-mode .header-logo{width:205px}.welcome-roles .symbol{width:76px;height:76px}.welcome-roles .symbol svg{width:55px;height:55px}.welcome-roles strong{font-size:15px}.welcome p{font-size:14px}}
 </style>
 <style>
 /* واجهة سوق الشطرة البنفسجية */
@@ -131,6 +154,23 @@ body{background:#EFE6F7}.app{background:#F4EAFB}
 .post-intro{margin:16px;padding:18px;border-radius:20px;background:linear-gradient(120deg,#4E206E,#874EAA);color:#fff}.post-intro b{font-size:20px}.post-intro p{margin:2px 0 10px;opacity:.85;font-size:13px}.post-intro .progress{height:7px;background:#ffffff61;border-radius:9px;overflow:hidden}.post-intro .progress i{display:block;height:100%;background:#fff;width:0;transition:width .2s}
 .post-card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:13px 16px;padding:16px}.post-card h2{font-size:18px;margin:0 0 10px}.post-card .tile{max-width:120px}.post-card label{margin-top:12px}.post-card input,.post-card textarea,.post-card select{background:#FAF8FC}.post-actions{display:flex;gap:10px;margin:16px}.post-actions button{flex:1}
 @media(max-width:360px){.brand{font-size:20px}.top-actions{gap:3px}.ib{min-width:36px}.tabs button{font-size:10px}.tabs .navicon{font-size:18px}}
+/* شاشة اختيار الدور: رموز دائرية مستقلة ورابط الضيف في الأسفل */
+.welcome-mode .app{min-height:100dvh;display:flex;flex-direction:column;padding-bottom:0}
+.welcome-mode #view{flex:1;display:flex;flex-direction:column}
+.welcome{flex:1;display:flex;flex-direction:column;padding:0 22px calc(24px + env(safe-area-inset-bottom,0px));text-align:center}
+.welcome-content{margin-top:clamp(36px,7vh,88px)}
+.welcome h1{font-size:clamp(23px,6vw,29px);line-height:1.35;margin:0 0 10px;color:#34164e}
+.welcome p{font-size:14px;line-height:1.65;margin:0;color:#796a86}
+.welcome-roles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:clamp(35px,6vh,66px)}
+.welcome-roles .welcome-option{width:100%;margin:0;padding:0;background:transparent;border:0;box-shadow:none;border-radius:0;display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center;min-height:130px}
+.welcome-roles .symbol{width:78px;height:78px;display:grid;place-items:center;flex:none;border-radius:50%;border:1px solid #e4d2f1;background:linear-gradient(145deg,#fff,#eadcf5);color:#57257a;box-shadow:0 7px 20px #4b1e6a18,inset 0 1px 0 #fff;transition:transform .18s,box-shadow .18s}
+.welcome-roles .welcome-option:active .symbol{transform:scale(.94)}
+.welcome-roles .welcome-option:focus-visible .symbol{outline:3px solid #9b68c0;outline-offset:3px}
+.welcome-roles .symbol svg{width:32px;height:32px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.welcome-roles strong{display:block;font-size:13px;line-height:1.35;color:#3e1b5b;font-weight:700;white-space:nowrap}
+.welcome-guest{margin-top:auto;align-self:center;background:transparent;border:0;box-shadow:none;color:#6d5e7c;font-size:13px;padding:16px 8px 4px;text-decoration:none}
+.welcome-guest span{border-bottom:1px solid #ad99bd;padding-bottom:3px}
+@media(max-width:360px){.welcome{padding-inline:12px}.welcome-roles .symbol{width:68px;height:68px}.welcome-roles strong{font-size:12px}}
 </style>
 </head>
 <body>
@@ -249,6 +289,7 @@ const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy
 /* ===== الواجهات ===== */
 function render(){
   const n=D.cart.reduce((s,c)=>s+c.q,0);
+  document.body.classList.toggle('welcome-mode',tab==='welcome');
   $('.tabs').hidden=tab==='welcome';
   const sellerView=!!user&&(viewMode==='seller'||profile?.role==='admin');
   const marketButton=$('.tabs [data-v="myMarket"]');marketButton.innerHTML=`<span class="navicon">${sellerView?'▤':'🛒'}</span>${sellerView?'إعلاناتي':'سوقي'}<i id="cc" hidden></i>`;
@@ -258,7 +299,7 @@ function render(){
   ({welcome,market,orders,account,chats,listings,admin,categories,myMarket,searchPage,postPage,settings,profilePage})[tab]();
 }
 function welcome(){
-  $('#view').innerHTML=`<div class="welcome"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p><div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer"><span class="symbol">🛒</span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller"><span class="symbol">▤</span><strong>بائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver"><span class="symbol">◉</span><strong>عامل توصيل</strong></button></div><button class="welcome-guest" data-a="enter" data-v="guest">الدخول كضيف دون تسجيل</button></div>`;
+  $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p><div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#3A3144"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#A78EB4"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#9A70B6"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#3C2D48"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="الدخول كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#74578E"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#D8C5E7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#D8C7E5"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>بائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#E9E5EF"/><circle cx="49" cy="49" r="8" fill="#E9E5EF"/><circle cx="17" cy="49" r="3" fill="#6D5686"/><circle cx="49" cy="49" r="3" fill="#6D5686"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#B9A0C8"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#403345"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#9B80AE"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
 }
 function profilePage(){
  if(!user){$('#view').innerHTML='<div class="box"><h2>الملف الشخصي</h2><p>سجّل الدخول لرؤية ملفك وتعديله.</p><button class="buy" data-a="tab" data-v="welcome">اختيار حساب</button></div>';return}
