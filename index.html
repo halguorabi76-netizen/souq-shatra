@@ -221,7 +221,7 @@ async function apiFetch(resource,init={}){
   try{return await fetch(resource,{...init,signal:controller.signal})}
   finally{clearTimeout(timer);source?.removeEventListener('abort',abort)}
 }
-const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{global:{fetch:apiFetch}});
+const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true},global:{fetch:apiFetch}});
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
@@ -241,11 +241,28 @@ const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
   const id=++refreshId;
-  const firstLoad=!D.p.length&&!user&&tab!=='welcome';
+  const firstLoad=!dataReady&&!user;
   if(firstLoad)$('#loading').hidden=false;
   try{
   const session=check(await withTimeout(db.auth.getSession()));
   const nextUser=session.session?.user||null;
+  if(id!==refreshId)return;
+  // Restore the saved identity before querying the marketplace. A slow or failed
+  // product/delivery request must never send a signed-in person back to welcome.
+  if(user?.id!==nextUser?.id){profile=null;ownStore=null;viewMode=''}
+  user=nextUser;
+  if(user){
+    if(!viewMode){
+      try{viewMode=localStorage.getItem('souq-shatra-mode-'+user.id)||''}catch{}
+      if(viewMode==='guest')viewMode='';
+    }
+    if(tab==='welcome'){
+      tab=viewMode==='seller'||viewMode==='driver'?'account':'market';
+      render();
+    }
+  }else if(viewMode!=='guest'){
+    profile=null;ownStore=null;viewMode='';tab='welcome';render();
+  }
   const [pr,ms,ps,rs]=await withTimeout(Promise.all([
     nextUser?db.from('profiles').select('*').eq('id',nextUser.id).single():Promise.resolve({data:null,error:null}),
     db.from('stores').select('*'),
@@ -267,11 +284,11 @@ async function refresh(){
     const offers=await withTimeout(db.rpc('available_delivery_orders'));deliveryOffers=offers.data||[];
   }else deliveryOffers=[];
   if(id!==refreshId)return;
-  user=nextUser;profile=nextProfile;
+  profile=nextProfile;
   D.m=stores.map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at}));
   D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
-  if(user&&!viewMode){try{viewMode=localStorage.getItem('souq-shatra-mode-'+user.id)||''}catch{};if(viewMode==='guest'){viewMode='';try{localStorage.removeItem('souq-shatra-mode-'+user.id)}catch{}}else viewMode=viewMode||(ownStore?'seller':nextProfile?.role==='driver'?'driver':'buyer')}
+  if(user&&!viewMode)viewMode=ownStore?'seller':nextProfile?.role==='driver'?'driver':'buyer';
   if(user&&viewMode&&tab==='welcome')tab=viewMode==='seller'||viewMode==='driver'?'account':'market';
   if(!user&&tab!=='welcome'&&viewMode!=='guest'){viewMode='';tab='welcome'}
   D.me=profile?.role==='admin'?'owner':ownStore?.id||null;
@@ -486,6 +503,7 @@ function infoSheet(){
 
 /* ===== الإجراءات ===== */
 const A={
+  retry:()=>{ $('#loading').hidden=false;refresh().catch(error) },
   support:supportSheet,
   storeEdit:()=>{if(!ownStore)return;sheet(head('بيانات البائع')+`<label>اسم المتجر</label><input id="editStoreName" value="${esc(ownStore.name)}"><label>رقم البائع</label><input id="editStorePhone" type="tel" value="${esc(ownStore.phone||'')}"><label>عنوان استلام المنتج</label><input id="editStoreAddress" value="${esc(ownStore.address||'')}"><button class="buy" data-a="storeSave">حفظ</button>`)},
   storeSave:()=>act(async()=>{if(!ownStore)return;const name=val('editStoreName'),phone=val('editStorePhone').replace(/\D/g,''),address=val('editStoreAddress');if(name.length<2||phone.length<10||address.length<3){toast('أكمل اسم المتجر والهاتف والعنوان');return}check(await db.from('stores').update({name,phone,address}).eq('id',ownStore.id));A.close();await refresh();toast('تم تحديث المتجر')}),
@@ -625,7 +643,13 @@ document.addEventListener('input',e=>{if(['fn','fpr','fs','fd'].includes(e.targe
 document.addEventListener('keydown',e=>{if(e.key==='Escape')A.close()});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(tab==='market'&&!document.hidden){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
-render();refresh().catch(error);
+$('#loading').hidden=false;
+refresh().catch(e=>{
+  if(!user&&!dataReady){
+    $('#view').innerHTML='<div class="empty"><h2>تعذّر التحقق من جلسة الدخول</h2><p>تحقق من الاتصال ثم حاول مجددًا.</p><button class="buy" data-a="retry">إعادة المحاولة</button></div>';
+  }
+  error(e);
+});
 setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&tab==='chats')||(profile?.role==='admin'&&tab==='admin'&&adminTab==='drivers')))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
