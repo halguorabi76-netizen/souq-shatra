@@ -105,6 +105,27 @@ label{display:block;font-size:14px;color:var(--mut);margin-top:10px}
 .welcome-roles strong{font-size:18px;color:#26142F;white-space:nowrap}
 .welcome-guest{font-size:16px;color:#6C6672;padding-bottom:5px}
 @media(max-width:360px){.welcome-mode .header-brand,.welcome-mode .header-logo{width:205px}.welcome-roles .symbol{width:76px;height:76px}.welcome-roles .symbol svg{width:55px;height:55px}.welcome-roles strong{font-size:15px}.welcome p{font-size:14px}}
+/* احتواء شاشة الاختيار كاملة دون تمرير، بما فيها رابط الضيف */
+body.welcome-mode{overflow:hidden}
+.welcome-mode .app{height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:0;overflow:hidden}
+.welcome-mode .top{flex:none;padding-top:9px}
+.welcome-mode #view{min-height:0;overflow:hidden}
+.welcome-mode .header-brand{width:190px}
+.welcome-mode .header-logo{width:190px;height:108px}
+.welcome-mode .header-brand-name{font-size:13px}
+.welcome-mode .header-brand-name small{font-size:9px}
+.welcome-mode .mini-flag{top:6px;left:56px}
+.welcome{min-height:0;padding-bottom:58px}
+.welcome-content{margin-top:clamp(18px,3.5vh,42px)}
+.welcome h1{font-size:clamp(22px,5.7vw,28px);margin-bottom:8px}
+.welcome p{font-size:clamp(13px,3.7vw,16px);line-height:1.5}
+.welcome-roles{margin-top:clamp(22px,4vh,42px)}
+.welcome-roles .welcome-option{min-height:0;gap:9px}
+.welcome-roles .symbol{width:82px;height:82px}
+.welcome-roles .symbol svg{width:58px;height:58px}
+.welcome-roles strong{font-size:clamp(14px,4vw,17px)}
+.welcome-guest{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:4;white-space:nowrap;margin:0;padding:8px;font-size:14px}
+@media(max-height:700px){.welcome-mode .top{padding-top:2px}.welcome-mode .header-logo{height:88px}.welcome-content{margin-top:12px}.welcome h1{font-size:22px}.welcome p{font-size:13px}.welcome-roles{margin-top:18px}.welcome-roles .symbol{width:68px;height:68px}.welcome-roles .symbol svg{width:49px;height:49px}.welcome-roles strong{font-size:13px}.welcome-guest{bottom:calc(5px + env(safe-area-inset-bottom,0px))}}
 </style>
 <style>
 /* واجهة سوق الشطرة البنفسجية */
