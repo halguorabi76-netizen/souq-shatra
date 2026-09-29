@@ -190,11 +190,11 @@ async function refresh(){
     nextUser?db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null})
   ]));
   const nextProfile=check(pr),stores=check(ms),products=check(ps),orders=check(rs);
-  const people=nextProfile?.role==='admin'?check(await withTimeout(db.from('profiles').select('id,full_name,phone,role,created_at').order('created_at',{ascending:false}))):[];
+  const people=nextProfile?.role==='admin'?check(await withTimeout(db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}))):[];
   if(id!==refreshId)return;
   user=nextUser;profile=nextProfile;
-  D.m=stores.map(m=>({id:m.id,name:m.name,phone:m.phone,ok:m.approved,owner_id:m.owner_id,created_at:m.created_at}));
-  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active}));
+  D.m=stores.map(m=>({id:m.id,name:m.name,phone:m.phone,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at}));
+  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
   if(user&&!viewMode){try{viewMode=localStorage.getItem('souq-shatra-mode-'+user.id)||''}catch{};viewMode=viewMode||(ownStore?'seller':'buyer')}
   if(!user&&tab!=='welcome'&&viewMode!=='guest'){viewMode='';tab='welcome'}
@@ -215,7 +215,7 @@ const catIcon=i=>`<svg viewBox="0 0 32 32" aria-hidden="true">${CP[i]||CP[6]}</s
 const ST=['جديد','قيد التجهيز','خرج للتوصيل','تم التسليم','ملغي'];
 const mrec=id=>D.m.find(x=>x.id===id)||{};
 const mname=id=>id==='owner'?(ownStore?.name||'سوق الشطرة'):mrec(id).name||'—';
-const mok=id=>id==='owner'||!!mrec(id).ok;
+const mok=id=>id==='owner'||!!mrec(id).ok&&!mrec(id).removed;
 const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${esc(p.img)}" loading="lazy" decoding="async" alt="">`:CI[CATS.indexOf(p.cat)]||'📦';
 const prod=id=>D.p.find(x=>x.id===id);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
@@ -263,25 +263,27 @@ function searchPage(){
 function admin(){
   if(profile?.role!=='admin'){tab='account';account();return}
   const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
-  const newOrders=D.o.filter(o=>o.st===0),delivered=D.o.filter(o=>o.st===3),pending=D.m.filter(m=>!m.ok);
-  const tabs=[['overview','نظرة عامة'],['sellers','التجار'],['customers','الزبائن'],['activity','الطلبات']];
+  const newOrders=D.o.filter(o=>o.st===0),delivered=D.o.filter(o=>o.st===3),pending=D.m.filter(m=>!m.ok&&!m.removed);
+  const tabs=[['overview','نظرة عامة'],['sellers','البائعون'],['customers','الحسابات'],['products','المنتجات'],['activity','الطلبات']];
   let h=`<div class="admin-hero"><b>لوحة إدارة سوق الشطرة</b><small>${esc(user.email)} · حساب المدير</small></div><div class="admin-stats"><div class="admin-stat"><strong>${D.m.length}</strong><small>التجار · ${pending.length} بانتظار القبول</small></div><div class="admin-stat"><strong>${D.people.length}</strong><small>الحسابات المسجلة</small></div><div class="admin-stat"><strong>${newOrders.length}</strong><small>طلبات جديدة</small></div><div class="admin-stat"><strong>${D.o.filter(o=>new Date(o.ts).getTime()>=today).length}</strong><small>طلبات اليوم</small></div></div><div class="admin-menu">${tabs.map(([v,t])=>`<button data-a="adminTab" data-v="${v}" aria-pressed="${adminTab===v}">${t}</button>`).join('')}</div>`;
   if(adminTab==='overview'){
     const total=delivered.reduce((sum,o)=>sum+o.total,0),days=Array.from({length:7},(_,i)=>{const d=new Date(today-(6-i)*86400000),next=new Date(d.getTime()+86400000),count=D.o.filter(o=>{const t=new Date(o.ts);return t>=d&&t<next}).length;return {label:d.toLocaleDateString('ar-IQ',{weekday:'short'}),count}}),max=Math.max(1,...days.map(d=>d.count));
     h+=`<div class="box"><h2>حركة الطلبات خلال 7 أيام</h2><div class="admin-bars">${days.map(d=>`<div><i style="height:${Math.max(3,Math.round(d.count/max*54))}px"></i>${d.label}<br>${d.count}</div>`).join('')}</div></div><div class="box"><h2>ملخص التشغيل</h2><div class="row"><span>طلبات مسلّمة</span><b>${delivered.length}</b></div><div class="row"><span>قيمة الطلبات المسلّمة</span><b>${fmt(total)}</b></div><div class="row"><span>طلبات ملغاة</span><b>${D.o.filter(o=>o.st===4).length}</b></div><p class="note">هذه أرقام الطلبات المسجلة، وليست إثباتًا لتحصيل المال أو عمولة الإدارة.</p></div>`;
     if(pending.length)h+=`<div class="section-title"><h2>بانتظار موافقتك</h2><button data-a="adminTab" data-v="sellers">عرض الكل</button></div>`+pending.map(m=>`<div class="admin-record"><b>${esc(m.name)}</b><small>${esc(m.phone)}</small><div class="acts"><button class="go" data-a="mok" data-v="${m.id}">قبول المتجر</button></div></div>`).join('');
   }else if(adminTab==='sellers'){
-    h+=`<div class="section-title"><h2>التجار (${D.m.length})</h2></div>`+(D.m.length?D.m.map(m=>{const n=D.p.filter(p=>p.mid===m.id).length,owner=D.people.find(p=>p.id===m.owner_id);return `<div class="admin-record"><b>${esc(m.name)}</b> <span class="pill">${m.ok?'معتمد':'بانتظار الموافقة'}</span><small>صاحب الحساب: ${esc(owner?.full_name||'لم يُدخل اسمًا')} · هاتف المتجر: ${esc(m.phone||'غير مسجل')}</small><small>${n} منتج · ${D.o.filter(o=>o.mid===m.id).length} طلب</small><div class="acts"><button class="${m.ok?'':'go'}" data-a="mok" data-v="${m.id}">${m.ok?'إيقاف المتجر':'قبول المتجر'}</button></div></div>`}).join(''):'<div class="empty">لا يوجد تجار مسجلون.</div>');
+    h+=`<div class="section-title"><h2>البائعون (${D.m.length})</h2></div>`+(D.m.length?D.m.map(m=>{const n=D.p.filter(p=>p.mid===m.id).length,owner=D.people.find(p=>p.id===m.owner_id);return `<div class="admin-record"><b>${esc(m.name)}</b> <span class="pill">${m.removed?'مزال من السوق':m.ok?'معتمد':'بانتظار الموافقة'}</span><small>صاحب الحساب: ${esc(owner?.full_name||'لم يُدخل اسمًا')} · هاتف المتجر: ${esc(m.phone||'غير مسجل')}</small><small>${n} منتج · ${D.o.filter(o=>o.mid===m.id).length} طلب</small><div class="acts">${m.removed?`<button data-a="storeRemoveAsk" data-v="${m.id}">إعادة البائع للمراجعة</button>`:`<button class="${m.ok?'':'go'}" data-a="mok" data-v="${m.id}">${m.ok?'إيقاف المتجر':'قبول المتجر'}</button><button data-a="storeRemoveAsk" data-v="${m.id}">إزالة البائع من السوق</button>`}</div></div>`}).join(''):'<div class="empty">لا يوجد بائعون مسجلون.</div>');
   }else if(adminTab==='customers'){
     const customers=D.people.filter(p=>p.role!=='admin');
-    h+=`<div class="section-title"><h2>الحسابات (${customers.length})</h2></div>`+(customers.length?customers.map(p=>`<div class="admin-record"><b>${esc(p.full_name||'حساب بلا اسم')}</b> <span class="pill">${p.role==='seller'?'بائع':'مشتري'}</span><small>الهاتف: ${esc(p.phone||D.o.find(o=>o.buyer_id===p.id)?.cust.phone||'غير مسجل')}</small><small>طلبات شراء: ${D.o.filter(o=>o.buyer_id===p.id).length} · التسجيل: ${when(p.created_at)}</small></div>`).join(''):'<div class="empty">لا توجد حسابات بعد.</div>');
+    h+=`<div class="section-title"><h2>الحسابات (${customers.length})</h2></div>`+(customers.length?customers.map(p=>`<div class="admin-record"><b>${esc(p.full_name||'حساب بلا اسم')}</b> <span class="pill">${p.disabled?'معطّل':p.role==='seller'?'بائع':'زبون'}</span><small>الهاتف: ${esc(p.phone||D.o.find(o=>o.buyer_id===p.id)?.cust.phone||'غير مسجل')}</small><small>طلبات شراء: ${D.o.filter(o=>o.buyer_id===p.id).length} · التسجيل: ${when(p.created_at)}</small><div class="acts"><button data-a="userDisableAsk" data-v="${p.id}">${p.disabled?'إعادة تفعيل الحساب':'تعطيل الحساب'}</button></div></div>`).join(''):'<div class="empty">لا توجد حسابات بعد.</div>');
+  }else if(adminTab==='products'){
+    h+=`<div class="section-title"><h2>المنتجات (${D.p.length})</h2></div>`+(D.p.length?D.p.map(p=>`<div class="admin-record"><b>${esc(p.name)}</b> <span class="pill">${p.blocked?'مزال':p.active?'ظاهر':'غير نشط'}</span><small>${esc(mname(p.mid))} · ${fmt(p.price)}</small><div class="acts"><button data-a="productBlockAsk" data-v="${p.id}">${p.blocked?'إعادة المنتج للمراجعة':'إزالة المنتج من السوق'}</button></div></div>`).join(''):'<div class="empty">لا توجد منتجات بعد.</div>');
   }else{
-    h+=`<div class="section-title"><h2>حركة الطلبات (${D.o.length})</h2></div>`+(D.o.length?D.o.map(o=>`<div class="admin-record"><b>${sid(o)} · ${esc(o.cust.name)}</b> <span class="pill s${o.st}">${ST[o.st]}</span><small>${when(o.ts)} · ${esc(mname(o.mid))}</small><small>${fmt(o.total)} · ${o.items.length} صنف</small></div>`).join(''):'<div class="empty">لا توجد طلبات بعد.</div>');
+    h+=`<div class="section-title"><h2>حركة الطلبات (${D.o.length})</h2></div>`+(D.o.length?D.o.map(o=>`<div class="admin-record"><b>${sid(o)} · ${esc(o.cust.name)}</b> <span class="pill s${o.st}">${ST[o.st]}</span><small>${when(o.ts)} · ${esc(mname(o.mid))}</small><small>${fmt(o.total)} · ${o.items.length} صنف</small><div class="acts">${o.st===0?`<button class="go" data-a="adminAcceptAsk" data-v="${o.id}">قبول الطلب</button>`:''}${o.st<3?`<button data-a="adminCancelAsk" data-v="${o.id}">إلغاء الطلب</button>`:''}</div></div>`).join(''):'<div class="empty">لا توجد طلبات بعد.</div>');
   }
   $('#view').innerHTML=h;
 }
 function market(){
-  let l=D.p.filter(p=>p.active&&mok(p.mid)&&(cat==='all'||p.cat===cat)&&(p.name+' '+p.desc).toLocaleLowerCase('ar').includes(q.trim().toLocaleLowerCase('ar'))&&(!filt.min||p.price>=+filt.min)&&(!filt.max||p.price<=+filt.max));
+  let l=D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)&&(cat==='all'||p.cat===cat)&&(p.name+' '+p.desc).toLocaleLowerCase('ar').includes(q.trim().toLocaleLowerCase('ar'))&&(!filt.min||p.price>=+filt.min)&&(!filt.max||p.price<=+filt.max));
   if(filt.sort==='cheap')l.sort((a,b)=>a.price-b.price);else if(filt.sort==='expensive')l.sort((a,b)=>b.price-a.price);else if(filt.sort==='oldest')l.reverse();
   $('#view').innerHTML=bannerHtml()+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}" aria-pressed="${c===cat}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div><div class="section-title"><h2>${q||cat!=='all'?'نتائج البحث':'أحدث الإعلانات'}</h2><span class="note">${l.length} منتج</span></div>`+
   (l.length?`<div class="grid">${l.map(p=>`<button class="p" data-a="prod" data-v="${p.id}"><div class="tile">${thumb(p)}</div><b>${esc(p.name)}</b><span>${esc(mname(p.mid))}</span><em>${fmt(p.price)}</em>${p.stock<1?'<u>نفدت الكمية</u>':''}</button>`).join('')}</div>`:
@@ -309,11 +311,12 @@ function orders(){
 }
 function account(){
   if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
+  if(profile?.disabled){$('#view').innerHTML='<div class="box"><h2>الحساب معطّل</h2><p>تم إيقاف استخدام هذا الحساب في السوق. تواصل مع إدارة التطبيق إذا كان لديك استفسار.</p><button class="alt" data-a="out">خروج</button></div>';return}
   if(viewMode==='guest'){$('#view').innerHTML=`<div class="box"><h2>تتصفح السوق كضيف</h2><p>اختر حساب الزبون للشراء، أو حساب البائع لنشر المواد.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="out">تسجيل الخروج من الحساب المحفوظ</button></div>`;return}
   if(viewMode==='buyer'&&profile?.role!=='admin'){$('#view').innerHTML=`<div class="account-head"><b>حساب الزبون</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="cart">▣<br>السلة</button></div><div class="box"><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="seller">الانتقال إلى وضع البائع</button><button class="alt" data-a="out">خروج</button></div>`;return}
   if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حساب البائع</b><small>${esc(user.email)}</small></div><div class="box"><p>سجّل متجرك أو اسمك كبائع لتتمكن من نشر المواد، حتى لو لم يكن لديك محل.</p><button class="buy" data-a="login" data-v="store">تسجيل كبائع</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="out">خروج</button></div>`;return}
   const me=D.me,own=me==='owner',T=[...(ownStore?[['p','منتجاتي'],['o','الطلبات']]:[]),...(own?[['m','التجار والأرباح']]:[])];
-  let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
+  let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':ownStore?.removed?'<small>أزالت الإدارة هذا البائع من السوق.</small>':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
   const mine=D.p.filter(p=>p.mid===(own?ownStore?.id:me)),mo=D.o.filter(o=>o.mid===(own?ownStore?.id:me));
   if(dt==='p'&&!ownStore)dt='m';
   if(dt==='p')h+=`<div style="padding:0 16px"><button class="buy" style="margin-top:0" data-a="pform" data-v="">＋ إضافة منتج</button></div>`+(mine.length?mine.map(p=>`<div class="item"><div class="tile">${thumb(p)}</div><div><b>${esc(p.name)}</b><small>${fmt(p.price)} · المتوفر ${p.stock}</small><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="pdel" data-v="${p.id}">حذف</button></div></div></div>`).join(''):'<div class="empty">ما أضفت منتجات بعد.</div>');
@@ -392,7 +395,7 @@ const A={
   info:infoSheet,
   inforole:v=>{infoRole=v;infoSheet()},
   notifications:()=>sheet(head('الإشعارات')+'<div class="empty">لا توجد إشعارات حاليًا.</div>'),
-  addentry:()=>{if(!user){A.enter('seller');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}fsheet('')},
+  addentry:()=>{if(!user){A.enter('seller');return}if(profile?.disabled){toast('هذا الحساب معطّل');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}if(ownStore.removed){toast('أزالت الإدارة هذا البائع من السوق');return}fsheet('')},
   close:()=>{$('#shade').hidden=true},
   prod:v=>{cur={p:prod(v),n:1};psheet()},
   pq:v=>{cur.n=Math.min(cur.p.stock||1,Math.max(1,cur.n+ +v));psheet()},
@@ -401,6 +404,7 @@ const A={
   cq:v=>{const [id,d]=v.split('|'),c=D.cart.find(x=>x.pid===id),p=prod(id);c.q=Math.min(p.stock,c.q+ +d);if(c.q<1)D.cart=D.cart.filter(x=>x!==c);save();render();csheet()},
   order:()=>act(async()=>{
     if(!user||viewMode==='guest'){A.close();A.enter('buyer');toast('ادخل كزبون لإرسال الطلب');return}
+    if(profile?.disabled){toast('هذا الحساب معطّل');return}
     const name=val('cn'),phone=val('cp').replace(/\D/g,''),addr=val('ca'),note=val('cno');
     if(name.length<2||addr.length<3||!/^\d{10,11}$/.test(phone)){toast('اكتب الاسم ورقم هاتف صحيح والعنوان');return}
     const groups=new Map();for(const c of D.cart){const p=prod(c.pid);if(!p)continue;if(!groups.has(p.mid))groups.set(p.mid,[]);groups.get(p.mid).push({id:p.id,quantity:c.q})}
@@ -460,6 +464,16 @@ const A={
   cancel:v=>ask('إلغاء هذا الطلب؟','cancel2',v),
   cancel2:v=>act(async()=>{check(await db.rpc('set_order_status',{p_order:v,p_status:'cancelled'}));await refresh();A.close();render()}),
   mok:v=>act(async()=>{const m=mrec(v);check(await db.rpc('approve_store',{p_store:v,p_approved:!m.ok}));await refresh()}),
+  userDisableAsk:v=>{if(profile?.role!=='admin')return;const p=D.people.find(x=>x.id===v);if(!p||p.role==='admin')return;ask(p.disabled?'إعادة تفعيل هذا الحساب؟':'تعطيل هذا الحساب ومنعه من الطلب أو البيع؟ ستبقى الطلبات السابقة محفوظة.','userDisable2',v)},
+  userDisable2:v=>act(async()=>{if(profile?.role!=='admin')return;const p=D.people.find(x=>x.id===v);if(!p)return;check(await db.rpc('admin_set_account_disabled',{p_user:v,p_disabled:!p.disabled}));A.close();await refresh();toast('تم تحديث الحساب')}),
+  storeRemoveAsk:v=>{if(profile?.role!=='admin')return;const m=mrec(v);if(!m.id)return;ask(m.removed?'إعادة هذا البائع إلى قائمة المراجعة؟ ستحتاج إلى قبوله من جديد.':'إزالة هذا البائع ومنتجاته من السوق؟ تبقى الطلبات السابقة محفوظة.','storeRemove2',v)},
+  storeRemove2:v=>act(async()=>{if(profile?.role!=='admin')return;const m=mrec(v);check(await db.rpc('admin_set_store_removed',{p_store:v,p_removed:!m.removed}));A.close();await refresh();toast('تم تحديث البائع')}),
+  productBlockAsk:v=>{if(profile?.role!=='admin')return;const p=prod(v);if(!p)return;ask(p.blocked?'إعادة هذا المنتج للظهور إذا كان متجره معتمدًا؟':'إزالة هذا المنتج من السوق؟ ستبقى تفاصيل الطلبات السابقة محفوظة.','productBlock2',v)},
+  productBlock2:v=>act(async()=>{if(profile?.role!=='admin')return;const p=prod(v);check(await db.rpc('admin_set_product_blocked',{p_product:v,p_blocked:!p.blocked}));A.close();await refresh();toast('تم تحديث المنتج')}),
+  adminAcceptAsk:v=>{if(profile?.role==='admin')ask('تحديث حالة هذا الطلب إلى مقبول؟','adminAccept2',v)},
+  adminAccept2:v=>act(async()=>{if(profile?.role!=='admin')return;check(await db.rpc('set_order_status',{p_order:v,p_status:'accepted'}));A.close();await refresh();toast('تم قبول الطلب')}),
+  adminCancelAsk:v=>{if(profile?.role==='admin')ask('إلغاء هذا الطلب وإعادة الكمية إلى المخزون؟','adminCancel2',v)},
+  adminCancel2:v=>act(async()=>{if(profile?.role!=='admin')return;check(await db.rpc('set_order_status',{p_order:v,p_status:'cancelled'}));A.close();await refresh();toast('تم إلغاء الطلب')}),
   comm:()=>{toast('إعداد العمولة يحتاج تفعيلًا في قاعدة البيانات')}
 
 };
