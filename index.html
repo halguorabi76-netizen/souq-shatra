@@ -126,6 +126,7 @@ body{background:#EFE6F7}.app{background:#F4EAFB}
 .p{border-color:#CDB8DD}.p em{color:#542276}
 .search-page{padding:12px 16px}.search-page .searchline{margin:8px 0 16px}.search-page .searchline input{background:#fff}.search-page h2{font-size:20px;margin:8px 0 14px}.search-page .filter-group{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}.search-page .filter-actions{position:static;border-radius:16px;padding:10px 0}.search-page .filter-actions button{flex:1}.search-page [disabled]{opacity:.55;cursor:not-allowed}
 .market-section{margin:12px 16px;background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px}.market-section h2{margin:0 0 7px;font-size:18px}.market-section button{width:100%;text-align:right;border-top:1px solid var(--line);padding:12px 0}
+.tabs[hidden]{display:none}.welcome{padding:24px 18px 38px;text-align:center}.welcome h1{font-size:24px;margin:12px 0 5px}.welcome p{color:var(--mut);margin:0 0 22px}.welcome-option{width:100%;text-align:right;background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;margin:9px 0;display:flex;align-items:center;gap:14px;box-shadow:0 4px 12px #3514560b}.welcome-option strong{display:block;font-size:17px;color:var(--navy)}.welcome-option small{display:block;font-size:13px;color:var(--mut)}.welcome-option .symbol{font-size:27px;flex:none;width:42px;text-align:center}
 .post-intro{margin:16px;padding:18px;border-radius:20px;background:linear-gradient(120deg,#4E206E,#874EAA);color:#fff}.post-intro b{font-size:20px}.post-intro p{margin:2px 0 10px;opacity:.85;font-size:13px}.post-intro .progress{height:7px;background:#ffffff61;border-radius:9px;overflow:hidden}.post-intro .progress i{display:block;height:100%;background:#fff;width:0;transition:width .2s}
 .post-card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:13px 16px;padding:16px}.post-card h2{font-size:18px;margin:0 0 10px}.post-card .tile{max-width:120px}.post-card label{margin-top:12px}.post-card input,.post-card textarea,.post-card select{background:#FAF8FC}.post-actions{display:flex;gap:10px;margin:16px}.post-actions button{flex:1}
 @media(max-width:360px){.brand{font-size:20px}.top-actions{gap:3px}.ib{min-width:36px}.tabs button{font-size:10px}.tabs .navicon{font-size:18px}}
@@ -163,7 +164,9 @@ const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{global:{fetch:apiFetch}});
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
-let user=null,profile=null,ownStore=null,refreshId=0;
+let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
+let viewMode='';
+const rememberMode=mode=>{viewMode=mode;try{if(user)localStorage.setItem('souq-shatra-mode-'+user.id,mode)}catch{}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
 const check=r=>{if(r.error)throw r.error;return r.data};
 function withTimeout(promise,ms=24000){
@@ -175,7 +178,7 @@ const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
   const id=++refreshId;
-  const firstLoad=!D.p.length&&!user;
+  const firstLoad=!D.p.length&&!user&&tab!=='welcome';
   if(firstLoad)$('#loading').hidden=false;
   try{
   const session=check(await withTimeout(db.auth.getSession()));
@@ -193,9 +196,12 @@ async function refresh(){
   D.m=stores.map(m=>({id:m.id,name:m.name,phone:m.phone,ok:m.approved,owner_id:m.owner_id,created_at:m.created_at}));
   D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
+  if(user&&!viewMode){try{viewMode=localStorage.getItem('souq-shatra-mode-'+user.id)||''}catch{};viewMode=viewMode||(ownStore?'seller':'buyer')}
+  if(!user&&tab!=='welcome'&&viewMode!=='guest'){viewMode='';tab='welcome'}
   D.me=profile?.role==='admin'?'owner':ownStore?.id||null;
   D.o=orders.map(o=>({...fromOrder(o),buyer_id:o.buyer_id}));
   D.people=people;
+  dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
@@ -214,7 +220,7 @@ const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https:
 const prod=id=>D.p.find(x=>x.id===id);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
 const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'short'});
-let tab='market',cat='all',q='',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
+let tab='welcome',cat='all',q='',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
 const BANNERS=[['icons/shatra-river.jpeg','اكتشفوا سحر الشطرة'],['icons/shatra-square.jpeg','اكتشفوا أسواق الشطرة'],['icons/shatra-bridge.jpeg','الشطرة تجمعنا']];
 const filt={min:'',max:'',sort:'newest',condition:'all',location:''};
 
@@ -226,16 +232,24 @@ const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy
 
 /* ===== الواجهات ===== */
 function render(){
-  const n=D.cart.reduce((s,c)=>s+c.q,0),cc=$('#cc');cc.textContent=n;cc.hidden=!n;
+  const n=D.cart.reduce((s,c)=>s+c.q,0);
+  $('.tabs').hidden=tab==='welcome';
+  const sellerView=!!user&&(viewMode==='seller'||profile?.role==='admin');
+  const marketButton=$('.tabs [data-v="myMarket"]');marketButton.innerHTML=`<span class="navicon">${sellerView?'▤':'🛒'}</span>${sellerView?'إعلاناتي':'سوقي'}<i id="cc" hidden></i>`;
+  const badge=$('#cc');badge.textContent=n;badge.hidden=!n;
   document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===tab?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
-  ({market,orders,account,chats,listings,admin,categories,myMarket,searchPage,postPage})[tab]();
+  ({welcome,market,orders,account,chats,listings,admin,categories,myMarket,searchPage,postPage})[tab]();
+}
+function welcome(){
+  $('#view').innerHTML=`<div class="welcome"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر كيف تريد استخدام السوق</p><button class="welcome-option" data-a="enter" data-v="guest"><span class="symbol">⌕</span><span><strong>الدخول دون تسجيل</strong><small>تصفح الإعلانات والأقسام بحرية</small></span></button><button class="welcome-option" data-a="enter" data-v="seller"><span class="symbol">▤</span><span><strong>الدخول كبائع</strong><small>أنشئ حسابًا واعرض متجرك ومنتجاتك وتابع الطلبات</small></span></button><button class="welcome-option" data-a="enter" data-v="buyer"><span class="symbol">🛒</span><span><strong>الدخول كزبون</strong><small>ابحث عن المنتجات وأرسل طلبات الشراء</small></span></button></div>`;
 }
 function bannerHtml(){const [src,caption]=BANNERS[bannerIndex];return `<div class="banner-wrap"><div class="banner"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async"><span class="banner-caption">${caption}</span></div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
 function categories(){
   $('#view').innerHTML=`<div class="section-title"><h2>الأقسام</h2></div><div class="category-cards" style="flex-wrap:wrap;justify-content:center">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div>`;
 }
 function myMarket(){
-  $('#view').innerHTML='<div class="section-title"><h2>سوقي</h2></div><div class="market-section"><h2>تسوّقك</h2><button data-a="cart">🛒 السلة · '+D.cart.reduce((s,c)=>s+c.q,0)+' منتج</button><button data-a="tab" data-v="orders">▤ طلباتي</button></div><div class="market-section"><h2>بيعك</h2><button data-a="tab" data-v="listings">▤ إعلاناتي</button><button data-a="addentry">＋ إضافة إعلان</button></div>';
+  if(user&&(viewMode==='seller'||profile?.role==='admin')){listings();return}
+  $('#view').innerHTML='<div class="section-title"><h2>سوقي</h2></div><div class="market-section"><h2>تسوّقك</h2><button data-a="cart">🛒 السلة · '+D.cart.reduce((s,c)=>s+c.q,0)+' منتج</button><button data-a="tab" data-v="orders">▤ طلباتي</button></div>';
 }
 function postPage(){
   const p=cur?.id?prod(cur.id):null;
@@ -271,7 +285,7 @@ function market(){
   if(filt.sort==='cheap')l.sort((a,b)=>a.price-b.price);else if(filt.sort==='expensive')l.sort((a,b)=>b.price-a.price);else if(filt.sort==='oldest')l.reverse();
   $('#view').innerHTML=bannerHtml()+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}" aria-pressed="${c===cat}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div><div class="section-title"><h2>${q||cat!=='all'?'نتائج البحث':'أحدث الإعلانات'}</h2><span class="note">${l.length} منتج</span></div>`+
   (l.length?`<div class="grid">${l.map(p=>`<button class="p" data-a="prod" data-v="${p.id}"><div class="tile">${thumb(p)}</div><b>${esc(p.name)}</b><span>${esc(mname(p.mid))}</span><em>${fmt(p.price)}</em>${p.stock<1?'<u>نفدت الكمية</u>':''}</button>`).join('')}</div>`:
-  `<div class="empty">${D.p.length?'ما لقينا نتيجة. جرّب كلمة ثانية أو تصنيف آخر.':'السوق فاضي حالياً.<br>ادخل من «حسابي» وأضف أول منتج.'}</div>`);
+  `<div class="empty">${!dataReady?'جارٍ تحميل المنتجات…':D.p.length?'ما لقينا نتيجة. جرّب كلمة ثانية أو تصنيف آخر.':'السوق فاضي حالياً.<br>ادخل من «حسابي» وأضف أول منتج.'}</div>`);
 }
 function chats(){
   $('#view').innerHTML='<div class="section-title"><h2>المحادثات</h2></div><div class="empty"><div style="font-size:38px" aria-hidden="true">▣</div>لا توجد محادثات حاليًا.<br><small>لم تُفعّل خدمة المحادثات بعد.</small></div>';
@@ -294,10 +308,12 @@ function orders(){
   $('#view').innerHTML='<div class="dh"><h2 style="margin:0">طلباتي</h2></div>'+(l.length?l.map(o=>ordCard(o,false)).join(''):'<div class="empty">ما عندك طلبات بعد.<br>اختر منتجاً من السوق وأرسل طلبك.</div>');
 }
 function account(){
-  if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>سجّل الدخول أو أنشئ حساباً للشراء أو لفتح متجر.</p><button class="buy" data-a="login" data-v="m">دخول</button><button class="alt" data-a="login" data-v="r">حساب جديد</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
-  if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حسابي</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="listings">▤<br>إعلاناتي</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="out">خروج</button></div>`;return}
+  if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
+  if(viewMode==='guest'){$('#view').innerHTML=`<div class="box"><h2>تتصفح السوق كضيف</h2><p>اختر حساب الزبون للشراء، أو حساب البائع لنشر المواد.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="out">تسجيل الخروج من الحساب المحفوظ</button></div>`;return}
+  if(viewMode==='buyer'&&profile?.role!=='admin'){$('#view').innerHTML=`<div class="account-head"><b>حساب الزبون</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="cart">▣<br>السلة</button></div><div class="box"><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="seller">الانتقال إلى وضع البائع</button><button class="alt" data-a="out">خروج</button></div>`;return}
+  if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حساب البائع</b><small>${esc(user.email)}</small></div><div class="box"><p>سجّل متجرك أو اسمك كبائع لتتمكن من نشر المواد، حتى لو لم يكن لديك محل.</p><button class="buy" data-a="login" data-v="store">تسجيل كبائع</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="out">خروج</button></div>`;return}
   const me=D.me,own=me==='owner',T=[...(ownStore?[['p','منتجاتي'],['o','الطلبات']]:[]),...(own?[['m','التجار والأرباح']]:[])];
-  let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
+  let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
   const mine=D.p.filter(p=>p.mid===(own?ownStore?.id:me)),mo=D.o.filter(o=>o.mid===(own?ownStore?.id:me));
   if(dt==='p'&&!ownStore)dt='m';
   if(dt==='p')h+=`<div style="padding:0 16px"><button class="buy" style="margin-top:0" data-a="pform" data-v="">＋ إضافة منتج</button></div>`+(mine.length?mine.map(p=>`<div class="item"><div class="tile">${thumb(p)}</div><div><b>${esc(p.name)}</b><small>${fmt(p.price)} · المتوفر ${p.stock}</small><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="pdel" data-v="${p.id}">حذف</button></div></div></div>`).join(''):'<div class="empty">ما أضفت منتجات بعد.</div>');
@@ -331,10 +347,10 @@ function csheet(){
 }
 function lsheet(m){
   if(m==='store'){
-    sheet(head('تسجيل متجر جديد')+`<label for="ln">اسم المتجر</label><input id="ln"><label for="lp">رقم الهاتف</label><input id="lp" type="tel"><button class="buy" data-a="register">تسجيل المتجر</button>`);return;
+    sheet(head('تسجيل بائع')+`<label for="ln">اسم البائع أو المتجر</label><input id="ln"><label for="lp">رقم الهاتف</label><input id="lp" type="tel"><button class="buy" data-a="register">تسجيل كبائع</button>`);return;
   }
-  sheet(head(m==='r'?'حساب جديد':'دخول')+(m==='r'?'<label for="ln">الاسم</label><input id="ln">':'')+
-  `<label for="lp">البريد الإلكتروني</label><input id="lp" type="email" autocomplete="email"><label for="lk">كلمة المرور (6 أحرف على الأقل)</label><input id="lk" type="password" autocomplete="${m==='r'?'new-password':'current-password'}"><button class="buy" data-a="dologin" data-v="${m}">${m==='r'?'إنشاء الحساب':'دخول'}</button>`);
+  sheet(head(m==='r'?'حساب جديد':viewMode==='seller'?'الدخول كبائع':'الدخول كزبون')+(m==='r'?'<label for="ln">الاسم</label><input id="ln">':'')+
+  `<label for="lp">البريد الإلكتروني</label><input id="lp" type="email" autocomplete="email"><label for="lk">كلمة المرور (6 أحرف على الأقل)</label><input id="lk" type="password" autocomplete="${m==='r'?'new-password':'current-password'}"><button class="buy" data-a="dologin" data-v="${m}">${m==='r'?'إنشاء الحساب':'دخول'}</button><button class="alt" data-a="login" data-v="${m==='r'?'m':'r'}">${m==='r'?'عندي حساب بالفعل':'إنشاء حساب جديد'}</button>`);
 }
 function fsheet(id){
   const p=id?prod(id):null;cur={img:p?p.img:'',id};tab='postPage';render();scrollTo(0,0);
@@ -355,7 +371,9 @@ function infoSheet(){
 
 /* ===== الإجراءات ===== */
 const A={
-  tab:v=>{tab=v;render();scrollTo(0,0)},
+  enter:v=>{if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0);return}rememberMode(v);if(user){tab=v==='seller'?'account':'market';render();return}lsheet('m')},
+  switchrole:v=>{rememberMode(v);tab=v==='seller'?'account':'market';render();scrollTo(0,0)},
+  tab:v=>{if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}tab=v;render();scrollTo(0,0)},
   adminTab:v=>{adminTab=v;admin()},
   cat:v=>{cat=v;market()},
   pickcat:v=>{cat=v;q='';tab='market';render();scrollTo(0,0)},
@@ -374,7 +392,7 @@ const A={
   info:infoSheet,
   inforole:v=>{infoRole=v;infoSheet()},
   notifications:()=>sheet(head('الإشعارات')+'<div class="empty">لا توجد إشعارات حاليًا.</div>'),
-  addentry:()=>{if(!user){tab='account';render();lsheet('m');return}if(!ownStore){lsheet('store');return}fsheet('')},
+  addentry:()=>{if(!user){A.enter('seller');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}fsheet('')},
   close:()=>{$('#shade').hidden=true},
   prod:v=>{cur={p:prod(v),n:1};psheet()},
   pq:v=>{cur.n=Math.min(cur.p.stock||1,Math.max(1,cur.n+ +v));psheet()},
@@ -382,7 +400,7 @@ const A={
   cart:()=>csheet(),
   cq:v=>{const [id,d]=v.split('|'),c=D.cart.find(x=>x.pid===id),p=prod(id);c.q=Math.min(p.stock,c.q+ +d);if(c.q<1)D.cart=D.cart.filter(x=>x!==c);save();render();csheet()},
   order:()=>act(async()=>{
-    if(!user){A.close();tab='account';render();lsheet('m');toast('سجّل الدخول لإرسال الطلب');return}
+    if(!user||viewMode==='guest'){A.close();A.enter('buyer');toast('ادخل كزبون لإرسال الطلب');return}
     const name=val('cn'),phone=val('cp').replace(/\D/g,''),addr=val('ca'),note=val('cno');
     if(name.length<2||addr.length<3||!/^\d{10,11}$/.test(phone)){toast('اكتب الاسم ورقم هاتف صحيح والعنوان');return}
     const groups=new Map();for(const c of D.cart){const p=prod(c.pid);if(!p)continue;if(!groups.has(p.mid))groups.set(p.mid,[]);groups.get(p.mid).push({id:p.id,quantity:c.q})}
@@ -407,7 +425,7 @@ const A={
         if(!data.session){A.close();toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول');return}
         signedIn=data.user;
       }else signedIn=check(await withTimeout(db.auth.signInWithPassword({email,password}))).user;
-      user=signedIn;profile=null;ownStore=null;dt='m';A.close();render();toast('تم الدخول');
+      user=signedIn;rememberMode(viewMode==='seller'?'seller':'buyer');profile=null;ownStore=null;dt='m';tab=viewMode==='seller'?'account':'market';A.close();render();toast('تم الدخول');
       refresh().catch(error);
     }finally{
       if(button.isConnected){button.disabled=false;button.textContent=m==='r'?'إنشاء الحساب':'دخول'}
@@ -419,9 +437,9 @@ const A={
     check(await db.rpc('register_store',{p_name:name,p_phone:phone,p_address:'',p_description:'',p_social_url:''}));
     await refresh();dt='p';A.close();render();toast('تم تسجيل المتجر. ينتظر موافقة الإدارة');
   }),
-  out:()=>act(async()=>{check(await db.auth.signOut());await refresh();dt='p';render()}),
+  out:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;viewMode='';tab='welcome';dt='p';render();refresh().catch(error)}),
   dtab:v=>{dt=v;render()},
-  pform:v=>fsheet(v),
+  pform:v=>{if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}fsheet(v)},
   psave:()=>act(async()=>{
     if(!ownStore){toast('سجّل متجرًا أولًا');return}
     const name=val('fn'),price=+val('fpr'),stock=+val('fs');
@@ -458,7 +476,7 @@ document.addEventListener('input',e=>{if(['fn','fpr','fs','fd'].includes(e.targe
 document.addEventListener('keydown',e=>{if(e.key==='Escape')A.close()});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(tab==='market'&&!document.hidden){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
-refresh().catch(error);
+render();refresh().catch(error);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
