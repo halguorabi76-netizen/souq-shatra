@@ -238,7 +238,7 @@ let viewMode='',geoPoint=null;
 const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-shatra-mode-'+user.id,mode)}catch{}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
 const check=r=>{if(r.error)throw r.error;return r.data};
-function withTimeout(promise,ms=24000){
+function withTimeout(promise,ms=12000){
   let timer;
   return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.'),{name:'TimeoutError'})),ms)})]).finally(()=>clearTimeout(timer));
 }
@@ -670,7 +670,7 @@ function updateBanner(){const banner=$('.banner');if(!banner)return;banner.query
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(tab==='market'&&!document.hidden){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
 $('#loading').hidden=false;
 refresh().catch(e=>{
-  if(!user&&!dataReady){
+  if(!dataReady){
     $('#view').innerHTML='<div class="empty"><h2>تعذّر التحقق من جلسة الدخول</h2><p>تحقق من الاتصال ثم حاول مجددًا.</p><button class="buy" data-a="retry">إعادة المحاولة</button></div>';
   }
   error(e);
@@ -679,6 +679,16 @@ setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&ta
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
+</script>
+<script>
+// Keep Android users from seeing an empty page when an external module never loads.
+setTimeout(() => {
+  const view=document.getElementById('view');
+  if(view && !view.firstElementChild){
+    document.getElementById('loading').hidden=true;
+    view.innerHTML='<div class="empty"><h2>تعذّر بدء التطبيق</h2><p>تحقق من اتصال الإنترنت ثم افتح التطبيق مجددًا.</p><button class="buy" onclick="location.reload()">إعادة المحاولة</button></div>';
+  }
+},15000);
 </script>
 </body>
 </html>
