@@ -103,27 +103,43 @@ label{display:block;font-size:14px;color:var(--mut);margin-top:10px}
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
-const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+async function apiFetch(resource,init={}){
+  const controller=new AbortController(),source=init.signal||resource?.signal;
+  const abort=()=>controller.abort();
+  if(source?.aborted)abort();else source?.addEventListener('abort',abort,{once:true});
+  const timer=setTimeout(abort,20000);
+  try{return await fetch(resource,{...init,signal:controller.signal})}
+  finally{clearTimeout(timer);source?.removeEventListener('abort',abort)}
+}
+const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{global:{fetch:apiFetch}});
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
-let user=null,profile=null,ownStore=null;
+let user=null,profile=null,ownStore=null,refreshId=0;
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
 const check=r=>{if(r.error)throw r.error;return r.data};
-function error(e){toast('تعذّر إكمال العملية: '+(e?.message||e))}
+function error(e){toast(e?.name==='AbortError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
-  user=(await db.auth.getUser()).data.user;
-  profile=user?check(await db.from('profiles').select('*').eq('id',user.id).single()):null;
-  const [ms,ps]=await Promise.all([db.from('stores').select('*'),db.from('products').select('*').order('created_at',{ascending:false})]);
-  D.m=check(ms).map(m=>({id:m.id,name:m.name,phone:m.phone,ok:m.approved,owner_id:m.owner_id}));
-  D.p=check(ps).map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active}));
+  const id=++refreshId;
+  const session=check(await db.auth.getSession());
+  const nextUser=session.session?.user||null;
+  const [pr,ms,ps,rs]=await Promise.all([
+    nextUser?db.from('profiles').select('*').eq('id',nextUser.id).single():Promise.resolve({data:null,error:null}),
+    db.from('stores').select('*'),
+    db.from('products').select('*').order('created_at',{ascending:false}),
+    nextUser?db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null})
+  ]);
+  const nextProfile=check(pr),stores=check(ms),products=check(ps),orders=check(rs);
+  if(id!==refreshId)return;
+  user=nextUser;profile=nextProfile;
+  D.m=stores.map(m=>({id:m.id,name:m.name,phone:m.phone,ok:m.approved,owner_id:m.owner_id}));
+  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
   D.me=profile?.role==='admin'?'owner':ownStore?.id||null;
-  const rs=user?await db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):{data:[],error:null};
-  D.o=check(rs).map(o=>({...fromOrder(o),buyer_id:o.buyer_id}));
+  D.o=orders.map(o=>({...fromOrder(o),buyer_id:o.buyer_id}));
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();
 }
 async function act(f){try{await f()}catch(e){error(e)}}
@@ -135,7 +151,7 @@ const ST=['جديد','قيد التجهيز','خرج للتوصيل','تم ال�
 const mrec=id=>D.m.find(x=>x.id===id)||{};
 const mname=id=>id==='owner'?(ownStore?.name||'سوق الشطرة'):mrec(id).name||'—';
 const mok=id=>id==='owner'||!!mrec(id).ok;
-const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${p.img}" alt="">`:CI[CATS.indexOf(p.cat)]||'📦';
+const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${esc(p.img)}" loading="lazy" decoding="async" alt="">`:CI[CATS.indexOf(p.cat)]||'📦';
 const prod=id=>D.p.find(x=>x.id===id);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
 const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'short'});
@@ -250,13 +266,19 @@ const A={
   login:v=>lsheet(v),
   dologin:m=>act(async()=>{
     const email=val('lp'),password=val('lk');if(!email.includes('@')||password.length<6){toast('اكتب البريد وكلمة مرور من 6 أحرف على الأقل');return}
-    if(m==='r'){
-      const name=val('ln');if(name.length<2){toast('اكتب اسمك');return}
-      const r=db.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:location.origin+location.pathname}});
-      const data=check(await r);A.close();
-      if(!data.session){toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول');return}
-    }else check(await db.auth.signInWithPassword({email,password}));
-    await refresh();dt=ownStore?'p':'m';A.close();render();toast('تم الدخول');
+    const button=$('#sheet [data-a="dologin"]');
+    if(button.disabled)return;
+    button.disabled=true;button.textContent='جارٍ الاتصال…';
+    try{
+      if(m==='r'){
+        const name=val('ln');if(name.length<2){toast('اكتب اسمك');return}
+        const data=check(await db.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:location.origin+location.pathname}}));
+        if(!data.session){A.close();toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول');return}
+      }else check(await db.auth.signInWithPassword({email,password}));
+      await refresh();dt=ownStore?'p':'m';A.close();render();toast('تم الدخول');
+    }finally{
+      if(button.isConnected){button.disabled=false;button.textContent=m==='r'?'إنشاء الحساب':'دخول'}
+    }
   }),
   register:()=>act(async()=>{
     if(!user)return;
@@ -302,7 +324,6 @@ document.addEventListener('change',async e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape')A.close()});
 $('#q').addEventListener('input',e=>{q=e.target.value;market()});
 refresh().catch(error);
-db.auth.onAuthStateChange(()=>{setTimeout(()=>refresh().catch(error),0)});
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
