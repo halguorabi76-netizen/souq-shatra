@@ -166,7 +166,7 @@ body{background:#EFE6F7}.app{background:#F4EAFB}
 .profile-location-status{color:#665275;font-size:13px;overflow-wrap:anywhere}.profile-location-link{display:inline-block;color:#552477;text-decoration:underline;margin-top:8px}
 .profile-photo{position:relative;flex:none}.profile-photo .portrait{overflow:hidden}.profile-photo .portrait img{width:100%;height:100%;object-fit:cover}.profile-photo button{position:absolute;bottom:-5px;left:-5px;width:29px;height:29px;border-radius:50%;background:#fff;color:#5a277e;box-shadow:0 2px 9px #240b423b}.profile-role-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.profile-role-actions button{padding:12px 8px;border-radius:12px;background:#f0e6f7;color:#43205c;font-weight:700}.profile-role-actions button[aria-pressed="true"]{background:#552579;color:#fff}.profile-logout{width:100%;border:1px solid #df8e98;border-radius:13px;background:#fff3f3;color:#ad2634;padding:14px;font-weight:700;margin-top:8px}.profile-email{direction:ltr;text-align:right;overflow-wrap:anywhere}
 .profile-address-actions{display:flex;gap:8px;align-items:center;margin-top:11px}.profile-address-actions .profile-action{margin:0;flex:1}.profile-gps{width:43px;height:43px;flex:none;border-radius:12px;background:#ede0f7;color:#512176;font-size:23px;display:grid;place-items:center}.checkout-location{display:flex;gap:8px;align-items:center;margin:10px 0}.checkout-location button{flex:1;margin:0;padding:11px 5px;font-size:13px;min-width:0}
-.banner-wrap{margin:9px 16px 20px}.banner{height:178px;border-radius:18px;overflow:hidden;position:relative;box-shadow:0 9px 22px #35145621;background:#4b286b}
+.banner-wrap{margin:9px 16px 20px}.banner{height:178px;border-radius:18px;overflow:hidden;position:relative;box-shadow:0 9px 22px #35145621;background:#4b286b;touch-action:pan-y;user-select:none}
 .banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.banner::after{content:"";position:absolute;inset:25% 0 0;background:linear-gradient(transparent,#2e104eb8)}
 .banner-caption{position:absolute;z-index:1;bottom:13px;right:16px;color:#fff;text-shadow:0 2px 6px #180b28;font-size:19px;font-weight:700;line-height:1.35;max-width:78%}
 .banner-dots{display:flex;justify-content:center;gap:7px;padding:10px}.banner-dots button{width:8px;height:8px;border-radius:50%;background:#C9B6D8;padding:0}.banner-dots button[aria-current="true"]{width:20px;border-radius:9px;background:var(--navy)}
@@ -358,7 +358,7 @@ function settings(){
 }
 function supportSheet(){sheet(head('تواصل مع الدعم')+`<p>مصمم ومبرمج تقني لتطبيق سوق الشطرة.</p><p><a href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">واتساب: 07837271707</a></p><p><a href="https://www.instagram.com/haider.alguorabi?stkn=Nzd2eTluem9oNnNr" target="_blank" rel="noopener noreferrer">حساب إنستغرام</a></p>`)}
 
-function bannerHtml(){const [src,caption]=BANNERS[bannerIndex];return `<div class="banner-wrap"><div class="banner"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async"><span class="banner-caption">${caption}</span></div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
+function bannerHtml(){const [src,caption]=BANNERS[bannerIndex];return `<div class="banner-wrap"><div class="banner" aria-label="صور الشطرة؛ اسحب للتنقل بين الصور"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async" draggable="false"><span class="banner-caption">${caption}</span></div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
 function categories(){
   $('#view').innerHTML=`<div class="section-title"><h2>الأقسام</h2></div><div class="category-cards" style="flex-wrap:wrap;justify-content:center">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div>`;
 }
@@ -667,7 +667,20 @@ document.addEventListener('change',async e=>{
 document.addEventListener('input',e=>{if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')A.close()});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
-if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(tab==='market'&&!document.hidden){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
+let bannerTouch=null,lastBannerInteraction=0;
+$('#view').addEventListener('touchstart',e=>{
+  bannerTouch=e.touches.length===1&&e.target.closest('.banner')?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;
+},{passive:true});
+$('#view').addEventListener('touchend',e=>{
+  if(!bannerTouch||e.changedTouches.length!==1)return;
+  const dx=e.changedTouches[0].clientX-bannerTouch.x,dy=e.changedTouches[0].clientY-bannerTouch.y;
+  bannerTouch=null;
+  if(Math.abs(dx)<40||Math.abs(dx)<Math.abs(dy)*1.2)return;
+  bannerIndex=(bannerIndex+(dx<0?1:-1)+BANNERS.length)%BANNERS.length;
+  lastBannerInteraction=Date.now();updateBanner();
+},{passive:true});
+$('#view').addEventListener('touchcancel',()=>{bannerTouch=null},{passive:true});
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(tab==='market'&&!document.hidden&&Date.now()-lastBannerInteraction>5500){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
 $('#loading').hidden=false;
 refresh().catch(e=>{
   if(!dataReady){
