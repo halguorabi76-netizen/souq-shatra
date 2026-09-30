@@ -324,7 +324,13 @@ async function refresh(){
       render();
     }
   }else if(viewMode!=='guest'){
-    profile=null;ownStore=null;viewMode='';tab='welcome';render();
+    profile=null;ownStore=null;
+    // On wider screens the storefront itself is the landing page. Phones keep
+    // the original role selection screen until the visitor chooses a role.
+    const desktopStorefront=matchMedia('(min-width:768px)').matches;
+    viewMode=desktopStorefront?'guest':'';
+    tab=desktopStorefront?'market':'welcome';
+    render();
   }
   const [pr,ms,ps,rs]=await withTimeout(Promise.all([
     nextUser?db.from('profiles').select('*').eq('id',nextUser.id).single():Promise.resolve({data:null,error:null}),
@@ -403,7 +409,7 @@ function welcome(){
   $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p><div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#3A3144"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#A78EB4"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#9A70B6"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#3C2D48"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="الدخول كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#74578E"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#D8C5E7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#D8C7E5"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>بائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#E9E5EF"/><circle cx="49" cy="49" r="8" fill="#E9E5EF"/><circle cx="17" cy="49" r="3" fill="#6D5686"/><circle cx="49" cy="49" r="3" fill="#6D5686"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#B9A0C8"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#403345"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#9B80AE"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
 }
 function profilePage(){
- if(!user){$('#view').innerHTML='<div class="box"><h2>الملف الشخصي</h2><p>سجّل الدخول لرؤية ملفك وتعديله.</p><button class="buy" data-a="tab" data-v="welcome">اختيار حساب</button></div>';return}
+ if(!user){$('#view').innerHTML='<div class="box"><h2>حساب سوق الشطرة</h2><p>تستطيع تصفح السوق كضيف. سجّل الدخول للشراء أو البيع أو العمل بالتوصيل.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button></div>';return}
  const name=profile?.full_name||user.user_metadata?.full_name||'مستخدم سوق الشطرة';
  const mine=D.o.filter(o=>o.buyer_id===user.id),completed=mine.filter(o=>o.st===3),last=mine.length?new Date(mine[0].ts).toLocaleDateString('ar-IQ'):'';
  let address='',avatar='';try{address=localStorage.getItem('souq-shatra-address-'+user.id)||'';avatar=localStorage.getItem('souq-shatra-avatar-'+user.id)||''}catch{}
@@ -506,7 +512,7 @@ function orders(){
   $('#view').innerHTML='<div class="dh"><h2 style="margin:0">طلباتي</h2></div>'+(l.length?l.map(o=>ordCard(o,false)).join(''):'<div class="empty">ما عندك طلبات بعد.<br>اختر منتجاً من السوق وأرسل طلبك.</div>');
 }
 function account(){
-  if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
+  if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
   if(profile?.disabled){$('#view').innerHTML='<div class="box"><h2>الحساب معطّل</h2><p>تم إيقاف استخدام هذا الحساب في السوق. تواصل مع إدارة التطبيق إذا كان لديك استفسار.</p><button class="alt" data-a="out">خروج</button></div>';return}
   if(viewMode==='guest'){$('#view').innerHTML=`<div class="box"><h2>تتصفح السوق كضيف</h2><p>اختر حساب الزبون للشراء، أو حساب البائع لنشر المواد.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">الدخول كبائع</button><button class="alt" data-a="out">تسجيل الخروج من الحساب المحفوظ</button></div>`;return}
   if(viewMode==='driver'&&profile?.role!=='admin'){$('#view').innerHTML=`<div class="account-head"><b>حساب عامل التوصيل</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="chats">▣<br>طلبات التوصيل</button><button data-a="tab" data-v="orders">🛒<br>مشترياتي</button></div><div class="box"><button class="alt" data-a="tab" data-v="profilePage">ملفي الشخصي</button><button class="alt" data-a="tab" data-v="market">تصفح المنتجات</button><button class="alt" data-a="out">تسجيل الخروج</button></div>`;return}
