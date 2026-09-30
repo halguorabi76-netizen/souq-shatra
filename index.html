@@ -126,6 +126,63 @@ body.welcome-mode{overflow:hidden}
 .welcome-roles strong{font-size:clamp(14px,4vw,17px)}
 .welcome-guest{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:4;white-space:nowrap;margin:0;padding:8px;font-size:14px}
 @media(max-height:700px){.welcome-mode .top{padding-top:2px}.welcome-mode .header-logo{height:88px}.welcome-content{margin-top:12px}.welcome h1{font-size:22px}.welcome p{font-size:13px}.welcome-roles{margin-top:18px}.welcome-roles .symbol{width:68px;height:68px}.welcome-roles .symbol svg{width:49px;height:49px}.welcome-roles strong{font-size:13px}.welcome-guest{bottom:calc(5px + env(safe-area-inset-bottom,0px))}}
+.desktop-search-row,.desktop-market-intro{display:none}
+@media(min-width:768px){
+  body{background:#f7f3fa}
+  .app{max-width:1440px;min-height:100vh;padding-bottom:28px;display:grid;grid-template-rows:auto auto 1fr;grid-template-areas:"header" "nav" "content";box-shadow:0 8px 50px #37154c12}
+  .top{grid-area:header;padding:12px clamp(24px,4vw,56px) 17px;background:#48196a;color:#fff}
+  .topline{min-height:74px;justify-content:flex-start}
+  .header-brand{width:auto;flex-direction:row;gap:10px;margin-inline-end:auto}
+  .header-logo{width:100px;height:64px}
+  .header-brand-name{font-size:20px;color:#fff;text-align:right}
+  .header-brand-name small{font-size:10px;color:#ead9f5}
+  .mini-flag{top:2px;left:23px}
+  .topline>[data-a="searchfocus"]{display:none}
+  .topline>[data-v="profilePage"]{position:static;background:#69348a;color:#fff;margin-inline-start:auto}
+  .profile-mode .top .header-icon{display:none}
+  .profile-mode .top .profile-back{display:grid;position:static;color:#fff;margin-inline-start:auto}
+  .profile-mode .header-logo{width:100px;height:64px}
+  .profile-mode .header-brand{width:auto}
+  .desktop-search-row{display:flex;align-items:center;gap:12px;margin-top:7px}
+  .desktop-search{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:999px;background:#fff;color:#71637b;padding:12px 18px;text-align:right;box-shadow:0 4px 12px #210d3924}
+  .desktop-search strong{width:34px;height:34px;display:grid;place-items:center;background:#67318b;color:#fff;border-radius:50%;font-size:23px;line-height:1}
+  .desktop-shortcut{flex:none;color:#fff;padding:10px 13px;border:1px solid #ffffff48;border-radius:999px;font-size:14px}
+  .tabs{grid-area:nav;position:relative;inset:auto;max-width:none;min-height:52px;border-radius:0;box-shadow:none;border-bottom:1px solid #dfd2eb;background:#f0e7f7;display:flex;justify-content:flex-start;padding:0 clamp(16px,3vw,40px)}
+  .tabs button{width:auto;min-width:100px;padding:10px 20px;font-size:15px}
+  .tabs .navicon{display:inline;font-size:19px;margin-left:8px}
+  .tabs button[aria-current="page"]{background:#e2d0ef;border-bottom:3px solid #71349c}
+  #view{grid-area:content;min-width:0;padding-bottom:28px}
+  .desktop-market-intro{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:25px clamp(20px,3vw,44px) 0;padding:19px 24px;border-radius:20px;background:#fff;border:1px solid #e7dbef}
+  .desktop-market-intro h1{font-size:25px;line-height:1.35;margin:0;color:#3d195f}
+  .desktop-market-intro p{margin:3px 0 0;color:#70627a}
+  .desktop-market-intro button{flex:none;border-radius:12px;background:#71349c;color:#fff;padding:11px 18px;font-weight:700}
+  .banner-wrap{margin:18px clamp(20px,3vw,44px) 15px}
+  .banner{height:clamp(255px,24vw,350px);border-radius:24px}
+  .banner-caption{font-size:clamp(24px,2.8vw,38px);bottom:24px;right:30px}
+  .banner-dots button{width:12px;height:12px}
+  .banner-dots button[aria-current="true"]{width:28px}
+  .section-title{margin:25px clamp(20px,3vw,44px) 15px}
+  .section-title h2{font-size:23px}
+  .category-cards{padding:2px clamp(20px,3vw,44px) 10px;gap:18px;flex-wrap:wrap}
+  .category-card{flex:0 0 108px;font-size:14px;gap:9px}
+  .category-card span{width:82px;height:82px}
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding:0 clamp(20px,3vw,44px)}
+  .p{padding:12px;border-radius:18px;transition:transform .18s,box-shadow .18s}
+  .p:hover{transform:translateY(-3px);box-shadow:0 12px 26px #35145620}
+  .p b{font-size:17px}.p em{font-size:18px}
+  .box,.ord,.item,.admin-hero,.admin-stats,.admin-record,.admin-menu,.account-head,.account-shortcuts{max-width:880px;margin-left:auto;margin-right:auto}
+  .profile-page{max-width:880px;margin:auto}
+  .sheet{max-width:720px}
+  #toast{bottom:22px}
+  .welcome-mode .app{max-width:1440px;height:100dvh}
+  .welcome-mode #view{align-items:center}
+  .welcome-mode .welcome{width:min(100%,560px)}
+  .welcome-mode .top{background:transparent}
+  .welcome-mode .topline{justify-content:center}
+  .welcome-mode .header-brand{margin:auto}
+  .welcome-mode .desktop-search-row,.welcome-mode .tabs{display:none}
+}
+@media(min-width:768px) and (max-width:1099px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 <style>
 /* واجهة سوق الشطرة البنفسجية */
@@ -202,7 +259,7 @@ body{background:#EFE6F7}.app{background:#F4EAFB}
 </head>
 <body>
 <div class="app">
-  <header class="top"><div class="topline"><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><span class="header-brand"><img class="header-logo" src="icons/brand-symbol.png" alt=""><span class="mini-flag" aria-hidden="true">Z</span><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></span><button class="header-icon" data-a="tab" data-v="profilePage" aria-label="ملفي الشخصي"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div></header>
+  <header class="top"><div class="topline"><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><span class="header-brand"><img class="header-logo" src="icons/brand-symbol.png" alt=""><span class="mini-flag" aria-hidden="true">Z</span><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></span><button class="header-icon" data-a="tab" data-v="profilePage" aria-label="ملفي الشخصي"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><button class="desktop-search" data-a="searchfocus" aria-label="البحث عن منتج"><span>ابحث عن منتج أو متجر في الشطرة</span><strong aria-hidden="true">⌕</strong></button><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button><button class="desktop-shortcut" data-a="tab" data-v="myMarket">سوقي</button></div></header>
   <main id="view"></main>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
@@ -406,7 +463,7 @@ function admin(){
 function market(){
   let l=D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)&&(cat==='all'||p.cat===cat)&&(p.name+' '+p.desc).toLocaleLowerCase('ar').includes(q.trim().toLocaleLowerCase('ar'))&&(!filt.min||p.price>=+filt.min)&&(!filt.max||p.price<=+filt.max));
   if(filt.sort==='cheap')l.sort((a,b)=>a.price-b.price);else if(filt.sort==='expensive')l.sort((a,b)=>b.price-a.price);else if(filt.sort==='oldest')l.reverse();
-  $('#view').innerHTML=bannerHtml()+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}" aria-pressed="${c===cat}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div><div class="section-title"><h2>${q||cat!=='all'?'نتائج البحث':'أحدث الإعلانات'}</h2><span class="note">${l.length} منتج</span></div>`+
+  $('#view').innerHTML=`<div class="desktop-market-intro"><div><h1>اكتشف سوق الشطرة من مكانك</h1><p>تصفح المنتجات والمحلات المحلية، واختر ما يناسبك.</p></div><button data-a="tab" data-v="categories">تصفح الأقسام</button></div>`+bannerHtml()+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}" aria-pressed="${c===cat}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div><div class="section-title"><h2>${q||cat!=='all'?'نتائج البحث':'أحدث الإعلانات'}</h2><span class="note">${l.length} منتج</span></div>`+
   (l.length?`<div class="grid">${l.map(p=>`<button class="p" data-a="prod" data-v="${p.id}"><div class="tile">${thumb(p)}</div><b>${esc(p.name)}</b><span>${esc(mname(p.mid))}</span><em>${fmt(p.price)}</em>${p.stock<1?'<u>نفدت الكمية</u>':''}</button>`).join('')}</div>`:
   `<div class="empty">${!dataReady?'جارٍ تحميل المنتجات…':D.p.length?'ما لقينا نتيجة. جرّب كلمة ثانية أو تصنيف آخر.':'السوق فاضي حالياً.<br>ادخل من «حسابي» وأضف أول منتج.'}</div>`);
 }
