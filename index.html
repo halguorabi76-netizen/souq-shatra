@@ -11,7 +11,7 @@
 <link rel="icon" href="icons/icon-192.png?v=4" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/icon-192.png?v=4">
 <title>سوق الشطرة</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F3F5F8;--card:#fff;--ink:#12202E;--mut:#5F6E7E;--line:#DFE5EC;--navy:#0F2A3F;--gold:#F2B33D;--gi:#3A2A00;--ok:#14866D;--bad:#C0392B;--tile:#E7EDF3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1620;--card:#132433;--ink:#EAF0F6;--mut:#9AABBD;--line:#22384B;--navy:#0A1B29;--ok:#3CC9A5;--bad:#F0776B;--tile:#1B3246}}
@@ -221,7 +221,7 @@ body{background:#EFE6F7}.app{background:#F4EAFB}
   #view{grid-area:content;min-width:0;padding-bottom:28px}
   .desktop-market-intro{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:25px clamp(20px,3vw,44px) 0;padding:19px 24px;border-radius:20px;background:#fff;border:1px solid #e7dbef}
   .desktop-market-intro h1{font-size:25px;line-height:1.35;margin:0;color:#3d195f}
-  .desktop-market-intro p{margin:3px 0 0;color:#70627a}
+  .desktop-market-intro p{margin:5px 0 0;color:#70627a;font-family:"Amiri","Traditional Arabic",serif;font-size:21px;line-height:1.6}
   .desktop-market-intro button{flex:none;border-radius:12px;background:#71349c;color:#fff;padding:11px 18px;font-weight:700}
   .banner-wrap{margin:18px clamp(20px,3vw,44px) 15px}
   .banner{height:clamp(255px,24vw,350px);border-radius:24px}
@@ -478,7 +478,7 @@ function admin(){
 function market(){
   let l=D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)&&(cat==='all'||p.cat===cat)&&(p.name+' '+p.desc).toLocaleLowerCase('ar').includes(q.trim().toLocaleLowerCase('ar'))&&(!filt.min||p.price>=+filt.min)&&(!filt.max||p.price<=+filt.max));
   if(filt.sort==='cheap')l.sort((a,b)=>a.price-b.price);else if(filt.sort==='expensive')l.sort((a,b)=>b.price-a.price);else if(filt.sort==='oldest')l.reverse();
-  $('#view').innerHTML=`<div class="desktop-market-intro"><div><h1>اكتشف سوق الشطرة من مكانك</h1><p>تصفح المنتجات والمحلات المحلية، واختر ما يناسبك.</p></div><button data-a="tab" data-v="categories">تصفح الأقسام</button></div>`+bannerHtml()+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}" aria-pressed="${c===cat}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div><div class="section-title"><h2>${q||cat!=='all'?'نتائج البحث':'أحدث الإعلانات'}</h2><span class="note">${l.length} منتج</span></div>`+
+  $('#view').innerHTML=`<div class="desktop-market-intro"><div><h1>اكتشف سوق الشطرة من مكانك</h1><p>من الشطرة… لأهل الشطرة</p></div><button data-a="tab" data-v="categories">تصفح الأقسام</button></div>`+bannerHtml()+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}" aria-pressed="${c===cat}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div><div class="section-title"><h2>${q||cat!=='all'?'نتائج البحث':'أحدث الإعلانات'}</h2><span class="note">${l.length} منتج</span></div>`+
   (l.length?`<div class="grid">${l.map(p=>`<button class="p" data-a="prod" data-v="${p.id}"><div class="tile">${thumb(p)}</div><b>${esc(p.name)}</b><span>${esc(mname(p.mid))}</span><em>${fmt(p.price)}</em>${p.stock<1?'<u>نفدت الكمية</u>':''}</button>`).join('')}</div>`:
   `<div class="empty">${!dataReady?'جارٍ تحميل المنتجات…':D.p.length?'ما لقينا نتيجة. جرّب كلمة ثانية أو تصنيف آخر.':'السوق فاضي حالياً.<br>ادخل من «حسابي» وأضف أول منتج.'}</div>`);
 }
