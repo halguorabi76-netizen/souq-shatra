@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-design-v26';
-const CORE = ['./', './index.html', './config.js', './manifest.webmanifest'];
+const CACHE = 'souq-shatra-design-v27';
+const CORE = ['./', './index.html', './demo-lab.js?v=27', './config.js', './manifest.webmanifest'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
