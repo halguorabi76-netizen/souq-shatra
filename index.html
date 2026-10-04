@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="سوق الشطرة">
-<link rel="manifest" href="manifest.webmanifest?v=4">
+<link rel="manifest" href="manifest.webmanifest?v=28">
+<link rel="preload" as="image" href="icons/splash-s-v28.jpg">
 <link rel="icon" href="icons/icon-192.png?v=4" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/icon-192.png?v=4">
 <title>سوق الشطرة</title>
@@ -269,8 +270,26 @@ body{background:#EFE6F7}.app{background:#F4EAFB}
 @media(prefers-reduced-motion:reduce){.account-popover{animation:none}}
 
 </style>
+<style>
+/* Temporary opening screen; independent of sign-in and marketplace data. */
+.startup-splash{position:fixed;inset:0;z-index:1000;background:#000;display:grid;place-items:center}
+.startup-splash[hidden]{display:none}
+.startup-splash img{display:block;width:100%;height:100%;object-fit:contain}
+body.starting{overflow:hidden}
+body.starting .app{visibility:hidden}
+</style>
 </head>
-<body>
+<body class="starting">
+<div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/splash-s-v28.jpg" alt="" fetchpriority="high"></div>
+<script>
+(()=>{
+  const theme=document.querySelector('meta[name="theme-color"]');
+  const originalTheme=theme.content;theme.content='#000000';
+  const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=originalTheme};
+  // Always finish even if the network, image, or sign-in module cannot load.
+  setTimeout(finish,1600);
+})();
+</script>
 <div class="app">
   <header class="top"><div class="topline"><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><span class="header-brand"><img class="header-logo" src="icons/brand-symbol.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></span><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><button class="desktop-search" data-a="searchfocus" aria-label="البحث عن منتج"><span>ابحث عن منتج أو متجر في الشطرة</span><strong aria-hidden="true">⌕</strong></button><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button><button class="desktop-shortcut" data-a="tab" data-v="myMarket">سوقي</button></div></header>
   <main id="view"></main>
@@ -840,3 +859,4 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
