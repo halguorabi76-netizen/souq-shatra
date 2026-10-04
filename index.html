@@ -4,6 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<script>
+(()=>{
+ const key='souq-shatra-theme';
+ const set=(mode,persist=true)=>{
+  mode=mode==='dark'?'dark':'light';document.documentElement.dataset.theme=mode;
+  if(persist)try{localStorage.setItem(key,mode)}catch{}
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta&&!document.body?.classList.contains('starting'))meta.content=mode==='dark'?'#17191D':'#C32632';
+ };
+ let saved='light';try{saved=localStorage.getItem(key)||'light'}catch{}
+ window.SouqTheme={set,get:()=>document.documentElement.dataset.theme};set(saved,false);
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="سوق الشطرة">
@@ -308,14 +321,43 @@ body{background:#FFF5F5}.app{background:#FFFAFA}
 .demo-shell,.demo-preview{background:#FFF0F1;border-color:#F0DADA;color:#352020}
 body.starting{background:#000!important}
 </style>
+<style>
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#121418;--card:#1D2026;--ink:#F5F2F2;--mut:#C3B8B8;--line:#393036;--navy:#F1848C;--gold:#C32632;--gi:#FFFFFF;--ok:#F1848C;--bad:#FF8F99;--tile:#29262C}
+.theme-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.theme-options button{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font-weight:700}
+.theme-options button[aria-pressed="true"]{background:#C32632;color:#FFFFFF;border-color:#C32632}
+:root[data-theme="dark"] body,:root[data-theme="dark"] .app{background:var(--bg);color:var(--ink)}
+:root[data-theme="dark"] :is(.top,.account-head,.profile-hero,.post-intro){background:linear-gradient(135deg,#7C1923,#39191F);color:#FFFFFF}
+:root[data-theme="dark"] :is(.tabs,.setting-row,.market-section,.post-card,.profile-card,.account-popover,.auth-sheet,.filter-group,.desktop-market-intro,.demo-product,.demo-card,.demo-nav button,.demo-roles button,.welcome-option){background:var(--card);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] :is(.profile-hero){background:linear-gradient(135deg,#7C1923,#39191F);color:#FFFFFF}
+:root[data-theme="dark"] :is(.account-popover:before,.account-popover button:hover,.account-popover button:focus-visible,.demo-current,.role-badge,.avatar,.profile-detail .picon,.profile-role-actions button,.profile-gps,.demo-tag){background:var(--tile);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] :is(.top .header-icon,.topline>[data-a="accountMenu"],.desktop-shortcut){background:#33232A;color:#FFBCC1;border-color:var(--line)}
+:root[data-theme="dark"] :is(input,select,textarea,.desktop-search,.search-page .searchline input,.post-card input,.post-card select,.post-card textarea,.auth-sheet input,.demo-card input,.demo-card select,.demo-filters input,.demo-filters select){background:var(--bg);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] :is(.demo-shell,.demo-preview){background:#211C21;color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] .demo-art{background:linear-gradient(135deg,#2A242A,#35242A)}
+:root[data-theme="dark"] .demo-delete{background:var(--card)!important;color:#FF8F99!important;border-color:var(--line)!important}
+:root[data-theme="dark"] :is(.demo-product p,.category-card,.category-card svg,.profile-edit,.profile-link,.profile-link span:last-child,.auth-top strong,.auth-title,.auth-sheet label,.auth-forgot,.auth-switch button,.welcome h1,.welcome-roles strong){color:var(--ink)}
+:root[data-theme="dark"] :is(.demo-heading p,.demo-product small,.demo-card small,.demo-roles small,.account-popover p,.profile-pair small,.profile-location-status,.auth-subtitle,.auth-switch,.auth-divider,.welcome p,.welcome-guest){color:var(--mut)}
+:root[data-theme="dark"] :is(.category-card span,.welcome-roles .symbol){background:var(--tile);border-color:var(--line);color:var(--ink);box-shadow:none}
+:root[data-theme="dark"] .category-card svg{stroke:var(--ink)}
+:root[data-theme="dark"] :is(.profile-heading,.profile-link+.profile-link,.demo-account){border-color:var(--line)}
+:root[data-theme="dark"] :is(.demo-nav .selected,.demo-roles button.selected,.profile-role-actions button[aria-pressed="true"]){background:#C32632;color:#FFFFFF}
+:root[data-theme="dark"] .tabs button[aria-current="page"]{color:#FF9EA6;background:#33232A}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{background:#C32632;color:#FFFFFF;border-color:#C32632}
+:root[data-theme="dark"] .welcome-mode .app{background:var(--bg)}
+:root[data-theme="dark"] .auth-open{background:var(--bg)}
+:root[data-theme="dark"] .profile-logout{background:#321D24;color:#FF9EA6;border-color:#6A323D}
+body.starting{background:#000!important}
+</style>
 </head>
 <body class="starting">
 <div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/splash-s-v28.jpg" alt="" fetchpriority="high"></div>
 <script>
 (()=>{
   const theme=document.querySelector('meta[name="theme-color"]');
-  const originalTheme='#523a26';theme.content='#000000';
-  const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=originalTheme};
+  theme.content='#000000';
+  const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#17191D':'#C32632'};
   // Always finish even if the network, image, or sign-in module cannot load.
   if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){finish()}else{setTimeout(finish,1600)}
 })();
@@ -481,7 +523,7 @@ function profilePage(){
  $('#view').innerHTML=`<div class="profile-page"><section class="profile-card profile-hero"><div class="profile-photo"><div class="portrait" aria-label="صورة الحساب">${avatar.startsWith('data:image/jpeg;base64,')?`<img src="${avatar}" alt="صورة الحساب">`:esc(name.trim().slice(0,1))}</div><button data-a="chooseAvatar" aria-label="إضافة صورة للحساب">✎</button><input id="avatarInput" type="file" accept="image/*" hidden></div><div><b>${esc(name)}</b><small>${esc(user.email||'')}</small></div></section><section class="profile-card"><div class="profile-heading"><h2>بيانات الحساب الأساسية</h2><button class="profile-edit" data-a="editprofile" aria-label="تعديل بيانات الحساب">✎</button></div><div class="profile-detail"><span class="picon">♙</span><span>${esc(name)}</span></div><div class="profile-detail"><span class="picon">☎</span><span dir="ltr">${esc(profile?.phone||'أضف رقم هاتفك')}</span></div><div class="profile-detail"><span class="picon">✉</span><span dir="ltr">${esc(user.email||'')}</span></div></section><div class="profile-pair"><section class="profile-card"><h3>ملخص الطلبات</h3><p>${completed.length} طلب مكتمل</p><small>${last?'آخر طلب: '+esc(last):'لم تطلب بعد'}</small><button class="profile-action" data-a="tab" data-v="orders">عرض طلباتي</button></section><section class="profile-card"><h3>عنوان التوصيل</h3><p>${address?esc(address):'لم تُضف عنوانًا بعد'}</p><div class="profile-address-actions"><button class="profile-action" data-a="editaddress">${address?'تعديل العنوان':'إضافة عنوان'}</button><button class="profile-gps" data-a="saveProfileLocation" aria-label="تحديد موقعي عبر GPS" title="تحديد موقعي عبر GPS">📍</button></div><small class="profile-location-status">${location?'الموقع محفوظ ويمكن مشاركته عند الطلب':'اضغط علامة الموقع لتحديد مكانك'}</small></section></div><section class="profile-card"><button class="profile-link" data-a="tab" data-v="orders">♧ طلباتي <span>‹</span></button><button class="profile-link" data-a="paymentinfo">▣ طريقة الدفع <span>‹</span></button><button class="profile-link" data-a="editaddress">⌖ عنواني <span>‹</span></button><button class="profile-link" data-a="editEmail">✉ تغيير البريد الإلكتروني <span>‹</span></button></section><section class="profile-card"><h3>استخدام الحساب</h3><div class="profile-role-actions"><button data-a="profileSwitch" data-v="buyer" aria-pressed="${viewMode==='buyer'}">🛒 الدخول كزبون</button><button data-a="profileSwitch" data-v="seller" aria-pressed="${viewMode==='seller'}">▤ الدخول كبائع</button></div><p class="note">يمكنك تصفح المنتجات والشراء في الوضعين. عند اختيار البائع تظهر أدوات متجرك وإعلاناتك.</p></section><button class="profile-logout" data-a="changeaccount">تسجيل الخروج من الحساب</button></div>`;
 }
 function settings(){
- $('#view').innerHTML=`<div class="section-title"><h2>الإعدادات</h2></div><div class="box"><button class="setting-row" data-a="tab" data-v="account">حسابي وإدارة نشاطي</button><button class="setting-row" data-a="tab" data-v="profilePage"><span class="avatar"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></span>ملفي الشخصي ومعلوماتي</button>${ownStore&&viewMode==='seller'?'<button class="setting-row" data-a="tab" data-v="listings">إعلاناتي ومنتجاتي</button>':''}<button class="setting-row" data-a="tab" data-v="orders">طلباتي</button><button class="setting-row" data-a="tab" data-v="market">الإعلانات والمنتجات الجديدة</button><button class="setting-row" data-a="info">شرح التطبيق والأسئلة الشائعة</button><button class="setting-row" data-demo="open">تجربة السوق بالحسابات الوهمية</button><button class="setting-row" data-a="support">تواصل مع الدعم</button></div>`;
+ $('#view').innerHTML=`<div class="section-title"><h2>الإعدادات</h2></div><section class="box" aria-labelledby="appearanceTitle"><h2 id="appearanceTitle">مظهر التطبيق</h2><p>اختر الوضع الذي يناسبك</p><div class="theme-options" role="group" aria-label="مظهر التطبيق"><button data-a="theme" data-v="light" aria-pressed="${window.SouqTheme.get()==='light'}">☀ الوضع الفاتح</button><button data-a="theme" data-v="dark" aria-pressed="${window.SouqTheme.get()==='dark'}">☾ الوضع الغامق</button></div></section><div class="box"><button class="setting-row" data-a="tab" data-v="account">حسابي وإدارة نشاطي</button><button class="setting-row" data-a="tab" data-v="profilePage"><span class="avatar"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></span>ملفي الشخصي ومعلوماتي</button>${ownStore&&viewMode==='seller'?'<button class="setting-row" data-a="tab" data-v="listings">إعلاناتي ومنتجاتي</button>':''}<button class="setting-row" data-a="tab" data-v="orders">طلباتي</button><button class="setting-row" data-a="tab" data-v="market">الإعلانات والمنتجات الجديدة</button><button class="setting-row" data-a="info">شرح التطبيق والأسئلة الشائعة</button><button class="setting-row" data-demo="open">تجربة السوق بالحسابات الوهمية</button><button class="setting-row" data-a="support">تواصل مع الدعم</button></div>`;
 }
 function supportSheet(){sheet(head('تواصل مع الدعم')+`<p>مصمم ومبرمج تقني لتطبيق سوق الشطرة.</p><p><a href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">واتساب: 07837271707</a></p><p><a href="https://www.instagram.com/haider.alguorabi?stkn=Nzd2eTluem9oNnNr" target="_blank" rel="noopener noreferrer">حساب إنستغرام</a></p>`)}
 
@@ -672,6 +714,7 @@ function infoSheet(){
 
 /* ===== الإجراءات ===== */
 const A={
+  theme:mode=>{window.SouqTheme.set(mode);settings()},
   accountMenu:()=>{
     if(user){tab='profilePage';render();scrollTo(0,0);return}
     const menu=$('#accountMenu');if(!menu.hidden){closeAccountMenu();return}
@@ -889,6 +932,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 

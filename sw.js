@@ -1,4 +1,4 @@
-const CACHE = 'souq-shatra-design-v31';
+const CACHE = 'souq-shatra-design-v32';
 const CORE = ['./', './index.html', './demo-lab.js?v=31', './config.js', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
@@ -44,6 +44,7 @@ self.addEventListener('fetch', event => {
     return response;
   })());
 });
+
 
 
 
