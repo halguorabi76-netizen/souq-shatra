@@ -10,6 +10,7 @@
  const set=(mode,persist=true)=>{
   mode=mode==='dark'?'dark':'light';document.documentElement.dataset.theme=mode;
   if(persist)try{localStorage.setItem(key,mode)}catch{}
+  const toggle=document.getElementById('themeToggle');if(toggle){const label=mode==='dark'?'تفعيل الوضع الفاتح':'تفعيل الوضع الغامق';toggle.setAttribute('aria-label',label);toggle.title=label}
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta&&!document.body?.classList.contains('starting'))meta.content=mode==='dark'?'#17191D':'#C32632';
  };
@@ -350,6 +351,16 @@ body.starting{background:#000!important}
 :root[data-theme="dark"] .profile-logout{background:#321D24;color:#FF9EA6;border-color:#6A323D}
 body.starting{background:#000!important}
 </style>
+<style>
+.theme-toggle{flex:none;width:36px;height:36px;padding:8px;display:grid;place-items:center;border:1px solid #FFFFFF45;border-radius:12px;background:#FFFFFF18;color:#FFFFFF;cursor:pointer;transition:background .15s}
+.theme-toggle:hover{background:#FFFFFF30}.theme-toggle:active{transform:scale(.95)}
+.theme-toggle svg{width:20px;height:20px;grid-area:1/1}
+.theme-toggle .theme-sun{display:none}
+:root[data-theme="dark"] .theme-toggle .theme-sun{display:block}
+:root[data-theme="dark"] .theme-toggle .theme-moon{display:none}
+@media(max-width:767px){.topline{position:relative}.theme-toggle{position:absolute;left:52px;top:50%;transform:translateY(-50%);width:32px;height:32px;padding:6px;border-radius:10px}.theme-toggle:active{transform:translateY(-50%) scale(.95)}}
+@media(prefers-reduced-motion:reduce){.theme-toggle{transition:none}}
+</style>
 </head>
 <body class="starting">
 <div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/splash-s-v28.jpg" alt="" fetchpriority="high"></div>
@@ -363,7 +374,7 @@ body.starting{background:#000!important}
 })();
 </script>
 <div class="app">
-  <header class="top"><div class="topline"><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><span class="header-brand"><img class="header-logo" src="icons/brand-symbol.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></span><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><button class="desktop-search" data-a="searchfocus" aria-label="البحث عن منتج"><span>ابحث عن منتج أو متجر في الشطرة</span><strong aria-hidden="true">⌕</strong></button><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button><button class="desktop-shortcut" data-a="tab" data-v="myMarket">سوقي</button></div></header>
+  <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><span class="header-brand"><img class="header-logo" src="icons/brand-symbol.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></span><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><button class="desktop-search" data-a="searchfocus" aria-label="البحث عن منتج"><span>ابحث عن منتج أو متجر في الشطرة</span><strong aria-hidden="true">⌕</strong></button><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button><button class="desktop-shortcut" data-a="tab" data-v="myMarket">سوقي</button></div></header>
   <main id="view"></main>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
@@ -497,6 +508,7 @@ const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy
 
 /* ===== الواجهات ===== */
 function render(){
+  window.SouqTheme.set(window.SouqTheme.get(),false);
   document.body.classList.toggle('demo-mode',!!window.SouqDemo?.isActive());
   if(window.SouqDemo?.isActive()){window.SouqDemo.render();return}
   closeAccountMenu();
@@ -714,6 +726,7 @@ function infoSheet(){
 
 /* ===== الإجراءات ===== */
 const A={
+  toggleTheme:()=>{window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark');if(tab==='settings')settings()},
   theme:mode=>{window.SouqTheme.set(mode);settings()},
   accountMenu:()=>{
     if(user){tab='profilePage';render();scrollTo(0,0);return}
