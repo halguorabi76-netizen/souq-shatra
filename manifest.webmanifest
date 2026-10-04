@@ -9,10 +9,13 @@
   "scope": "./",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#3D195F",
+  "theme_color": "#000000",
   "icons": [
-    {"src":"icons/icon-192.png?v=4","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"icons/icon-512.png?v=4","sizes":"512x512","type":"image/png","purpose":"any"}
+    {
+      "src": "icons/startup-s-v29.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
-
