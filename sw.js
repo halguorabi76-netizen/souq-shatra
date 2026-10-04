@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-design-v29';
-const CORE = ['./', './index.html', './demo-lab.js?v=27', './config.js', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
+const CACHE = 'souq-shatra-design-v30';
+const CORE = ['./', './index.html', './demo-lab.js?v=30', './config.js', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
@@ -44,4 +44,5 @@ self.addEventListener('fetch', event => {
     return response;
   })());
 });
+
 
