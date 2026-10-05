@@ -539,9 +539,13 @@ let publicStoreId=new URLSearchParams(location.search).get('store');
 if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;
 const ADMIN_PORTAL=document.documentElement.dataset.portal==='admin';
 let adminSearch='';
-let tab='market',cat='all',q='',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
+const catalogParams=new URLSearchParams(location.search);
+const catalogEntry=location.pathname.endsWith('/catalog.html');
+let tab=catalogEntry?'catalog':'market',cat=catalogEntry?(catalogParams.get('category')||'all').slice(0,80):'all',q=catalogEntry?(catalogParams.get('q')||'').slice(0,200):'',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
 const BANNERS=[['icons/shatra-river.jpeg','اكتشفوا سحر الشطرة'],['icons/shatra-square.jpeg','اكتشفوا أسواق الشطرة'],['icons/shatra-bridge.jpeg','الشطرة تجمعنا']];
 const filt={min:'',max:'',sort:'newest',condition:'all',location:''};
+if(catalogEntry){for(const k of ['min','max']){const v=catalogParams.get(k);if(v!==null&&v!==''&&Number.isFinite(+v)&&+v>=0)filt[k]=v}if(['newest','oldest','cheap','expensive'].includes(catalogParams.get('sort')))filt.sort=catalogParams.get('sort')}
+function openCatalog(){const url=new URL('catalog.html',location.href);if(cat!=='all')url.searchParams.set('category',cat);if(q)url.searchParams.set('q',q);for(const k of ['min','max'])if(filt[k]!=='')url.searchParams.set(k,filt[k]);url.searchParams.set('sort',filt.sort);location.assign(url.href)}
 
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
 function sheet(h){$('#shade').classList.remove('auth-open');$('#sheet').classList.remove('auth-sheet');$('#sheet').innerHTML=h;$('#shade').hidden=false;const c=$('#sheet [data-a="close"]');c&&c.focus()}
@@ -887,12 +891,12 @@ const A={
   tab:v=>{if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
   adminTab:v=>{adminTab=v;admin()},
   cat:v=>{cat=v;tab='catalog';render()},
-  pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';tab='catalog';render();scrollTo(0,0)},
+  pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
   allcat:()=>{cat='all';tab='catalog';render()},
   searchfocus:v=>{if(v!=='keep'){cat='all';filt.min='';filt.max=''}tab='searchPage';render();setTimeout(()=>$('#q')?.focus(),0)},
   searchcat:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');cat=v;searchPage()},
   searchsort:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');filt.sort=v;searchPage()},
-  searchapply:()=>{const min=val('fmin'),max=val('fmax');if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;tab='catalog';render();scrollTo(0,0)},
+  searchapply:()=>{const min=val('fmin'),max=val('fmax');if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;openCatalog()},
   searchclear:()=>{q='';cat='all';filt.min='';filt.max='';filt.sort='newest';searchPage()},
   banner:v=>{bannerIndex=+v;updateBanner()},
   filters:filterSheet,
@@ -1029,7 +1033,7 @@ refresh().catch(e=>{
 });
 setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&tab==='chats')||(profile?.role==='admin'&&tab==='admin'&&adminTab==='drivers')))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
 </script>
 <script>

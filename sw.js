@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-design-v47';
-const CORE = ['./', './index.html', './admin.html', './admin-portal.css?v=46', './catalog-filter.js?v=47', './demo-lab.js?v=47', './config.js', './seller-workspace.js?v=41', './seller-records.js?v=40', './seller-workspace.css?v=40', './site-palette.css?v=43', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
+const CACHE = 'souq-shatra-design-v48';
+const CORE = ['./', './index.html', './admin.html', './catalog.html', './admin-portal.css?v=46', './catalog-filter.js?v=47', './demo-lab.js?v=47', './config.js', './seller-workspace.js?v=41', './seller-records.js?v=40', './seller-workspace.css?v=40', './site-palette.css?v=43', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
@@ -17,12 +17,13 @@ self.addEventListener('fetch', event => {
     event.respondWith((async () => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 8000);
-      const pageKey=new URL(request.url).pathname.endsWith('/admin.html')?'./admin.html':'./index.html';
+      const path=new URL(request.url).pathname;
+      const pageKey=path.endsWith('/admin.html')?'./admin.html':path.endsWith('/catalog.html')?'./catalog.html':'./index.html';
       try {
-        const response = await fetch(request, {signal: controller.signal});
+        const response = await fetch(request, {signal: controller.signal, cache:'no-cache'});
         if (response.ok) {
           const cache = await caches.open(CACHE);
-          await cache.put('./index.html', './admin.html', './admin-portal.css?v=46', response.clone());
+          await cache.put('./index.html', './admin.html', './catalog.html', './admin-portal.css?v=46', response.clone());
         }
         return response;
       } catch {
