@@ -42,3 +42,14 @@ npm run sync
 يحتوي `config.js` على عنوان المشروع والمفتاح العام للمتصفح فقط؛ لا تضع مفتاح `service_role` في الموقع. صلاحيات الإدارة تعتمد على سياسات Supabase والدوال المحمية، وليس إخفاء الأزرار وحده. لا تُشغّل سكربتات SQL الموجودة في المستودع مجددًا دون مراجعة حالة قاعدة البيانات الحالية.
 
 قبل النشر، اجلب آخر `main` وادمج أي تغييرات متزامنة، أعد البناء والاختبار، ثم ادفع تحديثًا عاديًا بلا force push. ملفات `www/` ناتج بناء محلي ولا تُضاف إلى المستودع.
+
+
+### Category attributes and variants (v60)
+
+The product editor reads `catalog_categories` from Supabase. Choose a section and subcategory to load their combined attributes. An attribute becomes a variant axis only when the merchant explicitly enables it; common specifications remain on `products.attributes`. The initial catalog includes 28 sections and 102 subcategories. Admins can add and edit definitions under **الفئات والخصائص** in `admin.html` without editing source files. Fields have stable keys, labels, text/number/date/select types, options, required flags, and variant eligibility.
+
+`save_product_bundle` saves a parent product and up to 200 independent variants atomically. Each variant carries identity attributes, SKU, barcode, regular/sale prices, stock, availability, image and shipping weight. Existing IDs survive regeneration; omitted rows are archived. Version checks reject stale inventory forms. A product remains one marketplace card; buyers choose a specific variant before adding it to the cart. Checkout keys include both product ID and variant ID, and the database sets prices and records immutable order snapshots.
+
+`place_order` locks parent products and variants in stable order and reserves the chosen stock. Cancellation credits the exact variant once. Orders made before a legacy product was converted return into a separate reserve; the seller can allocate that reserve to the correct variant. Seller inventory displays per-variant balances, CSV exports, and a movement ledger. Store merchandising groups remain independent of the global category taxonomy.
+
+Additive SQL is in `db/category-variants.sql` and `db/category-seeds.sql`; neither deletes existing products nor historical order items. New tables have RLS, restricted grants, and explicit owner/admin checks. Run `npm run build` and `npm test`. Transactional database tests are in `tests/variants-database.sql` followed by `tests/variants-compatibility.sql`; wrap them in `BEGIN`/`ROLLBACK` on an environment with the stated test account IDs. Test fixtures are rolled back and must never be published as live merchandise. `preview.html` simulates the same variant/cart contract locally without production authentication or network writes.

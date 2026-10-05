@@ -1,8 +1,9 @@
+import {CATALOG_SEEDS} from '../category-seeds.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-function setup(){const writes=new Map(),storage={getItem:k=>writes.get(k)||null,setItem:(k,v)=>writes.set(k,v)};let seq=0;const c={};vm.createContext(c);vm.runInContext(readFileSync(new URL('../preview-lab.js',import.meta.url),'utf8').replace(/export /g,''),c);return {model:c.createPreviewModel(storage,()=>`test-id-${++seq}`,()=> '2026-10-05T13:00:00Z'),ids:vm.runInContext('IDS',c),writes,c};}
+function setup(){const writes=new Map(),storage={getItem:k=>writes.get(k)||null,setItem:(k,v)=>writes.set(k,v)};let seq=0;const c={CATALOG_SEEDS};vm.createContext(c);vm.runInContext(readFileSync(new URL('../preview-lab.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),c);return {model:c.createPreviewModel(storage,()=>`test-id-${++seq}`,()=> '2026-10-05T13:00:00Z'),ids:vm.runInContext('IDS',c),writes,c};}
 const ok=result=>{assert.equal(result.error,null,result.error?.message);return result.data;};
 test('preview opens without login, uses one isolated local storage key, no production client',async()=>{
  const {model,writes}=setup();assert.equal((await model.auth.getSession()).data.session,null);model.setRole('buyer');ok(await model.from('profiles').update({full_name:'معاينة فقط'}).eq('id',model.user().id));assert.deepEqual([...writes.keys()],['souq-shatra-interface-preview-v1']);
@@ -34,8 +35,9 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  const element=(id='')=>{const e={id,innerHTML:'',textContent:'',dataset:{},style:{setProperty(){}},classList:{add(){},remove(){},toggle(){}},setAttribute(){},removeAttribute(){},addEventListener(){},focus(){},append(child){if(child.id)nodes.set('#'+child.id,child)},prepend(child){this.append(child)},before(){},remove(){nodes.delete('#'+e.id)},insertAdjacentHTML(_p,html){e.innerHTML+=html},querySelector(){return element()},querySelectorAll(){return []}};if(id)nodes.set('#'+id,e);return e;};
  const document={hidden:false,documentElement:{dataset:{portal:'preview'},style:{setProperty(){},getPropertyValue(){return ''}}},body:element('body'),createElement:()=>element(),getElementById:id=>nodes.get('#'+id)||null,querySelector:s=>nodes.get(s)||element(s.startsWith('#')?s.slice(1):s),querySelectorAll:()=>[],addEventListener(){}};
  const url=new URL('https://preview.invalid/preview.html'),context={document,location:url,URL,URLSearchParams,structuredClone,crypto:{randomUUID:()=> 'a9999999-0000-4000-8000-'+String(Math.random()).slice(2,14).padEnd(12,'0')},navigator:{},history:{replaceState(){},pushState(){}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},sessionStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},matchMedia:()=>({matches:true}),setTimeout,clearTimeout,setInterval(){},scrollTo(){},alert(){throw new Error('Unexpected dialog')},confirm:()=>true,fetch(){throw new Error('Preview attempted a network request')}};
- context.window=context;context.addEventListener=()=>{};context.SouqTheme={get:()=> 'light',set(){}};
+ context.CATALOG_SEEDS=CATALOG_SEEDS;context.window=context;context.addEventListener=()=>{};context.SouqTheme={get:()=> 'light',set(){}};
  vm.createContext(context);
+ const variantCode=readFileSync(new URL('../product-variants.js',import.meta.url),'utf8').replace(/export /g,'');vm.runInContext('{'+variantCode+';Object.assign(globalThis,{createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey});}',context);
  for(const file of ['catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
  const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8').match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;$/gm,'');vm.runInContext(source,context,{filename:'preview.html'});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();assert.match(nodes.get('#view').innerHTML,/أي واجهة تريد تجربتها/);
@@ -43,3 +45,4 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  vm.runInContext("db.preview.selectRole('seller')",context);await settle();assert.match(nodes.get('#view').innerHTML,/لوحة متجرك|متجر المعاينة/);assert.match(nodes.get('#view').innerHTML,/مبيعات اليوم المكتملة/);
  vm.runInContext("db.preview.selectRole('driver')",context);await settle();assert.match(nodes.get('#view').innerHTML,/مساحة التوصيل/);assert.match(nodes.get('#view').innerHTML,/رصيد مستحق للتطبيق/);
 });
+

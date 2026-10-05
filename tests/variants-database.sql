@@ -1,0 +1,42 @@
+-- Run inside a transaction after schema/seeds; all fixtures and side effects roll back.
+create temporary table variant_test_context(product uuid,order_id uuid);
+grant all on variant_test_context to authenticated,anon;
+select set_config('request.jwt.claim.sub','a3e1a7fa-92d0-4f0d-b6b6-06f8bbfb8651',true);
+set local role authenticated;
+insert into variant_test_context(product) select public.save_product_bundle(null,'7dba0eae-96d6-4cdb-83d7-cc86d580d3a4',jsonb_build_object('name','اختبار نسخ مؤقت','price',1000,'stock',0,'catalog_category_id','b2000000-0000-4000-8000-000000000401','attributes',jsonb_build_object('material','قطن'),'active',true),'[{"attributes":{"color":"أزرق","size":"M"},"label":"أزرق M","sku":"TEST-M","price":1000,"sale_price":800,"stock":5,"available":true},{"attributes":{"color":"أزرق","size":"L"},"label":"أزرق L","sku":"TEST-L","price":1200,"stock":3,"available":true}]');
+do $$ declare p uuid; begin select product into p from variant_test_context;
+ if (select stock from public.products where id=p)<>8 or (select price from public.products where id=p)<>800 then raise exception 'aggregate inventory or minimum price failed'; end if;
+ begin perform public.save_product_bundle(p,'1924a1fd-f20f-4f5a-8ed9-51d34620553b','{}','[]');raise exception 'foreign store permitted';exception when others then if sqlerrm='foreign store permitted' then raise;end if;end;
+end $$;
+select set_config('request.jwt.claim.sub','a1c6e708-8b35-4dbe-9714-b88f3e8fed6f',true);
+update variant_test_context set order_id=public.place_order('7dba0eae-96d6-4cdb-83d7-cc86d580d3a4',(select jsonb_agg(jsonb_build_object('id',v.product_id,'variant_id',v.id,'quantity',1,'price',1)) from public.product_variants v where v.product_id=variant_test_context.product),'اختبار مؤقت','00000000000','عنوان اختبار مؤقت');
+do $$ declare p uuid; o uuid; begin select product,order_id into p,o from variant_test_context;
+ if (select stock from public.products where id=p)<>6 then raise exception 'variant inventory debit failed';end if;
+ if (select sum(price*quantity) from public.order_items where order_id=o)<>2000 then raise exception 'server pricing failed';end if;
+ if (select count(*) from public.order_items where order_id=o and variant_id is not null and variant_snapshot->>'sku' like 'TEST-%')<>2 then raise exception 'variant snapshot failed';end if;
+ begin perform public.place_order('7dba0eae-96d6-4cdb-83d7-cc86d580d3a4',jsonb_build_array(jsonb_build_object('id',p,'quantity',1)),'اختبار','00000000000','عنوان اختبار');raise exception 'missing variant permitted';exception when others then if sqlerrm='missing variant permitted' then raise;end if;end;
+ begin perform public.place_order('7dba0eae-96d6-4cdb-83d7-cc86d580d3a4',(select jsonb_agg(jsonb_build_object('id',v.product_id,'variant_id',v.id,'quantity',100)) from public.product_variants v where v.product_id=p),'اختبار','00000000000','عنوان اختبار');raise exception 'oversell permitted';exception when others then if sqlerrm='oversell permitted' then raise;end if;end;
+ if (select stock from public.products where id=p)<>6 then raise exception 'failed order changed stock';end if;
+ if exists(select 1 from public.product_stock_movements where product_id=p) then raise exception 'buyer sees inventory ledger';end if;
+ begin perform public.save_catalog_category(null,null,'اختبار','[]',true);raise exception 'buyer changed catalog';exception when others then if sqlerrm='buyer changed catalog' then raise;end if;end;
+end $$;
+select set_config('request.jwt.claim.sub','a3e1a7fa-92d0-4f0d-b6b6-06f8bbfb8651',true);
+select public.set_order_status(order_id,'cancelled') from variant_test_context;
+do $$ declare p uuid; o uuid; begin select product,order_id into p,o from variant_test_context;
+ if (select stock from public.products where id=p)<>8 then raise exception 'cancellation inventory failed';end if;
+ if (select count(*) from public.product_stock_movements where product_id=p and reason='cancelled_order')<>2 then raise exception 'cancellation ledger failed';end if;
+ begin perform public.set_order_status(o,'cancelled');raise exception 'double cancel permitted';exception when others then if sqlerrm='double cancel permitted' then raise;end if;end;
+ if (select stock from public.products where id=p)<>8 then raise exception 'double cancellation restocked';end if;
+ -- A stale version must roll back its temporary archives and every partial change.
+ begin perform public.save_product_bundle(p,'7dba0eae-96d6-4cdb-83d7-cc86d580d3a4',(select to_jsonb(t) from public.products t where id=p),(select jsonb_agg(to_jsonb(v)||'{"version":1}') from public.product_variants v where product_id=p));raise exception 'stale save permitted';exception when others then if sqlerrm='stale save permitted' then raise;end if;end;
+ if (select count(*) from public.product_variants where product_id=p and not archived)<>2 then raise exception 'failed edit archived live inventory';end if;
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+ if not exists(select 1 from public.catalog_categories) then raise exception 'anonymous taxonomy unavailable';end if;
+ if (select count(*) from public.product_variants v join variant_test_context t on t.product=v.product_id)<>2 then raise exception 'public variants unavailable';end if;
+ if has_function_privilege('anon','public.save_product_bundle(uuid,uuid,jsonb,jsonb)','EXECUTE') or has_table_privilege('anon','public.product_variants','UPDATE') then raise exception 'anonymous writes permitted';end if;
+end $$;
+reset role;
+select 'PASS: pricing, two variants in one order, stock debit/restore, snapshots, stale edits, buyer/anon authorization' as result;

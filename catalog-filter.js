@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const normalize=value=>String(value??'').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').toLocaleLowerCase('ar').replace(/\s+/g,' ').trim();
-const category=value=>({'غذائيات':'مواد غذائية','إلكترونيات':'أجهزة','الكترونيات':'أجهزة','المنزل':'منزلية','رياضة':'أخرى'}[value]||value);
+const category=value=>({'غذائيات':'مواد غذائية','إلكترونيات':'أجهزة','الكترونيات':'أجهزة','المنزل':'منزلية'}[value]||value);
 const matches=(text,query)=>normalize(query).split(' ').filter(Boolean).every(term=>normalize(text).includes(term));
 function select(products,options={},sellerName=()=> ''){
  const chosen=options.category||'all',min=options.min,max=options.max;
@@ -12,3 +12,4 @@ function select(products,options={},sellerName=()=> ''){
 }
 window.SouqCatalog={normalize,category,matches,select};
 })();
+
