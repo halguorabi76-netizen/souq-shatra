@@ -18,6 +18,7 @@ export function createPreviewModel(storage,uuid=()=>crypto.randomUUID(),clock=()
   if(!to||data.account_notifications.some(n=>n.recipient_id===to&&n.event_key===key))return;
   data.account_notifications.unshift({id:uuid(),recipient_id:to,event_key:key,event_kind:kind,title,body,order_id,product_id,read_at:null,created_at:clock()});
  }
+ function movement(product,variant,delta,balance,reason,order_id=null){data.product_stock_movements.push({id:uuid(),store_id:product.store_id,product_id:product.id,variant_id:variant?.id||null,product_name:product.name,variant_label:variant?.label||null,delta,balance,reason,order_id,created_at:clock()});}
  const participants=o=>[IDS.seller,o.buyer_id,o.driver_id].filter(Boolean);
  const summary=o=>data.order_items.filter(i=>i.order_id===o.id).map(i=>i.product_name+' × '+i.quantity).join('، ');
  const ownOrder=id=>data.orders.find(o=>o.id===id);
@@ -54,13 +55,22 @@ export function createPreviewModel(storage,uuid=()=>crypto.randomUUID(),clock=()
    for(const v of rows){let row=data.product_variants.find(x=>x.id===v.id);const before=row?.stock||0;if(!row){row={id:uuid(),product_id:product.id,version:0};data.product_variants.push(row);}Object.assign(row,v,{id:row.id,product_id:product.id,version:row.version+1});if(row.stock!==before)data.product_stock_movements.push({id:uuid(),store_id:IDS.store,product_id:product.id,variant_id:row.id,product_name:product.name,variant_label:row.label,delta:row.stock-before,balance:row.stock,reason:'inventory_edit',created_at:clock()});}
    if(product.has_variants){const live=data.product_variants.filter(v=>v.product_id===product.id&&!v.archived);product.stock=live.filter(v=>v.available).reduce((n,v)=>n+v.stock,0);product.price=Math.min(...live.map(v=>v.sale_price??v.price));product.compare_at_price=null;}result=product.id;
   }else if(name==='allocate_legacy_variant_stock'){
-   const product=data.products.find(x=>x.id===p.p_product&&x.store_id===IDS.store),v=data.product_variants.find(x=>x.id===p.p_variant&&x.product_id===product?.id&&!x.archived);if(role!=='seller'||!product||!v||!Number.isInteger(p.p_quantity)||p.p_quantity<1||p.p_quantity>(product.legacy_stock_reserve||0))fail('invalid reserve quantity');product.legacy_stock_reserve-=p.p_quantity;v.stock+=p.p_quantity;v.version++;if(v.available)product.stock+=p.p_quantity;
+   const product=data.products.find(x=>x.id===p.p_product&&x.store_id===IDS.store),v=data.product_variants.find(x=>x.id===p.p_variant&&x.product_id===product?.id&&!x.archived);if(role!=='seller'||!product||!v||!Number.isInteger(p.p_quantity)||p.p_quantity<1||p.p_quantity>(product.legacy_stock_reserve||0))fail('invalid reserve quantity');product.legacy_stock_reserve-=p.p_quantity;v.stock+=p.p_quantity;v.version++;if(v.available)product.stock+=p.p_quantity;movement(product,v,p.p_quantity,v.stock,'legacy_allocation');
   }else if(name==='place_order'){
    if(role!=='buyer')fail('جرّب الطلب من واجهة الزبون');if(!Array.isArray(p.p_lines)||!p.p_lines.length)fail('السلة فارغة');const seen=new Set();let subtotal=0;
    const lines=p.p_lines.map(line=>{const product=data.products.find(r=>r.id===line.id&&r.store_id===p.p_store&&r.active&&!r.blocked),variant=product?.has_variants?data.product_variants.find(v=>v.id===line.variant_id&&v.product_id===product.id&&!v.archived&&v.available):null,quantity=+line.quantity,stock=variant?.stock??product?.stock,key=line.id+':'+(line.variant_id||'');if(!product||product.has_variants&&!variant||!product.has_variants&&line.variant_id||!Number.isInteger(quantity)||quantity<1||quantity>100||quantity>stock)fail('product unavailable');if(seen.has(key))fail('duplicate product');seen.add(key);const price=variant?(variant.sale_price??variant.price):product.price;subtotal+=price*quantity;return {product,variant,quantity,price}});
    const f=data.delivery_settings[0],o={id:uuid(),store_id:p.p_store,buyer_id:id,driver_id:null,customer_name:p.p_name,customer_phone:p.p_phone,address:p.p_address,note:p.p_note||'',total:subtotal+f.platform_fee+f.delivery_fee,platform_fee:f.platform_fee,delivery_fee:f.delivery_fee,status:'new',created_at:clock()};data.orders.unshift(o);for(const {product,variant,quantity,price} of lines){product.stock-=quantity;if(variant){variant.stock-=quantity;variant.version++;data.product_stock_movements.push({id:uuid(),store_id:IDS.store,product_id:product.id,variant_id:variant.id,product_name:product.name,variant_label:variant.label,delta:-quantity,balance:variant.stock,reason:'order',created_at:clock(),order_id:o.id});}data.order_items.push({id:uuid(),order_id:o.id,product_id:product.id,product_name:product.name+(variant?' — '+variant.label:''),price,quantity,variant_id:variant?.id||null,variant_snapshot:variant?{label:variant.label,attributes:clone(variant.attributes),sku:variant.sku}: {}});}notice(IDS.seller,'طلب جديد من الزبون',summary(o),o.id,null,'order');notice(id,'أُرسل طلبك التجريبي',summary(o),o.id);result=o.id;
   }else if(name==='set_order_status'){
-   const o=ownOrder(p.p_order);if(!o||role!=='seller'||o.driver_id)fail('الطلب ليس متاحًا للتاجر');if(p.p_status==='cancelled'&&o.status!=='cancelled'){data.order_items.filter(i=>i.order_id===o.id).forEach(i=>{const product=data.products.find(p=>p.id===i.product_id);const v=data.product_variants.find(v=>v.id===i.variant_id);if(v){v.stock+=i.quantity;v.version++;if(product&&!v.archived&&v.available)product.stock+=i.quantity;}else if(product?.has_variants){product.legacy_stock_reserve=(product.legacy_stock_reserve||0)+i.quantity;}else if(product)product.stock+=i.quantity});}else if(!(o.status==='new'&&p.p_status==='accepted'))fail('invalid transition');o.status=p.p_status;participants(o).forEach(to=>notice(to,o.status==='cancelled'?'أُلغي الطلب':'قبل التاجر الطلب',summary(o),o.id));
+   const o=ownOrder(p.p_order);if(!o||role!=='seller'||o.driver_id)fail('الطلب ليس متاحًا للتاجر');
+   if(p.p_status==='cancelled'&&['new','accepted'].includes(o.status)){
+    for(const i of data.order_items.filter(i=>i.order_id===o.id)){
+     const product=data.products.find(x=>x.id===i.product_id),v=data.product_variants.find(x=>x.id===i.variant_id);
+     if(v){v.stock+=i.quantity;v.version++;if(product){if(!v.archived&&v.available)product.stock+=i.quantity;movement(product,v,i.quantity,v.stock,'cancelled_order',o.id);}}
+     else if(product?.has_variants){product.legacy_stock_reserve=(product.legacy_stock_reserve||0)+i.quantity;movement(product,null,i.quantity,product.legacy_stock_reserve,'legacy_cancel_after_conversion',o.id);}
+     else if(product){product.stock+=i.quantity;movement(product,null,i.quantity,product.stock,'cancelled_order',o.id);}
+    }
+   }else if(!(o.status==='new'&&p.p_status==='accepted'))fail('invalid transition');
+   o.status=p.p_status;participants(o).forEach(to=>notice(to,o.status==='cancelled'?'أُلغي الطلب':'قبل التاجر الطلب',summary(o),o.id));
   }else if(name==='delivery_offer_details'||name==='available_delivery_orders'){
    const worker=data.delivery_workers.find(w=>w.user_id===id);result=role==='driver'&&worker?.approved&&worker.amount_due<worker.debt_limit?data.orders.filter(o=>o.status==='accepted'&&!o.driver_id&&!data.delivery_declines.some(d=>d.order_id===o.id&&d.driver_id===id)).map(o=>({order_id:o.id,store_name:data.stores[0].name,product_total:o.total-o.platform_fee-o.delivery_fee,delivery_fee:o.delivery_fee,platform_fee:o.platform_fee,created_at:o.created_at,items:data.order_items.filter(i=>i.order_id===o.id).map(i=>({name:i.product_name,quantity:i.quantity}))})):[];
   }else if(name==='claim_delivery'){
@@ -104,4 +114,5 @@ export function createPreviewClient(){
  }};
  return client;
 }
+
 
