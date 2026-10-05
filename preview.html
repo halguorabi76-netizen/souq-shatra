@@ -26,7 +26,7 @@
 <link rel="icon" href="icons/startup-s-v29.png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/startup-s-v29.png">
 <title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
-<link rel="stylesheet" href="admin-portal.css?v=52">
+<link rel="stylesheet" href="admin-portal.css?v=60">
 <style>html:has(body.starting),body.starting{background:#000!important}body.starting .app{visibility:hidden}</style>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -390,7 +390,7 @@ body.starting{background:#000!important}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=57">
 <link rel="stylesheet" href="marketplace.css?v=57">
-<link rel="stylesheet" href="operations.css?v=58"><link rel="stylesheet" href="preview-lab.css?v=59">
+<link rel="stylesheet" href="operations.css?v=58"><link rel="stylesheet" href="preview-lab.css?v=60">
 <link rel="stylesheet" href="site-palette.css?v=56">
 </head>
 <body class="starting">
@@ -423,10 +423,11 @@ body.starting{background:#000!important}
 <script src="marketplace.js?v=57"></script>
 
 <script type="module">
-import {createPreviewClient} from "./preview-lab.js?v=59";
+import {createPreviewClient} from "./preview-lab.js?v=60";
 
 import {createSellerWorkspace} from "./seller-workspace.js?v=58";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=58";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=60";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -496,21 +497,21 @@ async function refresh(){
   if(sellerOnly){productQuery=productQuery.eq('store_id',approvedStore.id);orderQuery=orderQuery.eq('store_id',approvedStore.id);categoryQuery=categoryQuery.eq('store_id',approvedStore.id);}
   const [ps,rs,cs]=await withTimeout(Promise.all([productQuery,orderQuery,categoryQuery]));
   const products=check(ps),orders=check(rs);
-  const people=nextProfile?.role==='admin'?check(await withTimeout(db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}))):[];
+  const people=nextProfile?.role==='admin'&&!nextProfile.disabled?check(await withTimeout(db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}))):[];
   const dl=await withTimeout(Promise.all([
     db.from('delivery_settings').select('*').limit(1).maybeSingle(),
     nextUser?db.from('delivery_workers').select('*').eq('user_id',nextUser.id).maybeSingle():Promise.resolve({data:null}),
     nextUser?db.from('delivery_payments').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[]}),
-    nextProfile?.role==='admin'?db.from('delivery_workers').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[]}),
+    nextProfile?.role==='admin'&&!nextProfile.disabled?db.from('delivery_workers').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[]}),
     nextUser?db.from('driver_profiles').select('*').eq('user_id',nextUser.id).maybeSingle():Promise.resolve({data:null}),
     nextUser?db.rpc('assigned_delivery_contacts'):Promise.resolve({data:[]}),
-    nextProfile?.role==='admin'?db.from('driver_profiles').select('*'):Promise.resolve({data:[]}),
+    nextProfile?.role==='admin'&&!nextProfile.disabled?db.from('driver_profiles').select('*'):Promise.resolve({data:[]}),
     nextUser?db.from('store_pickups').select('*'):Promise.resolve({data:[]})
   ]));
   // An older deployment can load the rest of the market before the migration is installed.
   if(id!==refreshId)return;
   deliverySettings=dl[0].data||{platform_fee:0,delivery_fee:0,qi_number:''};
-  driverAccount=dl[1].data||null;deliveryPayments=dl[2].data||[];D.drivers=dl[3].data||[];
+  driverAccount=dl[1].data||null;deliveryPayments=check(dl[2])||[];D.drivers=check(dl[3])||[];
   driverProfile=check(dl[4]);D.driverContacts=check(dl[5])||[];D.driverProfiles=check(dl[6])||[];D.pickups=check(dl[7])||[];
   if(nextUser&&driverAccount?.approved&&driverAccount.amount_due<driverAccount.debt_limit){
     const offers=await withTimeout(db.rpc('delivery_offer_details'));if(id!==refreshId)return;deliveryOffers=check(offers)||[];
@@ -558,7 +559,7 @@ const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'
 let publicStoreId=new URLSearchParams(location.search).get('store');
 if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;
 const ADMIN_PORTAL=document.documentElement.dataset.portal==='admin';
-let adminSearch='',adminFilter='all';
+let adminSearch='',adminFilter='all',adminDetail=null;
 const catalogParams=new URLSearchParams(location.search);
 const catalogEntry=location.pathname.endsWith('/catalog.html');
 let tab=publicStoreId?'market':catalogParams.get('view')==='stores'?'stores':catalogEntry?'catalog':'market',cat=catalogEntry?(catalogParams.get('category')||'all').slice(0,80):'all',q=catalogEntry?(catalogParams.get('q')||'').slice(0,200):'',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
@@ -667,7 +668,7 @@ function renderAdminPortal(){
  $('.tabs').hidden=true;
  if(!document.getElementById('adminTop')){
  const header=document.createElement('header');header.id='adminTop';
- header.innerHTML='<a href="index.html" class="admin-brand">سوق الشطرة <small>لوحة الإدارة</small></a><div><a href="preview.html">معاينة الواجهات بلا دخول</a><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out">تسجيل الخروج</button></div>';
+ header.innerHTML='<a href="index.html" class="admin-brand">سوق الشطرة <small>لوحة الإدارة</small></a><div><a href="preview.html" class="admin-tool-link">⌕ مختبر المعاينة</a><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out">تسجيل الخروج</button></div>';
  $('#view').before(header);
  }
  $('#adminTop [data-a="out"]').hidden=!user;
@@ -679,47 +680,12 @@ function renderAdminPortal(){
 }
 
 function admin(){
-  if(!ADMIN_PORTAL){location.assign('admin.html');return}
-  if(profile?.disabled||profile?.role!=='admin'){tab='account';account();return}
-  const now=new Date(),dayFormat=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baghdad',year:'numeric',month:'2-digit',day:'2-digit'}),dayKey=dayFormat.format(now);
-  const parts=Object.fromEntries(dayFormat.formatToParts(now).map(p=>[p.type,p.value]));
-  const today=Date.parse(`${parts.year}-${parts.month}-${parts.day}T00:00:00+03:00`);
-  const todayOrders=D.o.filter(o=>dayFormat.format(new Date(o.ts))===dayKey);
-  const newOrders=D.o.filter(o=>o.st===0),delivered=D.o.filter(o=>o.st===3),pending=D.m.filter(m=>!m.ok&&!m.removed);
-  const tabs=[['overview','نظرة عامة'],['sellers','البائعون'],['customers','الحسابات'],['products','المنتجات'],['activity','الطلبات'],['drivers','التوصيل'],['inventory','المخزون'],['notifications','مركز المتابعة']];
-  let h=`<div class="admin-hero"><b>لوحة إدارة سوق الشطرة</b><small>${esc(user.email)} · حساب المدير</small></div><div class="admin-stats">${[['pending',pending.length,'التجار بانتظار القبول'],['accounts',D.people.length,'الحسابات المسجلة'],['new',newOrders.length,'الطلبات الجديدة'],['today',todayOrders.length,'طلبات اليوم']].map(([v,n,t])=>`<button type="button" class="admin-stat" data-a="adminStat" data-v="${v}" aria-label="${t}" aria-pressed="${(v==='accounts'&&adminTab==='customers')||adminFilter===v}"><strong>${n}</strong><small>${t}</small></button>`).join('')}</div><div class="admin-menu">${tabs.map(([v,t])=>`<button data-a="adminTab" data-v="${v}" aria-pressed="${adminTab===v}">${t}</button>`).join('')}</div>`;
-  if(adminTab==='overview'){
-    const total=delivered.reduce((sum,o)=>sum+o.total,0),days=Array.from({length:7},(_,i)=>{const d=new Date(today-(6-i)*86400000),next=new Date(d.getTime()+86400000),count=D.o.filter(o=>{const t=new Date(o.ts);return t>=d&&t<next}).length;return {label:d.toLocaleDateString('ar-IQ',{weekday:'short'}),count}}),max=Math.max(1,...days.map(d=>d.count));
-    h+=`<div class="box"><h2>حركة الطلبات خلال 7 أيام</h2><div class="admin-bars">${days.map(d=>`<div><i style="height:${Math.max(3,Math.round(d.count/max*54))}px"></i>${d.label}<br>${d.count}</div>`).join('')}</div></div><div class="box"><h2>ملخص التشغيل</h2><div class="row"><span>طلبات مسلّمة</span><b>${delivered.length}</b></div><div class="row"><span>قيمة الطلبات المسلّمة</span><b>${fmt(total)}</b></div><div class="row"><span>طلبات ملغاة</span><b>${D.o.filter(o=>o.st===4).length}</b></div><p class="note">هذه أرقام الطلبات المسجلة، وليست إثباتًا لتحصيل المال أو عمولة الإدارة.</p></div>`;
-    if(pending.length)h+=`<div class="section-title"><h2>بانتظار موافقتك</h2><button data-a="adminTab" data-v="sellers">عرض الكل</button></div>`+pending.map(m=>`<div class="admin-record"><b>${esc(m.name)}</b><small>${esc(m.phone)}</small><div class="acts"><button class="go" data-a="mok" data-v="${m.id}">قبول المتجر</button></div></div>`).join('');
-  }else if(adminTab==='sellers'){
-    const sellers=adminFilter==='pending'?pending:D.m;
-    h+=`<div class="section-title"><h2 id="adminResults">${adminFilter==='pending'?'التجار بانتظار القبول':'البائعون'} (${sellers.length})</h2></div><div class="admin-list-filters"><button data-a="adminListFilter" data-v="all" aria-pressed="${adminFilter==='all'}">جميع البائعين</button><button data-a="adminListFilter" data-v="pending" aria-pressed="${adminFilter==='pending'}">بانتظار القبول</button></div>`+(sellers.length?sellers.map(m=>{const n=D.p.filter(p=>p.mid===m.id).length,owner=D.people.find(p=>p.id===m.owner_id);return `<div class="admin-record"><b>${esc(m.name)}</b> <span class="pill">${m.removed?'مزال من السوق':m.ok?'معتمد':'بانتظار الموافقة'}</span><small>صاحب الحساب: ${esc(owner?.full_name||'لم يُدخل اسمًا')} · هاتف المتجر: ${esc(m.phone||'غير مسجل')}</small><small>${n} منتج · ${D.o.filter(o=>o.mid===m.id).length} طلب</small><small>عنوان المتجر: ${esc(m.address||'غير مسجل')}</small>${m.description?`<small>${esc(m.description)}</small>`:''}<div class="acts">${m.removed?`<button data-a="storeRemoveAsk" data-v="${m.id}">إعادة البائع للمراجعة</button>`:`<button class="${m.ok?'':'go'}" data-a="mok" data-v="${m.id}">${m.ok?'إيقاف المتجر':'قبول المتجر'}</button><button data-a="storeRemoveAsk" data-v="${m.id}">إزالة البائع من السوق</button>`}</div></div>`}).join(''):`<div class="empty">${adminFilter==='pending'?'لا يوجد تجار بانتظار القبول حاليًا.':'لا يوجد بائعون مسجلون.'}</div>`);
-  }else if(adminTab==='customers'){
-    const customers=D.people.filter(p=>[p.full_name,p.phone,p.id].join(' ').toLocaleLowerCase('ar').includes(adminSearch.toLocaleLowerCase('ar')));
-    h+=`<div class="box"><h2>تفعيل تاجر</h2><p>اطلب من التاجر رقم حسابه، ثم ابحث عنه واضغط «تفعيل كتاجر». بعد حفظ بيانات متجره يستطيع فتح واجهة البائع.</p><form id="adminAccountSearch"><label for="adminQuery">اسم أو هاتف أو رقم الحساب</label><input id="adminQuery" value="${esc(adminSearch)}" autocomplete="off"><button class="buy" type="submit">بحث</button></form></div>`;
-    h+=`<div class="section-title"><h2 id="adminResults">الحسابات المسجلة (${customers.length})</h2></div>`+(customers.length?customers.map(p=>`<div class="admin-record"><b>${esc(p.full_name||'حساب بلا اسم')}</b> <span class="pill">${p.disabled?'معطّل':p.role==='admin'?'مدير':p.role==='seller'?'بائع':p.role==='driver'?'عامل توصيل':'زبون'}</span><small>الهاتف: ${esc(p.phone||D.o.find(o=>o.buyer_id===p.id)?.cust.phone||'غير مسجل')}</small><small>رقم الحساب: <span dir="ltr">${esc(p.id)}</span></small><small>طلبات شراء: ${D.o.filter(o=>o.buyer_id===p.id).length} · التسجيل: ${when(p.created_at)}</small><div class="acts">${!p.disabled&&p.role!=='admin'?`<button class="go" data-a="activateSeller" data-v="${p.id}">${D.m.some(m=>m.owner_id===p.id&&m.ok&&!m.removed)?'تحديث بيانات التاجر':'تفعيل كتاجر'}</button>`:''}${p.role==='admin'?'<span class="note">حساب إدارة</span>':`<button data-a="userDisableAsk" data-v="${p.id}">${p.disabled?'إعادة تفعيل الحساب':'تعطيل الحساب'}</button>`}</div></div>`).join(''):'<div class="empty">لا توجد حسابات بعد.</div>');
-  }else if(adminTab==='drivers'){
-    h+=`<div class="box"><h2>إعداد أجور الطلب ورقم التحويل</h2><p>حصة التطبيق: ${fmt(deliverySettings.platform_fee)} · أجرة التوصيل: ${fmt(deliverySettings.delivery_fee)}</p><p>Qi: ${esc(deliverySettings.qi_number||'لم يُحدد')}</p><button class="buy" data-a="deliveryConfig">تعديل إعداد التوصيل</button></div><div class="section-title"><h2>عمّال التوصيل</h2></div>`;
-    h+=(D.drivers||[]).length?D.drivers.map(w=>{const person=D.people.find(p=>p.id===w.user_id),details=(D.driverProfiles||[]).find(p=>p.user_id===w.user_id);return `<div class="admin-record"><b>${esc(person?.full_name||'حساب بلا اسم')}</b> <span class="pill">${w.approved?'معتمد':'بانتظار القبول'}</span><small>📞 ${esc(person?.phone||'غير مسجل')} · المستحق ${fmt(w.amount_due)} / ${fmt(w.debt_limit)}</small>${details?`<small>البريد: ${esc(details.email)}</small><small>العنوان: ${esc(details.address)}</small><small>وسيلة التوصيل: ${esc(details.vehicle)}</small>`:'<small>بيانات التسجيل غير مكتملة؛ اطلب منه إكمال طلب السائق.</small>'}<small>رقم الحساب: ${esc(w.user_id)}</small><button class="alt" data-a="approveDriver" data-v="${w.user_id}" ${!w.approved&&!details?'disabled':''}>${w.approved?'إيقاف العامل':'الموافقة على العامل'}</button></div>`}).join(''):'<div class="empty">لا يوجد عامل مسجل.</div>';
-    h+='<div class="section-title"><h2>تحويلات بانتظار التحقق</h2></div>';
-    const pendingPayments=deliveryPayments.filter(p=>p.status==='pending');
-    h+=pendingPayments.length?pendingPayments.map(p=>`<div class="admin-record"><b>${esc(D.people.find(x=>x.id===p.driver_id)?.full_name||'عامل توصيل')}</b><small>${fmt(p.amount)} · رقم العملية: ${esc(p.receipt)}</small><div class="acts"><button class="go" data-a="reviewPayment" data-v="${p.id}|true">تأكيد وصول المبلغ</button><button data-a="reviewPayment" data-v="${p.id}|false">رفض</button></div></div>`).join(''):'<div class="empty">لا توجد تحويلات بانتظار التحقق.</div>';
-  }else if(adminTab==='products'){
-    h+=`<div class="section-title"><h2>المنتجات (${D.p.length})</h2></div>`+(D.p.length?D.p.map(p=>`<div class="admin-record"><b>${esc(p.name)}</b> <span class="pill">${p.blocked?'مزال':p.active?'ظاهر':'غير نشط'}</span><small>${esc(mname(p.mid))} · ${fmt(p.price)}</small><div class="acts"><button data-a="productBlockAsk" data-v="${p.id}">${p.blocked?'إعادة المنتج للمراجعة':'إزالة المنتج من السوق'}</button></div></div>`).join(''):'<div class="empty">لا توجد منتجات بعد.</div>');
-  }else if(adminTab==='inventory'){
-    h+=`<div class="section-title"><h2>مخزون المتاجر</h2></div>`+(D.p.length?D.p.map(p=>`<div class="admin-record"><b>${esc(p.name)}</b><small>${esc(mname(p.mid))} · ${esc(p.variant||'بدون متغير')} · ${esc(p.sku||'بدون رمز')}</small><div class="row"><span>الكمية المتاحة</span><b>${p.stock}</b></div><span class="pill">${p.stock===0?'نفد المخزون':p.stock<=(p.threshold??5)?'مخزون منخفض':'متوفر'}</span></div>`).join(''):'<div class="empty">لا توجد منتجات مسجلة.</div>');
-  }else if(adminTab==='notifications'){
-    const paymentCount=deliveryPayments.filter(p=>p.status==='pending').length,driverCount=(D.drivers||[]).filter(p=>!p.approved).length;
-    h+=`<div class="box"><h2>بانتظار الإجراء</h2>${[['sellers','متاجر بانتظار الموافقة',pending.length],['activity','طلبات جديدة',newOrders.length],['drivers','طلبات عمال التوصيل',driverCount],['drivers','تحويلات بانتظار التحقق',paymentCount],['inventory','منتجات نفدت أو انخفض مخزونها',D.p.filter(p=>p.stock<=(p.threshold??5)).length]].map(([v,t,n])=>`<button class="alt" data-a="adminTab" data-v="${v}">${t} · ${n}</button>`).join('')}<p class="note">طلبات انضمام التجار المكتملة تظهر في قسم البائعين بانتظار الموافقة.</p></div>`;
-  }else{
-    const orders=adminFilter==='new'?newOrders:adminFilter==='today'?todayOrders:D.o;
-    const title=adminFilter==='new'?'الطلبات الجديدة':adminFilter==='today'?'طلبات اليوم':'جميع الطلبات';
-    h+=`<div class="section-title"><h2 id="adminResults">${title} (${orders.length})</h2></div><div class="admin-list-filters">${[['all','جميع الطلبات'],['new','الجديدة'],['today','اليوم']].map(([v,t])=>`<button data-a="adminListFilter" data-v="${v}" aria-pressed="${adminFilter===v}">${t}</button>`).join('')}</div>`+(orders.length?orders.map(o=>`<div class="admin-record"><b>${sid(o)} · ${esc(o.cust.name)}</b> <span class="pill s${o.st}">${ST[o.st]}</span><small>${when(o.ts)} · ${esc(mname(o.mid))}</small><small>${fmt(o.total)} · ${o.items.length} صنف</small><div class="acts">${o.st===0?`<button class="go" data-a="adminAcceptAsk" data-v="${o.id}">قبول الطلب</button>`:''}${(o.st===0||o.st===1)?`<button data-a="adminCancelAsk" data-v="${o.id}">إلغاء الطلب</button>`:''}</div></div>`).join(''):`<div class="empty">${adminFilter==='new'?'لا توجد طلبات جديدة حاليًا.':adminFilter==='today'?'لا توجد طلبات اليوم بتوقيت العراق.':'لا توجد طلبات بعد.'}</div>`);
-  }
-  $('#view').innerHTML=h;
-  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=$('#adminQuery').value.trim();admin()});
+ if(!ADMIN_PORTAL){location.assign('admin.html');return}
+ if(profile?.disabled||profile?.role!=='admin')return;
+ $('#view').innerHTML=renderAdminWorkspace({data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
+
 function market(){
   const options={category:cat,query:q,min:filt.min,max:filt.max,sort:filt.sort};
   const l=window.SouqCatalog.select(D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)),options,p=>mname(p.mid));
@@ -970,7 +936,7 @@ const A={
   driverStep:v=>act(async()=>{const [id,status]=v.split('|');check(await db.rpc('delivery_step',{p_order:id,p_status:status}));A.close();await refresh();driverWorkspace.assigned(status==='delivered'?3:2);toast('تم تحديث الطلب')}),
   paySheet:()=>sheet(head('إثبات تحويل المستحقات')+`<p>حوّل إلى رقم Qi: <b dir="ltr">${esc(deliverySettings.qi_number||'لم يُحدد بعد')}</b></p><label for="payAmount">المبلغ المحوّل بالدينار</label><input id="payAmount" type="number" min="1" value="${driverAccount?.amount_due||''}"><label for="payRef">رقم العملية أو تفاصيل الوصل</label><input id="payRef" maxlength="400"><p class="note">لا يُخصم المبلغ حتى يتحقق المدير من وصوله ويؤكد الاستلام.</p><button class="buy" data-a="sendPayment">إرسال طلب التأكيد</button>`),
   sendPayment:()=>act(async()=>{const amount=+val('payAmount'),receipt=val('payRef');if(!Number.isInteger(amount)||amount<1||receipt.length<3){toast('أدخل المبلغ ورقم العملية');return}check(await db.rpc('submit_delivery_payment',{p_amount:amount,p_receipt:receipt}));A.close();await refresh();toast('أُرسل طلب المراجعة إلى المدير')}),
-  approveDriver:v=>act(async()=>{const w=D.drivers.find(x=>x.user_id===v);check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));await refresh();toast('تم تحديث عامل التوصيل')}),
+  approveDriver:v=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));A.close();await refresh();toast('تم تحديث عامل التوصيل')}),
   deliveryConfig:()=>sheet(head('إعداد التوصيل')+`<label>حصة التطبيق لكل طلب (د.ع)</label><input id="cfgFee" type="number" min="0" value="${deliverySettings.platform_fee}"><label>أجرة عامل التوصيل لكل طلب (د.ع)</label><input id="cfgDelivery" type="number" min="0" value="${deliverySettings.delivery_fee}"><label>رقم Qi المخصص للتطبيق</label><input id="cfgQi" value="${esc(deliverySettings.qi_number)}"><button class="buy" data-a="saveDeliveryConfig">حفظ</button>`),
   saveDeliveryConfig:()=>act(async()=>{const fee=+val('cfgFee'),delivery=+val('cfgDelivery');if(!Number.isInteger(fee)||!Number.isInteger(delivery)||fee<0||delivery<0){toast('أدخل مبالغ صحيحة');return}check(await db.rpc('admin_set_delivery_settings',{p_platform_fee:fee,p_delivery_fee:delivery,p_qi_number:val('cfgQi')}));A.close();await refresh();toast('تم حفظ الأسعار للطلبات الجديدة')}),
   reviewPayment:v=>{const [id,yes]=v.split('|');ask(yes==='true'?'تأكدت من وصول المبلغ إلى بطاقتك؟ سيتم خصمه من مستحقات العامل.':'رفض طلب التحويل؟','confirmPayment',v)},
@@ -981,7 +947,12 @@ const A={
   enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0);return}rememberMode(v);if(user){tab=['seller','driver'].includes(v)?'account':'market';render();return}lsheet('m')},
   switchrole:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
   tab:v=>{if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
-  adminTab:v=>{adminTab=v;adminFilter='all';admin()},
+  adminTab:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminTab=v;adminFilter='all';adminSearch='';adminDetail=null;admin();scrollTo(0,0)},
+  adminDetail:v=>{if(profile?.role!=='admin'||profile?.disabled)return;const [kind,id]=v.split('|');adminDetail={kind,id};admin();scrollTo(0,0)},
+  adminBack:()=>{adminDetail=null;admin();scrollTo(0,0)},
+  adminRefresh:()=>act(async()=>{await refresh();toast('تم تحديث البيانات')}),
+  adminOrder:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminDetail={kind:'order',id:v};admin();scrollTo(0,0)},
+  adminDriverAsk:v=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;ask(w.approved?'إيقاف السائق عن قبول طلبات جديدة؟ ستبقى طلباته السابقة محفوظة.':'الموافقة على تسجيل هذا السائق؟','approveDriver',v)},
   adminStat:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminSearch='';adminTab=v==='pending'?'sellers':v==='accounts'?'customers':'activity';adminFilter=v==='accounts'?'all':v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   adminListFilter:v=>{adminFilter=v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   cat:v=>{cat=v;tab='catalog';render()},
@@ -1049,7 +1020,7 @@ const A={
     }
   }),
   register:()=>sellerRequest(),
-  out:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
+  out:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.o=[];deliveryPayments=[];adminDetail=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
   dtab:v=>{dt=v;render()},
   pform:v=>{if(!canSell()){sellerRequest();return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}fsheet(v)},
   psave:()=>act(saveProduct),
