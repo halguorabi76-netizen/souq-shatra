@@ -23,14 +23,24 @@ products:[
 ['p8','طقم أكواب 6 قطع','s3',15000,'المنزل',['6 قطع'],'cup','أكواب خزفية، سعة الكوب 250 مل.'],
 ['p9','مصباح مكتبي','s3',22000,'المنزل',['أبيض','أسود'],'lamp','إضاءة LED قابلة للتعديل.'],
 ['p10','كرة قدم','s3',20000,'رياضة',['5'],'ball','مقاس 5، مناسبة للملاعب الشعبية.'],
-['p11','عبوة تمر عراقي','s3',8000,'غذائيات',['1 كغم','2 كغم'],'dates','تمر عراقي معبأ، الوزن حسب الاختيار.'],
-['p12','نبات منزلي','s3',12000,'المنزل',['صغير','متوسط'],'plant','نبات للزينة مع أصيص وتعليمات العناية.']
+['p11','عبوة تمر عراقي','s3',8000,'تمور',['1 كغم','2 كغم'],'dates','تمر عراقي معبأ، الوزن حسب الاختيار.'],
+['p12','نبات منزلي','s3',12000,'المنزل',['صغير','متوسط'],'plant','نبات للزينة مع أصيص وتعليمات العناية.'],
+['p13','رز عراقي عنبر','s3',5000,'مواد غذائية',['1 كغم'],'bag','رز عنبر معبأ — منتج تجريبي.'],
+['p14','زيت طبخ','s3',3500,'مواد غذائية',['1 لتر'],'cup','عبوة زيت طبخ — منتج تجريبي.'],
+['p15','طماطم طازجة','s3',1500,'خضار وفواكه',['1 كغم'],'plant','طماطم طازجة — منتج تجريبي.'],
+['p16','تفاح أحمر','s3',3000,'خضار وفواكه',['1 كغم'],'plant','تفاح أحمر — منتج تجريبي.']
 ].map(([id,name,seller,price,category,sizes,art,desc])=>({id,name,seller,price,category,sizes,art,desc,stock:20,promoted:false})),
 ads:[{id:'ad1',title:'أزياء النخيل · اختيارات الموسم',text:'تجربة التسوق بمقاسات متنوعة',image:'icons/shatra-square.jpeg'},
 {id:'ad2',title:'إلكترونيات الرافدين · جديد السوق',text:'جرّب طلب هاتف أو سماعة',image:'icons/shatra-river.jpeg'},
 {id:'ad3',title:'من الشطرة… لأهل الشطرة',text:'عروض بيت الشطرة التجريبية',image:'icons/shatra-bridge.jpeg'}],orders:[],notices:[],payments:[]});
 let data;try{data=JSON.parse(localStorage.getItem(KEY));}catch{}
 if(!data||data.version!==1)data=fixture();
+if(data.people.length&&data.seedRevision!==47){
+ const seeds=fixture().products;
+ for(const p of seeds.filter(p=>['p13','p14','p15','p16'].includes(p.id)))if(!data.products.some(x=>x.id===p.id)&&data.people.some(x=>x.id===p.seller))data.products.push(p);
+ const dates=data.products.find(p=>p.id==='p11');if(dates&&dates.category==='غذائيات')dates.category='تمور';
+ data.seedRevision=47;try{localStorage.setItem(KEY,JSON.stringify(data))}catch{}
+}
 let active=false,current='b1',page='market',category='الكل',query='',adIndex=0,checkout=null,callback=()=>{document.body.classList.remove('demo-mode');document.getElementById('view').innerHTML=preview();};
 const person=id=>data.people.find(p=>p.id===id); const me=()=>person(current);
 const button=(action,label,value='',cls='')=>`<button class="${cls}" data-demo="${action}" data-value="${esc(value)}">${label}</button>`;
@@ -40,13 +50,14 @@ const admins=()=>data.people.filter(p=>p.role==='admin').map(p=>p.id);
 function inform(o,text){notice([o.buyer,o.seller,o.driver,...admins()],text,o.id)}
 function art(type){const drawings={shirt:'<path d="M25 20 10 30l10 15 10-6v40h40V39l10 6 10-15-15-10-15 8H40Z"/>',dress:'<path d="m35 18 10 8h10l10-8 8 18-12 9 18 38H21l18-38-12-9Z"/>',shoe:'<path d="M18 50 30 29l22 22 28 9q12 4 6 17H15Z"/><path d="M34 44h20M39 50h20M16 70h70"/>',phone:'<rect x="30" y="12" width="40" height="77" rx="7"/><path d="M42 19h16M44 81h12"/>',headphones:'<path d="M22 54V43a28 28 0 0 1 56 0v11"/><rect x="15" y="49" width="18" height="31" rx="6"/><rect x="67" y="49" width="18" height="31" rx="6"/>',watch:'<path d="M39 10h22v20H39Zm0 60h22v20H39Z"/><rect x="27" y="28" width="46" height="44" rx="10"/><path d="M50 38v13l10 6"/>',bag:'<rect x="23" y="28" width="54" height="57" rx="10"/><path d="M37 28v-9h26v9M32 56h36v20H32Z"/>',cup:'<path d="M20 26h48v38q0 18-24 18T20 64ZM68 32h8q20 0 6 24H68"/>',lamp:'<path d="M22 83h57M50 82V51L70 25M48 28l22-14 17 25-25 13Z"/>',ball:'<circle cx="50" cy="50" r="35"/><path d="m50 32 18 13-7 21H39l-7-21ZM50 32V15M68 45l16-6M61 66l10 16M39 66 28 81M32 45l-16-6"/>',dates:'<rect x="18" y="28" width="64" height="53" rx="12"/><ellipse cx="37" cy="49" rx="8" ry="12"/><ellipse cx="62" cy="60" rx="8" ry="12"/>',plant:'<path d="m29 62 7 26h28l7-26ZM50 62V25M50 44Q20 45 25 18q25-2 25 26ZM50 52q31 2 27-27-26-3-27 27Z"/>'};return `<svg viewBox="0 0 100 100" role="img" aria-label="رسم توضيحي للمنتج" fill="#e6cbcd" stroke="#833d41" stroke-width="3" stroke-linejoin="round">${drawings[type]||drawings.bag}</svg>`}
 function cards(products){return `<div class="demo-grid">${products.map(p=>`<article class="demo-product"><span class="demo-tag">تجريبي${p.promoted?' · مروّج':''}</span><div class="demo-art">${art(p.art)}</div><h3>${esc(p.name)}</h3><small>${esc(person(p.seller)?.name||'بائع محذوف')}</small><p>${money(p.price)}</p><small>المقاسات: ${p.sizes.map(esc).join('، ')} · المخزون ${p.stock}</small><div class="demo-actions">${button('product','عرض وطلب',p.id)}${active&&['seller','admin'].includes(me()?.role)&&(me().role==='admin'||p.seller===current)?button('promote',p.promoted?'إيقاف الترويج':'ترويج',p.id):''}${button('deleteProduct','🗑',p.id,'demo-delete')}</div></article>`).join('')}</div>`}
-function preview(){if(!data.visible)return `<div class="demo-preview">${button('open','فتح التجربة بالحسابات الأربعة')}</div>`;return `<section class="demo-preview"><div class="demo-heading"><div><h2>سوق تجريبي جاهز للتجربة</h2><p>منتجات وحسابات وهمية · لا توجد مدفوعات أو طلبات حقيقية</p></div>${button('open','ابدأ التجربة من هاتف واحد')}</div>${cards(data.products.slice(0,12))}</section>`}
+const demoProducts=options=>data.visible?window.SouqCatalog.select(data.products,options,p=>person(p.seller)?.name||''):[];
+function preview(options={}){if(!data.visible)return '';const list=demoProducts(options);if(!list.length)return '';return `<section class="demo-preview"><div class="demo-heading"><div><h2>منتجات تجريبية</h2><p>لشرح فكرة التطبيق · الطلبات هنا تجريبية</p></div>${button('open','فتح التجربة')}</div>${cards(list)}</section>`}
 function render(){if(!active)return;document.body.classList.add('demo-mode');const view=document.getElementById('view');const p=me();if(!p){current=data.people[0]?.id||'';}const who=me();if(!who){view.innerHTML='<div class="demo-shell"><h2>حُذفت الحسابات التجريبية</h2>'+button('reset','إنشاء تجربة جديدة')+button('exit','العودة للسوق الحقيقي')+'</div>';return}
 let h=`<div class="demo-shell"><div class="demo-heading"><div><h1>سوق الشطرة · تجربة متكاملة</h1><p>محاكاة محلية على هذا المتصفح؛ لا ترسل طلبات أو إشعارات حقيقية.</p></div>${button('exit','العودة للسوق الحقيقي')}</div><div class="demo-roles">${data.people.map(p=>button('switch',`${esc(p.name)}<small>${roles[p.role]}</small>`,p.id,p.id===current?'selected':'')).join('')}</div><div class="demo-current">أنت الآن: <b>${esc(who.name)}</b> · ${roles[who.role]}${who.role==='driver'?` · مستحقات ${money(who.due)} / حد ${money(5000)}`:''}</div><nav class="demo-nav">${['market','orders','notices','accounts'].map(v=>button('page',({market:'السوق والعروض',orders:'الطلبات',notices:'الإشعارات',accounts:'الحسابات والإدارة'})[v]+(v==='notices'?` (${data.notices.filter(n=>n.to===current&&!n.read).length})`:''),v,page===v?'selected':'')).join('')}</nav>`;
 if(page==='market'){
 const ad=data.ads[adIndex%data.ads.length];if(ad)h+=`<div class="demo-ad" style="background-image:linear-gradient(transparent,#32181ad9),url('${esc(ad.image)}')"><b>${esc(ad.title)}</b><span>${esc(ad.text)}</span><div>${button('ad','‹','-1')}${button('ad','›','1')}${button('deleteAd','🗑 حذف الإعلان',ad.id,'demo-delete')}</div></div>`;
-h+=`<div class="demo-filters"><label>ابحث <input id="demo-query" value="${esc(query)}" placeholder="قميص، هاتف…"></label><label>القسم <select id="demo-cat">${['الكل','ملابس','إلكترونيات','المنزل','رياضة','غذائيات'].map(c=>`<option ${c===category?'selected':''}>${c}</option>`).join('')}</select></label>${button('search','بحث')}</div>`;
-h+=cards(data.products.filter(p=>(category==='الكل'||category===p.category)&&(p.name+' '+p.desc).includes(query)).sort((a,b)=>Number(b.promoted)-Number(a.promoted)));
+h+=`<div class="demo-filters"><label>ابحث <input id="demo-query" value="${esc(query)}" placeholder="قميص، هاتف…"></label><label>القسم <select id="demo-cat">${['الكل','مواد غذائية','خضار وفواكه','تمور','ملابس','أجهزة','منزلية','أخرى'].map(c=>`<option ${c===category?'selected':''}>${c}</option>`).join('')}</select></label>${button('search','بحث')}</div>`;
+const matches=window.SouqCatalog.select(data.products,{category,query},p=>person(p.seller)?.name||'');h+=matches.length?cards(matches.sort((a,b)=>Number(b.promoted)-Number(a.promoted))):'<div class="demo-card">لا توجد نتائج مطابقة.</div>';
 }else if(page==='orders'){
 const list=data.orders.filter(o=>who.role==='admin'||o.buyer===current||o.seller===current||(who.role==='driver'&&(o.driver===current||(['new','accepted'].includes(o.status)&&!o.ignored.includes(current)))));
 h+=list.length?list.map(orderCard).join(''):'<div class="demo-card">لا توجد طلبات. اطلب منتجًا من السوق بالحساب التجريبي.</div>';
@@ -114,9 +125,8 @@ let start=null;
 document.addEventListener('touchstart',e=>{start=e.target.closest('.demo-ad')&&e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;},{passive:true});
 document.addEventListener('touchend',e=>{if(!start||e.changedTouches.length!==1)return;const dx=e.changedTouches[0].clientX-start.x,dy=e.changedTouches[0].clientY-start.y;start=null;if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.2)action('ad',dx<0?'1':'-1');},{passive:true});
 document.addEventListener('touchcancel',()=>{start=null;},{passive:true});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='demo-query'){e.preventDefault();action('search');}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-demo]');if(!b)return;e.preventDefault();action(b.dataset.demo,b.dataset.value);});
 window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;try{const next=JSON.parse(e.newValue);if(next.version===1){data=next;active?render():callback();}}catch{}});
-window.SouqDemo={preview,render,isActive:()=>active,init:fn=>{callback=fn;},open:()=>action('open')};
+window.SouqDemo={preview,count:options=>demoProducts(options).length,render,isActive:()=>active,init:fn=>{callback=fn;},open:()=>action('open')};
 })();
-
-
