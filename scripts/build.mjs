@@ -9,7 +9,7 @@ const admin=main.replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl"
  .replace('<meta name="apple-mobile-web-app-title" content="سوق الشطرة">','<meta name="apple-mobile-web-app-title" content="إدارة سوق الشطرة">')
  .replace('<link rel="icon" href="icons/startup-s-v29.png" sizes="192x192">','<link rel="icon" href="icons/admin-192-v66.png" sizes="192x192">')
  .replace('<link rel="apple-touch-icon" href="icons/startup-s-v29.png">','<link rel="apple-touch-icon" href="icons/admin-192-v66.png">')
- .replace(appModule[0],'<script type="module">import {bootAdminHub} from "./admin-hub.js?v=67";bootAdminHub();</script>');
+ .replace(appModule[0],'<script type="module">import {bootAdminHub} from "./admin-hub.js?v=68";bootAdminHub();</script>');
 await writeFile('admin.html',admin);
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
