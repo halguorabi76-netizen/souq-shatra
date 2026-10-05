@@ -961,10 +961,10 @@ const A={
   }),
   registerDriver:()=>driverWorkspace.application(),
   claimAsk:v=>ask('ستدفع ثمن المنتج للبائع من مالك، ثم تقبض من الزبون إجمالي الطلب. هل تقبل؟','claimOrder',v),
-  claimOrder:v=>act(async()=>{check(await db.rpc('claim_delivery',{p_order:v}));A.close();await refresh();tab='chats';render();toast('أُسند إليك الطلب')}),
+  claimOrder:v=>act(async()=>{check(await db.rpc('claim_delivery',{p_order:v}));A.close();await refresh();driverWorkspace.assigned(1);toast('أُسند إليك الطلب')}),
   ignoreOffer:v=>act(async()=>{check(await db.rpc('decline_delivery',{p_order:v}));deliveryOffers=deliveryOffers.filter(o=>o.order_id!==v);driverPage();toast('لن يظهر لك هذا الطلب مرة أخرى')}),
   driverStepAsk:v=>{const [id,status]=v.split('|');ask(status==='delivered'?'هل سلّمت المنتج وقبضت المبلغ كاملًا؟':'هل دفعت ثمن المنتج واستلمته من البائع؟','driverStep',v)},
-  driverStep:v=>act(async()=>{const [id,status]=v.split('|');check(await db.rpc('delivery_step',{p_order:id,p_status:status}));A.close();await refresh();tab='chats';render();toast('تم تحديث الطلب')}),
+  driverStep:v=>act(async()=>{const [id,status]=v.split('|');check(await db.rpc('delivery_step',{p_order:id,p_status:status}));A.close();await refresh();driverWorkspace.assigned(status==='delivered'?3:2);toast('تم تحديث الطلب')}),
   paySheet:()=>sheet(head('إثبات تحويل المستحقات')+`<p>حوّل إلى رقم Qi: <b dir="ltr">${esc(deliverySettings.qi_number||'لم يُحدد بعد')}</b></p><label for="payAmount">المبلغ المحوّل بالدينار</label><input id="payAmount" type="number" min="1" value="${driverAccount?.amount_due||''}"><label for="payRef">رقم العملية أو تفاصيل الوصل</label><input id="payRef" maxlength="400"><p class="note">لا يُخصم المبلغ حتى يتحقق المدير من وصوله ويؤكد الاستلام.</p><button class="buy" data-a="sendPayment">إرسال طلب التأكيد</button>`),
   sendPayment:()=>act(async()=>{const amount=+val('payAmount'),receipt=val('payRef');if(!Number.isInteger(amount)||amount<1||receipt.length<3){toast('أدخل المبلغ ورقم العملية');return}check(await db.rpc('submit_delivery_payment',{p_amount:amount,p_receipt:receipt}));A.close();await refresh();toast('أُرسل طلب المراجعة إلى المدير')}),
   approveDriver:v=>act(async()=>{const w=D.drivers.find(x=>x.user_id===v);check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));await refresh();toast('تم تحديث عامل التوصيل')}),
@@ -1075,7 +1075,7 @@ const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bell
 async function showOrderNotice(id){
  const row=check(await db.from('orders').select('*,order_items(*)').eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
  const contacts=check(await db.rpc('assigned_delivery_contacts'))||[];D.driverContacts=contacts;
- if(viewMode==='driver'){await refresh();tab='chats';render();return;}
+ if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
 }
 document.addEventListener('change',e=>{const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});

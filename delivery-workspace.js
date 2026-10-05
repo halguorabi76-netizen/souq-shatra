@@ -17,5 +17,5 @@ export function createDriverWorkspace(ctx){let section='pending',saving=false;co
  if(section==='payments')html+=g.payments.length?g.payments.map(p=>`<article class="dw-card"><b>${F(p.amount)}</b><p>${E(p.receipt||'')}</p><small>${E(p.status||'قيد المراجعة')} · ${E(ctx.when(p.created_at))}</small></article>`).join(''):'<div class="dw-empty">لم ترسل طلب تسوية بعد.</div>';
  }html+='</div>';document.querySelector('#view').innerHTML=html;ctx.noticeSync();}
  document.addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;if(b.dataset.d==='application')application();if(b.dataset.d==='section'){section=b.dataset.v;render();}});
- return {render,application,available:()=>{section='available';ctx.tab('chats');},orderCard};
+ return {render,application,available:()=>{section='available';ctx.tab('chats');},assigned:status=>{section=status===3?'done':'pending';ctx.tab('chats');},orderCard};
 }
