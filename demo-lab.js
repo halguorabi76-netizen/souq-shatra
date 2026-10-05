@@ -6,42 +6,15 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const money=n=>Number(n).toLocaleString('ar-IQ')+' د.ع';
 const roles={buyer:'زبون',seller:'بائع',driver:'عامل توصيل',admin:'مدير التجربة'};
 const states={new:'جديد',accepted:'قبله البائع',claimed:'استلمه السائق',picked:'تم شراء السلعة',delivered:'تم التسليم',cancelled:'ملغى'};
-const fixture=()=>({version:1,visible:true,people:[
-{id:'b1',name:'حسن — زبون تجريبي',role:'buyer',address:'الشطرة، حي المعلمين قرب المدرسة'},
-{id:'b2',name:'زينب — زبونة تجريبية',role:'buyer',address:'الشطرة، شارع السوق قرب الجسر'},
-{id:'s1',name:'علي — أزياء النخيل',role:'seller'}, {id:'s2',name:'سارة — إلكترونيات الرافدين',role:'seller'},
-{id:'s3',name:'محمد — بيت الشطرة',role:'seller'}, {id:'d1',name:'أحمد — توصيل تجريبي',role:'driver',due:0},
-{id:'d2',name:'مصطفى — توصيل تجريبي',role:'driver',due:0}, {id:'a1',name:'المدير التجريبي',role:'admin'}],
-products:[
-['p1','قميص رجالي قطني','s1',25000,'ملابس',['M','L','XL'],'shirt','قماش قطني، ألوان كحلي وأبيض، مناسب للاستخدام اليومي.'],
-['p2','فستان نسائي','s1',42000,'ملابس',['S','M','L'],'dress','قماش ناعم، ألوان بنفسجي وبيج، الطول 120 سم.'],
-['p3','حذاء رياضي','s1',35000,'ملابس',['40','41','42','43'],'shoe','نعل خفيف ومرن، ألوان أسود وأبيض.'],
-['p4','سماعات لاسلكية','s2',28000,'إلكترونيات',['قياسي'],'headphones','بلوتوث، علبة شحن، ضمان تجريبي سبعة أيام.'],
-['p5','هاتف ذكي 128GB','s2',245000,'إلكترونيات',['128GB','256GB'],'phone','شاشة 6.5 بوصة، ذاكرة 8GB، لون أزرق.'],
-['p6','ساعة ذكية','s2',55000,'إلكترونيات',['أسود','فضي'],'watch','شاشة ملونة، سوار قابل للتبديل.'],
-['p7','حقيبة ظهر','s1',18000,'ملابس',['أسود','بنفسجي'],'bag','جيوب متعددة، مناسبة للجامعة والعمل.'],
-['p8','طقم أكواب 6 قطع','s3',15000,'المنزل',['6 قطع'],'cup','أكواب خزفية، سعة الكوب 250 مل.'],
-['p9','مصباح مكتبي','s3',22000,'المنزل',['أبيض','أسود'],'lamp','إضاءة LED قابلة للتعديل.'],
-['p10','كرة قدم','s3',20000,'رياضة',['5'],'ball','مقاس 5، مناسبة للملاعب الشعبية.'],
-['p11','عبوة تمر عراقي','s3',8000,'تمور',['1 كغم','2 كغم'],'dates','تمر عراقي معبأ، الوزن حسب الاختيار.'],
-['p12','نبات منزلي','s3',12000,'المنزل',['صغير','متوسط'],'plant','نبات للزينة مع أصيص وتعليمات العناية.'],
-['p13','رز عراقي عنبر','s3',5000,'مواد غذائية',['1 كغم'],'bag','رز عنبر معبأ — منتج تجريبي.'],
-['p14','زيت طبخ','s3',3500,'مواد غذائية',['1 لتر'],'cup','عبوة زيت طبخ — منتج تجريبي.'],
-['p15','طماطم طازجة','s3',1500,'خضار وفواكه',['1 كغم'],'plant','طماطم طازجة — منتج تجريبي.'],
-['p16','تفاح أحمر','s3',3000,'خضار وفواكه',['1 كغم'],'plant','تفاح أحمر — منتج تجريبي.']
-].map(([id,name,seller,price,category,sizes,art,desc])=>({id,name,seller,price,category,sizes,art,desc,stock:20,promoted:false})),
-ads:[{id:'ad1',title:'أزياء النخيل · اختيارات الموسم',text:'تجربة التسوق بمقاسات متنوعة',image:'icons/shatra-square.jpeg'},
-{id:'ad2',title:'إلكترونيات الرافدين · جديد السوق',text:'جرّب طلب هاتف أو سماعة',image:'icons/shatra-river.jpeg'},
-{id:'ad3',title:'من الشطرة… لأهل الشطرة',text:'عروض بيت الشطرة التجريبية',image:'icons/shatra-bridge.jpeg'}],orders:[],notices:[],payments:[]});
+// Version 2 permanently retires the old seeded marketplace data.
+// Keep the local lab available, but start with no identities or listings.
+const fixture=()=>({version:2,visible:false,people:[],products:[],ads:[],orders:[],notices:[],payments:[]});
 let data;try{data=JSON.parse(localStorage.getItem(KEY));}catch{}
-if(!data||data.version!==1)data=fixture();
-if(data.people.length&&data.seedRevision!==47){
- const seeds=fixture().products;
- for(const p of seeds.filter(p=>['p13','p14','p15','p16'].includes(p.id)))if(!data.products.some(x=>x.id===p.id)&&data.people.some(x=>x.id===p.seller))data.products.push(p);
- const dates=data.products.find(p=>p.id==='p11');if(dates&&dates.category==='غذائيات')dates.category='تمور';
- data.seedRevision=47;try{localStorage.setItem(KEY,JSON.stringify(data))}catch{}
+if(!data||data.version!==2){
+ data=fixture();
+ try{localStorage.setItem(KEY,JSON.stringify(data))}catch{}
 }
-let active=false,current='b1',page='market',category='الكل',query='',adIndex=0,checkout=null,callback=()=>{document.body.classList.remove('demo-mode');document.getElementById('view').innerHTML=preview();};
+let active=false,current='',page='market',category='الكل',query='',adIndex=0,checkout=null,callback=()=>{document.body.classList.remove('demo-mode');document.getElementById('view').innerHTML=preview();};
 const person=id=>data.people.find(p=>p.id===id); const me=()=>person(current);
 const button=(action,label,value='',cls='')=>`<button class="${cls}" data-demo="${action}" data-value="${esc(value)}">${label}</button>`;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch{alert('تعذّر حفظ التجربة على الجهاز. تحقق من مساحة التخزين.');return false}}
@@ -52,7 +25,7 @@ function art(type){const drawings={shirt:'<path d="M25 20 10 30l10 15 10-6v40h40
 function cards(products){return `<div class="demo-grid">${products.map(p=>`<article class="demo-product"><span class="demo-tag">تجريبي${p.promoted?' · مروّج':''}</span><div class="demo-art">${art(p.art)}</div><h3>${esc(p.name)}</h3><small>${esc(person(p.seller)?.name||'بائع محذوف')}</small><p>${money(p.price)}</p><small>المقاسات: ${p.sizes.map(esc).join('، ')} · المخزون ${p.stock}</small><div class="demo-actions">${button('product','عرض وطلب',p.id)}${active&&['seller','admin'].includes(me()?.role)&&(me().role==='admin'||p.seller===current)?button('promote',p.promoted?'إيقاف الترويج':'ترويج',p.id):''}${button('deleteProduct','🗑',p.id,'demo-delete')}</div></article>`).join('')}</div>`}
 const demoProducts=options=>data.visible?window.SouqCatalog.select(data.products,options,p=>person(p.seller)?.name||''):[];
 function preview(options={}){if(!data.visible)return '';const list=demoProducts(options);if(!list.length)return '';return `<section class="demo-preview"><div class="demo-heading"><div><h2>منتجات تجريبية</h2><p>لشرح فكرة التطبيق · الطلبات هنا تجريبية</p></div>${button('open','فتح التجربة')}</div>${cards(list)}</section>`}
-function render(){if(!active)return;document.body.classList.add('demo-mode');const view=document.getElementById('view');const p=me();if(!p){current=data.people[0]?.id||'';}const who=me();if(!who){view.innerHTML='<div class="demo-shell"><h2>حُذفت الحسابات التجريبية</h2>'+button('reset','إنشاء تجربة جديدة')+button('exit','العودة للسوق الحقيقي')+'</div>';return}
+function render(){if(!active)return;document.body.classList.add('demo-mode');const view=document.getElementById('view');const p=me();if(!p){current=data.people[0]?.id||'';}const who=me();if(!who){view.innerHTML='<div class="demo-shell"><h2>لوحة التجربة فارغة</h2><p>تمت إزالة البيانات الوهمية. منتجات التجار متاحة في السوق.</p>'+button('exit','العودة للسوق الحقيقي')+'</div>';return}
 let h=`<div class="demo-shell"><div class="demo-heading"><div><h1>سوق الشطرة · تجربة متكاملة</h1><p>محاكاة محلية على هذا المتصفح؛ لا ترسل طلبات أو إشعارات حقيقية.</p></div>${button('exit','العودة للسوق الحقيقي')}</div><div class="demo-roles">${data.people.map(p=>button('switch',`${esc(p.name)}<small>${roles[p.role]}</small>`,p.id,p.id===current?'selected':'')).join('')}</div><div class="demo-current">أنت الآن: <b>${esc(who.name)}</b> · ${roles[who.role]}${who.role==='driver'?` · مستحقات ${money(who.due)} / حد ${money(5000)}`:''}</div><nav class="demo-nav">${['market','orders','notices','accounts'].map(v=>button('page',({market:'السوق والعروض',orders:'الطلبات',notices:'الإشعارات',accounts:'الحسابات والإدارة'})[v]+(v==='notices'?` (${data.notices.filter(n=>n.to===current&&!n.read).length})`:''),v,page===v?'selected':'')).join('')}</nav>`;
 if(page==='market'){
 const ad=data.ads[adIndex%data.ads.length];if(ad)h+=`<div class="demo-ad" style="background-image:linear-gradient(transparent,#32181ad9),url('${esc(ad.image)}')"><b>${esc(ad.title)}</b><span>${esc(ad.text)}</span><div>${button('ad','‹','-1')}${button('ad','›','1')}${button('deleteAd','🗑 حذف الإعلان',ad.id,'demo-delete')}</div></div>`;
@@ -67,7 +40,7 @@ const list=data.notices.filter(n=>n.to===current);h+=list.length?list.map(n=>`<d
 h+='<div class="demo-card"><h2>حسابات وهمية للتجربة</h2><p>التبديل أعلاه يحاكي الأدوار، ولا ينشئ حسابات تسجيل دخول في Supabase.</p>'+data.people.map(p=>`<div class="demo-account"><span>${esc(p.name)} · ${roles[p.role]}</span>${button('deletePerson','🗑 حذف',p.id,'demo-delete')}</div>`).join('')+'</div>';
 if(who.role==='driver')h+='<div class="demo-card"><h2>تسوية المستحقات التجريبية</h2><p>لا ترسل مالًا. هذا إثبات وهمي ينتظر تأكيد المدير.</p>'+button('payment','إرسال إثبات تحويل تجريبي')+'</div>';
 if(who.role==='admin')h+='<div class="demo-card"><h2>توليد طلبات تجريبية</h2><p>ينشئ طلبات وهمية حسب المخزون المتبقي، دون اتصال بالخادم.</p>'+button('bulk','إنشاء 5 طلبات','5')+button('bulk','إنشاء 50 طلبًا','50')+'</div><div class="demo-card"><h2>تحويلات السائقين</h2>'+data.payments.map(p=>`<div class="demo-account">${esc(person(p.driver)?.name||'سائق محذوف')} · ${money(p.amount)} · ${p.approved?'مؤكد': 'بانتظار التأكيد'}${!p.approved?button('approvePayment','تأكيد الاستلام',p.id):''}</div>`).join('')+'</div>';
-h+='<div class="demo-card"><h2>التحكم بالبيانات التجريبية</h2>'+button('hide','إخفاء المواد من السوق الرئيسي')+button('clear','حذف جميع البيانات التجريبية','', 'demo-delete')+button('reset','إعادة إنشاء التجربة')+'</div>';
+h+='<div class="demo-card"><h2>التحكم بالبيانات التجريبية</h2>'+button('hide','إخفاء المواد من السوق الرئيسي')+button('clear','حذف جميع البيانات التجريبية','', 'demo-delete')+button('reset','تفريغ لوحة التجربة')+'</div>';
 }
 view.innerHTML=h+'</div>';
 }
@@ -117,8 +90,8 @@ if(a==='deleteAd')data.ads=data.ads.filter(p=>p.id!==v);
 if(a==='deletePerson'){data.people=data.people.filter(p=>p.id!==v);data.products=data.products.filter(p=>p.seller!==v);data.notices=data.notices.filter(p=>p.to!==v);}
 if(a==='deleteOrder'){const o=data.orders.find(p=>p.id===v);if(o&&!['cancelled','delivered'].includes(o.status)){const p=data.products.find(p=>p.id===o.product);if(p)p.stock+=o.quantity;}data.orders=data.orders.filter(p=>p.id!==v);data.notices=data.notices.filter(p=>p.order!==v);}
 if(a==='hide'){data.visible=false;active=false;save();callback();return}
-if(a==='clear'){data={version:1,visible:false,people:[],products:[],ads:[],orders:[],notices:[],payments:[]};}
-if(a==='reset'){data=fixture();current='b1';page='market';active=true;}
+if(a==='clear'){data=fixture();}
+if(a==='reset'){data=fixture();current='';page='market';active=true;}
 save();if(active)render();else callback();
 }
 let start=null;
@@ -127,6 +100,6 @@ document.addEventListener('touchend',e=>{if(!start||e.changedTouches.length!==1)
 document.addEventListener('touchcancel',()=>{start=null;},{passive:true});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='demo-query'){e.preventDefault();action('search');}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-demo]');if(!b)return;e.preventDefault();action(b.dataset.demo,b.dataset.value);});
-window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;try{const next=JSON.parse(e.newValue);if(next.version===1){data=next;active?render():callback();}}catch{}});
+window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;try{const next=JSON.parse(e.newValue);if(next.version===2){data=next;active?render():callback();}}catch{}});
 window.SouqDemo={preview,count:options=>demoProducts(options).length,render,isActive:()=>active,init:fn=>{callback=fn;},open:()=>action('open')};
 })();
