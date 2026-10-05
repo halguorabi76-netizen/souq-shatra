@@ -1,0 +1,96 @@
+/* Completely local adapter. This module never imports Supabase or calls fetch. */
+export const PREVIEW_KEY='souq-shatra-interface-preview-v1';
+export const IDS={buyer:'a1000000-0000-4000-8000-000000000001',seller:'a1000000-0000-4000-8000-000000000002',driver:'a1000000-0000-4000-8000-000000000003',store:'a2000000-0000-4000-8000-000000000001'};
+const clone=x=>JSON.parse(JSON.stringify(x));
+const labels={buyer:'الزبون',seller:'التاجر',driver:'سائق التوصيل'};
+const fail=message=>{throw new Error(message)};
+export function previewFixture(now=new Date().toISOString()){
+ return {version:1,profiles:Object.entries(labels).map(([role,label])=>({id:IDS[role],role,full_name:'معاينة '+label,phone:'00000000000',disabled:false,created_at:now})),stores:[{id:IDS.store,owner_id:IDS.seller,name:'متجر المعاينة',description:'مواد محلية للتجربة فقط — لا توجد مبيعات حقيقية.',phone:'00000000000',address:'عنوان محل تجريبي',store_kind:'physical',approved:true,removed:false,created_at:now,storefront_settings:{},image_path:null}],products:[['قميص تجريبي','ملابس',10000,20],['تمور تجريبية','تمور',5000,12],['حقيبة تجريبية','أخرى',15000,8]].map(([name,category,price,stock],i)=>({id:'a3000000-0000-4000-8000-00000000000'+(i+1),store_id:IDS.store,name,category,price,stock,description:'هذا منتج مخصص لاختبار الواجهة، ولا يظهر في السوق الحقيقي.',active:true,blocked:false,created_at:now,image_path:null,compare_at_price:i===0?12000:null,low_stock_threshold:5})),orders:[],order_items:[],product_interactions:[],account_notifications:[],delivery_workers:[{user_id:IDS.driver,approved:true,amount_due:0,debt_limit:5000}],driver_profiles:[{user_id:IDS.driver,full_name:'معاينة سائق التوصيل',phone:'00000000000',email:'preview-driver@example.invalid',address:'عنوان تجريبي',vehicle:'وسيلة توصيل تجريبية'}],delivery_settings:[{id:1,platform_fee:500,delivery_fee:2000,qi_number:'رقم تجريبي — لا تحوّل أموالًا'}],delivery_payments:[],delivery_declines:[],store_pickups:[{store_id:IDS.store,pickup_address:'عنوان محل تجريبي'}],seller_workspace_settings:[],seller_categories:['ملابس','تمور','أخرى'].map((name,i)=>({id:'category-'+i,store_id:IDS.store,name,active:true,deleted_at:null,created_at:now})),seller_customers:[],images:{}};
+}
+export function createPreviewModel(storage,uuid=()=>crypto.randomUUID(),clock=()=>new Date().toISOString()){
+ let data,role=null;try{data=JSON.parse(storage.getItem(PREVIEW_KEY))}catch{}if(!data||data.version!==1||!Array.isArray(data.orders)||!Array.isArray(data.products))data=previewFixture(clock());
+ const save=()=>storage.setItem(PREVIEW_KEY,JSON.stringify(data));
+ const user=()=>role?{id:IDS[role],email:'preview-'+role+'@example.invalid',user_metadata:{}}:null;
+ function setRole(next){if(next!==null&&!Object.hasOwn(labels,next))fail('واجهة غير معروفة');role=next;}
+ function notice(to,title,body='',order_id=null,product_id=null,kind='status',key=uuid()){
+  if(!to||data.account_notifications.some(n=>n.recipient_id===to&&n.event_key===key))return;
+  data.account_notifications.unshift({id:uuid(),recipient_id:to,event_key:key,event_kind:kind,title,body,order_id,product_id,read_at:null,created_at:clock()});
+ }
+ const participants=o=>[IDS.seller,o.buyer_id,o.driver_id].filter(Boolean);
+ const summary=o=>data.order_items.filter(i=>i.order_id===o.id).map(i=>i.product_name+' × '+i.quantity).join('، ');
+ const ownOrder=id=>data.orders.find(o=>o.id===id);
+ function visible(table){if(!Array.isArray(data[table]))fail('هذا القسم غير متاح في المعاينة المحلية');const id=user()?.id;
+  const rows=data[table];if(table==='profiles')return rows.filter(p=>p.id===id);
+  if(['account_notifications'].includes(table))return rows.filter(n=>n.recipient_id===id);
+  if(['product_interactions','delivery_workers','driver_profiles','delivery_payments'].includes(table))return rows.filter(n=>n.user_id===id||n.driver_id===id);
+  if(table==='orders')return rows.filter(o=>participants(o).includes(id));
+  if(table==='order_items')return rows.filter(i=>participants(ownOrder(i.order_id)||{}).includes(id));
+  if(['store_pickups','seller_workspace_settings','seller_customers'].includes(table))return role==='seller'?rows:[];
+  return rows;
+ }
+ function from(table){let filters=[],sort=null,max=null,mode='select',values=null,single=false;const q={
+  select(){return q},eq(k,v){filters.push(r=>r[k]===v);return q},is(k,v){filters.push(r=>(r[k]??null)===v);return q},in(k,vs){filters.push(r=>vs.includes(r[k]));return q},order(k,opts={}){sort=[k,opts.ascending!==false];return q},limit(n){max=n;return q},single(){single=true;return q},maybeSingle(){single=true;return q},insert(v){mode='insert';values=Array.isArray(v)?v:[v];return q},update(v){mode='update';values=v;return q},delete(){mode='delete';return q},upsert(v){mode='insert';values=Array.isArray(v)?v:[v];return q},
+  then(resolve,reject){return Promise.resolve().then(()=>{try{
+   let rows=visible(table).filter(r=>filters.every(fn=>fn(r)));
+   if(mode!=='select'&&!role)fail('اختر واجهة المعاينة أولًا');
+   if(mode==='insert'){rows=values.map(v=>({id:uuid(),created_at:clock(),...clone(v)}));for(const r of rows){
+    if(table==='product_interactions'){if(r.user_id!==user().id||!['like','favorite'].includes(r.kind))fail('تفاعل غير صالح');if(data[table].some(x=>x.user_id===r.user_id&&x.product_id===r.product_id&&x.kind===r.kind))fail('التفاعل محفوظ بالفعل');const p=data.products.find(p=>p.id===r.product_id);if(!p)fail('المنتج غير متوفر');notice(IDS.seller,r.kind==='like'?'إعجاب جديد بمنتجك':'أُضيف منتجك إلى المفضلة',p.name,null,p.id,r.kind,'reaction:'+r.user_id+':'+p.id+':'+r.kind);}
+    if(['products','seller_categories','seller_customers'].includes(table)&&role!=='seller')fail('انتقل إلى واجهة التاجر');
+    data[table].push(r);
+   }}
+   if(mode==='update'){if(['products','stores','seller_categories','seller_customers'].includes(table)&&role!=='seller')fail('انتقل إلى واجهة التاجر');rows.forEach(r=>Object.assign(r,clone(values)));}
+   if(mode==='delete'){if(table==='products'&&role!=='seller')fail('انتقل إلى واجهة التاجر');data[table]=data[table].filter(r=>!rows.includes(r));}
+   if(sort)rows.sort((a,b)=>String(a[sort[0]]).localeCompare(String(b[sort[0]]))*(sort[1]?1:-1));if(max!==null)rows=rows.slice(0,max);
+   if(mode!=='select')save();const result=rows.map(r=>table==='orders'?{...r,order_items:data.order_items.filter(i=>i.order_id===r.id)}:r);return {data:clone(single?result[0]||null:result),error:null};
+  }catch(error){return {data:null,error:{message:error.message}}}}).then(resolve,reject)}
+ };return q;}
+ async function rpc(name,p={}){try{let result=null;const id=user()?.id;if(!id)fail('اختر واجهة المعاينة أولًا');
+  if(name==='place_order'){
+   if(role!=='buyer')fail('جرّب الطلب من واجهة الزبون');if(!Array.isArray(p.p_lines)||!p.p_lines.length)fail('السلة فارغة');const seen=new Set();let subtotal=0;
+   const lines=p.p_lines.map(line=>{const product=data.products.find(r=>r.id===line.id&&r.store_id===p.p_store&&r.active&&!r.blocked),quantity=+line.quantity;if(!product||!Number.isInteger(quantity)||quantity<1||quantity>100||quantity>product.stock)fail('product unavailable');if(seen.has(product.id))fail('duplicate product');seen.add(product.id);subtotal+=product.price*quantity;return {product,quantity}});
+   const f=data.delivery_settings[0],o={id:uuid(),store_id:p.p_store,buyer_id:id,driver_id:null,customer_name:p.p_name,customer_phone:p.p_phone,address:p.p_address,note:p.p_note||'',total:subtotal+f.platform_fee+f.delivery_fee,platform_fee:f.platform_fee,delivery_fee:f.delivery_fee,status:'new',created_at:clock()};data.orders.unshift(o);for(const {product,quantity} of lines){product.stock-=quantity;data.order_items.push({id:uuid(),order_id:o.id,product_id:product.id,product_name:product.name,price:product.price,quantity});}notice(IDS.seller,'طلب جديد من الزبون',summary(o),o.id,null,'order');notice(id,'أُرسل طلبك التجريبي',summary(o),o.id);result=o.id;
+  }else if(name==='set_order_status'){
+   const o=ownOrder(p.p_order);if(!o||role!=='seller'||o.driver_id)fail('الطلب ليس متاحًا للتاجر');if(p.p_status==='cancelled'&&o.status!=='cancelled'){data.order_items.filter(i=>i.order_id===o.id).forEach(i=>{const product=data.products.find(p=>p.id===i.product_id);if(product)product.stock+=i.quantity});}else if(!(o.status==='new'&&p.p_status==='accepted'))fail('invalid transition');o.status=p.p_status;participants(o).forEach(to=>notice(to,o.status==='cancelled'?'أُلغي الطلب':'قبل التاجر الطلب',summary(o),o.id));
+  }else if(name==='delivery_offer_details'||name==='available_delivery_orders'){
+   const worker=data.delivery_workers.find(w=>w.user_id===id);result=role==='driver'&&worker?.approved&&worker.amount_due<worker.debt_limit?data.orders.filter(o=>o.status==='accepted'&&!o.driver_id&&!data.delivery_declines.some(d=>d.order_id===o.id&&d.driver_id===id)).map(o=>({order_id:o.id,store_name:data.stores[0].name,product_total:o.total-o.platform_fee-o.delivery_fee,delivery_fee:o.delivery_fee,platform_fee:o.platform_fee,created_at:o.created_at,items:data.order_items.filter(i=>i.order_id===o.id).map(i=>({name:i.product_name,quantity:i.quantity}))})):[];
+  }else if(name==='claim_delivery'){
+   const o=ownOrder(p.p_order),worker=data.delivery_workers.find(w=>w.user_id===id);if(role!=='driver'||!worker?.approved||worker.amount_due>=worker.debt_limit)fail('driver unavailable or debt limit reached');if(!o||o.status!=='accepted'||o.driver_id)fail('order no longer available');o.driver_id=id;participants(o).forEach(to=>notice(to,'سائق التوصيل المكلّف بالطلب',summary(o),o.id));
+  }else if(name==='decline_delivery'){data.delivery_declines.push({driver_id:id,order_id:p.p_order});
+  }else if(name==='delivery_step'){
+   const o=ownOrder(p.p_order);if(!o||o.driver_id!==id||!((o.status==='accepted'&&p.p_status==='delivery')||(o.status==='delivery'&&p.p_status==='delivered')))fail('invalid transition');o.status=p.p_status;if(o.status==='delivered')data.delivery_workers.find(w=>w.user_id===id).amount_due+=o.platform_fee;participants(o).forEach(to=>notice(to,o.status==='delivered'?'اكتمل التوصيل التجريبي':'استلم السائق المواد من التاجر',summary(o),o.id));
+  }else if(name==='assigned_delivery_contacts'){result=data.orders.filter(o=>o.driver_id&&participants(o).includes(id)).map(o=>({order_id:o.id,driver_id:o.driver_id,full_name:data.driver_profiles[0].full_name,phone:data.driver_profiles[0].phone,vehicle:data.driver_profiles[0].vehicle,pickup_address:role==='buyer'?null:data.store_pickups[0]?.pickup_address}));
+  }else if(name==='save_seller_workspace'){
+   if(role!=='seller')fail('اختر واجهة التاجر');const row=data.seller_workspace_settings.find(r=>r.store_id===p.p_store);if(row)row.settings=clone(p.p_settings);else data.seller_workspace_settings.push({store_id:p.p_store,settings:clone(p.p_settings)});data.stores[0].storefront_settings=clone(p.p_appearance);
+  }else if(name==='save_store_location'){
+   if(role!=='seller'||!['online','physical'].includes(p.p_kind)||p.p_address?.trim().length<3)fail('أكمل نوع المتجر والعنوان');data.stores[0].store_kind=p.p_kind;data.stores[0].address=p.p_kind==='physical'?p.p_address:'';data.store_pickups[0].pickup_address=p.p_address;
+  }else if(name==='rename_seller_category'){
+   if(role!=='seller')fail('اختر واجهة التاجر');const c=data.seller_categories.find(c=>c.id===p.p_category);if(!c)fail('التصنيف غير موجود');data.products.filter(x=>x.category===c.name).forEach(x=>x.category=p.p_name);c.name=p.p_name;
+  }else if(name==='submit_delivery_payment'){if(role!=='driver')fail('اختر واجهة السائق');data.delivery_payments.unshift({id:uuid(),driver_id:id,amount:p.p_amount,receipt:p.p_receipt,status:'pending',created_at:clock()});notice(id,'طلب تسوية تجريبي',String(p.p_amount)+' د.ع — لا تحوّل مالًا');
+  }else if(name==='request_driver_application'){if(role!=='driver')fail('اختر واجهة السائق');Object.assign(data.driver_profiles[0],{full_name:p.p_name,phone:p.p_phone,email:p.p_email,address:p.p_address,vehicle:p.p_vehicle});Object.assign(data.profiles.find(p=>p.id===id),{full_name:p.p_name,phone:p.p_phone});
+  }else fail('هذه العملية غير متاحة في المعاينة؛ لم يُرسل شيء إلى الخادم.');save();return {data:clone(result),error:null};
+ }catch(error){return {data:null,error:{message:error.message}}}}
+ return {from,rpc,user,setRole,role:()=>role,snapshot:()=>clone(data),reset:()=>{data=previewFixture(clock());save()},saveImage:async(path,blob)=>{const image=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob)});data.images[path]=image;save()},image:path=>data.images[path]||'',auth:{getSession:async()=>({data:{session:user()?{user:user()}:null},error:null}),signOut:async()=>{role=null;return {data:null,error:null}},onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),updateUser:async()=>({data:null,error:{message:'تغيير حساب الدخول غير متاح في المعاينة'}})}};
+}
+
+export function createPreviewClient(){
+ let model;const safeStorage={getItem:k=>localStorage.getItem(k),setItem:(k,v)=>localStorage.setItem(k,v)};model=createPreviewModel(safeStorage);
+ const client={from:model.from,rpc:model.rpc,auth:model.auth,storage:{from:()=>({
+  getPublicUrl:path=>({data:{publicUrl:model.image(path)}}),
+  upload:async(path,blob)=>{try{await model.saveImage(path,blob);return {data:{path},error:null}}catch{return {data:null,error:{message:'تعذّر حفظ الصورة محليًا'}}}}
+ })}};
+ let handlers,home=true;const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const roleButtons=()=>Object.entries(labels).map(([id,label])=>`<button data-preview="role" data-v="${id}" aria-pressed="${model.role()===id}">واجهة ${label}</button>`).join('');
+ function toolbar(){let bar=document.getElementById('previewToolbar');if(!bar){bar=document.createElement('section');bar.id='previewToolbar';document.body.prepend(bar);}bar.innerHTML=`<div><b>مختبر معاينة الواجهات</b><small>بلا تسجيل دخول · الطلبات والإشعارات محلية · لا توجد أموال حقيقية</small></div><nav><button data-preview="home">الرئيسية</button>${roleButtons()}<button data-preview="style">تخصيص المعاينة</button><button data-preview="reset">إعادة ضبط التجربة</button><a href="admin.html">الإدارة الحقيقية</a></nav>`;}
+ function landing(){toolbar();document.body.classList.remove('seller-workspace','seller-storefront');document.getElementById('sellerNav')?.remove();document.getElementById('view').innerHTML=`<section class="pl-home"><small>مختبر سوق الشطرة</small><h1>أي واجهة تريد تجربتها؟</h1><p>اختر الواجهة مباشرة دون حساب أو اسم أو تسجيل. اطلب كزبون، ثم انتقل للتاجر والسائق لترى الإشعارات وتكمل دورة الطلب.</p><div class="pl-role-cards">${Object.entries(labels).map(([id,label],i)=>`<button data-preview="role" data-v="${id}"><span>${['▦','▤','➜'][i]}</span><h2>واجهة ${label}</h2><p>${['تصفح المواد والمتاجر، اطلب، وأضف للمفضلة.','جرّب المنتجات والمبيعات والطلبات وتخصيص المتجر.','شاهد الطلبات المتاحة، واقبل التوصيل وتابع الرصيد.'][i]}</p><b>فتح الواجهة ←</b></button>`).join('')}</div><p class="pl-note">التغييرات تخص هذه المعاينة وعلى جهازك فقط؛ لا تُعدّل تصميم الموقع المنشور ولا بيانات التجار.</p></section>`;document.querySelector('.tabs').hidden=true;}
+ function navigate(url){if(home)return;handlers.navigate(new URL(url,location.href));}
+ function style(){handlers.sheet(`<div class="dh"><h2>تخصيص المعاينة</h2><button class="x" data-a="close">×</button></div><p>هذه التعديلات محلية للمعاينة. أدوات التاجر الأصلية متاحة أيضًا داخل واجهته.</p><label for="previewAccent">اللون الأساسي</label><input id="previewAccent" type="color" value="${document.documentElement.style.getPropertyValue('--preview-accent')||'#245bc5'}"><label for="previewScale">حجم النص</label><select id="previewScale"><option value="16">عادي</option><option value="18">كبير</option><option value="20">أكبر</option></select><label for="previewRadius">زوايا البطاقات</label><select id="previewRadius"><option value="18">دائرية</option><option value="8">خفيفة</option><option value="0">مستقيمة</option></select><button class="buy" data-preview="saveStyle">حفظ شكل المعاينة</button><button class="alt" data-a="toggleTheme">تبديل الفاتح والغامق</button>`);}
+ function applyStyle(v){if(!/^#[0-9a-f]{6}$/i.test(v.color))return;const scale=[16,18,20].includes(+v.scale)?v.scale:16,radius=[0,8,18].includes(+v.radius)?v.radius:18;document.documentElement.style.setProperty('--preview-accent',v.color);document.documentElement.style.setProperty('--preview-font',scale+'px');document.documentElement.style.setProperty('--preview-radius',radius+'px');}
+ function selectRole(role){home=role===null;model.setRole(role);toolbar();handlers.role(role);}
+ client.preview={role:model.role,isHome:()=>home||model.role()===null,home:landing,navigate,toolbar,selectRole,init:callbacks=>{
+  handlers=callbacks;document.body.classList.add('preview-lab');toolbar();try{applyStyle(JSON.parse(localStorage.getItem(PREVIEW_KEY+'-style')||'null')||{})}catch{}
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-preview]');if(b){e.preventDefault();const action=b.dataset.preview;if(action==='role')selectRole(b.dataset.v);if(action==='home'){selectRole(null);landing();}if(action==='reset'){if(!confirm('إعادة ضبط بيانات المعاينة المحلية فقط؟'))return;model.reset();localStorage.removeItem('souq-preview-cart-v1');handlers.role(model.role());}if(action==='style')style();if(action==='saveStyle'){const v={color:document.getElementById('previewAccent').value,scale:document.getElementById('previewScale').value,radius:document.getElementById('previewRadius').value};applyStyle(v);localStorage.setItem(PREVIEW_KEY+'-style',JSON.stringify(v));handlers.close();}return;}
+   const a=e.target.closest('a[href]');if(!a)return;const href=a.getAttribute('href');if(/^(tel:|mailto:|https:\/\/wa.me)/i.test(href)){e.preventDefault();alert('هذه معاينة فقط؛ لن يتم اتصال أو إرسال رسالة حقيقية.');return;}const u=new URL(href,location.href);if(u.origin===location.origin&&!u.pathname.endsWith('/admin.html')&&!u.pathname.endsWith('/preview.html')){e.preventDefault();navigate(u);}
+  },true);
+ }};
+ return client;
+}

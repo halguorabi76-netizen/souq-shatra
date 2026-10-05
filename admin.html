@@ -574,9 +574,10 @@ const val=id=>($('#'+id)||{}).value?.trim()||'';
 const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy" data-a="${act}" data-v="${v}">نعم</button><button class="alt" data-a="close">تراجع</button>`);
 
 const sellerAccount=()=>!!user&&profile?.role!=='admin'&&!profile?.disabled&&!!(ownStore?.ok&&!ownStore?.removed);
-function buyerAccountLogin(){sheet(head('الدخول بحساب زبون')+'<p>هذا حساب متجرك. لتصفح السوق والشراء، سجّل الخروج وادخل بحساب زبون آخر.</p><button class="buy" data-a="loginBuyerAccount">تسجيل الخروج والدخول كزبون</button><button class="alt" data-a="close">البقاء في متجري</button>')}
+function buyerAccountLogin(){if(db.preview){db.preview.selectRole('buyer');return}sheet(head('الدخول بحساب زبون')+'<p>هذا حساب متجرك. لتصفح السوق والشراء، سجّل الخروج وادخل بحساب زبون آخر.</p><button class="buy" data-a="loginBuyerAccount">تسجيل الخروج والدخول كزبون</button><button class="alt" data-a="close">البقاء في متجري</button>')}
 const canSell=()=>!!user&&!profile?.disabled&&(profile?.role==='admin'||!!(ownStore?.ok&&!ownStore?.removed));
 function sellerRequest(){
+ if(db.preview){db.preview.selectRole('seller');return}
  closeAccountMenu();
  if(user&&canSell()&&ownStore){rememberMode('seller');tab='account';render();return}
  if(!user){try{sessionStorage.setItem('souq-seller-onboarding','1')}catch{}rememberMode('buyer');sheet(head('الانضمام كتاجر')+'<p>ابدأ بحساب Google الخاص بمتجرك، ثم أكمل اسمك وبيانات المتجر لإرسال طلب إلى الإدارة.</p><button class="buy" data-a="oauth" data-v="google">المتابعة باستخدام Google</button>');return}
@@ -595,6 +596,7 @@ function sellerJoinPage(){
 /* ===== الواجهات ===== */
 function render(){
   activity.sync();
+  if(db.preview?.isHome()){db.preview.home();return;}
   if(ADMIN_PORTAL){renderAdminPortal();return}
   try{if(user&&sessionStorage.getItem('souq-admin-return')==='1'){sessionStorage.removeItem('souq-admin-return');location.replace('admin.html');return}}catch{}
   if(!dataReady){$('#view').innerHTML='<div class="empty"><h2>جارٍ فتح حسابك…</h2></div>';return}
@@ -665,7 +667,7 @@ function renderAdminPortal(){
  $('.tabs').hidden=true;
  if(!document.getElementById('adminTop')){
  const header=document.createElement('header');header.id='adminTop';
- header.innerHTML='<a href="index.html" class="admin-brand">سوق الشطرة <small>لوحة الإدارة</small></a><div><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out">تسجيل الخروج</button></div>';
+ header.innerHTML='<a href="index.html" class="admin-brand">سوق الشطرة <small>لوحة الإدارة</small></a><div><a href="preview.html">معاينة الواجهات بلا دخول</a><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out">تسجيل الخروج</button></div>';
  $('#view').before(header);
  }
  $('#adminTop [data-a="out"]').hidden=!user;
@@ -935,7 +937,7 @@ const A={
   }),
   retry:()=>{ $('#loading').hidden=false;refresh().catch(error) },
   chooseAvatar:()=>$('#avatarInput')?.click(),
-  profileSwitch:v=>{if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}if(!user)return;rememberMode(v);tab='account';render();scrollTo(0,0);toast(v==='seller'?'انتقلت إلى وضع البائع':'انتقلت إلى وضع الزبون')},
+  profileSwitch:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}if(!user)return;rememberMode(v);tab='account';render();scrollTo(0,0);toast(v==='seller'?'انتقلت إلى وضع البائع':'انتقلت إلى وضع الزبون')},
   editEmail:()=>{if(!user)return;sheet(head('تغيير البريد الإلكتروني')+`<p class="note">بريدك الحالي: <span dir="ltr">${esc(user.email||'')}</span></p><label for="newEmail">البريد الإلكتروني الجديد</label><input id="newEmail" type="email" autocomplete="email" inputmode="email"><p class="note">سيصلك رابط تأكيد. قد يطلب النظام تأكيد البريد الحالي أيضًا. يبقى بريد الدخول القديم حتى يكتمل التحقق.</p><button class="buy" data-a="saveEmail">إرسال رابط التأكيد</button>`)},
   saveEmail:()=>act(async()=>{if(!user)return;const email=val('newEmail').toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email===user.email?.toLowerCase()){toast('اكتب بريدًا جديدًا صحيحًا');return}check(await withTimeout(db.auth.updateUser({email})));A.close();toast('أُرسل رابط التحقق. افتح بريدك الجديد لإكمال التغيير.')}),
   editprofile:()=>{if(!user)return;sheet(head('تعديل بيانات الحساب')+`<label for="pfname">الاسم</label><input id="pfname" autocomplete="name" value="${esc(profile?.full_name||user.user_metadata?.full_name||'')}"><label for="pfphone">رقم الهاتف</label><input id="pfphone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(profile?.phone||'')}"><p class="note">البريد الإلكتروني مرتبط بحساب الدخول ولا يتغير من هذه الصفحة.</p><button class="buy" data-a="saveprofile">حفظ المعلومات</button>`)},
@@ -975,8 +977,8 @@ const A={
   saveprofile:()=>act(async()=>{if(!user)return;const name=val('pfname'),phone=val('pfphone').replace(/\D/g,'');if(name.length<2||phone.length<10){toast('اكتب الاسم ورقم هاتف صحيح');return}check(await db.from('profiles').update({full_name:name,phone}).eq('id',user.id));await refresh();toast('تم حفظ الملف الشخصي')}),
   changeaccount:()=>ask('تسجيل الخروج والانتقال إلى حساب آخر؟','out',''),
   geolocate:()=>{if(!navigator.geolocation){toast('خدمة الموقع غير متاحة في هذا الجهاز');return}const el=$('#geoStatus');if(el)el.textContent='جارٍ تحديد الموقع…';navigator.geolocation.getCurrentPosition(pos=>{geoPoint={lat:pos.coords.latitude.toFixed(6),lon:pos.coords.longitude.toFixed(6)};const e=$('#geoStatus');if(e)e.textContent='تم تحديد الموقع. سيُرفق بالطلب.'},()=>{const e=$('#geoStatus');if(e)e.textContent='تعذّر تحديد الموقع. اكتب عنوانك ورقم هاتفك للمتابعة.'},{enableHighAccuracy:false,timeout:12000,maximumAge:60000})},
-  enter:v=>{if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0);return}rememberMode(v);if(user){tab=['seller','driver'].includes(v)?'account':'market';render();return}lsheet('m')},
-  switchrole:v=>{if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
+  enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0);return}rememberMode(v);if(user){tab=['seller','driver'].includes(v)?'account':'market';render();return}lsheet('m')},
+  switchrole:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
   tab:v=>{if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
   adminTab:v=>{adminTab=v;adminFilter='all';admin()},
   adminStat:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminSearch='';adminTab=v==='pending'?'sellers':v==='accounts'?'customers':'activity';adminFilter=v==='accounts'?'all':v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
@@ -1072,6 +1074,7 @@ const A={
 const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('./',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
 const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
+db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
 async function showOrderNotice(id){
  const row=check(await db.from('orders').select('*,order_items(*)').eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
  const contacts=check(await db.rpc('assigned_delivery_contacts'))||[];D.driverContacts=contacts;

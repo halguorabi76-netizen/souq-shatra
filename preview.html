@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-portal="preview">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <script>
 (()=>{
- const key='souq-shatra-theme';
+ const key='souq-preview-theme-v1';
  const set=(mode,persist=true)=>{
   mode=mode==='dark'?'dark':'light';document.documentElement.dataset.theme=mode;
   if(persist)try{localStorage.setItem(key,mode)}catch{}
@@ -25,7 +25,7 @@
 <link rel="preload" as="image" href="icons/splash-s-v28.jpg">
 <link rel="icon" href="icons/startup-s-v29.png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/startup-s-v29.png">
-<title>سوق الشطرة</title>
+<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="admin-portal.css?v=52">
 <style>html:has(body.starting),body.starting{background:#000!important}body.starting .app{visibility:hidden}</style>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
@@ -390,7 +390,7 @@ body.starting{background:#000!important}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=57">
 <link rel="stylesheet" href="marketplace.css?v=57">
-<link rel="stylesheet" href="operations.css?v=58">
+<link rel="stylesheet" href="operations.css?v=58"><link rel="stylesheet" href="preview-lab.css?v=59">
 <link rel="stylesheet" href="site-palette.css?v=56">
 </head>
 <body class="starting">
@@ -421,10 +421,10 @@ body.starting{background:#000!important}
 
 <script src="catalog-filter.js?v=47"></script>
 <script src="marketplace.js?v=57"></script>
-<script src="demo-lab.js?v=51"></script>
+
 <script type="module">
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
-import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
+import {createPreviewClient} from "./preview-lab.js?v=59";
+
 import {createSellerWorkspace} from "./seller-workspace.js?v=58";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=58";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
@@ -436,17 +436,17 @@ async function apiFetch(resource,init={}){
   try{return await fetch(resource,{...init,signal:controller.signal})}
   finally{clearTimeout(timer);source?.removeEventListener('abort',abort)}
 }
-const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true},global:{fetch:apiFetch}});
+const db=createPreviewClient();
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
-const KEY='souq-shatra-online';
+const KEY='souq-preview-cart-v1';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
-let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
+let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'معاينة زبون',phone:'00000000000',addr:'عنوان تجريبي'}};
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
 let viewMode='guest',geoPoint=null;
-const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-shatra-mode-'+user.id,mode);else if(!user&&mode!=='guest')sessionStorage.setItem('souq-shatra-pending-role',mode)}catch{}};
+const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-preview-mode-'+user.id,mode);else if(!user&&mode!=='guest')sessionStorage.setItem('souq-preview-pending-role',mode)}catch{}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
 const check=r=>{if(r.error)throw r.error;return r.data};
 function withTimeout(promise,ms=12000){
@@ -469,7 +469,7 @@ async function refresh(){
   user=nextUser;
   if(user){
     if(!viewMode){
-      try{viewMode=localStorage.getItem('souq-shatra-mode-'+user.id)||sessionStorage.getItem('souq-shatra-pending-role')||''}catch{}
+      try{viewMode=localStorage.getItem('souq-preview-mode-'+user.id)||sessionStorage.getItem('souq-preview-pending-role')||''}catch{}
       if(viewMode==='guest')viewMode='';
     }
     if(tab==='welcome'){
@@ -529,7 +529,7 @@ async function refresh(){
   if(sellerOnly){rememberMode('seller');if(!dataReady||!['account','market','listings','myMarket','chats','settings','profilePage','postPage','orders'].includes(tab))tab='account';if(publicStoreId!==approvedStore.id)publicStoreId=null;}
   if(user&&!viewMode)viewMode=nextProfile?.role==='admin'?'buyer':ownStore?.ok&&!ownStore?.removed?'seller':nextProfile?.role==='driver'?'driver':'buyer';
   if(viewMode==='seller'&&!canSell())viewMode='buyer';
-  if(user&&viewMode!=='guest'){rememberMode(viewMode);try{sessionStorage.removeItem('souq-shatra-pending-role')}catch{}}
+  if(user&&viewMode!=='guest'){rememberMode(viewMode);try{sessionStorage.removeItem('souq-preview-pending-role')}catch{}}
   if(user&&viewMode&&tab==='welcome')tab=viewMode==='seller'||viewMode==='driver'?'account':'market';
   if(!user&&viewMode===''){viewMode='guest';tab='market'}
   D.me=profile?.role==='admin'?'owner':ownStore?.id||null;
@@ -565,7 +565,7 @@ let tab=publicStoreId?'market':catalogParams.get('view')==='stores'?'stores':cat
 const BANNERS=[['icons/shatra-river.jpeg','اكتشفوا سحر الشطرة'],['icons/shatra-square.jpeg','اكتشفوا أسواق الشطرة'],['icons/shatra-bridge.jpeg','الشطرة تجمعنا']];
 const filt={min:'',max:'',sort:'newest',condition:'all',location:''};
 if(catalogEntry){for(const k of ['min','max']){const v=catalogParams.get(k);if(v!==null&&v!==''&&Number.isFinite(+v)&&+v>=0)filt[k]=v}if(['newest','oldest','cheap','expensive'].includes(catalogParams.get('sort')))filt.sort=catalogParams.get('sort')}
-function openCatalog(){const url=new URL('catalog.html',location.href);if(cat!=='all')url.searchParams.set('category',cat);if(q)url.searchParams.set('q',q);for(const k of ['min','max'])if(filt[k]!=='')url.searchParams.set(k,filt[k]);url.searchParams.set('sort',filt.sort);location.assign(url.href)}
+function openCatalog(){const url=new URL('catalog.html',location.href);if(cat!=='all')url.searchParams.set('category',cat);if(q)url.searchParams.set('q',q);for(const k of ['min','max'])if(filt[k]!=='')url.searchParams.set(k,filt[k]);url.searchParams.set('sort',filt.sort);db.preview.navigate(url)}
 
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
 function sheet(h){$('#shade').classList.remove('auth-open');$('#sheet').classList.remove('auth-sheet');$('#sheet').innerHTML=h;$('#shade').hidden=false;const c=$('#sheet [data-a="close"]');c&&c.focus()}
@@ -740,7 +740,7 @@ function storesPage(){
 }
 function marketSection(section){
  publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':'market';
- const url=new URL('./',location.href);if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0);
+ const url=new URL('preview.html',location.href);if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0);
 }
 function chats(){
   if(viewMode==='driver'){driverPage();return}
@@ -861,7 +861,8 @@ function roleIcon(role){
 }
 function closeAccountMenu(){const menu=$('#accountMenu');if(menu)menu.hidden=true;$('#accountTrigger')?.setAttribute('aria-expanded','false')}
 async function authProviderSettings(){
-  const response=await apiFetch(SUPABASE_URL+'/auth/v1/settings',{headers:{apikey:SUPABASE_ANON_KEY}});
+  throw new Error('المعاينة تعمل بلا تسجيل دخول.');
+ const response=null;
   if(!response.ok)throw new Error('تعذر التحقق من خدمة الدخول. حاول مجددًا.');
   return response.json();
 }
@@ -923,7 +924,7 @@ const A={
     if(!settings.external?.[provider]){toast('الدخول باستخدام '+provider+' لم يُفعّل بعد من إدارة التطبيق. يمكنك استخدام البريد مؤقتًا.');return}
     rememberMode(['seller','driver'].includes(viewMode)?viewMode:'buyer');
     if(ADMIN_PORTAL)sessionStorage.setItem('souq-admin-return','1');
-    check(await withTimeout(db.auth.signInWithOAuth({provider,options:{redirectTo:ADMIN_PORTAL?new URL('./',location.href).href:location.origin+location.pathname,...(provider==='google'?{queryParams:{prompt:'select_account'}}:{})}})));
+    check(await withTimeout(db.auth.signInWithOAuth({provider,options:{redirectTo:ADMIN_PORTAL?new URL('preview.html',location.href).href:location.origin+location.pathname,...(provider==='google'?{queryParams:{prompt:'select_account'}}:{})}})));
   }),
   forgotPassword:()=>act(async()=>{
     const email=val('lp');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('اكتب بريدك الإلكتروني أولًا');$('#lp')?.focus();return}
@@ -1071,7 +1072,7 @@ const A={
   comm:()=>{toast('إعداد العمولة يحتاج تفعيلًا في قاعدة البيانات')}
 
 };
-const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('./',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
+const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
 const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
 db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});

@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-design-v58';
-const CORE = ['./', './index.html', './admin.html', './catalog.html', './admin-portal.css?v=52', './catalog-filter.js?v=47', './marketplace.js?v=57', './marketplace.css?v=57', './activity-center.js?v=58', './delivery-workspace.js?v=58', './operations.css?v=58', './demo-lab.js?v=51', './config.js', './seller-workspace.js?v=58', './seller-records.js?v=40', './seller-workspace.css?v=57', './site-palette.css?v=56', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
+const CACHE = 'souq-shatra-design-v59';
+const CORE = ['./', './index.html', './admin.html', './catalog.html', './preview.html', './preview-lab.js?v=59', './preview-lab.css?v=59', './admin-portal.css?v=52', './catalog-filter.js?v=47', './marketplace.js?v=57', './marketplace.css?v=57', './activity-center.js?v=58', './delivery-workspace.js?v=58', './operations.css?v=58', './demo-lab.js?v=51', './config.js', './seller-workspace.js?v=58', './seller-records.js?v=40', './seller-workspace.css?v=57', './site-palette.css?v=56', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
@@ -18,7 +18,7 @@ self.addEventListener('fetch', event => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 8000);
       const path=new URL(request.url).pathname;
-      const pageKey=path.endsWith('/admin.html')?'./admin.html':path.endsWith('/catalog.html')?'./catalog.html':'./index.html';
+      const pageKey=path.endsWith('/preview.html')?'./preview.html':path.endsWith('/admin.html')?'./admin.html':path.endsWith('/catalog.html')?'./catalog.html':'./index.html';
       try {
         const response = await fetch(request, {signal: controller.signal, cache:'no-cache'});
         if (response.ok) {
@@ -46,5 +46,3 @@ self.addEventListener('fetch', event => {
     return response;
   })());
 });
-
-
