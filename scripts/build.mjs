@@ -1,5 +1,7 @@
-import { mkdir, copyFile, cp } from 'node:fs/promises';
+import { mkdir, copyFile, cp, readFile, writeFile } from 'node:fs/promises';
+const main=await readFile('index.html','utf8');
+await writeFile('admin.html',main.replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="admin">').replace('<title>سوق الشطرة</title>','<title>لوحة إدارة سوق الشطرة</title><meta name="robots" content="noindex,nofollow">'));
 await mkdir('www', { recursive: true });
-for (const file of ['index.html', 'demo-lab.js', 'config.js', 'manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css']) await copyFile(file, `www/${file}`);
+for (const file of ['index.html', 'admin.html', 'admin-portal.css', 'demo-lab.js', 'config.js', 'manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css']) await copyFile(file, `www/${file}`);
 // Include every referenced image, including temporary startup artwork.
 await cp('icons', 'www/icons', { recursive: true });

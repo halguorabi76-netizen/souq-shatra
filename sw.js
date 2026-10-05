@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-design-v43';
-const CORE = ['./', './index.html', './demo-lab.js?v=31', './config.js', './seller-workspace.js?v=41', './seller-records.js?v=40', './seller-workspace.css?v=40', './site-palette.css?v=43', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
+const CACHE = 'souq-shatra-design-v44';
+const CORE = ['./', './index.html', './admin.html', './admin-portal.css?v=44', './demo-lab.js?v=31', './config.js', './seller-workspace.js?v=41', './seller-records.js?v=40', './seller-workspace.css?v=40', './site-palette.css?v=43', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
@@ -17,15 +17,16 @@ self.addEventListener('fetch', event => {
     event.respondWith((async () => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 8000);
+      const pageKey=new URL(request.url).pathname.endsWith('/admin.html')?'./admin.html':'./index.html';
       try {
         const response = await fetch(request, {signal: controller.signal});
         if (response.ok) {
           const cache = await caches.open(CACHE);
-          await cache.put('./index.html', response.clone());
+          await cache.put('./index.html', './admin.html', './admin-portal.css?v=44', response.clone());
         }
         return response;
       } catch {
-        return await caches.match('./index.html') || new Response('تعذّر الاتصال. أعد المحاولة عند توفر الإنترنت.', {status: 503, headers: {'Content-Type': 'text/plain; charset=utf-8'}});
+        return await caches.match(pageKey) || new Response('تعذّر الاتصال. أعد المحاولة عند توفر الإنترنت.', {status: 503, headers: {'Content-Type': 'text/plain; charset=utf-8'}});
       } finally {
         clearTimeout(timer);
       }
