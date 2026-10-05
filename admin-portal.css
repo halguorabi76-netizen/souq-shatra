@@ -21,5 +21,5 @@ body.admin-portal .admin-recent{display:flex;align-items:center;justify-content:
 #adminTop .admin-hub-tab[aria-current=page]{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700}
 :root[data-theme=dark] #adminTop .admin-hub-tab[aria-current=page]{background:#234d74;color:#f1f6ff;border-color:#416889}
 .admin-preview-host .app{max-width:none!important;min-height:100dvh}.admin-preview-host #adminTop{margin:0}
-#adminPreviewFrame{display:block;width:100%;height:calc(100dvh - 94px);min-height:480px;border:0;background:var(--bg)}
-@media(max-width:700px){#adminTop>nav{gap:8px;font-size:12px}#adminTop .admin-hub-tab{padding:7px 11px;font-size:12px}#adminPreviewFrame{height:calc(100dvh - 128px)}}
+#adminPreviewFrame{display:block;width:100%;height:calc(100svh - 94px);min-height:480px;border:0;background:var(--bg)}
+@media(max-width:700px){#adminTop>nav{gap:8px;font-size:12px}#adminTop .admin-hub-tab{padding:7px 11px;font-size:12px}#adminPreviewFrame{height:calc(100svh - 128px)}}
