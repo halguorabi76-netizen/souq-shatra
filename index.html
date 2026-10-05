@@ -387,7 +387,7 @@ body.starting{background:#000!important}
 .auth-sheet .auth-providers{margin:0 0 20px}.auth-provider.google{height:54px;border-radius:14px}.auth-divider{margin:16px 0 0}.auth-phone-link{display:block;width:100%;margin:14px 0 8px;padding:10px;color:var(--navy);text-align:center;border:1px solid var(--line);border-radius:13px}.auth-channels button:not(:disabled){color:var(--ink);cursor:pointer;background:var(--tile)}.auth-channels button:disabled{cursor:wait}.auth-otp-note{color:var(--mut);font-size:14px}.auth-otp-input{letter-spacing:8px;text-align:center;font-size:24px!important}.auth-resend{display:block;padding:12px;color:var(--navy);margin:auto}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
-<link rel="stylesheet" href="seller-workspace.css?v=39">
+<link rel="stylesheet" href="seller-workspace.css?v=40">
 </head>
 <body class="starting">
 <div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/splash-s-v28.jpg" alt="" fetchpriority="high"></div>
@@ -419,7 +419,7 @@ body.starting{background:#000!important}
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
-import {createSellerWorkspace} from "./seller-workspace.js?v=38";
+import {createSellerWorkspace} from "./seller-workspace.js?v=40";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -443,7 +443,7 @@ function withTimeout(promise,ms=12000){
   let timer;
   return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.'),{name:'TimeoutError'})),ms)})]).finally(()=>clearTimeout(timer));
 }
-function error(e){toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
+function error(e){if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
@@ -473,11 +473,12 @@ async function refresh(){
     tab='market';
     render();
   }
-  const [pr,ms,ps,rs]=await withTimeout(Promise.all([
+  const [pr,ms,ps,rs,cs]=await withTimeout(Promise.all([
     nextUser?db.from('profiles').select('*').eq('id',nextUser.id).single():Promise.resolve({data:null,error:null}),
     db.from('stores').select('*'),
     db.from('products').select('*').order('created_at',{ascending:false}),
-    nextUser?db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null})
+    nextUser?db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null}),
+    db.from('seller_categories').select('store_id,name').eq('active',true).is('deleted_at',null)
   ]));
   const nextProfile=check(pr),stores=check(ms),products=check(ps),orders=check(rs);
   const people=nextProfile?.role==='admin'?check(await withTimeout(db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}))):[];
@@ -495,13 +496,15 @@ async function refresh(){
   }else deliveryOffers=[];
   if(id!==refreshId)return;
   profile=nextProfile;
+  D.publicCategories=check(cs);
   D.m=stores.map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,appearance:m.storefront_settings||{}}));
   D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
   let workspaceRow=null;
   if(ownStore&&canSell()){workspaceRow=check(await withTimeout(db.from('seller_workspace_settings').select('settings').eq('store_id',ownStore.id).maybeSingle()));}
   if(id!==refreshId)return;
-  workspace.load(workspaceRow?.settings,ownStore?.appearance,ownStore?.id||null);
+  await workspace.load(workspaceRow?.settings,ownStore?.appearance,ownStore?.id||null);
+  if(id!==refreshId)return;
   if(user&&!viewMode)viewMode=ownStore?.ok&&!ownStore?.removed?'seller':nextProfile?.role==='driver'?'driver':'buyer';
   if(viewMode==='seller'&&!canSell())viewMode='buyer';
   if(user&&viewMode!=='guest'){rememberMode(viewMode);try{sessionStorage.removeItem('souq-shatra-pending-role')}catch{}}
@@ -595,7 +598,7 @@ function myMarket(){
 function postPage(){
   if(!canSell()){sellerRequest();tab='settings';settings();return}
   const p=cur?.id?prod(cur.id):null;
-  const sellerCategories=[...new Set([...CATS,...D.p.filter(x=>x.mid===ownStore?.id).map(x=>x.cat)])];
+  const sellerCategories=[...new Set([...CATS,...workspace.categoryNames(),...D.p.filter(x=>x.mid===ownStore?.id).map(x=>x.cat)])];
   $('#view').innerHTML=`<div class="section-title"><h2>${p?'تعديل الإعلان':'نشر إعلان'}</h2><button data-a="tab" data-v="account">رجوع ‹</button></div><div class="post-intro"><b>المعلومات الأساسية لإعلانك</b><p>أدخل البيانات المطلوبة ليظهر المنتج بوضوح للمشترين</p><div class="progress"><i id="post-progress"></i></div></div><div class="post-card"><h2>اختر الفئة المناسبة</h2><label for="fc">القسم</label><select id="fc">${sellerCategories.map(c=>`<option value="${esc(c)}" ${p&&p.cat===c?'selected':''}>${esc(c)}</option>`).join('')}</select><label for="fcCustom">قسم خاص بمتجرك (اختياري)</label><input id="fcCustom" maxlength="80" placeholder="اتركه فارغًا لاستخدام القسم أعلاه"></div><div class="post-card"><h2>صورة الإعلان</h2><label for="pimg">أضف صورة واضحة للمنتج</label><input id="pimg" type="file" accept="image/*"><div class="tile" id="pv">${p?thumb(p):'📷'}</div><p class="note">يمكن إضافة صورة واحدة في النسخة الحالية.</p></div><div class="post-card"><h2>تفاصيل المنتج</h2><label for="fn">اسم المنتج</label><input id="fn" value="${esc(p?.name||'')}"><label for="fpr">السعر (د.ع)</label><input id="fpr" type="number" inputmode="numeric" min="1" value="${p?.price||''}"><label for="fs">الكمية المتوفرة</label><input id="fs" type="number" inputmode="numeric" min="0" value="${p?.stock??''}"><label for="fsku">رمز المنتج أو الباركود (اختياري)</label><input id="fsku" maxlength="80" value="${esc(p?.sku||'')}"><label for="fvariant">المتغير (اختياري)</label><input id="fvariant" maxlength="120" placeholder="المقاس أو اللون" value="${esc(p?.variant||'')}"><label for="fthreshold">تنبيه المخزون عند الكمية</label><input id="fthreshold" type="number" min="0" step="1" value="${p?.threshold??5}"><label for="factive">حالة النشر</label><select id="factive"><option value="true" ${p?.active!==false?'selected':''}>منشور</option><option value="false" ${p?.active===false?'selected':''}>مسودة غير منشورة</option></select><label for="fd">الوصف</label><textarea id="fd" rows="5" placeholder="اكتب التفاصيل التي يحتاج المشتري إلى معرفتها">${esc(p?.desc||'')}</textarea></div><div class="post-actions"><button class="buy" data-a="psave">حفظ الإعلان</button><button class="alt" data-a="tab" data-v="account">رجوع</button></div>`;
   updatePostProgress();
 }
