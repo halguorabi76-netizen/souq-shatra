@@ -390,6 +390,7 @@ body.starting{background:#000!important}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=57">
 <link rel="stylesheet" href="marketplace.css?v=57">
+<link rel="stylesheet" href="operations.css?v=58">
 <link rel="stylesheet" href="site-palette.css?v=56">
 </head>
 <body class="starting">
@@ -424,7 +425,9 @@ body.starting{background:#000!important}
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
-import {createSellerWorkspace} from "./seller-workspace.js?v=57";
+import {createSellerWorkspace} from "./seller-workspace.js?v=58";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=58";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -441,7 +444,7 @@ let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
-let driverAccount=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
+let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
 let viewMode='guest',geoPoint=null;
 const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-shatra-mode-'+user.id,mode);else if(!user&&mode!=='guest')sessionStorage.setItem('souq-shatra-pending-role',mode)}catch{}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
@@ -498,18 +501,24 @@ async function refresh(){
     db.from('delivery_settings').select('*').limit(1).maybeSingle(),
     nextUser?db.from('delivery_workers').select('*').eq('user_id',nextUser.id).maybeSingle():Promise.resolve({data:null}),
     nextUser?db.from('delivery_payments').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[]}),
-    nextProfile?.role==='admin'?db.from('delivery_workers').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[]})
+    nextProfile?.role==='admin'?db.from('delivery_workers').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[]}),
+    nextUser?db.from('driver_profiles').select('*').eq('user_id',nextUser.id).maybeSingle():Promise.resolve({data:null}),
+    nextUser?db.rpc('assigned_delivery_contacts'):Promise.resolve({data:[]}),
+    nextProfile?.role==='admin'?db.from('driver_profiles').select('*'):Promise.resolve({data:[]}),
+    nextUser?db.from('store_pickups').select('*'):Promise.resolve({data:[]})
   ]));
   // An older deployment can load the rest of the market before the migration is installed.
+  if(id!==refreshId)return;
   deliverySettings=dl[0].data||{platform_fee:0,delivery_fee:0,qi_number:''};
   driverAccount=dl[1].data||null;deliveryPayments=dl[2].data||[];D.drivers=dl[3].data||[];
+  driverProfile=check(dl[4]);D.driverContacts=check(dl[5])||[];D.driverProfiles=check(dl[6])||[];D.pickups=check(dl[7])||[];
   if(nextUser&&driverAccount?.approved&&driverAccount.amount_due<driverAccount.debt_limit){
-    const offers=await withTimeout(db.rpc('available_delivery_orders'));deliveryOffers=offers.data||[];
+    const offers=await withTimeout(db.rpc('delivery_offer_details'));if(id!==refreshId)return;deliveryOffers=check(offers)||[];
   }else deliveryOffers=[];
   if(id!==refreshId)return;
   profile=nextProfile;
   D.publicCategories=check(cs);
-  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
+  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
   D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
   let workspaceRow=null;
@@ -573,14 +582,19 @@ function sellerRequest(){
  if(!user){try{sessionStorage.setItem('souq-seller-onboarding','1')}catch{}rememberMode('buyer');sheet(head('الانضمام كتاجر')+'<p>ابدأ بحساب Google الخاص بمتجرك، ثم أكمل اسمك وبيانات المتجر لإرسال طلب إلى الإدارة.</p><button class="buy" data-a="oauth" data-v="google">المتابعة باستخدام Google</button>');return}
  tab='sellerJoin';render();scrollTo(0,0);
 }
+function storeLocationFields(prefix,m){
+ const kind=m?.store_kind||'',address=m?.pickup_address||m?.address||'',id=prefix==='join'?'joinAddress':'editStoreAddress';
+ return `<label for="${prefix}StoreKind">نوع المتجر</label><select id="${prefix}StoreKind" required data-location="${prefix}"><option value="">اختر نوع المتجر</option><option value="physical" ${kind==='physical'?'selected':''}>متجر واقعي / محل</option><option value="online" ${kind==='online'?'selected':''}>متجر إلكتروني</option></select><label id="${prefix}LocationLabel" for="${id}">${kind==='online'?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر'}</label><input id="${id}" required maxlength="500" autocomplete="street-address" value="${esc(address)}"><p class="op-location-note" id="${prefix}LocationNote">${kind==='online'?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'اكتب المدينة والحي وأقرب نقطة دالة. عنوان المحل يظهر للزبائن ولسائق التوصيل.'}</p>`;
+}
 function sellerJoinPage(){
  if(!user){sellerRequest();return}
  const names=(profile?.full_name||'').trim().split(/\s+/),first=names.shift()||'',last=names.join(' '),pending=ownStore&&!ownStore.ok&&!ownStore.removed;
- $('#view').innerHTML=`<div class="box"><button class="profile-link" data-a="tab" data-v="market">سوق الشطرة · الرئيسية</button><h1>${pending?'طلبك بانتظار موافقة الإدارة':'طلب الانضمام كتاجر'}</h1><p>${pending?'وصل طلبك إلى المدير. يمكنك تحديث بياناته أدناه، وستفتح أدوات متجرك بعد الموافقة.':'أكمل البيانات لتصل إلى لوحة المدير. لا يُفعّل المتجر قبل الموافقة.'}</p><p dir="ltr">${esc(user.email||'')}</p><form id="sellerJoinForm"><label for="sellerFirst">الاسم الأول</label><input id="sellerFirst" required maxlength="80" autocomplete="given-name" value="${esc(first)}"><label for="sellerLast">اسم العائلة</label><input id="sellerLast" required maxlength="80" autocomplete="family-name" value="${esc(last)}"><label for="joinStoreName">اسم المتجر</label><input id="joinStoreName" required maxlength="100" value="${esc(ownStore?.name||'')}"><label for="joinPhone">رقم الهاتف</label><input id="joinPhone" type="tel" required inputmode="tel" autocomplete="tel" value="${esc(ownStore?.phone||profile?.phone||'')}"><label for="joinAddress">عنوان المتجر</label><input id="joinAddress" required maxlength="500" autocomplete="street-address" value="${esc(ownStore?.address||'')}"><label for="joinDescription">نبذة عن نشاط المتجر</label><textarea id="joinDescription" maxlength="1000">${esc(ownStore?.description||'')}</textarea><button class="buy" type="submit" data-a="submitSellerJoin">${pending?'تحديث بيانات الطلب':'إرسال الطلب إلى الإدارة'}</button></form></div>`;
+ $('#view').innerHTML=`<div class="box"><button class="profile-link" data-a="tab" data-v="market">سوق الشطرة · الرئيسية</button><h1>${pending?'طلبك بانتظار موافقة الإدارة':'طلب الانضمام كتاجر'}</h1><p>${pending?'وصل طلبك إلى المدير. يمكنك تحديث بياناته أدناه، وستفتح أدوات متجرك بعد الموافقة.':'أكمل البيانات لتصل إلى لوحة المدير. لا يُفعّل المتجر قبل الموافقة.'}</p><p dir="ltr">${esc(user.email||'')}</p><form id="sellerJoinForm"><label for="sellerFirst">الاسم الأول</label><input id="sellerFirst" required maxlength="80" autocomplete="given-name" value="${esc(first)}"><label for="sellerLast">اسم العائلة</label><input id="sellerLast" required maxlength="80" autocomplete="family-name" value="${esc(last)}"><label for="joinStoreName">اسم المتجر</label><input id="joinStoreName" required maxlength="100" value="${esc(ownStore?.name||'')}"><label for="joinPhone">رقم الهاتف</label><input id="joinPhone" type="tel" required inputmode="tel" autocomplete="tel" value="${esc(ownStore?.phone||profile?.phone||'')}">${storeLocationFields('join',ownStore)}<label for="joinDescription">نبذة عن نشاط المتجر</label><textarea id="joinDescription" maxlength="1000">${esc(ownStore?.description||'')}</textarea><button class="buy" type="submit" data-a="submitSellerJoin">${pending?'تحديث بيانات الطلب':'إرسال الطلب إلى الإدارة'}</button></form></div>`;
  $('#sellerJoinForm').addEventListener('submit',e=>{e.preventDefault();A.submitSellerJoin()});
 }
 /* ===== الواجهات ===== */
 function render(){
+  activity.sync();
   if(ADMIN_PORTAL){renderAdminPortal();return}
   try{if(user&&sessionStorage.getItem('souq-admin-return')==='1'){sessionStorage.removeItem('souq-admin-return');location.replace('admin.html');return}}catch{}
   if(!dataReady){$('#view').innerHTML='<div class="empty"><h2>جارٍ فتح حسابك…</h2></div>';return}
@@ -594,7 +608,7 @@ function render(){
   closeAccountMenu();
   document.body.classList.remove('welcome-mode','profile-mode');
   if(publicStoreId&&tab==='market'){workspace.storefront(publicStoreId);return;}
-  if(workspace.render(tab))return;
+  if(workspace.render(tab)){activity.sync();return;}
   const n=D.cart.reduce((s,c)=>s+c.q,0);
   document.body.classList.toggle('welcome-mode',tab==='welcome');
   document.body.classList.toggle('profile-mode',tab==='profilePage');
@@ -606,6 +620,7 @@ function render(){
   document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
+  activity.sync();
 }
 function welcome(){
   $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p><div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#443a31"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#b49f8e"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#b69070"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#48392d"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="طلب الانضمام كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#8e7057"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#e5d5c7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#e5d5c7"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>طلب الانضمام كبائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#efeae5"/><circle cx="49" cy="49" r="8" fill="#efeae5"/><circle cx="17" cy="49" r="3" fill="#866c56"/><circle cx="49" cy="49" r="3" fill="#866c56"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#c8b2a0"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#453b33"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#ae9580"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
@@ -684,7 +699,7 @@ function admin(){
     h+=`<div class="section-title"><h2 id="adminResults">الحسابات المسجلة (${customers.length})</h2></div>`+(customers.length?customers.map(p=>`<div class="admin-record"><b>${esc(p.full_name||'حساب بلا اسم')}</b> <span class="pill">${p.disabled?'معطّل':p.role==='admin'?'مدير':p.role==='seller'?'بائع':p.role==='driver'?'عامل توصيل':'زبون'}</span><small>الهاتف: ${esc(p.phone||D.o.find(o=>o.buyer_id===p.id)?.cust.phone||'غير مسجل')}</small><small>رقم الحساب: <span dir="ltr">${esc(p.id)}</span></small><small>طلبات شراء: ${D.o.filter(o=>o.buyer_id===p.id).length} · التسجيل: ${when(p.created_at)}</small><div class="acts">${!p.disabled&&p.role!=='admin'?`<button class="go" data-a="activateSeller" data-v="${p.id}">${D.m.some(m=>m.owner_id===p.id&&m.ok&&!m.removed)?'تحديث بيانات التاجر':'تفعيل كتاجر'}</button>`:''}${p.role==='admin'?'<span class="note">حساب إدارة</span>':`<button data-a="userDisableAsk" data-v="${p.id}">${p.disabled?'إعادة تفعيل الحساب':'تعطيل الحساب'}</button>`}</div></div>`).join(''):'<div class="empty">لا توجد حسابات بعد.</div>');
   }else if(adminTab==='drivers'){
     h+=`<div class="box"><h2>إعداد أجور الطلب ورقم التحويل</h2><p>حصة التطبيق: ${fmt(deliverySettings.platform_fee)} · أجرة التوصيل: ${fmt(deliverySettings.delivery_fee)}</p><p>Qi: ${esc(deliverySettings.qi_number||'لم يُحدد')}</p><button class="buy" data-a="deliveryConfig">تعديل إعداد التوصيل</button></div><div class="section-title"><h2>عمّال التوصيل</h2></div>`;
-    h+=(D.drivers||[]).length?D.drivers.map(w=>{const person=D.people.find(p=>p.id===w.user_id);return `<div class="admin-record"><b>${esc(person?.full_name||'حساب بلا اسم')}</b> <span class="pill">${w.approved?'معتمد':'بانتظار القبول'}</span><small>📞 ${esc(person?.phone||'غير مسجل')} · المستحق ${fmt(w.amount_due)} / ${fmt(w.debt_limit)}</small><button class="alt" data-a="approveDriver" data-v="${w.user_id}">${w.approved?'إيقاف العامل':'الموافقة على العامل'}</button></div>`}).join(''):'<div class="empty">لا يوجد عامل مسجل.</div>';
+    h+=(D.drivers||[]).length?D.drivers.map(w=>{const person=D.people.find(p=>p.id===w.user_id),details=(D.driverProfiles||[]).find(p=>p.user_id===w.user_id);return `<div class="admin-record"><b>${esc(person?.full_name||'حساب بلا اسم')}</b> <span class="pill">${w.approved?'معتمد':'بانتظار القبول'}</span><small>📞 ${esc(person?.phone||'غير مسجل')} · المستحق ${fmt(w.amount_due)} / ${fmt(w.debt_limit)}</small>${details?`<small>البريد: ${esc(details.email)}</small><small>العنوان: ${esc(details.address)}</small><small>وسيلة التوصيل: ${esc(details.vehicle)}</small>`:'<small>بيانات التسجيل غير مكتملة؛ اطلب منه إكمال طلب السائق.</small>'}<small>رقم الحساب: ${esc(w.user_id)}</small><button class="alt" data-a="approveDriver" data-v="${w.user_id}" ${!w.approved&&!details?'disabled':''}>${w.approved?'إيقاف العامل':'الموافقة على العامل'}</button></div>`}).join(''):'<div class="empty">لا يوجد عامل مسجل.</div>';
     h+='<div class="section-title"><h2>تحويلات بانتظار التحقق</h2></div>';
     const pendingPayments=deliveryPayments.filter(p=>p.status==='pending');
     h+=pendingPayments.length?pendingPayments.map(p=>`<div class="admin-record"><b>${esc(D.people.find(x=>x.id===p.driver_id)?.full_name||'عامل توصيل')}</b><small>${fmt(p.amount)} · رقم العملية: ${esc(p.receipt)}</small><div class="acts"><button class="go" data-a="reviewPayment" data-v="${p.id}|true">تأكيد وصول المبلغ</button><button data-a="reviewPayment" data-v="${p.id}|false">رفض</button></div></div>`).join(''):'<div class="empty">لا توجد تحويلات بانتظار التحقق.</div>';
@@ -730,21 +745,7 @@ function chats(){
   if(user&&viewMode==='seller'&&ownStore){const incoming=D.o.filter(o=>o.mid===ownStore.id);$('#view').innerHTML='<div class="section-title"><h2>طلبات منتجاتي</h2></div>'+(incoming.length?incoming.map(o=>ordCard(o,true)).join(''):'<div class="empty">لا توجد طلبات لمنتجاتك بعد.</div>');return}
   $('#view').innerHTML='<div class="section-title"><h2>طلباتي وإشعاراتي</h2></div><div class="box"><button class="buy" data-a="tab" data-v="orders">متابعة مشترياتي</button></div>';
 }
-function driverPage(){
-  if(!user){$('#view').innerHTML='<div class="box"><h2>عامل التوصيل</h2><p>سجّل حسابًا لتقديم طلب العمل بالتوصيل.</p><button class="buy" data-a="enter" data-v="driver">الدخول</button></div>';return}
-  if(!driverAccount){$('#view').innerHTML='<div class="role-badge">◉ حساب عامل التوصيل</div><div class="box"><h2>التسجيل للتوصيل</h2><p>أكمل الاسم ورقم الهاتف من ملفك الشخصي، ثم أرسل طلب التسجيل. تظهر الطلبات بعد موافقة الإدارة.</p><button class="buy" data-a="registerDriver">إرسال طلب التسجيل</button><button class="alt" data-a="tab" data-v="profilePage">إكمال الملف الشخصي</button></div>';return}
-  const due=driverAccount.amount_due,limit=driverAccount.debt_limit;
-  let h=`<div class="role-badge">◉ عامل توصيل · ${driverAccount.approved?'معتمد':'بانتظار موافقة الإدارة'}</div><div class="box"><h2>مستحقات التطبيق</h2><div class="row"><span>المبلغ المطلوب</span><b>${fmt(due)}</b></div><p class="note">حد إيقاف قبول الطلبات: ${fmt(limit)}</p>${deliverySettings.qi_number?`<p>رقم Qi للتحويل: <b dir="ltr">${esc(deliverySettings.qi_number)}</b></p>`:'<p class="note">رقم التحويل سيحدده المدير في الإعدادات.</p>'}${due>0?'<button class="alt" data-a="paySheet">أرسلت التحويل</button>':''}</div>`;
-  if(!driverAccount.approved)h+='<div class="empty">طلبك بانتظار موافقة المدير. يمكنك تصفح السوق والشراء.</div>';
-  else{
-    h+='<div class="section-title"><h2>طلباتي للتوصيل</h2></div>';
-    const mine=D.o.filter(o=>o.driver_id===user.id&&o.st!==4);
-    h+=mine.length?mine.map(o=>`<div class="ord"><b>${sid(o)} · ${esc(mname(o.mid))}</b><span class="pill">${ST[o.st]}</span><p>البائع: <a href="tel:${esc(mrec(o.mid).phone||'')}">${esc(mrec(o.mid).phone||'رقم غير مسجل')}</a> · ${esc(mrec(o.mid).address||'العنوان غير مسجل')}</p><p>${o.items.map(i=>esc(i.name)+' × '+i.q).join('، ')}</p><p>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a><br>📍 ${esc(o.cust.addr)}</p>${o.cust.note?`<small>${esc(o.cust.note)}</small>`:''}<div class="row"><span>ثمن المنتج</span><b>${fmt(o.total-o.platform_fee-o.delivery_fee)}</b></div><div class="row"><span>أجرة التوصيل</span><b>${fmt(o.delivery_fee)}</b></div><div class="row"><span>تُقبض من الزبون</span><b>${fmt(o.total)}</b></div>${o.st===1?`<button class="buy" data-a="driverStepAsk" data-v="${o.id}|delivery">استلمت المنتج من البائع</button>`:o.st===2?`<button class="buy" data-a="driverStepAsk" data-v="${o.id}|delivered">سلمت المنتج وقبضت المبلغ</button>`:''}</div>`).join(''):'<div class="empty">ليس لديك طلب مستلم حاليًا.</div>';
-    h+='<div class="section-title"><h2>الطلبات المتاحة للجميع</h2></div><p class="note" style="margin:0 16px">تتجدد القائمة كل دقيقة ما دامت شاشة التوصيل مفتوحة.</p>';
-    h+=due>=limit?'<div class="box">وصلت إلى حد المستحقات. أرسل التحويل وانتظر تأكيد المدير لتعود إلى استقبال الطلبات.</div>':deliveryOffers.length?deliveryOffers.map(o=>`<div class="ord"><b>${esc(o.store_name)} · #${o.order_id.slice(-4).toUpperCase()}</b><small>${when(o.created_at)}</small><div class="row"><span>ثمن المنتج</span><b>${fmt(o.product_total)}</b></div><div class="row"><span>أجرة التوصيل</span><b>${fmt(o.delivery_fee)}</b></div><button class="buy" data-a="claimAsk" data-v="${o.order_id}">قبول التوصيل</button><button class="alt" data-a="ignoreOffer" data-v="${o.order_id}">رفض / تجاهل</button></div>`).join(''):'<div class="empty">لا توجد طلبات جاهزة للتوصيل الآن.</div>';
-  }
-  $('#view').innerHTML=h;
-}
+function driverPage(){driverWorkspace.render();}
 
 function listings(){
   if(!canSell()){$('#view').innerHTML='<div class="box"><h2>البيع يحتاج موافقة الإدارة</h2><p>تواصل معنا لاعتماد حسابك. منتجاتك وطلباتك السابقة محفوظة.</p><button class="buy" data-a="sellerRequest">طلب الانضمام كبائع</button></div>';return}
@@ -768,8 +769,8 @@ function account(){
   if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">طلب الانضمام كبائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
   if(profile?.disabled){$('#view').innerHTML='<div class="box"><h2>الحساب معطّل</h2><p>تم إيقاف استخدام هذا الحساب في السوق. تواصل مع إدارة التطبيق إذا كان لديك استفسار.</p><button class="alt" data-a="out">خروج</button></div>';return}
   if(viewMode==='guest'){$('#view').innerHTML=`<div class="box"><h2>تتصفح السوق كضيف</h2><p>اختر حساب الزبون للشراء، أو حساب البائع لنشر المواد.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">طلب الانضمام كبائع</button><button class="alt" data-a="out">تسجيل الخروج من الحساب المحفوظ</button></div>`;return}
-  if(viewMode==='driver'&&profile?.role!=='admin'){$('#view').innerHTML=`<div class="account-head"><b>حساب عامل التوصيل</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="chats">▣<br>طلبات التوصيل</button><button data-a="tab" data-v="orders">🛒<br>مشترياتي</button></div><div class="box"><button class="alt" data-a="tab" data-v="profilePage">ملفي الشخصي</button><button class="alt" data-a="tab" data-v="market">تصفح المنتجات</button><button class="alt" data-a="out">تسجيل الخروج</button></div>`;return}
-  if(viewMode==='buyer'){$('#view').innerHTML=`<div class="account-head"><b>حساب الزبون</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>متابعة مشترياتي</button><button data-a="cart">▣<br>السلة</button></div><div class="box"><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="seller">${canSell()?'إدارة متجري':'طلب الانضمام كبائع'}</button><button class="alt" data-a="out">خروج</button></div>`;return}
+  if(viewMode==='driver'&&profile?.role!=='admin'){driverPage();return}
+  if(viewMode==='buyer'){$('#view').innerHTML=`<div class="account-head"><b>حساب الزبون</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>متابعة مشترياتي</button><button data-a="cart">▣<br>السلة</button><button data-a="favorites">★<br>المفضلة</button></div><div class="box"><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="seller">${canSell()?'إدارة متجري':'طلب الانضمام كبائع'}</button><button class="alt" data-a="out">خروج</button></div>`;return}
   if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حساب البائع</b><small>${esc(user.email)}</small></div><div class="box"><p>تواصل مع الإدارة لاعتماد متجرك وتفعيل أدوات البيع.</p><button class="buy" data-a="login" data-v="store">طلب الانضمام كبائع</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="out">خروج</button></div>`;return}
   const me=D.me,own=me==='owner',T=[...(ownStore?[['p','منتجاتي'],['o','الطلبات']]:[]),...(own?[['m','التجار والأرباح']]:[])];
   let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':ownStore?.removed?'<small>أزالت الإدارة هذا البائع من السوق.</small>':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="storeEdit">تعديل اسم المتجر وعنوانه</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
@@ -821,7 +822,7 @@ async function saveProduct(){
 
 function psheet(){
   const {p,n}=cur;
-  sheet(head(esc(p.name))+`<div class="tile big">${thumb(p)}</div>${window.SouqMarketplace.price(p,fmt)}<p class="note">البائع: <a class="mp-product-store" href="./?store=${encodeURIComponent(p.mid)}">${esc(mname(p.mid))} ← زيارة المتجر</a></p>${p.desc?`<p>${esc(p.desc)}</p>`:''}
+  sheet(head(esc(p.name))+`<div class="tile big">${thumb(p)}</div>${window.SouqMarketplace.price(p,fmt)}<p class="note">البائع: <a class="mp-product-store" href="./?store=${encodeURIComponent(p.mid)}">${esc(mname(p.mid))} ← زيارة المتجر</a></p>${p.desc?`<p>${esc(p.desc)}</p>`:''}${activity.controls(p.id)}
   <div class="row"><span>الكمية المطلوبة</span><div class="qty"><button data-a="pq" data-v="-1" aria-label="أقل">−</button><b>${n}</b><button data-a="pq" data-v="1" aria-label="أكثر">+</button></div></div>
   <button class="buy" data-a="add" ${p.stock<1?'disabled':''}>${p.stock<1?'نفدت الكمية':'أضف للسلة · '+fmt(p.price*n)}</button>`);
 }
@@ -901,7 +902,7 @@ function infoSheet(){
 /* ===== الإجراءات ===== */
 const A={
   marketSection,
-  submitSellerJoin:()=>act(async()=>{if(!user||profile?.disabled)return;const first=val('sellerFirst'),last=val('sellerLast'),name=val('joinStoreName'),phone=val('joinPhone').replace(/\D/g,''),address=val('joinAddress'),description=val('joinDescription');if(!first||!last||name.length<2||phone.length<10||address.length<3){toast('أكمل الاسم واسم المتجر والهاتف والعنوان');return}const button=$('#sellerJoinForm [type="submit"]');if(button?.disabled)return;if(button)button.disabled=true;try{check(await db.rpc('request_seller_join',{p_first:first,p_last:last,p_name:name,p_phone:phone,p_address:address,p_description:description}));tab='sellerJoin';await refresh();toast('وصل طلبك إلى الإدارة وبانتظار الموافقة');}finally{if(button?.isConnected)button.disabled=false;}}),
+  submitSellerJoin:()=>act(async()=>{if(!user||profile?.disabled)return;const first=val('sellerFirst'),last=val('sellerLast'),name=val('joinStoreName'),phone=val('joinPhone').replace(/\D/g,''),address=val('joinAddress'),description=val('joinDescription'),kind=val('joinStoreKind');if(!first||!last||name.length<2||phone.length<10||address.length<3||!kind){toast('أكمل الاسم واسم المتجر والهاتف والعنوان');return}const button=$('#sellerJoinForm [type="submit"]');if(button?.disabled)return;if(button)button.disabled=true;try{check(await db.rpc('request_seller_join_location',{p_first:first,p_last:last,p_name:name,p_phone:phone,p_address:address,p_description:description,p_kind:kind}));tab='sellerJoin';await refresh();toast('وصل طلبك إلى الإدارة وبانتظار الموافقة');}finally{if(button?.isConnected)button.disabled=false;}}),
   buyerAccountLogin,
   loginBuyerAccount:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;dataReady=false;publicStoreId=null;D.p=[];D.o=[];D.cart=[];save();rememberMode('buyer');tab='market';A.close();await refresh();sheet(head('الدخول بحساب زبون آخر')+'<p>اختر حساب Google مختلفًا عن حساب متجرك. سيبقى حساب المتجر مستقلًا.</p><button class="buy" data-a="oauth" data-v="google">الدخول باستخدام Google</button>')}),
   sellerRequest,
@@ -944,25 +945,26 @@ const A={
   useProfileLocation:()=>{if(!user)return;try{const saved=JSON.parse(localStorage.getItem('souq-shatra-location-'+user.id)||'null');if(!saved||!Number.isFinite(+saved.lat)||!Number.isFinite(+saved.lon))throw new Error();geoPoint={lat:saved.lat,lon:saved.lon};const status=$('#geoStatus');if(status)status.textContent='سيُرفق موقعك المحفوظ بهذا الطلب.'}catch{toast('لم تحفظ موقعًا في ملفك بعد')}},
   paymentinfo:()=>sheet(head('طريقة الدفع')+'<p>الدفع نقدًا عند استلام الطلب من عامل التوصيل، وفق المبلغ المعروض عند تأكيد الشراء.</p>'),
   support:supportSheet,
-  storeEdit:()=>{if(!ownStore||!canSell())return;sheet(head('هوية متجري')+`<label for="editStoreName">اسم المتجر</label><input id="editStoreName" maxlength="100" value="${esc(ownStore.name)}"><label for="editStoreImage">صورة المتجر</label>${ownStore.image_url?`<img class="mp-store-image-preview" src="${esc(ownStore.image_url)}" alt="صورة المتجر الحالية"><label><input id="removeStoreImage" type="checkbox"> إزالة الصورة الحالية</label>`:''}<input id="editStoreImage" type="file" accept="image/*"><p class="mp-deal-note">تظهر الصورة في قائمة المتاجر وفي صفحة متجرك.</p><label for="editStoreDescription">نبذة عن المتجر</label><textarea id="editStoreDescription" maxlength="1000" rows="3">${esc(ownStore.description||'')}</textarea><label for="editStorePhone">رقم المتجر</label><input id="editStorePhone" type="tel" value="${esc(ownStore.phone||'')}"><label for="editStoreAddress">عنوان المتجر</label><input id="editStoreAddress" maxlength="500" value="${esc(ownStore.address||'')}"><button class="buy" data-a="storeSave">حفظ معلومات المتجر</button>`)},
+  storeEdit:()=>{if(!ownStore||!canSell())return;sheet(head('هوية متجري')+`<label for="editStoreName">اسم المتجر</label><input id="editStoreName" maxlength="100" value="${esc(ownStore.name)}"><label for="editStoreImage">صورة المتجر</label>${ownStore.image_url?`<img class="mp-store-image-preview" src="${esc(ownStore.image_url)}" alt="صورة المتجر الحالية"><label><input id="removeStoreImage" type="checkbox"> إزالة الصورة الحالية</label>`:''}<input id="editStoreImage" type="file" accept="image/*"><p class="mp-deal-note">تظهر الصورة في قائمة المتاجر وفي صفحة متجرك.</p><label for="editStoreDescription">نبذة عن المتجر</label><textarea id="editStoreDescription" maxlength="1000" rows="3">${esc(ownStore.description||'')}</textarea><label for="editStorePhone">رقم المتجر</label><input id="editStorePhone" type="tel" value="${esc(ownStore.phone||'')}">${storeLocationFields('edit',ownStore)}<button class="buy" data-a="storeSave">حفظ معلومات المتجر</button>`)},
   storeSave:()=>act(async()=>{
    if(storeSaveBusy||!ownStore||!canSell())return;
-   const storeId=ownStore.id,name=val('editStoreName'),phone=val('editStorePhone').replace(/\D/g,''),address=val('editStoreAddress'),description=val('editStoreDescription'),file=$('#editStoreImage')?.files?.[0];
+   const storeId=ownStore.id,name=val('editStoreName'),phone=val('editStorePhone').replace(/\D/g,''),address=val('editStoreAddress'),kind=val('editStoreKind'),description=val('editStoreDescription'),file=$('#editStoreImage')?.files?.[0];
    let image_path=$('#removeStoreImage')?.checked?null:ownStore.image_path;
-   if(name.length<2||name.length>100||phone.length<10||address.length<3){toast('أكمل اسم المتجر والهاتف والعنوان');return}
+   if(name.length<2||name.length>100||phone.length<10||address.length<3||!kind){toast('أكمل اسم المتجر والهاتف والعنوان');return}
    if(file&&(!file.type.startsWith('image/')||file.size>10485760)){toast('اختر صورة بحجم أقل من ١٠ ميغابايت');return}
    const button=$('[data-a="storeSave"]');storeSaveBusy=true;if(button)button.disabled=true;
    try{
     if(file){const blob=await prepareStoreImage(file);image_path=`${storeId}/store-${uid()}.jpg`;check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));}
-    check(await db.from('stores').update({name,phone,address,description,image_path}).eq('id',storeId).select('id').single());A.close();await refresh();toast('تم تحديث هوية المتجر');
+    check(await db.rpc('save_store_location',{p_store:storeId,p_kind:kind,p_address:address}));
+    check(await db.from('stores').update({name,phone,description,image_path}).eq('id',storeId).select('id').single());A.close();await refresh();toast('تم تحديث هوية المتجر');
    }finally{storeSaveBusy=false;if(button?.isConnected)button.disabled=false}
   }),
-  registerDriver:()=>act(async()=>{check(await db.rpc('register_driver'));await refresh();toast('أُرسل طلب التوصيل إلى الإدارة')}),
+  registerDriver:()=>driverWorkspace.application(),
   claimAsk:v=>ask('ستدفع ثمن المنتج للبائع من مالك، ثم تقبض من الزبون إجمالي الطلب. هل تقبل؟','claimOrder',v),
-  claimOrder:v=>act(async()=>{check(await db.rpc('claim_delivery',{p_order:v}));A.close();await refresh();tab='chats';render();toast('أُسند إليك الطلب')}),
+  claimOrder:v=>act(async()=>{check(await db.rpc('claim_delivery',{p_order:v}));A.close();await refresh();driverWorkspace.assigned(1);toast('أُسند إليك الطلب')}),
   ignoreOffer:v=>act(async()=>{check(await db.rpc('decline_delivery',{p_order:v}));deliveryOffers=deliveryOffers.filter(o=>o.order_id!==v);driverPage();toast('لن يظهر لك هذا الطلب مرة أخرى')}),
   driverStepAsk:v=>{const [id,status]=v.split('|');ask(status==='delivered'?'هل سلّمت المنتج وقبضت المبلغ كاملًا؟':'هل دفعت ثمن المنتج واستلمته من البائع؟','driverStep',v)},
-  driverStep:v=>act(async()=>{const [id,status]=v.split('|');check(await db.rpc('delivery_step',{p_order:id,p_status:status}));A.close();await refresh();tab='chats';render();toast('تم تحديث الطلب')}),
+  driverStep:v=>act(async()=>{const [id,status]=v.split('|');check(await db.rpc('delivery_step',{p_order:id,p_status:status}));A.close();await refresh();driverWorkspace.assigned(status==='delivered'?3:2);toast('تم تحديث الطلب')}),
   paySheet:()=>sheet(head('إثبات تحويل المستحقات')+`<p>حوّل إلى رقم Qi: <b dir="ltr">${esc(deliverySettings.qi_number||'لم يُحدد بعد')}</b></p><label for="payAmount">المبلغ المحوّل بالدينار</label><input id="payAmount" type="number" min="1" value="${driverAccount?.amount_due||''}"><label for="payRef">رقم العملية أو تفاصيل الوصل</label><input id="payRef" maxlength="400"><p class="note">لا يُخصم المبلغ حتى يتحقق المدير من وصوله ويؤكد الاستلام.</p><button class="buy" data-a="sendPayment">إرسال طلب التأكيد</button>`),
   sendPayment:()=>act(async()=>{const amount=+val('payAmount'),receipt=val('payRef');if(!Number.isInteger(amount)||amount<1||receipt.length<3){toast('أدخل المبلغ ورقم العملية');return}check(await db.rpc('submit_delivery_payment',{p_amount:amount,p_receipt:receipt}));A.close();await refresh();toast('أُرسل طلب المراجعة إلى المدير')}),
   approveDriver:v=>act(async()=>{const w=D.drivers.find(x=>x.user_id===v);check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));await refresh();toast('تم تحديث عامل التوصيل')}),
@@ -995,8 +997,10 @@ const A={
   fclear:()=>{cat='all';filt.min='';filt.max='';filt.sort='newest';A.close();market()},
   info:infoSheet,
   inforole:v=>{infoRole=v;infoSheet()},
-  notifications:()=>{const rows=profile?.role==='admin'?D.o.filter(o=>o.st===0):viewMode==='driver'?deliveryOffers:D.o.filter(o=>o.buyer_id===user?.id||o.mid===ownStore?.id);sheet(head('الطلبات والإشعارات')+(rows.length?rows.slice(0,20).map(o=>`<div class="row"><b>#${(o.id||o.order_id).slice(-4).toUpperCase()}</b><span>${o.st===undefined?'متاح للتوصيل':ST[o.st]}</span></div>`).join(''):'<div class="empty">لا توجد طلبات جديدة.</div>')+'<button class="alt" data-a="reloadNotice">تحديث</button>')},
-  reloadNotice:()=>act(async()=>{A.close();await refresh();A.notifications()}),
+  notifications:()=>act(()=>activity.show()),
+  reloadNotice:()=>act(()=>activity.poll()),
+  react:v=>act(async()=>{const [id,kind]=v.split('|');if(await activity.react(id,kind))psheet()}),
+  favorites:()=>act(async()=>{if(!user){A.enter('buyer');return}await activity.poll();const list=D.p.filter(p=>activity.favorites().includes(p.id)&&p.active&&!p.blocked);sheet(head('المفضلة')+(list.length?window.SouqMarketplace.productCards(list,{esc,fmt,thumb,mname}):'<div class="empty">لم تضف مواد إلى المفضلة بعد.</div>'))}),
   addentry:()=>{if(!canSell()){sellerRequest();return}if(!user){A.enter('seller');return}if(profile?.disabled){toast('هذا الحساب معطّل');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}if(ownStore.removed){toast('أزالت الإدارة هذا البائع من السوق');return}fsheet('')},
   close:()=>{$('#shade').hidden=true},
   prod:v=>{if(sellerAccount()||(viewMode==='seller'&&ownStore)){if(prod(v)?.mid===ownStore.id)fsheet(v);return}cur={p:prod(v),n:1};psheet()},
@@ -1065,7 +1069,16 @@ const A={
   comm:()=>{toast('إعداد العمولة يحتاج تفعيلًا في قاعدة البيانات')}
 
 };
-const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('./',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
+const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('./',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
+const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
+const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
+async function showOrderNotice(id){
+ const row=check(await db.from('orders').select('*,order_items(*)').eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
+ const contacts=check(await db.rpc('assigned_delivery_contacts'))||[];D.driverContacts=contacts;
+ if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
+ sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
+}
+document.addEventListener('change',e=>{const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
@@ -1108,7 +1121,7 @@ refresh().catch(e=>{
   }
   error(e);
 });
-setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&tab==='chats')||(profile?.role==='admin'&&ADMIN_PORTAL)||(ownStore&&!ownStore.ok&&!ownStore.removed)))refresh().catch(()=>{})},60000);
+setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['chats','account'].includes(tab))||(profile?.role==='admin'&&ADMIN_PORTAL)||(ownStore&&!ownStore.ok&&!ownStore.removed)))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
@@ -1125,7 +1138,3 @@ setTimeout(() => {
 </script>
 </body>
 </html>
-
-
-
-
