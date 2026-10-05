@@ -23,3 +23,5 @@ body.admin-portal .admin-recent{display:flex;align-items:center;justify-content:
 .admin-preview-host .app{max-width:none!important;min-height:100dvh}.admin-preview-host #adminTop{margin:0}
 #adminPreviewFrame{display:block;width:100%;height:calc(100svh - 94px);min-height:480px;border:0;background:var(--bg)}
 @media(max-width:700px){#adminTop>nav{gap:8px;font-size:12px}#adminTop .admin-hub-tab{padding:7px 11px;font-size:12px}#adminPreviewFrame{height:calc(100svh - 128px)}}
+#adminTop .admin-brand{display:flex;align-items:center;gap:12px}
+#adminTop .admin-brand img{flex:none;width:44px;height:44px;object-fit:contain;border-radius:11px;background:#000}
