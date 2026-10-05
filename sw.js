@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-design-v54';
-const CORE = ['./', './index.html', './admin.html', './catalog.html', './admin-portal.css?v=52', './catalog-filter.js?v=47', './demo-lab.js?v=51', './config.js', './seller-workspace.js?v=54', './seller-records.js?v=40', './seller-workspace.css?v=40', './site-palette.css?v=43', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
+const CACHE = 'souq-shatra-design-v55';
+const CORE = ['./', './index.html', './admin.html', './catalog.html', './admin-portal.css?v=52', './catalog-filter.js?v=47', './demo-lab.js?v=51', './config.js', './seller-workspace.js?v=55', './seller-records.js?v=40', './seller-workspace.css?v=55', './site-palette.css?v=43', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
