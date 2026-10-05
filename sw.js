@@ -1,5 +1,5 @@
-const CACHE = 'souq-shatra-design-v60';
-const CORE = ['./', './index.html', './admin.html', './catalog.html', './preview.html', './preview-lab.js?v=60', './preview-lab.css?v=60', './admin-portal.css?v=60', './admin-workspace.js?v=60', './catalog-filter.js?v=47', './marketplace.js?v=57', './marketplace.css?v=57', './activity-center.js?v=58', './delivery-workspace.js?v=58', './operations.css?v=58', './demo-lab.js?v=51', './config.js', './seller-workspace.js?v=58', './seller-records.js?v=40', './seller-workspace.css?v=57', './site-palette.css?v=56', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
+const CACHE = 'souq-shatra-design-v61';
+const CORE = ['./', './index.html', './admin.html', './catalog.html', './preview.html', './preview-lab.js?v=60', './preview-lab.css?v=60', './admin-portal.css?v=61', './admin-workspace.js?v=60', './catalog-filter.js?v=47', './marketplace.js?v=57', './marketplace.css?v=57', './activity-center.js?v=58', './delivery-workspace.js?v=58', './operations.css?v=58', './demo-lab.js?v=51', './config.js', './seller-workspace.js?v=58', './seller-records.js?v=40', './seller-workspace.css?v=57', './site-palette.css?v=56', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
