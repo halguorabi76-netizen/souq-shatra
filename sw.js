@@ -1,4 +1,4 @@
-const CACHE = 'souq-shatra-design-v48';
+const CACHE = 'souq-shatra-design-v49';
 const CORE = ['./', './index.html', './admin.html', './catalog.html', './admin-portal.css?v=46', './catalog-filter.js?v=47', './demo-lab.js?v=47', './config.js', './seller-workspace.js?v=41', './seller-records.js?v=40', './seller-workspace.css?v=40', './site-palette.css?v=43', './manifest.webmanifest', './icons/splash-s-v28.jpg', './icons/startup-s-v29.png'];
 
 self.addEventListener('install', event => {
@@ -23,7 +23,7 @@ self.addEventListener('fetch', event => {
         const response = await fetch(request, {signal: controller.signal, cache:'no-cache'});
         if (response.ok) {
           const cache = await caches.open(CACHE);
-          await cache.put('./index.html', './admin.html', './catalog.html', './admin-portal.css?v=46', response.clone());
+          await cache.put(pageKey, response.clone());
         }
         return response;
       } catch {
