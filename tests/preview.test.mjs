@@ -42,6 +42,11 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8').match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;$/gm,'');vm.runInContext(source,context,{filename:'preview.html'});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();assert.match(nodes.get('#view').innerHTML,/أي واجهة تريد تجربتها/);
  vm.runInContext("db.preview.selectRole('buyer')",context);await settle();assert.match(nodes.get('#view').innerHTML,/المواد المعروضة|قميص تجريبي/);
+ vm.runInContext("A.prod(D.p[0].id);A.add();A.cart()",context);
+ assert.match(nodes.get('#view').innerHTML,/buyer-checkout-layout/);assert.match(nodes.get('#view').innerHTML,/المبلغ النهائي المطلوب/);assert.doesNotMatch(nodes.get('#view').innerHTML,/حصة التطبيق|لكل بائع/);assert.equal(nodes.get('#shade').hidden,true);
+ vm.runInContext("A.accountMenu()",context);assert.match(nodes.get('#view').innerHTML,/data-a="editCustomerPhone"/);
+ vm.runInContext("A.editCustomerPhone()",context);assert.match(nodes.get('#sheet').innerHTML,/customerPhoneForm/);assert.doesNotMatch(nodes.get('#sheet').innerHTML,/pfname/);
+ vm.runInContext("A.close()",context);
  vm.runInContext("db.preview.selectRole('seller')",context);await settle();assert.match(nodes.get('#view').innerHTML,/لوحة متجرك|متجر المعاينة/);assert.match(nodes.get('#view').innerHTML,/مبيعات اليوم المكتملة/);
  vm.runInContext("db.preview.selectRole('driver')",context);await settle();assert.match(nodes.get('#view').innerHTML,/مساحة التوصيل/);assert.match(nodes.get('#view').innerHTML,/رصيد مستحق للتطبيق/);
 });

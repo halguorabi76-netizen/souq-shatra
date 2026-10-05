@@ -1,0 +1,13 @@
+.desktop-search{display:flex;align-items:center;gap:10px;flex:1;min-width:0;margin:0;border-radius:999px;background:var(--card);color:var(--ink);padding:8px 12px}
+body:not(.admin-portal):not(.seller-workspace):not(.seller-storefront) .desktop-search-row{display:flex;gap:12px;margin-top:12px}
+.desktop-search input{margin:0;border:0;background:transparent!important;box-shadow:none;color:inherit!important;padding:6px 0;flex:1;min-width:0;border-radius:0;font-size:16px}
+.desktop-search button{flex:none;width:36px;height:36px;background:var(--navy);color:var(--card);border-radius:50%;font-size:22px}
+.buyer-phone-action{text-align:start;padding:5px 0;color:var(--navy);text-decoration:underline;text-underline-offset:4px}
+.buyer-cart-mode .top{display:none!important}
+.buyer-cart-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 20px 16px}
+.buyer-cart-heading h1{margin:0;font-size:25px}.buyer-cart-heading button{padding:10px 12px;border:1px solid var(--line);background:var(--card);border-radius:10px;font-size:13px}
+.buyer-checkout-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;padding:0 20px 28px;align-items:start}
+.buyer-checkout-card{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.buyer-checkout-card h2{font-size:19px;margin:0 0 18px}.buyer-checkout-card .row{gap:16px;flex-wrap:wrap;padding:16px 0}.buyer-checkout-card .row>div:first-child{flex:1;min-width:140px}.buyer-checkout-card .qty{flex:none}.buyer-checkout-card .buyer-total{margin-top:8px;font-size:18px;color:var(--ok)}
+.buyer-cart-mode #view>.buyer-checkout-card{margin:0 20px 28px}.buyer-cart-mode .note{line-height:1.8}
+@media(max-width:767px){body:not(.admin-portal):not(.seller-workspace):not(.seller-storefront) .desktop-search-row{padding-bottom:4px}.desktop-search{padding:8px 12px}.desktop-search-row .desktop-shortcut{display:none}.buyer-checkout-layout{grid-template-columns:1fr;gap:14px;padding:0 16px 24px}.buyer-cart-heading{padding:20px 16px 16px}.buyer-cart-heading h1{font-size:22px}.buyer-cart-heading button{font-size:12px}.buyer-checkout-card{padding:18px}.buyer-checkout-card .qty{gap:8px}.buyer-cart-mode #view>.buyer-checkout-card{margin-inline:16px}}
