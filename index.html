@@ -422,7 +422,7 @@ body.starting{background:#000!important}
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
-import {createSellerWorkspace} from "./seller-workspace.js?v=53";
+import {createSellerWorkspace} from "./seller-workspace.js?v=54";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
