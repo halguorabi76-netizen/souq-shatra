@@ -26,7 +26,7 @@
 <link rel="icon" href="icons/startup-s-v29.png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/startup-s-v29.png">
 <title>أقسام وبحث سوق الشطرة</title>
-<link rel="stylesheet" href="admin-portal.css?v=61">
+<link rel="stylesheet" href="admin-portal.css?v=63">
 <style>html:has(body.starting),body.starting{background:#000!important}body.starting .app{visibility:hidden}</style>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -428,7 +428,7 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=62';
 import {createSellerWorkspace} from "./seller-workspace.js?v=62";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=58";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=62";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -674,7 +674,7 @@ function renderAdminPortal(){
  $('.tabs').hidden=true;
  if(!document.getElementById('adminTop')){
  const header=document.createElement('header');header.id='adminTop';
- header.innerHTML='<a href="index.html" class="admin-brand">سوق الشطرة <small>لوحة الإدارة</small></a><div><a href="preview.html" class="admin-tool-link">⌕ مختبر المعاينة</a><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out">تسجيل الخروج</button></div>';
+ header.innerHTML='<a href="index.html" class="admin-brand">سوق الشطرة <small>لوحة الإدارة</small></a><div><a href="admin.html?section=preview" class="admin-tool-link">⌕ المعاينة</a><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out">تسجيل الخروج</button></div>';
  $('#view').before(header);
  }
  $('#adminTop [data-a="out"]').hidden=!user;
