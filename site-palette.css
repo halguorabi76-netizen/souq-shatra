@@ -39,3 +39,5 @@ body[data-seller-mode=dark] .sw-tag{background:#102746;color:#91c5e8}
 :root[data-theme] .demo-preview{border-color:var(--line)}
 :root[data-theme] .demo-product p{color:var(--navy)}
 :root[data-theme] .demo-art svg{color:var(--scene-sand)}
+:root[data-theme] .desktop-search strong{background:linear-gradient(135deg,#245b8d,#438fa8);color:#fff}
+:root[data-theme] .banner-dots button:not([aria-current=true]){background:var(--scene-sand)}
