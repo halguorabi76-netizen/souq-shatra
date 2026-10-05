@@ -418,7 +418,7 @@ body.starting{background:#000!important}
 <div id="toast" hidden role="status"></div>
 
 <script src="catalog-filter.js?v=47"></script>
-<script src="demo-lab.js?v=50"></script>
+<script src="demo-lab.js?v=51"></script>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
@@ -437,6 +437,7 @@ const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
+let productSaveBusy=false;
 let driverAccount=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
 let viewMode='guest',geoPoint=null;
 const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-shatra-mode-'+user.id,mode);else if(!user&&mode!=='guest')sessionStorage.setItem('souq-shatra-pending-role',mode)}catch{}};
@@ -446,7 +447,7 @@ function withTimeout(promise,ms=12000){
   let timer;
   return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.'),{name:'TimeoutError'})),ms)})]).finally(()=>clearTimeout(timer));
 }
-function error(e){if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
+function error(e){if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
@@ -745,10 +746,34 @@ function account(){
 }
 
 /* ===== النوافذ ===== */
+async function saveProduct(){
+    if(productSaveBusy)return;
+    if(!canSell()){sellerRequest();return}
+    if(!ownStore){toast('سجّل متجرًا أولًا');return}
+    const name=val('fn'),price=+val('fpr'),stock=+val('fs');
+    if(name.length<2||!Number.isSafeInteger(price)||price<1||price>2147483647||!Number.isSafeInteger(stock)||stock<0||stock>2147483647||val('fs')===''||val('fthreshold')===''||!Number.isSafeInteger(+val('fthreshold'))||+val('fthreshold')<0||+val('fthreshold')>2147483647){toast('اكتب الاسم والسعر والكمية');return}
+    const draft=cur,storeId=ownStore.id,image=draft.img;
+    const f={name,price,stock,category:val('fcCustom')||$('#fc').value,description:val('fd'),store_id:storeId,sku:val('fsku').slice(0,80),variant:val('fvariant').slice(0,120),low_stock_threshold:+val('fthreshold'),active:$('#factive').value==='true'};
+    const button=$('[data-a="psave"]');
+    productSaveBusy=true;if(button){button.disabled=true;button.textContent='جارٍ حفظ المنتج…'}
+    try{
+    let image_path=draft.id?prod(draft.id)?.image_path:null;
+    if(image&&image.startsWith('data:image/')){
+      const blob=await (await fetch(image)).blob();if(blob.size>2097152)throw Error('الصورة كبيرة؛ اختر صورة أصغر');
+      image_path=`${storeId}/${uid()}.jpg`;
+      check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));
+    }
+    f.image_path=image_path;
+    if(draft.id)check(await db.from('products').update(f).eq('id',draft.id).eq('store_id',storeId).select('id').single());
+    else draft.id=check(await db.from('products').insert(f).select('id').single()).id;
+    tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
+    }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent='حفظ الإعلان'}}
+}
+
 function psheet(){
   const {p,n}=cur;
   sheet(head(esc(p.name))+`<div class="tile big">${thumb(p)}</div><h2 style="margin:0">${fmt(p.price)}</h2><p class="note">البائع: ${esc(mname(p.mid))}</p>${p.desc?`<p>${esc(p.desc)}</p>`:''}
-  <div class="row"><span>المتوفر ${p.stock}</span><div class="qty"><button data-a="pq" data-v="-1" aria-label="أقل">−</button><b>${n}</b><button data-a="pq" data-v="1" aria-label="أكثر">+</button></div></div>
+  <div class="row"><span>الكمية المطلوبة</span><div class="qty"><button data-a="pq" data-v="-1" aria-label="أقل">−</button><b>${n}</b><button data-a="pq" data-v="1" aria-label="أكثر">+</button></div></div>
   <button class="buy" data-a="add" ${p.stock<1?'disabled':''}>${p.stock<1?'نفدت الكمية':'أضف للسلة · '+fmt(p.price*n)}</button>`);
 }
 function csheet(){
@@ -909,10 +934,10 @@ const A={
   addentry:()=>{if(!canSell()){sellerRequest();return}if(!user){A.enter('seller');return}if(profile?.disabled){toast('هذا الحساب معطّل');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}if(ownStore.removed){toast('أزالت الإدارة هذا البائع من السوق');return}fsheet('')},
   close:()=>{$('#shade').hidden=true},
   prod:v=>{cur={p:prod(v),n:1};psheet()},
-  pq:v=>{cur.n=Math.min(cur.p.stock||1,Math.max(1,cur.n+ +v));psheet()},
-  add:()=>{const {p,n}=cur,c=D.cart.find(x=>x.pid===p.id);if(c)c.q=Math.min(p.stock,c.q+n);else D.cart.push({pid:p.id,q:n});save();A.close();render();toast('أُضيف للسلة')},
+  pq:v=>{const n=Math.max(1,cur.n+ +v);if(n>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(n>cur.p.stock){toast('الكمية المطلوبة غير متوفرة حاليًا');return}cur.n=n;psheet()},
+  add:()=>{const {p,n}=cur,c=D.cart.find(x=>x.pid===p.id),quantity=(c?.q||0)+n;if(quantity>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(!p.active||p.blocked||quantity>p.stock){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا');return}if(c)c.q=quantity;else D.cart.push({pid:p.id,q:n});save();A.close();render();toast('أُضيف للسلة')},
   cart:()=>csheet(),
-  cq:v=>{const [id,d]=v.split('|'),c=D.cart.find(x=>x.pid===id),p=prod(id);c.q=Math.min(p.stock,c.q+ +d);if(c.q<1)D.cart=D.cart.filter(x=>x!==c);save();render();csheet()},
+  cq:v=>{const [id,d]=v.split('|'),c=D.cart.find(x=>x.pid===id),p=prod(id);if(!c||!p)return;const quantity=c.q+ +d;if(+d>0&&(quantity>p.stock||quantity>100)){toast('الكمية المطلوبة غير متوفرة لهذا الطلب');return}if(quantity<1)D.cart=D.cart.filter(x=>x!==c);else c.q=quantity;save();render();csheet()},
   order:()=>act(async()=>{
     if(!user||viewMode==='guest'){A.close();A.enter('buyer');toast('سجّل الدخول لإرسال الطلب');return}
     if(profile?.disabled){toast('هذا الحساب معطّل');return}
@@ -953,21 +978,7 @@ const A={
   out:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
   dtab:v=>{dt=v;render()},
   pform:v=>{if(!canSell()){sellerRequest();return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}fsheet(v)},
-  psave:()=>act(async()=>{
-    if(!canSell()){sellerRequest();return}
-    if(!ownStore){toast('سجّل متجرًا أولًا');return}
-    const name=val('fn'),price=+val('fpr'),stock=+val('fs');
-    if(name.length<2||!Number.isSafeInteger(price)||price<1||price>2147483647||!Number.isSafeInteger(stock)||stock<0||stock>2147483647||val('fs')===''||val('fthreshold')===''||!Number.isSafeInteger(+val('fthreshold'))||+val('fthreshold')<0||+val('fthreshold')>2147483647){toast('اكتب الاسم والسعر والكمية');return}
-    let image_path=cur.id?prod(cur.id)?.image_path:null;
-    if(cur.img&&cur.img.startsWith('data:image/')){
-      const blob=await (await fetch(cur.img)).blob();if(blob.size>2097152)throw Error('الصورة كبيرة؛ اختر صورة أصغر');
-      image_path=`${ownStore.id}/${uid()}.jpg`;
-      check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));
-    }
-    const f={name,price,stock,category:val('fcCustom')||$('#fc').value,description:val('fd'),image_path,store_id:ownStore.id,sku:val('fsku').slice(0,80),variant:val('fvariant').slice(0,120),low_stock_threshold:+val('fthreshold'),active:$('#factive').value==='true'};
-    if(cur.id)check(await db.from('products').update(f).eq('id',cur.id).eq('store_id',ownStore.id).select('id').single());else check(await db.from('products').insert(f));
-    tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
-  }),
+  psave:()=>act(saveProduct),
   pdel:v=>ask('حذف هذا المنتج؟','pdel2',v),
   pdel2:v=>act(async()=>{if(!canSell()||!ownStore||!D.p.some(p=>p.id===v&&p.mid===ownStore.id))return;check(await db.from('products').delete().eq('id',v).eq('store_id',ownStore.id));await refresh();A.close();render()}),
   st:v=>act(async()=>{const o=D.o.find(x=>x.id===v);if(!o)return;check(await db.rpc('set_order_status',{p_order:v,p_status:STCODE[Math.min(3,o.st+1)]}));await refresh()}),
