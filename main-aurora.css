@@ -69,3 +69,12 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 @keyframes main-basket-walk{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
 @keyframes main-basket-wait{50%{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){#auroraLoading img{animation:none!important}}
+
+/* Floating mascot, without a card or shadow. */
+#auroraLoading{flex-direction:column;gap:4px;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;text-align:center;width:max-content}
+#auroraLoading img{width:96px;height:96px;filter:none!important;box-shadow:none!important}
+#auroraLoading span{font-size:15px;font-weight:500;text-shadow:none}
+#auroraLoading span::after{content:"...";display:inline-block;width:1.2em;text-align:left;direction:ltr;clip-path:inset(0 100% 0 0);animation:main-loading-dots 1.2s steps(4,end) infinite}
+#auroraLoading[data-offline=true] span::after{content:none}
+@keyframes main-loading-dots{to{clip-path:inset(0 0 0 0)}}
+@media(prefers-reduced-motion:reduce){#auroraLoading span::after{animation:none;clip-path:none}}

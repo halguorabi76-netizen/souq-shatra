@@ -3,7 +3,7 @@
  const pending=new Set();let timer,next=0;
  const navigation=new Set();
  const panel=()=>document.getElementById('auroraLoading');
- const update=()=>{const el=panel();if(!el)return;const offline=navigator.onLine===false;el.hidden=!pending.size&&!offline;el.querySelector('span').textContent=offline?'الاتصال بالإنترنت منقطع — ننتظر عودته':'جارٍ التحميل…';el.dataset.offline=String(offline);el.dataset.kind=pending.size===navigation.size?'navigation':'network';if(!offline&&pending.size&&pending.size===navigation.size)el.querySelector('span').textContent='جارٍ الانتقال…';};
+ const update=()=>{const el=panel();if(!el)return;const offline=navigator.onLine===false;el.hidden=!pending.size&&!offline;el.querySelector('span').textContent=offline?'الاتصال بالإنترنت منقطع — ننتظر عودته':'جارٍ التحميل';el.dataset.offline=String(offline);el.dataset.kind=pending.size===navigation.size?'navigation':'network';if(!offline&&pending.size&&pending.size===navigation.size)el.querySelector('span').textContent='جارٍ التحميل';};
  const begin=()=>{const token=++next;pending.add(token);if(!timer)timer=setTimeout(()=>{timer=null;update()},220);return token;};
  const end=token=>{pending.delete(token);navigation.delete(token);if(!pending.size){clearTimeout(timer);timer=null;update();}};
  const transition=()=>{const token=begin();navigation.add(token);update();setTimeout(()=>end(token),550);};
