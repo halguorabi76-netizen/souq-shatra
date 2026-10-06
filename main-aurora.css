@@ -177,3 +177,7 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 :root:not([data-portal]) .market-stores{margin-top:28px;padding-top:10px;border-top:1px solid var(--line)}
 :root:not([data-portal]) .store-category-cards svg{width:30px;height:30px}
 :root:not([data-portal]) .store-category-cards [aria-pressed=true]{background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--icon-ink)}
+
+@media(min-width:768px){
+ :root:not([data-portal]) .topline .header-brand{position:absolute;left:50%;right:auto;transform:translateX(-50%);margin:0}
+}
