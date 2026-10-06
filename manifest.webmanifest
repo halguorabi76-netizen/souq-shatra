@@ -8,11 +8,11 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#e6eaf7",
+  "theme_color": "#e6eaf7",
   "icons": [
     {
-      "src": "icons/startup-s-v29.png",
+      "src": "icons/brand-aurora-v69.png",
       "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"

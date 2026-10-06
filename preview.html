@@ -12,7 +12,7 @@
   if(persist)try{localStorage.setItem(key,mode)}catch{}
   const toggle=document.getElementById('themeToggle');if(toggle){const label=mode==='dark'?'تفعيل الوضع الفاتح':'تفعيل الوضع الغامق';toggle.setAttribute('aria-label',label);toggle.title=label}
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta&&!document.body?.classList.contains('starting'))meta.content=mode==='dark'?'#010611':'#173b68';
+  if(meta&&!document.body?.classList.contains('starting'))meta.content=mode==='dark'?'#101a39':'#e6eaf7';
  };
  let saved='light';try{saved=localStorage.getItem(key)||'light'}catch{}
  window.SouqTheme={set,get:()=>document.documentElement.dataset.theme};set(saved,false);
@@ -21,10 +21,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="سوق الشطرة">
-<link rel="manifest" href="manifest.webmanifest?v=29">
-<link rel="preload" as="image" href="icons/splash-s-v28.jpg">
-<link rel="icon" href="icons/startup-s-v29.png" sizes="192x192">
-<link rel="apple-touch-icon" href="icons/startup-s-v29.png">
+<link rel="manifest" href="manifest.webmanifest?v=69">
+<link rel="preload" as="image" href="icons/basket-mascot-v69.png">
+<link rel="icon" href="icons/brand-aurora-v69.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/brand-aurora-v69.png">
 <title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="admin-portal.css?v=66">
 <style>html:has(body.starting),body.starting{background:#000!important}body.starting .app{visibility:hidden}</style>
@@ -391,32 +391,33 @@ body.starting{background:#000!important}
 <link rel="stylesheet" href="seller-workspace.css?v=57">
 <link rel="stylesheet" href="marketplace.css?v=57">
 <link rel="stylesheet" href="operations.css?v=58"><link rel="stylesheet" href="preview-lab.css?v=63">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="aurora-theme.css?v=69">
 </head>
 <body class="starting">
-<div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/splash-s-v28.jpg" alt="" fetchpriority="high"></div>
+<div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
 <script>
 (()=>{
   const theme=document.querySelector('meta[name="theme-color"]');
-  theme.content='#000000';
-  const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#17191D':'#C32632'};
+  theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7';
+  const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7'};
   // Always finish even if the network, image, or sign-in module cannot load.
   if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){finish()}else{setTimeout(finish,1600)}
 })();
 </script>
 <div class="app">
-  <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-symbol.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off"><button type="submit" aria-label="بحث">⌕</button></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button><button class="desktop-shortcut" data-a="tab" data-v="myMarket">السلة</button></div></header>
+  <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-aurora-v69.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off"><button type="submit" aria-label="بحث">⌕</button></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button><button class="desktop-shortcut" data-a="tab" data-v="myMarket">السلة</button></div></header>
   <main id="view"></main>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
     <button data-a="marketSection" data-v="stores"><span class="navicon">▤</span>المتاجر</button>
-    <button data-a="tab" data-v="myMarket"><span class="navicon">🛒</span>سوقي<i id="cc" hidden></i></button>
+    <button data-a="tab" data-v="myMarket"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg></span>سوقي<i id="cc" hidden></i></button>
     <button data-a="tab" data-v="chats"><span class="navicon">▣</span>الطلبات</button>
     <button data-a="tab" data-v="settings"><span class="navicon">⚙</span>إعدادات</button>
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/splash-s-v28.jpg" alt=""></div>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="app-loading.js?v=69"></script>
+<div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
 <script src="catalog-filter.js?v=62"></script>
@@ -434,9 +435,10 @@ async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
   if(source?.aborted)abort();else source?.addEventListener('abort',abort,{once:true});
+  const token=window.SouqLoading?.begin();
   const timer=setTimeout(abort,20000);
   try{return await fetch(resource,{...init,signal:controller.signal})}
-  finally{clearTimeout(timer);source?.removeEventListener('abort',abort)}
+  finally{clearTimeout(timer);source?.removeEventListener('abort',abort);window.SouqLoading?.end(token)}
 }
 const db=createPreviewClient();
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
@@ -546,7 +548,7 @@ async function refresh(){
   try{if(user&&!ADMIN_PORTAL&&sessionStorage.getItem('souq-seller-onboarding')==='1'){sessionStorage.removeItem('souq-seller-onboarding');sellerRequest();}}catch{}
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
-async function act(f){try{await f()}catch(e){error(e)}}
+async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
 const $=s=>document.querySelector(s),fmt=n=>(+n||0).toLocaleString('en-US')+' د.ع';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>crypto.randomUUID();
@@ -1135,4 +1137,5 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 

@@ -5,10 +5,10 @@ if(!appModule)throw new Error('Missing application source module');
 await writeFile('admin-app.js',appModule[1]);
 const admin=main.replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="admin">')
  .replace('<title>سوق الشطرة</title>','<title>إدارة ومعاينة سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
- .replace('manifest.webmanifest?v=29','admin-manifest.webmanifest?v=66')
+ .replace('manifest.webmanifest?v=69','admin-manifest.webmanifest?v=66')
  .replace('<meta name="apple-mobile-web-app-title" content="سوق الشطرة">','<meta name="apple-mobile-web-app-title" content="إدارة سوق الشطرة">')
- .replace('<link rel="icon" href="icons/startup-s-v29.png" sizes="192x192">','<link rel="icon" href="icons/admin-192-v66.png" sizes="192x192">')
- .replace('<link rel="apple-touch-icon" href="icons/startup-s-v29.png">','<link rel="apple-touch-icon" href="icons/admin-192-v66.png">')
+ .replace('<link rel="icon" href="icons/brand-aurora-v69.png" sizes="192x192">','<link rel="icon" href="icons/admin-192-v66.png" sizes="192x192">')
+ .replace('<link rel="apple-touch-icon" href="icons/brand-aurora-v69.png">','<link rel="apple-touch-icon" href="icons/admin-192-v66.png">')
  .replace(appModule[0],'<script type="module">import {bootAdminHub} from "./admin-hub.js?v=68";bootAdminHub();</script>');
 await writeFile('admin.html',admin);
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
@@ -34,8 +34,9 @@ const preview=main
 if(preview.includes('SUPABASE_ANON_KEY')||preview.includes('import {createClient}'))throw new Error('Preview must not contain the production client');
 await writeFile('preview.html',preview);
 await mkdir('www', { recursive: true });
-for (const file of ['index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css']) await copyFile(file, `www/${file}`);
+for (const file of ['index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js']) await copyFile(file, `www/${file}`);
 // Include every referenced image, including temporary startup artwork.
 await cp('icons', 'www/icons', { recursive: true });
+
 
 

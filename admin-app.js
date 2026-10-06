@@ -10,9 +10,10 @@ async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
   if(source?.aborted)abort();else source?.addEventListener('abort',abort,{once:true});
+  const token=window.SouqLoading?.begin();
   const timer=setTimeout(abort,20000);
   try{return await fetch(resource,{...init,signal:controller.signal})}
-  finally{clearTimeout(timer);source?.removeEventListener('abort',abort)}
+  finally{clearTimeout(timer);source?.removeEventListener('abort',abort);window.SouqLoading?.end(token)}
 }
 const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true},global:{fetch:apiFetch}});
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
@@ -122,7 +123,7 @@ async function refresh(){
   try{if(user&&!ADMIN_PORTAL&&sessionStorage.getItem('souq-seller-onboarding')==='1'){sessionStorage.removeItem('souq-seller-onboarding');sellerRequest();}}catch{}
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
-async function act(f){try{await f()}catch(e){error(e)}}
+async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
 const $=s=>document.querySelector(s),fmt=n=>(+n||0).toLocaleString('en-US')+' د.ع';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>crypto.randomUUID();
