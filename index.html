@@ -604,7 +604,8 @@ function pageBackbar(){
  document.querySelectorAll('.header-page-back').forEach(el=>el.remove());
  const view=$('#view'),root=viewMode==='seller'?'account':'market';
  const nativeBack=view.querySelector('[data-a="back"],[data-s="recordsBack"]');
- const needed=!!nativeBack||pageNav.canBack()||tab!==root||publicStoreId;
+ const atHome=!publicStoreId&&(tab===root||(viewMode==='seller'&&tab==='market'));
+ const needed=!atHome;
  document.body.classList.toggle('has-page-back',!!needed);
  if(!needed)return;
  const bar=view.querySelector('.sw-sitebar')||$('.topline');
