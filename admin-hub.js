@@ -1,6 +1,6 @@
 // One administration entry point. Preview mode never loads the production client.
 export function adminHubHeader(preview=false){
- return `<a href="index.html" class="admin-brand"><img src="icons/admin-192-v66.png" width="44" height="44" alt="شعار سوق الشطرة مع علامة الإعدادات"><span>سوق الشطرة <small>الإدارة والمعاينة</small></span></a><nav aria-label="الإدارة والمعاينة"><a class="admin-hub-tab" href="admin.html" ${!preview?'aria-current="page"':''}>الإدارة</a><a class="admin-hub-tab" href="admin.html?section=preview" ${preview?'aria-current="page"':''}>المعاينة</a><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out" hidden>تسجيل الخروج</button></nav>`;
+ return `<a href="index.html" class="admin-brand"><img src="icons/admin-192-v97.png" width="44" height="44" alt="شعار سوق الشطرة مع علامة الإعدادات"><span>سوق الشطرة <small>الإدارة والمعاينة</small></span></a><nav aria-label="الإدارة والمعاينة"><a class="admin-hub-tab" href="admin.html" ${!preview?'aria-current="page"':''}>الإدارة</a><a class="admin-hub-tab" href="admin.html?section=preview" ${preview?'aria-current="page"':''}>المعاينة</a><a href="index.html">فتح الموقع</a><button data-a="toggleTheme">تغيير المظهر</button><button data-a="out" hidden>تسجيل الخروج</button></nav>`;
 }
 export async function bootAdminHub(){
  const params=new URLSearchParams(location.search),preview=params.get('section')==='preview';
