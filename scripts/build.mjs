@@ -16,6 +16,7 @@ await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>'
 // Reuse the exact production interfaces, but replace their client at build time.
 // Preview never imports real configuration, Supabase, or live authentication.
 const preview=portalMain
+ .replace(/const accountSession=[^\n]*\n/,'const accountSession=null;\n')
  .replace(/const sellerResumeHint=[^\n]*\n/,'const sellerResumeHint=false;\n')
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="preview">')
@@ -24,7 +25,7 @@ const preview=portalMain
  .replace('<script src="demo-lab.js?v=51"></script>','')
  .replace('import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";','import {createPreviewClient} from "./preview-lab.js?v=65";')
  .replace('import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";','')
- .replace('const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true},global:{fetch:apiFetch}});','const db=createPreviewClient();')
+ .replace('const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:accountSession?.storage},global:{fetch:apiFetch}});','const db=createPreviewClient();')
  .replace("const response=await apiFetch(SUPABASE_URL+'/auth/v1/settings',{headers:{apikey:SUPABASE_ANON_KEY}});","throw new Error('المعاينة تعمل بلا تسجيل دخول.');\n const response=null;")
  .replaceAll('souq-shatra-online','souq-preview-cart-v1')
  .replaceAll('souq-shatra-theme','souq-preview-theme-v1')
@@ -36,7 +37,7 @@ const preview=portalMain
 if(preview.includes('SUPABASE_ANON_KEY')||preview.includes('import {createClient}'))throw new Error('Preview must not contain the production client');
 await writeFile('preview.html',preview);
 await mkdir('www', { recursive: true });
-for (const file of ['index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js', 'main-aurora.css', 'main-loading.js', 'page-navigation.js', 'location-picker.js']) await copyFile(file, `www/${file}`);
+for (const file of ['account-access.js', 'index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js', 'main-aurora.css', 'main-loading.js', 'page-navigation.js', 'location-picker.js']) await copyFile(file, `www/${file}`);
 // Include every referenced image, including temporary startup artwork.
 await cp('icons', 'www/icons', { recursive: true });
 
