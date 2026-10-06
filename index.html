@@ -389,7 +389,7 @@ body.starting{background:#000!important}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=81">
-<link rel="stylesheet" href="marketplace.css?v=57">
+<link rel="stylesheet" href="marketplace.css?v=85">
 <link rel="stylesheet" href="operations.css?v=58">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="main-aurora.css?v=84">
 <style>
@@ -434,13 +434,13 @@ body.starting{background:#000!important}
 <div id="toast" hidden role="status"></div>
 
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=62"></script>
+<script src="marketplace.js?v=85"></script>
 <script src="demo-lab.js?v=51"></script>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
-import {createSellerWorkspace} from "./seller-workspace.js?v=81";
+import {createSellerWorkspace} from "./seller-workspace.js?v=85";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";

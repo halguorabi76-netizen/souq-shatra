@@ -2,7 +2,7 @@
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
-import {createSellerWorkspace} from "./seller-workspace.js?v=81";
+import {createSellerWorkspace} from "./seller-workspace.js?v=85";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
@@ -205,6 +205,18 @@ const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy
 const sellerAccount=()=>!!user&&profile?.role!=='admin'&&!profile?.disabled&&!!(ownStore?.ok&&!ownStore?.removed);
 function buyerAccountLogin(){if(db.preview){db.preview.selectRole('buyer');return}sheet(head('الدخول بحساب زبون')+'<p>هذا حساب متجرك. لتصفح السوق والشراء، سجّل الخروج وادخل بحساب زبون آخر.</p><button class="buy" data-a="loginBuyerAccount">تسجيل الخروج والدخول كزبون</button><button class="alt" data-a="close">البقاء في متجري</button>')}
 const canSell=()=>!!user&&!profile?.disabled&&(profile?.role==='admin'||!!(ownStore?.ok&&!ownStore?.removed));
+
+function confirmProductDelete(id,source){
+ if(ADMIN_PORTAL){ask('حذف هذا المنتج؟','pdel2',id);return;}
+ const trigger=source||Array.from(document.querySelectorAll('[data-a="pdel"]')).find(el=>el.dataset.v===id);
+ const card=trigger?.closest('.sw-product,.item');
+ if(!card){toast('افتح قائمة المنتجات لتأكيد حذف المنتج');return;}
+ document.querySelectorAll('.product-delete-confirm').forEach(el=>el.remove());
+ const panel=document.createElement('div');panel.className='product-delete-confirm';panel.setAttribute('role','group');panel.setAttribute('aria-label','تأكيد حذف المنتج');
+ panel.innerHTML='<p>هل تريد حذف هذا المنتج؟</p><div><button type="button" data-a="pdel2" data-v="'+esc(id)+'">حذف</button><button type="button" data-a="cancelProductDelete">تراجع</button></div>';
+ card.append(panel);panel.querySelector('[data-a="cancelProductDelete"]')?.focus();
+}
+
 function sellerRequest(){
  if(db.preview){db.preview.selectRole('seller');return}
  closeAccountMenu();
@@ -227,8 +239,7 @@ function sellerResume(){
  document.body.classList.add('seller-workspace');
  document.body.classList.remove('welcome-mode','profile-mode','buyer-cart-mode');
  $('.tabs').hidden=true;
- $('#view').innerHTML='<div class="sw-shell">'+workspace.chrome()+'<div class="sw-header"><h1>متجري</h1></div><div class="sw-home"><section class="sw-card"><h2>المبيعات</h2></section><section class="sw-card"><h2>طلبات الأسبوع</h2></section><section class="sw-card"><h2>المخزون</h2></section><section class="sw-card"><h2>آخر الطلبات</h2></section></div><nav class="sw-nav" aria-label="لوحة البائع"><button disabled aria-current="page">الرئيسية</button><button disabled>الطلبات</button><button disabled>المنتجات</button><button disabled>المزيد</button></nav></div>';
- $('#view').querySelectorAll('button').forEach(button=>button.disabled=true);
+ $('#view').innerHTML='<div class="sw-sitebar seller-session-brand" aria-label="سوق الشطرة"><span></span><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span></div>';
 }
 
 function render(){
@@ -707,7 +718,8 @@ const A={
   dtab:v=>{dt=v;render()},
   pform:v=>{if(!canSell()){sellerRequest();return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}fsheet(v)},
   psave:()=>act(saveProduct),
-  pdel:v=>ask('حذف هذا المنتج؟','pdel2',v),
+  pdel:(v,source)=>confirmProductDelete(v,source),
+  cancelProductDelete:()=>{const panel=document.querySelector('.product-delete-confirm'),card=panel?.closest('.sw-product,.item');panel?.remove();card?.querySelector('[data-a="pdel"]')?.focus();},
   pdel2:v=>act(async()=>{if(!canSell()||!ownStore||!D.p.some(p=>p.id===v&&p.mid===ownStore.id))return;check(await db.from('products').delete().eq('id',v).eq('store_id',ownStore.id));await refresh();A.close();render()}),
   st:v=>act(async()=>{const o=D.o.find(x=>x.id===v);if(!o)return;check(await db.rpc('set_order_status',{p_order:v,p_status:STCODE[Math.min(3,o.st+1)]}));await refresh()}),
   cancel:v=>ask('إلغاء هذا الطلب؟','cancel2',v),
@@ -742,7 +754,7 @@ document.addEventListener('change',e=>{if(e.target.id==='buyerVariant'){cur.vid=
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
-  const t=e.target.closest('[data-a]');if(t?.matches('#authForm [type="submit"],#sellerJoinForm [type="submit"],#productCreateForm [type="submit"]'))return;if(t&&A[t.dataset.a])A[t.dataset.a](t.dataset.v);
+  const t=e.target.closest('[data-a]');if(t?.matches('#authForm [type="submit"],#sellerJoinForm [type="submit"],#productCreateForm [type="submit"]'))return;if(t&&A[t.dataset.a])A[t.dataset.a](t.dataset.v,t);
 });
 document.addEventListener('change',async e=>{
   if(e.target.id==='avatarInput'&&e.target.files[0]){
@@ -754,7 +766,7 @@ document.addEventListener('change',async e=>{
   im.src=URL.createObjectURL(e.target.files[0]);
 });
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
 let bannerTouch=null,lastBannerInteraction=0;
