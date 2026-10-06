@@ -16,6 +16,7 @@ await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>'
 // Reuse the exact production interfaces, but replace their client at build time.
 // Preview never imports real configuration, Supabase, or live authentication.
 const preview=portalMain
+ .replace(/const sellerResumeHint=[^\n]*\n/,'const sellerResumeHint=false;\n')
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="preview">')
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
