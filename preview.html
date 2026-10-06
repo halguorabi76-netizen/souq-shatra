@@ -437,7 +437,7 @@ body.starting{background:#000!important}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="app-loading.js?v=72"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=87"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="app-loading.js?v=72"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=102"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
@@ -450,8 +450,8 @@ import {createPreviewClient} from "./preview-lab.js?v=65";
 
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
 import {createSellerWorkspace} from "./seller-workspace.js?v=85";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=100";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=102";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=102";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -556,7 +556,7 @@ async function refresh(){
   if(id!==refreshId)return;
   profile=nextProfile;
   D.publicCategories=check(cs);
-  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
+  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,pickup_latitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.latitude,pickup_longitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.longitude,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
   D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:(D.variants||[]).filter(v=>v.product_id===p.id).map(v=>({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''}))}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
   let workspaceRow=null;
@@ -765,10 +765,19 @@ function storeLocationFields(prefix,m){
  const kind=m?.store_kind||'',address=m?.pickup_address||m?.address||'',id=prefix==='join'?'joinAddress':'editStoreAddress';
  return `<label for="${prefix}StoreKind">نوع المتجر</label><select id="${prefix}StoreKind" required data-location="${prefix}"><option value="">اختر نوع المتجر</option><option value="physical" ${kind==='physical'?'selected':''}>متجر واقعي / محل</option><option value="online" ${kind==='online'?'selected':''}>متجر إلكتروني</option></select><label id="${prefix}LocationLabel" for="${id}">${kind==='online'?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر'}</label><input id="${id}" required maxlength="500" autocomplete="street-address" value="${esc(address)}"><p class="op-location-note" id="${prefix}LocationNote">${kind==='online'?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'اكتب المدينة والحي وأقرب نقطة دالة. عنوان المحل يظهر للزبائن ولسائق التوصيل.'}</p>`;
 }
+let sellerJoinPoint=null,sellerJoinOwner=null;
+function sellerJoinMapCard(){
+ const p=window.SouqLocationPicker.point(sellerJoinPoint);
+ return `<button class="alt" type="button" data-a="chooseSellerLocation">📍 ${p?'تعديل موقع المتجر':'اختيار موقع المتجر على الخريطة'}</button>${p?`<p dir="ltr">${p.lat}, ${p.lon}</p><a href="${window.SouqLocationPicker.url(p)}" target="_blank" rel="noopener noreferrer">فتح الموقع في تطبيق الخرائط</a>`:'<p class="note">حدّد موقع المحل أو مكان استلام البضاعة، ثم اضغط موافق.</p>'}`;
+}
+function chooseSellerLocation(){
+ window.SouqLocationPicker.show({value:sellerJoinPoint,sheet,head,title:'اختيار موقع المتجر أو استلام البضاعة',purpose:'المتجر',onConfirm:p=>{sellerJoinPoint=p;A.close();const card=$('#sellerJoinMap');if(card)card.innerHTML=sellerJoinMapCard();}});
+}
 function sellerJoinPage(){
  if(!user){sellerRequest();return}
+ if(sellerJoinOwner!==user.id){sellerJoinOwner=user.id;sellerJoinPoint=window.SouqLocationPicker.point({lat:ownStore?.pickup_latitude,lon:ownStore?.pickup_longitude});}
  const names=(profile?.full_name||'').trim().split(/\s+/),first=names.shift()||'',last=names.join(' '),pending=ownStore&&!ownStore.ok&&!ownStore.removed;
- $('#view').innerHTML=`<div class="box"><button class="profile-link" data-a="tab" data-v="market">سوق الشطرة · الرئيسية</button><h1>${pending?'طلبك بانتظار موافقة الإدارة':'طلب الانضمام كتاجر'}</h1><p>${pending?'وصل طلبك إلى المدير. يمكنك تحديث بياناته أدناه، وستفتح أدوات متجرك بعد الموافقة.':'أكمل البيانات لتصل إلى لوحة المدير. لا يُفعّل المتجر قبل الموافقة.'}</p><p dir="ltr">${esc(user.email||'')}</p><form id="sellerJoinForm"><label for="sellerFirst">الاسم الأول</label><input id="sellerFirst" required maxlength="80" autocomplete="given-name" value="${esc(first)}"><label for="sellerLast">اسم العائلة</label><input id="sellerLast" required maxlength="80" autocomplete="family-name" value="${esc(last)}"><label for="joinStoreName">اسم المتجر</label><input id="joinStoreName" required maxlength="100" value="${esc(ownStore?.name||'')}"><label for="joinPhone">رقم الهاتف</label><input id="joinPhone" type="tel" required inputmode="tel" autocomplete="tel" value="${esc(ownStore?.phone||profile?.phone||'')}">${storeLocationFields('join',ownStore)}<label for="joinDescription">نبذة عن نشاط المتجر</label><textarea id="joinDescription" maxlength="1000">${esc(ownStore?.description||'')}</textarea><button class="buy" type="submit" data-a="submitSellerJoin">${pending?'تحديث بيانات الطلب':'إرسال الطلب إلى الإدارة'}</button></form>${pending?`<section class="professional-contact"><h2>تواصل مع الإدارة قبل الموافقة</h2><p>طلبك محفوظ في لوحة الإدارة. أرسل رسالة واتساب لنتحدث عن نشاطك ونتأكد من بياناتك قبل الاعتماد.</p><a class="buy" href="${esc(professionalWhatsapp('seller',['المتجر: '+ownStore.name,'الهاتف: '+ownStore.phone,'العنوان: '+(ownStore.pickup_address||ownStore.address),'النشاط: '+(ownStore.description||'')]))}" target="_blank" rel="noopener noreferrer">إرسال بيانات طلبي عبر واتساب</a><p class="note">فتح واتساب لا يرسل الرسالة تلقائيًا؛ اضغط إرسال داخله. لا يفتح البيع قبل موافقة الإدارة.</p></section>`:''}</div>`;
+ $('#view').innerHTML=`<div class="box"><button class="profile-link" data-a="tab" data-v="market">سوق الشطرة · الرئيسية</button><h1>${pending?'طلبك بانتظار موافقة الإدارة':'طلب الانضمام كتاجر'}</h1><p>${pending?'وصل طلبك إلى المدير. يمكنك تحديث بياناته أدناه، وستفتح أدوات متجرك بعد الموافقة.':'أكمل البيانات لتصل إلى لوحة المدير. لا يُفعّل المتجر قبل الموافقة.'}</p><p dir="ltr">${esc(user.email||'')}</p><form id="sellerJoinForm"><label for="sellerFirst">الاسم الأول</label><input id="sellerFirst" required maxlength="80" autocomplete="given-name" value="${esc(first)}"><label for="sellerLast">اسم العائلة</label><input id="sellerLast" required maxlength="80" autocomplete="family-name" value="${esc(last)}"><label for="joinStoreName">اسم المتجر</label><input id="joinStoreName" required maxlength="100" value="${esc(ownStore?.name||'')}"><label for="joinPhone">رقم التواصل (يُطابق مع رقم واتساب)</label><input id="joinPhone" type="tel" required inputmode="tel" autocomplete="tel" value="${esc(ownStore?.phone||profile?.phone||'')}">${storeLocationFields('join',ownStore)}<div id="sellerJoinMap" class="store-join-map">${sellerJoinMapCard()}</div><label for="joinDescription">نبذة عن نشاط المتجر</label><textarea id="joinDescription" maxlength="1000">${esc(ownStore?.description||'')}</textarea><button class="buy" type="submit" data-a="submitSellerJoin">${pending?'تحديث الطلب وفتح واتساب':'تقديم الطلب عبر واتساب'}</button></form>${pending?`<section class="professional-contact"><h2>تواصل مع الإدارة قبل الموافقة</h2><p>طلبك محفوظ في لوحة الإدارة. أرسل رسالة واتساب لنتحدث عن نشاطك ونتأكد من بياناتك قبل الاعتماد.</p><a class="buy" href="${esc(professionalWhatsapp('seller',['المتجر: '+ownStore.name,'الهاتف: '+ownStore.phone,'العنوان: '+(ownStore.pickup_address||ownStore.address),'النشاط: '+(ownStore.description||'')]))}" target="_blank" rel="noopener noreferrer">إرسال بيانات طلبي عبر واتساب</a><p class="note">فتح واتساب لا يرسل الرسالة تلقائيًا؛ اضغط إرسال داخله. لا يفتح البيع قبل موافقة الإدارة.</p></section>`:''}</div>`;
  $('#sellerJoinForm').addEventListener('submit',e=>{e.preventDefault();A.submitSellerJoin()});
 }
 /* ===== الواجهات ===== */
@@ -1086,6 +1095,19 @@ function showAccountMenu(){
  menu.innerHTML=(user?'<button class="account-profile-link" data-a="tab" data-v="profilePage">حسابي وبياناتي</button>':'')+'<p>اختر نوع الحساب</p><div class="account-role-grid">'+[['buyer','زبون'],['seller','بائع'],['driver','سائق التوصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span><span>${label}</span></button>`).join('')+'</div>';
  menu.hidden=false;$('#accountTrigger')?.setAttribute('aria-expanded','true');menu.querySelector('[data-a="enter"]')?.focus();
 }
+async function submitSellerApplication(){
+ if(!user||profile?.disabled)return;
+ const first=val('sellerFirst'),last=val('sellerLast'),name=val('joinStoreName'),phone=val('joinPhone').replace(/\D/g,''),address=val('joinAddress'),description=val('joinDescription'),kind=val('joinStoreKind'),point=window.SouqLocationPicker.point(sellerJoinPoint);
+ if(!first||!last||name.length<2||phone.length<10||address.length<3||!kind){toast('أكمل الاسم واسم المتجر ورقم التواصل والعنوان');return;}
+ if(!point){toast('اختر موقع المتجر على الخريطة واضغط موافق');return;}
+ const button=$('#sellerJoinForm [type="submit"]');if(button?.disabled)return;if(button)button.disabled=true;
+ const message=['طلب الانضمام كبائع — سوق الشطرة','الاسم: '+first+' '+last,'المتجر: '+name,'البريد: '+user.email,'رقم الحساب: '+user.id,'رقم التواصل المدخل: '+phone,'نوع المتجر: '+(kind==='physical'?'محل واقعي':'متجر إلكتروني'),'عنوان المحل / الاستلام: '+address,'الموقع: '+window.SouqLocationPicker.url(point),'النشاط: '+description,'هذه الرسالة من رقم واتساب صاحب الطلب، يرجى مراجعته ومطابقته قبل الموافقة.'].join('\n');
+ try{
+  check(await db.rpc('request_seller_join_map',{p_first:first,p_last:last,p_name:name,p_phone:phone,p_address:address,p_description:description,p_kind:kind,p_lat:point.lat,p_lon:point.lon}));
+  tab='sellerJoin';toast('حُفظ طلبك؛ اضغط إرسال داخل واتساب لإكمال التقديم');
+  location.assign('https://wa.me/9647837271707?text='+encodeURIComponent(message));
+ }finally{if(button?.isConnected)button.disabled=false;}
+}
 function professionalWhatsapp(role,details){
  const lines=['طلب الانضمام '+(role==='seller'?'كبائع':'كسائق توصيل')+' — سوق الشطرة','الاسم: '+(profile?.full_name||''),'البريد: '+(user?.email||''),'رقم الحساب: '+(user?.id||''),...details,'أرغب في التواصل مع الإدارة قبل الموافقة على طلبي.'];
  return 'https://wa.me/9647837271707?text='+encodeURIComponent(lines.join('\n'));
@@ -1136,7 +1158,8 @@ function infoSheet(){
 /* ===== الإجراءات ===== */
 const A={
   marketSection,
-  submitSellerJoin:()=>act(async()=>{if(!user||profile?.disabled)return;const first=val('sellerFirst'),last=val('sellerLast'),name=val('joinStoreName'),phone=val('joinPhone').replace(/\D/g,''),address=val('joinAddress'),description=val('joinDescription'),kind=val('joinStoreKind');if(!first||!last||name.length<2||phone.length<10||address.length<3||!kind){toast('أكمل الاسم واسم المتجر والهاتف والعنوان');return}const button=$('#sellerJoinForm [type="submit"]');if(button?.disabled)return;if(button)button.disabled=true;try{check(await db.rpc('request_seller_join_location',{p_first:first,p_last:last,p_name:name,p_phone:phone,p_address:address,p_description:description,p_kind:kind}));tab='sellerJoin';await refresh();toast('وصل طلبك إلى الإدارة وبانتظار الموافقة');}finally{if(button?.isConnected)button.disabled=false;}}),
+  chooseSellerLocation,
+  submitSellerJoin:()=>act(submitSellerApplication),
   buyerAccountLogin,
   loginBuyerAccount:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;dataReady=false;publicStoreId=null;D.p=[];D.o=[];D.cart=[];save();rememberMode('buyer');tab='market';A.close();await refresh();buyerEntry()}),
   sellerRequest,
