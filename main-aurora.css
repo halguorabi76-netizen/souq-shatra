@@ -1,0 +1,71 @@
+/* Reference palette: navy, indigo, blue, sky, teal, violet, lavender, mauve, rose. */
+:root,:root[data-theme=light],body:is(.seller-workspace,.seller-storefront){--bg:#edf1fa;--card:#f7f8fd;--ink:#172344;--mut:#536080;--line:#c6cde4;--navy:#30376a;--gold:#426ba5;--tile:#e0e5f5;--gi:#fff;--scene-bg:linear-gradient(125deg,#e6eaf7 0%,#dceaf5 24%,#ddf0ee 44%,#e6e1f2 65%,#efdfec 82%,#f5e6ed 100%);--panel-bg:linear-gradient(135deg,#f8f9fd,#e6eff8 35%,#eae5f5 70%,#f2e3ec);--icon-bg:linear-gradient(125deg,#a4c8e0,#a3ced0 28%,#aaa7d2 62%,#d5abc4);--icon-ink:#202e59;--action-bg:linear-gradient(115deg,#101a39,#30376a 20%,#426ba5 40%,#387c86 55%,#655287 73%,#835674 100%);--sw-bg:var(--bg);--sw-card:var(--card);--sw-ink:var(--ink);--sw-muted:var(--mut);--sw-line:var(--line);--sw-scene-bg:var(--scene-bg);--sw-icon-ink:var(--icon-ink);--sw-icon-bg:var(--icon-bg);--sw-panel-bg:var(--panel-bg);--sw-action-bg:var(--action-bg)}
+:root[data-theme=dark],body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--bg:#101a39;--card:#253153;--ink:#f2f3fc;--mut:#c3cce5;--line:#59658d;--navy:#a6c7ed;--gold:#c3b7df;--tile:#30376a;--scene-bg:linear-gradient(125deg,#0b1429 0%,#172544 20%,#20375b 37%,#24494f 51%,#30376a 66%,#473f67 82%,#60445c 100%);--panel-bg:linear-gradient(135deg,#253b59,#30376a 40%,#49456b 72%,#624b67);--icon-bg:linear-gradient(125deg,#72b5d1,#63b9ba 28%,#aca2c9 62%,#d5abc4);--icon-ink:#101a39;--action-bg:linear-gradient(115deg,#30376a,#426ba5 30%,#326e7b 52%,#806eac 76%,#925c7b);color-scheme:dark}
+:root[data-theme] body:not(.starting),:root[data-theme] .app,body:is(.seller-workspace,.seller-storefront),body:is(.seller-workspace,.seller-storefront) .app{background:var(--scene-bg)!important;color:var(--ink)}
+:root[data-theme] :is(.top,.nav,.sw-nav,.sw-sitebar,.admin-header){background:var(--scene-bg)!important;border-color:var(--line)!important;color:var(--ink)}
+:root[data-theme] :is(.card,.panel,.post-card,.post-intro,.sw-card,.sw-order,.sw-product,.sw-public-product,.sw-public-header,.admin-stat,.admin-panel,.admin-card,.category-card,.product-card,.sheet,.dialog,.sw-dialog,.sw-drawer){background:var(--panel-bg)!important;border-color:var(--line)!important;color:var(--ink)}
+:root[data-theme] :is(.header-icon,.theme-toggle,.sw-icon,.sw-monogram,.sw-arrange-toggle,.category-icon,.desktop-shortcut,.admin-tabs button,.sw-tag,.sw-status),body:is(.seller-workspace,.seller-storefront) :is(.sw-icon,.sw-monogram,.sw-arrange-toggle){background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--line)!important}
+:root[data-theme] :is(.buy,.primary,.sw-add,.sw-primary,.sw-sales,.account-head,.hero,.admin-banner,.btn-primary){background:var(--action-bg)!important;color:#fff!important;border-color:var(--line)}
+:root[data-theme] :is(input,textarea,select,.sw-search input,.desktop-search){background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
+:root[data-theme] :is(input,textarea)::placeholder{color:var(--mut)!important;opacity:1}
+:root[data-theme] :is(.nav button.active,.nav button[aria-current=page],.sw-nav button[aria-current=page],.sw-segment .selected,.sw-product-tabs .selected){background:var(--icon-bg)!important;color:var(--icon-ink)!important}
+:root[data-theme] :is(.header-logo,.sw-sitebrand img){filter:none!important;object-fit:contain;width:64px;height:48px}
+.sw-sitebrand{gap:10px!important}.header-brand{gap:10px!important}
+:root[data-theme] .header-brand-name{color:var(--ink)!important}
+:root[data-theme] .header-brand-name small{color:var(--mut)!important}
+:root[data-theme] :is(.tabs button,.sw-nav button){color:var(--ink)!important}
+:root[data-theme] .tabs .navicon{background:var(--icon-bg);color:var(--icon-ink);border-radius:12px;padding:6px;display:inline-grid;place-items:center}
+:root[data-theme] .tabs .navicon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8}
+:root[data-theme] #adminTop{background:var(--scene-bg)!important;color:var(--ink);border-color:var(--line)}
+:root[data-theme] :is(.sw-header small,.sw-menu-title,.sw-search input::placeholder){color:var(--mut)!important}
+#startupSplash{background:var(--scene-bg)!important;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px}
+#startupSplash[hidden],#auroraLoading[hidden]{display:none!important}
+#startupSplash img{width:150px;height:150px;object-fit:contain;animation:aurora-bob 1.2s ease-in-out infinite}
+#startupSplash .startup-brand{width:120px;height:88px;animation:none}
+#loading{display:none!important}/* Network status uses the shared non-blocking mascot. */
+#auroraLoading{position:fixed;z-index:300;bottom:105px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);padding:10px 20px;border:1px solid var(--line);border-radius:24px;background:var(--panel-bg);color:var(--ink);box-shadow:0 12px 32px #101a3933;pointer-events:none;direction:rtl;font-size:14px}
+#auroraLoading img{width:72px;height:72px;object-fit:contain;animation:aurora-bob 1s ease-in-out infinite}
+#auroraLoading[data-offline=true] img{animation:none}
+.loading-buddy{background:transparent!important;width:100px;height:100px;background-image:url('icons/basket-mascot-v69.png')!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important}
+.loading-buddy:before,.loading-buddy:after,.loading-buddy span{display:none!important}
+@keyframes aurora-bob{50%{transform:translateY(-5px) rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){#startupSplash img,#auroraLoading img,.loading-buddy{animation:none!important}}
+@media(max-width:600px){:root[data-theme] :is(.header-logo,.sw-sitebrand img){width:49px;height:38px}#auroraLoading{bottom:90px;padding:8px 14px;white-space:normal}}
+
+:root[data-theme]{--scene-gradient:var(--action-bg);--scene-surface:var(--panel-bg);--scene-sky:#72b5d1;--scene-sand:#bc7d9f}
+:root[data-theme] :is(.tabs,.setting-row,.market-section,.profile-card,.account-popover,.auth-sheet,.desktop-market-intro,.demo-product,.demo-card,.admin-menu button){background:var(--panel-bg)!important;color:var(--ink)}
+:root[data-theme] :is(.auth-submit,.go,.profile-action,.filter-actions button:first-child){background:var(--action-bg)!important;color:white!important}
+
+:root[data-theme] .account-shortcuts button{background:var(--panel-bg)!important;color:var(--ink)}
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:46px 1fr 46px 46px!important;background:transparent!important}
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-monogram{color:var(--icon-ink)!important}
+body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var(--bg);--sw-card:var(--card);--sw-ink:var(--ink);--sw-muted:var(--mut);--sw-line:var(--line);--sw-icon-ink:var(--icon-ink);--sw-icon-bg:var(--icon-bg);--sw-panel-bg:var(--panel-bg);--sw-action-bg:var(--action-bg)}
+@media(max-width:600px){:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:34px 1fr 34px 34px!important;gap:6px}.sw-sitebar .sw-icon{width:34px!important;height:34px!important}.sw-sitebrand b{font-size:14px!important}}
+/* Product, checkout, orders and notifications share the same surfaces. */
+:root[data-theme] :is(.mp-product,.mp-store-card,.mp-switcher button,.buyer-checkout-card,.p,.box,.ord,.ac-panel,.ac-notice,.dw-card,.dw-order,.dw-driver-contact){background:var(--panel-bg)!important;color:var(--ink)!important;border-color:var(--line)!important}
+:root[data-theme] :is(.ac-floating,.dw-bell,.qty button,.ac-reactions button,.mp-store-avatar,.sw-search button){background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--line)!important}
+:root[data-theme] .sw-search button{border-radius:50%;box-shadow:0 2px 8px #101a3918}
+:root[data-theme] .sw-search button svg{stroke:var(--icon-ink)!important}
+:root[data-theme] :is(.mp-store-search button){background:var(--action-bg);color:#fff}
+:root[data-theme] :is(.mp-product-store,.mp-store-card p,.mp-store-card div>span,.mp-switcher small,.buyer-checkout-card .note,.ac-notice small){color:var(--mut)}
+:root[data-theme] .ac-reactions button[aria-pressed=true]{background:var(--action-bg)!important;color:#fff!important}
+#auroraLoading span{line-height:1.6}
+
+:root[data-theme] .mp-switcher svg{color:var(--icon-ink);background:var(--icon-bg);padding:6px;border-radius:12px;box-sizing:border-box}
+
+/* Main marketplace only: the complete reference spectrum on every surface. */
+:root[data-theme=light]{--scene-bg:linear-gradient(125deg,#e2e7f5 0%,#d4e6f8 20%,#d4edf1 39%,#deddf4 60%,#e9daf0 80%,#f2dfea 100%);--panel-bg:linear-gradient(135deg,#f6f7fc 0%,#e5eefb 24%,#e3f1f3 43%,#e9e4f8 64%,#f3e3f0 83%,#faeaf0 100%);--icon-bg:linear-gradient(125deg,#a2bbdf 0%,#9ed3e4 26%,#a3cdd3 43%,#b5abdb 66%,#d2abd2 83%,#e0b2ca 100%);--action-bg:linear-gradient(115deg,#14234c 0%,#304c92 22%,#24657c 43%,#554788 64%,#754c86 82%,#874c73 100%)}
+:root[data-theme] :is(.welcome,.welcome-mode .app,.category-cards,.buyer-cart-page){background:var(--scene-bg)!important}
+:root[data-theme] :is(.welcome-roles .symbol,.category-card[aria-pressed=true],.filter-chips button,.avatar,.role-badge){background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--line)!important}
+:root[data-theme] .welcome-roles .symbol svg{stroke:var(--icon-ink)!important}
+:root[data-theme] :is(.welcome-roles strong,.welcome h1,.section-title h2,.p em){color:var(--ink)!important}
+:root[data-theme] :is(.welcome p,.welcome-guest,.setting-row small){color:var(--mut)!important}
+:root[data-theme] .tabs button[aria-current=page] .navicon{box-shadow:0 0 0 2px var(--icon-ink),0 4px 12px #17234425}
+:root[data-theme] .tabs .plus{background:var(--action-bg)!important;color:white!important}
+#auroraLoading{padding-inline:14px 20px;max-width:min(420px,calc(100vw - 24px));box-shadow:0 8px 32px #17234424,inset 0 1px 0 #ffffff55}
+#auroraLoading img{flex:none;filter:drop-shadow(0 5px 4px #17234428);animation:main-basket-walk .8s ease-in-out infinite}
+#auroraLoading[data-kind=navigation] img{animation-duration:.55s}
+#auroraLoading[data-offline=true] img{animation:main-basket-wait 2.4s ease-in-out infinite}
+@keyframes main-basket-walk{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+@keyframes main-basket-wait{50%{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){#auroraLoading img{animation:none!important}}

@@ -3,7 +3,8 @@ const main=await readFile('index.html','utf8');
 const appModule=main.match(/<script type="module">([\s\S]*?)<\/script>/);
 if(!appModule)throw new Error('Missing application source module');
 await writeFile('admin-app.js',appModule[1]);
-const admin=main.replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="admin">')
+const portalMain=main.replace('main-aurora.css?v=73','aurora-theme.css?v=72').replace('main-loading.js?v=73','app-loading.js?v=72');
+const admin=portalMain.replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="admin">')
  .replace('<title>سوق الشطرة</title>','<title>إدارة ومعاينة سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
  .replace('manifest.webmanifest?v=69','admin-manifest.webmanifest?v=66')
  .replace('<meta name="apple-mobile-web-app-title" content="سوق الشطرة">','<meta name="apple-mobile-web-app-title" content="إدارة سوق الشطرة">')
@@ -14,7 +15,7 @@ await writeFile('admin.html',admin);
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
 // Preview never imports real configuration, Supabase, or live authentication.
-const preview=main
+const preview=portalMain
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="preview">')
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
@@ -34,7 +35,7 @@ const preview=main
 if(preview.includes('SUPABASE_ANON_KEY')||preview.includes('import {createClient}'))throw new Error('Preview must not contain the production client');
 await writeFile('preview.html',preview);
 await mkdir('www', { recursive: true });
-for (const file of ['index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js']) await copyFile(file, `www/${file}`);
+for (const file of ['index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js', 'main-aurora.css', 'main-loading.js']) await copyFile(file, `www/${file}`);
 // Include every referenced image, including temporary startup artwork.
 await cp('icons', 'www/icons', { recursive: true });
 

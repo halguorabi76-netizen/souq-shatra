@@ -1,0 +1,24 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+test('overlapping requests, offline recovery and abort cleanup preserve loader state',async()=>{
+ const jobs=new Map(),listeners={},panel={hidden:true,dataset:{},querySelector:()=>text},text={textContent:''};let id=0;
+ let click;
+ const window={addEventListener:(event,fn)=>listeners[event]=fn};
+ const navigator={onLine:true};
+ vm.runInNewContext(await readFile('main-loading.js','utf8'),{window,navigator,document:{getElementById:()=>panel,addEventListener:(event,fn)=>{if(event==='click')click=fn}},setTimeout:fn=>{jobs.set(++id,fn);return id},clearTimeout:id=>jobs.delete(id)});
+ const flush=()=>{const work=[...jobs.values()];jobs.clear();work.forEach(fn=>fn())};
+ click({target:{closest:()=>({dataset:{a:'cq'},getAttribute:()=>null})}});assert.equal(panel.hidden,true);
+ click({target:{closest:()=>({dataset:{a:'tab'},disabled:true,getAttribute:()=>null})}});assert.equal(panel.hidden,true);
+ click({target:{closest:()=>({dataset:{a:'tab'},getAttribute:()=>null})}});assert.equal(panel.hidden,false);assert.equal(panel.dataset.kind,'navigation');flush();assert.equal(panel.hidden,true);
+ const a=window.SouqLoading.begin(),b=window.SouqLoading.begin();flush();assert.equal(panel.hidden,false);
+ window.SouqLoading.end(a);assert.equal(panel.hidden,false);
+ window.SouqLoading.end(b);assert.equal(panel.hidden,true);
+ navigator.onLine=false;listeners.offline();assert.equal(panel.hidden,false);assert.match(text.textContent,/منقطع/);
+ const c=window.SouqLoading.begin();flush();navigator.onLine=true;listeners.online();assert.equal(panel.hidden,false);
+ window.SouqLoading.end(c);assert.equal(panel.hidden,true);
+ window.SouqLoading.transition();assert.equal(panel.hidden,false);flush();assert.equal(panel.hidden,true);
+ const d=window.SouqLoading.begin();window.SouqLoading.transition();flush();assert.equal(panel.hidden,false);
+ window.SouqLoading.end(d);assert.equal(panel.hidden,true);
+});
