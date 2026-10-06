@@ -1,14 +1,14 @@
-/* Shared, non-blocking navigation and network status. */
+/* Track real work only; bridge adjacent requests without blocking the app. */
 (()=>{
- const pending=new Set();let timer,next=0;
- const navigation=new Set();
+ const pending=new Set();let showTimer=null,hideTimer=null,next=0;
  const panel=()=>document.getElementById('auroraLoading');
- const update=()=>{const el=panel();if(!el)return;const offline=navigator.onLine===false;el.hidden=!pending.size&&!offline;el.querySelector('span').textContent=offline?'الاتصال بالإنترنت منقطع — ننتظر عودته':'جارٍ التحميل';el.dataset.offline=String(offline);el.dataset.kind=pending.size===navigation.size?'navigation':'network';if(!offline&&pending.size&&pending.size===navigation.size)el.querySelector('span').textContent='جارٍ التحميل';};
- const begin=()=>{const token=++next;pending.add(token);if(!timer)timer=setTimeout(()=>{timer=null;update()},220);return token;};
- const end=token=>{pending.delete(token);navigation.delete(token);if(!pending.size){clearTimeout(timer);timer=null;update();}};
- const transition=()=>{const token=begin();navigation.add(token);update();setTimeout(()=>end(token),550);};
- window.SouqLoading={begin,end,transition};
- document.addEventListener('click',e=>{const button=e.target.closest?.('button[data-a],button[data-s],button[data-driver]');if(!button||button.disabled||button.getAttribute('aria-disabled')==='true')return;const action=button.dataset.a||button.dataset.s||button.dataset.driver;if(['tab','cart','prod','publicStore','marketSection','favorites','notifications','enter','menuPage','siteHome','menuBuyer','assigned','available'].includes(action))transition();},true);
- window.addEventListener('offline',update);window.addEventListener('online',update);
- update();
+ const show=()=>{const el=panel();if(!el)return;el.hidden=false;el.querySelector('span').textContent=navigator.onLine===false?'الاتصال بالإنترنت منقطع — ننتظر عودته':'جارٍ التحميل';el.dataset.offline=String(navigator.onLine===false);el.dataset.kind='network';};
+ const settle=()=>{hideTimer=null;if(!pending.size&&navigator.onLine!==false){const el=panel();if(el)el.hidden=true;}};
+ const begin=()=>{const token=++next;pending.add(token);clearTimeout(hideTimer);hideTimer=null;const el=panel();if(el&&!el.hidden)show();else if(showTimer===null)showTimer=setTimeout(()=>{showTimer=null;if(pending.size||navigator.onLine===false)show();},220);return token;};
+ const end=token=>{pending.delete(token);if(pending.size)return;clearTimeout(showTimer);showTimer=null;if(navigator.onLine===false){show();return;}clearTimeout(hideTimer);hideTimer=setTimeout(settle,180);};
+ const connection=()=>{if(navigator.onLine===false||pending.size){clearTimeout(hideTimer);hideTimer=null;show();}else{clearTimeout(hideTimer);hideTimer=setTimeout(settle,180);}};
+ // Synchronous navigation has no loading task.
+ window.SouqLoading={begin,end,transition:()=>{}};
+ window.addEventListener('offline',connection);window.addEventListener('online',connection);
+ if(navigator.onLine===false)show();
 })();

@@ -401,7 +401,7 @@ body.starting{background:#000!important}
   theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7';
   const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7'};
   // Always finish even if the network, image, or sign-in module cannot load.
-  if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){finish()}else{setTimeout(finish,1600)}
+  requestAnimationFrame(finish);
 })();
 </script>
 <div class="app">
@@ -416,7 +416,7 @@ body.starting{background:#000!important}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=74"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=75"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
