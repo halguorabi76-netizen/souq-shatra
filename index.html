@@ -482,11 +482,25 @@ function withTimeout(promise,ms=12000){
 function error(e){if(e?.name==='TimeoutError'||e?.name==='TypeError')window.SouqLoading?.failed?.();if(e?.message?.includes('inventory changed')){toast('تغيّر مخزون هذا المنتج أثناء التعديل. أعد فتح المنتج لتحميل الكميات الجديدة ثم احفظ.');return;}if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
+function unavailableSession(e){
+ return ['refresh_token_not_found','refresh_token_already_used','session_not_found','user_not_found'].includes(e?.code);
+}
+async function clearUnavailableAccount(){
+ check(await withTimeout(db.auth.signOut({scope:'local'})));
+ if(user?.id)try{localStorage.removeItem('souq-shatra-mode-'+user.id)}catch{}
+ try{sessionStorage.removeItem('souq-shatra-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}
+ user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;viewMode='guest';
+ D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
+ deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
+}
 async function refresh(){
   const id=++refreshId;
   // Keep the storefront visible while session and product requests finish.
   try{
-  const session=check(await withTimeout(db.auth.getSession()));
+  const sessionResult=await withTimeout(db.auth.getSession());
+  if(id!==refreshId)return;
+  if(unavailableSession(sessionResult.error)){await clearUnavailableAccount();return refresh()}
+  const session=check(sessionResult);
   const nextUser=session.session?.user||null;
   if(id!==refreshId)return;
   // Restore the saved identity before querying the marketplace. A slow or failed
@@ -510,10 +524,14 @@ async function refresh(){
     render();
   }
   const [pr,ms]=await withTimeout(Promise.all([
-    nextUser?db.from('profiles').select('*').eq('id',nextUser.id).single():Promise.resolve({data:null,error:null}),
+    nextUser?db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle():Promise.resolve({data:null,error:null}),
     db.from('stores').select('*')
   ]));
-  const nextProfile=check(pr),stores=check(ms);
+  if(id!==refreshId)return;
+  const nextProfile=check(pr);
+  // A removed account can still have an unexpired token saved on this device.
+  if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
+  const stores=check(ms);
   const approvedStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&m.approved&&!m.removed):null;
   const sellerOnly=!!approvedStore&&nextProfile?.role!=='admin'&&!ADMIN_PORTAL;
   let productQuery=db.from('products').select('*').order('created_at',{ascending:false});
