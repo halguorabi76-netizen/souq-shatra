@@ -35,16 +35,20 @@ test('invalid return targets and quantities are rejected, and cancellation clear
 test('purchase auth provides create-account wording and waits for refreshed product data',()=>{
  assert.doesNotMatch(html,/إنشاء حساب جديد/);assert.match(html,/if\(pendingPurchase\)\{await refresh\(\)/);assert.match(html,/if\(!pendingPurchase\)loadAuthProviders\(\)/);
 });
-function authActions(x,{signupSession=true,failure=false}={}){
+function authActions(x,{signupSession=true,failure=false,failureCode='invalid_credentials'}={}){
  const c=x.c,button={disabled:false,isConnected:true},values={lp:'buyer@example.com',lk:'secret123',lkConfirm:'secret123',ln:'زبون',lphone:'07700000000'};
- Object.assign(c,{act:f=>f(),val:id=>values[id]||'',$:()=>button,withTimeout:p=>p,check:r=>{if(r.error)throw r.error;return r.data},viewMode:'buyer',ownStore:null,dt:'p',db:{auth:{signInWithPassword:async()=>failure?{error:new Error('invalid credentials')}:{data:{user:{id:'buyer'}}},signUp:async()=>({data:{user:{id:'buyer'},session:signupSession?{user:{id:'buyer'}}:null}})}},refresh:async()=>{c.resumePurchaseAfterLogin()}});
+ Object.assign(c,{act:f=>f(),val:id=>values[id]||'',$:()=>button,withTimeout:p=>p,check:r=>{if(r.error)throw r.error;return r.data},viewMode:'buyer',ownStore:null,dt:'p',isInvalidPasswordLogin:e=>e.code==='invalid_credentials',loginAccountNotice:email=>x.events.push(['loginNotice',email]),db:{auth:{signInWithPassword:async()=>failure?{error:Object.assign(new Error('invalid credentials'),{code:failureCode})}:{data:{user:{id:'buyer'}}},signUp:async()=>({data:{user:{id:'buyer'},session:signupSession?{user:{id:'buyer'}}:null}})}},refresh:async()=>{c.resumePurchaseAfterLogin()}});
  const start=html.indexOf('  dologin:m=>'),end=html.indexOf('  register:',start);vm.runInContext('Object.assign(A,{'+html.slice(start,end)+'});',c);return c;
 }
 test('actual email login and immediate-session signup return to the requested material',async()=>{
  for(const mode of ['m','r']){const x=setup();x.c.A.add();authActions(x);await x.c.A.dologin(mode);assert.equal(x.c.user.id,'buyer');assert.equal(x.c.cur.p.id,pid);assert.equal(x.c.cur.vid,vid);assert.equal(x.c.cur.n,3);assert.equal(x.c.tab,'catalog');assert.equal(x.c.D.cart.length,0);assert.equal(x.storage.has('test-purchase-return'),false);}
 });
 test('failed login and email confirmation keep the return target for the next successful login',async()=>{
- const x=setup();x.c.A.add();authActions(x,{failure:true});await assert.rejects(x.c.A.dologin('m'),/invalid credentials/);assert.equal(x.c.user,null);assert.equal(x.storage.has('test-purchase-return'),true);
+ const x=setup();x.c.A.add();authActions(x,{failure:true});await x.c.A.dologin('m');assert.ok(x.events.some(e=>e[0]==='loginNotice'&&e[1]==='buyer@example.com'));assert.equal(x.c.user,null);assert.equal(x.storage.has('test-purchase-return'),true);
  authActions(x,{signupSession:false});await x.c.A.dologin('r');assert.equal(x.c.user,null);assert.equal(x.storage.has('test-purchase-return'),true);assert.ok(x.events.some(e=>e[0]==='auth'&&e[1]==='m'));
  authActions(x);await x.c.A.dologin('m');assert.equal(x.c.cur.p.id,pid);assert.equal(x.storage.has('test-purchase-return'),false);
+});
+
+test('network and other auth failures do not tell the customer to create an account',async()=>{
+ const x=setup();x.c.A.add();authActions(x,{failure:true,failureCode:'request_timeout'});await assert.rejects(x.c.A.dologin('m'),/invalid credentials/);assert.equal(x.events.some(e=>e[0]==='loginNotice'),false);assert.equal(x.storage.has('test-purchase-return'),true);
 });
