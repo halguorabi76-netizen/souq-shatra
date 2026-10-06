@@ -12,7 +12,7 @@ async function apiFetch(resource,init={}){
   if(source?.aborted)abort();else source?.addEventListener('abort',abort,{once:true});
   const token=window.SouqLoading?.begin();
   const timer=setTimeout(abort,20000);
-  try{const response=await fetch(resource,{...init,signal:controller.signal});window.SouqLoading?.recovered?.();return response}
+  try{const response=await fetch(resource,{...init,signal:controller.signal});window.SouqLoading?.requestSucceeded?.();return response}
   catch(e){if(e?.name==='TypeError'||(e?.name==='AbortError'&&!source?.aborted))window.SouqLoading?.failed?.();throw e}
   finally{clearTimeout(timer);source?.removeEventListener('abort',abort);window.SouqLoading?.end(token)}
 }
@@ -43,11 +43,25 @@ function withTimeout(promise,ms=12000){
 function error(e){if(e?.name==='TimeoutError'||e?.name==='TypeError')window.SouqLoading?.failed?.();if(e?.message?.includes('inventory changed')){toast('تغيّر مخزون هذا المنتج أثناء التعديل. أعد فتح المنتج لتحميل الكميات الجديدة ثم احفظ.');return;}if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
+function unavailableSession(e){
+ return ['refresh_token_not_found','refresh_token_already_used','session_not_found','user_not_found'].includes(e?.code);
+}
+async function clearUnavailableAccount(){
+ check(await withTimeout(db.auth.signOut({scope:'local'})));
+ if(user?.id)try{localStorage.removeItem('souq-shatra-mode-'+user.id)}catch{}
+ try{sessionStorage.removeItem('souq-shatra-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}
+ user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;viewMode='guest';
+ D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
+ deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
+}
 async function refresh(){
   const id=++refreshId;
   // Keep the storefront visible while session and product requests finish.
   try{
-  const session=check(await withTimeout(db.auth.getSession()));
+  const sessionResult=await withTimeout(db.auth.getSession());
+  if(id!==refreshId)return;
+  if(unavailableSession(sessionResult.error)){await clearUnavailableAccount();return refresh()}
+  const session=check(sessionResult);
   const nextUser=session.session?.user||null;
   if(id!==refreshId)return;
   // Restore the saved identity before querying the marketplace. A slow or failed
@@ -71,10 +85,13 @@ async function refresh(){
     render();
   }
   const [pr,ms]=await withTimeout(Promise.all([
-    nextUser?db.from('profiles').select('*').eq('id',nextUser.id).single():Promise.resolve({data:null,error:null}),
+    nextUser?db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle():Promise.resolve({data:null,error:null}),
     db.from('stores').select('*')
   ]));
-  const nextProfile=check(pr),stores=check(ms);
+  if(id!==refreshId)return;
+  const nextProfile=check(pr);
+  if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
+  const stores=check(ms);
   const approvedStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&m.approved&&!m.removed):null;
   const sellerOnly=!!approvedStore&&nextProfile?.role!=='admin'&&!ADMIN_PORTAL;
   let productQuery=db.from('products').select('*').order('created_at',{ascending:false});
@@ -128,10 +145,10 @@ async function refresh(){
   D.people=people;
   dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();resumePurchaseAfterLogin();
-  finishAccountEntry();
+  finishAccountEntry();window.SouqLoading?.recovered?.();
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
-async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
+async function act(f){const token=window.SouqLoading?.begin();try{await f();window.SouqLoading?.recovered?.()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
 const $=s=>document.querySelector(s),fmt=n=>(+n||0).toLocaleString('en-US')+' د.ع';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>crypto.randomUUID();
@@ -431,7 +448,7 @@ function renderAdminPortal(){
  $('#adminTop [data-a="out"]').hidden=!user;
  window.SouqTheme.set(window.SouqTheme.get(),false);
  if(!dataReady){$('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p></div>';return}
- if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>سجّل الدخول بحساب المدير لمراجعة التجار وإدارة الموقع.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
+ if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>الدخول مخصص لحساب المالك المعتمد. تسجيل الدخول بحساب آخر لا يمنحه صلاحية الإدارة.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
  if(profile?.role!=='admin'||profile?.disabled){$('#view').innerHTML='<div class="admin-gate"><h1>هذا الحساب لا يملك صلاحية الإدارة</h1><p>استخدم حساب المدير المعتمد.</p><button class="buy" data-a="out">تبديل الحساب</button><a href="index.html">العودة إلى السوق</a></div>';return}
  tab='admin';admin();
 }
@@ -885,6 +902,7 @@ $('#view').addEventListener('touchend',e=>{
 },{passive:true});
 $('#view').addEventListener('touchcancel',()=>{bannerTouch=null},{passive:true});
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(['market','welcome'].includes(tab)&&!document.hidden&&Date.now()-lastBannerInteraction>5500){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
+window.addEventListener('online',()=>refresh().catch(error));
 db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(recoverySheet,0)});
 if(!ADMIN_PORTAL)window.SouqDemo?.init(render);
 window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':params.get('view')==='materials'||location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
@@ -899,3 +917,4 @@ setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
+

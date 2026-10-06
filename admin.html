@@ -391,7 +391,7 @@ body.starting{background:#000!important}
 <link rel="stylesheet" href="seller-workspace.css?v=81">
 <link rel="stylesheet" href="marketplace.css?v=85">
 <link rel="stylesheet" href="operations.css?v=58">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="aurora-theme.css?v=72">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="aurora-theme.css?v=95">
 <style>
 .seller-preflight{display:none}
 :root[data-seller-resume] .seller-preflight{display:block}
@@ -406,15 +406,15 @@ body.starting{background:#000!important}
 }catch{}})();
 </script>
 </head>
-<body class="starting">
-<div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
+<body>
+<div id="startupSplash" hidden class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
 <script>
 (()=>{
   const theme=document.querySelector('meta[name="theme-color"]');
   theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7';
   const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7'};
   // Always finish even if the network, image, or sign-in module cannot load.
-  if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){finish()}else{setTimeout(finish,1600)}
+  finish()
 })();
 </script>
 <div class="app">
@@ -429,7 +429,7 @@ body.starting{background:#000!important}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="app-loading.js?v=72"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=87"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جار التحميل</span></div><script src="admin-network-loading.js?v=95"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=87"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
@@ -437,7 +437,7 @@ body.starting{background:#000!important}
 <script src="catalog-filter.js?v=62"></script>
 <script src="marketplace.js?v=88"></script>
 <script src="demo-lab.js?v=51"></script>
-<script type="module">import {bootAdminHub} from "./admin-hub.js?v=68";bootAdminHub();</script>
+<script type="module">import {bootAdminHub} from "./admin-hub.js?v=95";bootAdminHub();</script>
 <script>
 // Keep Android users from seeing an empty page when an external module never loads.
 setTimeout(() => {
@@ -450,5 +450,6 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 

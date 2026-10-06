@@ -52,3 +52,10 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 #auroraLoading span{line-height:1.6}
 
 :root[data-theme] .mp-switcher svg{color:var(--icon-ink);background:var(--icon-bg);padding:6px;border-radius:12px;box-sizing:border-box}
+
+
+/* The admin network mascot belongs to the page, without a card or shadow. */
+:root[data-portal=admin] #auroraLoading{flex-direction:column;gap:4px;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;text-align:center;width:max-content;max-width:calc(100vw - 24px);bottom:24px;z-index:400}
+:root[data-portal=admin] #auroraLoading img{width:96px;height:96px;filter:none!important;box-shadow:none!important;animation:none!important}
+:root[data-portal=admin] #auroraLoading span{font-size:15px;font-weight:500;line-height:1.6;text-shadow:none}
+:root[data-portal=admin] #auroraLoading span::after{content:"...";display:inline-block;direction:ltr;margin-inline-start:2px}
