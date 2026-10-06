@@ -166,7 +166,8 @@ function pageBackbar(){
  document.querySelectorAll('.header-page-back').forEach(el=>el.remove());
  const view=$('#view'),root=viewMode==='seller'?'account':'market';
  const nativeBack=view.querySelector('[data-a="back"],[data-s="recordsBack"]');
- const needed=!!nativeBack||pageNav.canBack()||tab!==root||publicStoreId;
+ const atHome=!publicStoreId&&(tab===root||(viewMode==='seller'&&tab==='market'));
+ const needed=!atHome;
  document.body.classList.toggle('has-page-back',!!needed);
  if(!needed)return;
  const bar=view.querySelector('.sw-sitebar')||$('.topline');
@@ -178,10 +179,12 @@ function pageBackbar(){
  bar.prepend(button);
 }
 function closePage(){
+ window.SouqLocationPicker?.close();
  $('#shade').hidden=true;pageNav?.closeSheets();$('.app').inert=false;
 }
 function goBack(){
  if(!$('#shade').hidden){
+  window.SouqLocationPicker?.close();
   const previous=pageNav?.backSheet();
   if(previous){$('#sheet').replaceChildren(...previous.nodes);$('#sheet').className=previous.className;$('#shade').className=previous.shadeClass;cur=previous.cur;infoRole=previous.infoRole;$('#sheet').scrollTop=previous.scroll;$('#sheet [data-a="back"],#sheet [data-a="close"]')?.focus();return;}
   closePage();return;
@@ -193,6 +196,7 @@ function goBack(){
 }
 
 function sheet(h){
+ window.SouqLocationPicker?.close();
  const el=$('#sheet'),shade=$('#shade');
  if(!ADMIN_PORTAL&&!db.preview){const key=(h.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/)?.[1]||h.slice(0,80))+'|'+(cur?.p?.id||cur?.id||'');pageNav?.openSheet(key,shade.hidden?null:{nodes:Array.from(el.childNodes),className:el.className,shadeClass:shade.className,scroll:el.scrollTop,cur:cur?{...cur}:null,infoRole},{cur:cur?{...cur}:null,infoRole});$('.app').inert=true;}
  shade.classList.remove('auth-open');el.classList.remove('auth-sheet');el.innerHTML=h;shade.hidden=false;el.scrollTop=0;
@@ -477,6 +481,14 @@ function psheet(){
 }
 function cartRows(){return D.cart.map(c=>({c,p:selectedProduct(prod(c.pid),c.vid)}));}
 function captureCheckout(){if(tab!=='cartPage'||!$('#cn'))return;D.cust={name:val('cn'),phone:val('cp'),addr:val('ca')};checkoutNote=val('cno');save()}
+function checkoutLocationCard(){
+ if(!geoPoint)return '';
+ return `<div class="checkout-map-card"><span aria-hidden="true">📍</span><div><b>موقع التوصيل المحدد</b><small dir="ltr">${Number(geoPoint.lat).toFixed(5)}, ${Number(geoPoint.lon).toFixed(5)}</small><a href="https://www.google.com/maps?q=${Number(geoPoint.lat)},${Number(geoPoint.lon)}" target="_blank" rel="noopener">عرض الموقع على الخريطة</a></div><button class="checkout-map-edit" data-a="geolocate" type="button" aria-label="تعديل موقع التوصيل" title="تعديل الموقع"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15Z"/></svg></button><iframe class="checkout-map-preview" title="الموقع المختار للتوصيل" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${Number(geoPoint.lon)-.003}%2C${Number(geoPoint.lat)-.003}%2C${Number(geoPoint.lon)+.003}%2C${Number(geoPoint.lat)+.003}&amp;layer=mapnik&amp;marker=${Number(geoPoint.lat)}%2C${Number(geoPoint.lon)}"></iframe></div>`;
+}
+function chooseCheckoutLocation(value=geoPoint){
+ captureCheckout();
+ window.SouqLocationPicker.show({value,sheet,head,onConfirm:point=>{geoPoint=point;A.close();csheet();toast('تم اعتماد موقع التوصيل')}});
+}
 function csheet(){
  const heading='<div class="buyer-cart-heading"><h1>سلة التسوق</h1><button data-a="tab" data-v="market">العودة إلى السوق ‹</button></div>';
  if(cartReceipt){$('#view').innerHTML=heading+`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">✓</div><h2>وصل طلبك</h2><p>رقم الطلب ${cartReceipt.map(esc).join('، ')}</p><p class="note">سيؤكد البائع الطلب. الدفع عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button></section>`;return;}
@@ -487,7 +499,7 @@ function csheet(){
   `<div class="row"><span>المنتجات</span><b>${fmt(tot)}</b></div><div class="row buyer-total"><b>المبلغ النهائي المطلوب</b><b>${fmt(tot+fees*orderCount)}</b></div>
   </section><section class="buyer-checkout-card"><h2>بيانات استلام الطلب</h2><label for="cn">الاسم</label><input id="cn" value="${esc(u.name)}" autocomplete="name">
   <label for="cp">رقم الهاتف</label><input id="cp" type="tel" inputmode="numeric" value="${esc(u.phone)}" placeholder="07xxxxxxxxx" autocomplete="tel">
-  <label for="ca">عنوان التوصيل</label><input id="ca" value="${esc(u.addr)}" placeholder="المنطقة، الحي، أقرب نقطة دالة"><div class="checkout-location"><button class="alt" data-a="geolocate" type="button">📍 تحديد موقعي الآن</button>${user?'<button class="alt" data-a="useProfileLocation" type="button">📍 استخدام الموقع المحفوظ</button>':''}</div><small id="geoStatus" class="note">اختر موقعًا لهذا الطلب إن رغبت، واكتب العنوان ورقم الهاتف أيضًا.</small>
+  <label for="ca">عنوان التوصيل</label><input id="ca" value="${esc(u.addr)}" placeholder="المنطقة، الحي، أقرب نقطة دالة"><div class="checkout-location"><button class="alt" data-a="geolocate" type="button">📍 ${geoPoint?'تعديل الموقع على الخريطة':'اختيار الموقع على الخريطة'}</button>${user?'<button class="alt" data-a="useProfileLocation" type="button">📍 استخدام الموقع المحفوظ</button>':''}</div>${checkoutLocationCard()}<small id="geoStatus" class="note">${geoPoint?'تم اعتماد الموقع وسيُرفق بالطلب.':'اختر موقع التوصيل ثم اضغط موافق، واكتب العنوان ورقم الهاتف أيضًا.'}</small>
   <label for="cno">ملاحظات (اختياري)</label><input id="cno" value="${esc(checkoutNote)}">
   <button class="buy" data-a="order">إرسال الطلب · الدفع عند الاستلام</button></section></div>`;
 }
@@ -597,7 +609,7 @@ const A={
   editaddress:()=>{if(!user)return;let address='';try{address=localStorage.getItem('souq-shatra-address-'+user.id)||''}catch{}sheet(head('عنوان التوصيل')+`<label for="profileAddress">اكتب العنوان بالتفصيل</label><textarea id="profileAddress" rows="3" placeholder="المدينة، الحي، أقرب نقطة دالة">${esc(address)}</textarea><button class="alt" data-a="saveProfileLocation" type="button">📍 تحديد موقعي عبر GPS</button><p class="note">الموقع المحفوظ اختياري. اكتب عنوانًا واضحًا للتوصيل ويمكنك تغييره عند كل طلب.</p><button class="buy" data-a="saveaddress">حفظ العنوان</button>`)},
   saveaddress:()=>{if(!user)return;const address=val('profileAddress');if(address.length<5){toast('اكتب عنوانًا واضحًا');return}try{localStorage.setItem('souq-shatra-address-'+user.id,address)}catch{toast('تعذّر حفظ العنوان على هذا الجهاز');return}D.cust.addr=address;save();A.close();render();toast('تم حفظ العنوان على هذا الجهاز')},
   saveProfileLocation:()=>{if(!user||!navigator.geolocation){toast('خدمة الموقع غير متاحة');return}const status=$('#profileLocationStatus');if(status)status.textContent='جارٍ طلب إذن الموقع وتحديده…';navigator.geolocation.getCurrentPosition(pos=>{const point={lat:+pos.coords.latitude.toFixed(6),lon:+pos.coords.longitude.toFixed(6)};try{localStorage.setItem('souq-shatra-location-'+user.id,JSON.stringify(point))}catch{toast('تعذّر حفظ الموقع على هذا الجهاز');return}if(!$('#shade').hidden)A.close();render();toast('تم حفظ موقعك. اختر مشاركته عند الشراء.')},()=>{const status=$('#profileLocationStatus');if(status)status.textContent='تعذّر تحديد الموقع. فعّل GPS واسمح للموقع بالوصول إليه ثم حاول مجددًا.';toast('تعذّر تحديد الموقع. تحقق من إذن GPS.')},{enableHighAccuracy:true,timeout:15000,maximumAge:0})},
-  useProfileLocation:()=>{if(!user)return;try{const saved=JSON.parse(localStorage.getItem('souq-shatra-location-'+user.id)||'null');if(!saved||!Number.isFinite(+saved.lat)||!Number.isFinite(+saved.lon))throw new Error();geoPoint={lat:saved.lat,lon:saved.lon};const status=$('#geoStatus');if(status)status.textContent='سيُرفق موقعك المحفوظ بهذا الطلب.'}catch{toast('لم تحفظ موقعًا في ملفك بعد')}},
+  useProfileLocation:()=>{if(!user)return;try{const saved=window.SouqLocationPicker.point(JSON.parse(localStorage.getItem('souq-shatra-location-'+user.id)||'null'));if(!saved)throw new Error();chooseCheckoutLocation(saved)}catch{toast('لم تحفظ موقعًا في ملفك بعد')}},
   paymentinfo:()=>sheet(head('طريقة الدفع')+'<p>الدفع نقدًا عند استلام الطلب من عامل التوصيل، وفق المبلغ المعروض عند تأكيد الشراء.</p>'),
   support:supportSheet,
   storeEdit:()=>{if(!ownStore||!canSell())return;sheet(head('هوية متجري')+`<label for="editStoreName">اسم المتجر</label><input id="editStoreName" maxlength="100" value="${esc(ownStore.name)}"><label for="editStoreImage">صورة المتجر</label>${ownStore.image_url?`<img class="mp-store-image-preview" src="${esc(ownStore.image_url)}" alt="صورة المتجر الحالية"><label><input id="removeStoreImage" type="checkbox"> إزالة الصورة الحالية</label>`:''}<input id="editStoreImage" type="file" accept="image/*"><p class="mp-deal-note">تظهر الصورة في قائمة المتاجر وفي صفحة متجرك.</p><label for="editStoreDescription">نبذة عن المتجر</label><textarea id="editStoreDescription" maxlength="1000" rows="3">${esc(ownStore.description||'')}</textarea><label for="editStorePhone">رقم المتجر</label><input id="editStorePhone" type="tel" value="${esc(ownStore.phone||'')}">${storeLocationFields('edit',ownStore)}<button class="buy" data-a="storeSave">حفظ معلومات المتجر</button>`)},
@@ -629,7 +641,7 @@ const A={
   confirmPayment:v=>act(async()=>{const [id,yes]=v.split('|');check(await db.rpc('admin_review_delivery_payment',{p_payment:id,p_approved:yes==='true'}));A.close();await refresh();toast('تمت مراجعة التحويل')}),
   saveprofile:()=>act(async()=>{if(!user)return;const name=val('pfname'),phone=val('pfphone').replace(/\D/g,'');if(name.length<2||phone.length<10){toast('اكتب الاسم ورقم هاتف صحيح');return}check(await db.from('profiles').update({full_name:name,phone}).eq('id',user.id));await refresh();toast('تم حفظ الملف الشخصي')}),
   changeaccount:()=>ask('تسجيل الخروج والانتقال إلى حساب آخر؟','out',''),
-  geolocate:()=>{if(!navigator.geolocation){toast('خدمة الموقع غير متاحة في هذا الجهاز');return}const el=$('#geoStatus');if(el)el.textContent='جارٍ تحديد الموقع…';navigator.geolocation.getCurrentPosition(pos=>{geoPoint={lat:pos.coords.latitude.toFixed(6),lon:pos.coords.longitude.toFixed(6)};const e=$('#geoStatus');if(e)e.textContent='تم تحديد الموقع. سيُرفق بالطلب.'},()=>{const e=$('#geoStatus');if(e)e.textContent='تعذّر تحديد الموقع. اكتب عنوانك ورقم هاتفك للمتابعة.'},{enableHighAccuracy:false,timeout:12000,maximumAge:60000})},
+  geolocate:()=>chooseCheckoutLocation(),
   enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0);return}rememberMode(v);if(user){tab=['seller','driver'].includes(v)?'account':'market';render();return}lsheet('m')},
   switchrole:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
   tab:v=>{captureCheckout();if(v==='myMarket'&&viewMode!=='seller'&&!ADMIN_PORTAL){A.cart();return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
