@@ -755,8 +755,9 @@ function finishAccountEntry(){
 function sellerRequest(){
  if(db.preview){db.preview.selectRole('seller');return}
  closeAccountMenu();
- if(user&&canSell()&&ownStore){rememberMode('seller');tab='account';render();return}
  if(!user){requestRole('seller');return}
+ A.close();
+ if(canSell()&&ownStore){rememberMode('seller');tab='account';render();return}
  tab='sellerJoin';render();scrollTo(0,0);
 }
 function storeLocationFields(prefix,m){

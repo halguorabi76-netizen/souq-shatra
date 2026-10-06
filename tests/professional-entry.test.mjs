@@ -25,3 +25,15 @@ test('admin merchant detail displays email, name, phone, address and WhatsApp sa
  assert.match(html,/owner@example.test/);assert.match(html,/تاجر &lt;اختبار&gt;/);assert.match(html,/عنوان خاص/);assert.match(html,/https:\/\/wa.me\/9647700000000/);assert.match(html,/قبل الموافقة/);
 });
 test('admin inbox is enabled only for authorized admin and recognizes professional records',()=>{const s=read('activity-center.js');assert.match(s,/g.adminPortal\?g.profile\?\.role==='admin'/);assert.match(s,/professional_login.*professional_join/);assert.match(s,/ctx.professional\?\./);assert.match(read('admin-app.js'),/db.rpc\('admin_account_profiles'\)/);});
+for(const path of ['index.html','catalog.html','preview.html']){
+ test(path+': seller request from saved buyer account removes the previous blocking overlay',()=>{
+  const {c,calls,html}=setup(path),shade={hidden:false},app={inert:true},sheet={classList:{contains:()=>false}};
+  c.user={id:'saved-buyer'};c.$=id=>id==='#shade'?shade:id==='.app'?app:sheet;
+  c.window={SouqLocationPicker:{close(){}}};c.pageNav={closeSheets:()=>calls.push('closeSheets')};
+  vm.runInContext(extract(html,'closePage'),c);c.A.close=c.closePage;
+  c.render=()=>{assert.equal(shade.hidden,true,'old question must be hidden before rendering');assert.equal(app.inert,false,'form must be interactive');calls.push(c.tab)};
+  vm.runInContext(extract(html,'sellerRequest'),c);
+  c.requestRole('seller');assert.equal(c.tab,'sellerJoin');assert.ok(calls.includes('sellerJoin'));assert.ok(calls.includes('closeSheets'));
+ });
+ test(path+': new guest seller still gets account creation rather than a hidden join form',()=>{const {c,calls,html}=setup(path);vm.runInContext(extract(html,'sellerRequest'),c);c.requestRole('seller');assert.ok(calls.some(x=>x[0]==='auth'&&x[1]==='r'));assert.equal(c.sessionStorage.getItem('souq-role-request'),'seller');});
+}
