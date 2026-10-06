@@ -3,7 +3,7 @@ const main=await readFile('index.html','utf8');
 const appModule=main.match(/<script type="module">([\s\S]*?)<\/script>/);
 if(!appModule)throw new Error('Missing application source module');
 await writeFile('admin-app.js',appModule[1]);
-const portalMain=main.replace('requestAnimationFrame(finish);',"if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){finish()}else{setTimeout(finish,1600)}").replace('main-aurora.css?v=74','aurora-theme.css?v=72').replace('main-loading.js?v=76','app-loading.js?v=72');
+const portalMain=main.replace('requestAnimationFrame(finish);',"if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){finish()}else{setTimeout(finish,1600)}").replace(/main-aurora\.css\?v=\d+/,'aurora-theme.css?v=72').replace('main-loading.js?v=76','app-loading.js?v=72');
 const admin=portalMain.replace('<html lang="ar" dir="rtl">','<html lang="ar" dir="rtl" data-portal="admin">')
  .replace('<title>سوق الشطرة</title>','<title>إدارة ومعاينة سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
  .replace('manifest.webmanifest?v=69','admin-manifest.webmanifest?v=66')
