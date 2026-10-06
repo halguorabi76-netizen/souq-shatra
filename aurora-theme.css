@@ -3,7 +3,7 @@
 :root[data-theme=dark],body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--bg:#101a39;--card:#253153;--ink:#f2f3fc;--mut:#c3cce5;--line:#59658d;--navy:#a6c7ed;--gold:#c3b7df;--tile:#30376a;--scene-bg:linear-gradient(125deg,#0b1429 0%,#172544 20%,#20375b 37%,#24494f 51%,#30376a 66%,#473f67 82%,#60445c 100%);--panel-bg:linear-gradient(135deg,#253b59,#30376a 40%,#49456b 72%,#624b67);--icon-bg:linear-gradient(125deg,#72b5d1,#63b9ba 28%,#aca2c9 62%,#d5abc4);--icon-ink:#101a39;--action-bg:linear-gradient(115deg,#30376a,#426ba5 30%,#326e7b 52%,#806eac 76%,#925c7b);color-scheme:dark}
 :root[data-theme] body:not(.starting),:root[data-theme] .app,body:is(.seller-workspace,.seller-storefront),body:is(.seller-workspace,.seller-storefront) .app{background:var(--scene-bg)!important;color:var(--ink)}
 :root[data-theme] :is(.top,.nav,.sw-nav,.sw-sitebar,.admin-header){background:var(--scene-bg)!important;border-color:var(--line)!important;color:var(--ink)}
-:root[data-theme] :is(.card,.panel,.post-card,.post-intro,.account-shortcuts button,.sw-card,.sw-order,.sw-product,.sw-public-product,.sw-public-header,.admin-stat,.admin-panel,.admin-card,.category-card,.product-card,.sheet,.dialog,.sw-dialog,.sw-drawer){background:var(--panel-bg)!important;border-color:var(--line)!important;color:var(--ink)}
+:root[data-theme] :is(.card,.panel,.post-card,.post-intro,.sw-card,.sw-order,.sw-product,.sw-public-product,.sw-public-header,.admin-stat,.admin-panel,.admin-card,.category-card,.product-card,.sheet,.dialog,.sw-dialog,.sw-drawer){background:var(--panel-bg)!important;border-color:var(--line)!important;color:var(--ink)}
 :root[data-theme] :is(.header-icon,.theme-toggle,.sw-icon,.sw-monogram,.sw-arrange-toggle,.category-icon,.desktop-shortcut,.admin-tabs button,.sw-tag,.sw-status),body:is(.seller-workspace,.seller-storefront) :is(.sw-icon,.sw-monogram,.sw-arrange-toggle){background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--line)!important}
 :root[data-theme] :is(.buy,.primary,.sw-add,.sw-primary,.sw-sales,.account-head,.hero,.admin-banner,.btn-primary){background:var(--action-bg)!important;color:#fff!important;border-color:var(--line)}
 :root[data-theme] :is(input,textarea,select,.sw-search input,.desktop-search){background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
@@ -35,3 +35,8 @@
 :root[data-theme]{--scene-gradient:var(--action-bg);--scene-surface:var(--panel-bg);--scene-sky:#72b5d1;--scene-sand:#bc7d9f}
 :root[data-theme] :is(.tabs,.setting-row,.market-section,.profile-card,.account-popover,.auth-sheet,.desktop-market-intro,.demo-product,.demo-card,.admin-menu button){background:var(--panel-bg)!important;color:var(--ink)}
 :root[data-theme] :is(.auth-submit,.go,.profile-action,.filter-actions button:first-child){background:var(--action-bg)!important;color:white!important}
+
+:root[data-theme] .account-shortcuts button{background:var(--panel-bg)!important;color:var(--ink)}
+body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:46px 1fr 46px 46px!important;background:transparent!important}
+body:is(.seller-workspace,.seller-storefront) .sw-monogram{color:var(--icon-ink)!important}
+@media(max-width:600px){body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:38px 1fr 38px 38px!important;gap:6px}}

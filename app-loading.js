@@ -7,7 +7,7 @@
  const end=token=>{pending.delete(token);if(!pending.size){clearTimeout(timer);timer=null;update();}};
  const transition=()=>{const token=begin();setTimeout(()=>end(token),340);};
  window.SouqLoading={begin,end,transition};
- document.addEventListener('click',e=>{const button=e.target.closest?.('[data-a="tab"],[data-a="notifications"],[data-s="siteHome"],[data-s="openMenu"],[data-s="productTab"],[data-s="preview"],[data-driver]');if(button)transition();},true);
+ document.addEventListener('click',e=>{const button=e.target.closest?.('button[data-a],button[data-s],button[data-driver]');if(button)transition();},true);
  window.addEventListener('offline',update);window.addEventListener('online',update);
  update();
 })();
