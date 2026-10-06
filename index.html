@@ -391,7 +391,7 @@ body.starting{background:#000!important}
 <link rel="stylesheet" href="seller-workspace.css?v=57">
 <link rel="stylesheet" href="marketplace.css?v=57">
 <link rel="stylesheet" href="operations.css?v=58">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="main-aurora.css?v=79">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="main-aurora.css?v=80">
 <style>
 .seller-preflight{display:none}
 :root[data-seller-resume] .seller-preflight{display:block}
@@ -601,9 +601,19 @@ const backIcon='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stro
 function trackPage(){if(!ADMIN_PORTAL&&!db.preview)pageNav?.track({tab,dt,publicStoreId,cat,q,filt:{...filt},url:location.href,scroll:window.scrollY||0},(user?.id||'guest')+':'+viewMode);}
 function pageBackbar(){
  if(ADMIN_PORTAL||db.preview||!pageNav)return;
- const root=viewMode==='seller'?'account':'market',view=$('#view');
- if(!(pageNav.canBack()||tab!==root||publicStoreId)||view.querySelector('[data-a="back"],[data-s="recordsBack"]'))return;
- view.insertAdjacentHTML('afterbegin','<div class="page-backbar"><button type="button" data-a="back" aria-label="الرجوع إلى الواجهة السابقة">'+backIcon+'<span>رجوع</span></button></div>');
+ document.querySelectorAll('.header-page-back').forEach(el=>el.remove());
+ const view=$('#view'),root=viewMode==='seller'?'account':'market';
+ const nativeBack=view.querySelector('[data-a="back"],[data-s="recordsBack"]');
+ const needed=!!nativeBack||pageNav.canBack()||tab!==root||publicStoreId;
+ document.body.classList.toggle('has-page-back',!!needed);
+ if(!needed)return;
+ const bar=view.querySelector('.sw-sitebar')||$('.topline');
+ if(!bar)return;
+ const button=nativeBack||document.createElement('button');
+ button.type='button';button.className='header-page-back '+(bar.classList.contains('sw-sitebar')?'sw-icon':'header-icon');
+ if(!nativeBack)button.dataset.a='back';
+ button.setAttribute('aria-label','الرجوع إلى الواجهة السابقة');button.title='رجوع';button.innerHTML=backIcon;
+ bar.prepend(button);
 }
 function closePage(){
  $('#shade').hidden=true;pageNav?.closeSheets();$('.app').inert=false;
