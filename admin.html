@@ -21,13 +21,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="إدارة سوق الشطرة">
-<link rel="manifest" href="admin-manifest.webmanifest?v=97">
+<link rel="manifest" href="admin-manifest.webmanifest?v=66">
 <link rel="preload" as="image" href="icons/basket-mascot-v69.png">
-<link rel="icon" href="icons/admin-192-v97.png" sizes="192x192">
-<link rel="apple-touch-icon" href="icons/admin-192-v97.png">
-<link rel="modulepreload" href="admin-app.js?v=96">
-<link rel="preconnect" href="https://esm.sh" crossorigin>
-<link rel="preconnect" href="https://nbktyynshqldyerqtjrd.supabase.co" crossorigin>
+<link rel="icon" href="icons/admin-192-v66.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/admin-192-v66.png">
 <title>إدارة ومعاينة سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="admin-portal.css?v=66">
 <style>html:has(body.starting),body.starting{background:#000!important}body.starting .app{visibility:hidden}</style>
@@ -273,10 +270,14 @@ body{background:#f4e9ea}.app{background:#f7eeef}
   .welcome-mode .desktop-search-row,.welcome-mode .tabs{display:none}
 }
 @media(min-width:768px) and (max-width:1099px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.account-popover{position:absolute;left:0;top:83px;width:218px;padding:9px;background:#fff;border:1px solid #eedbdc;border-radius:20px;box-shadow:0 16px 46px #48222430;z-index:10;color:#522629;animation:accountReveal .18s ease-out}
+.account-popover{position:absolute;left:0;top:83px;width:230px;padding:12px;background:#fff;border:1px solid #eedbdc;border-radius:22px;box-shadow:0 16px 46px #48222430;z-index:10;color:#522629;animation:accountReveal .18s ease-out}
 .account-popover[hidden]{display:none}.account-popover:before{content:"";position:absolute;top:-7px;left:15px;width:12px;height:12px;background:#fff;border-left:1px solid #eedbdc;border-top:1px solid #eedbdc;transform:rotate(45deg)}
-.account-popover p{margin:3px 8px 7px;color:#9f5a5e;font-size:12px}.account-popover button{width:100%;display:flex;align-items:center;gap:11px;padding:9px 8px;text-align:right;border-radius:13px;font-weight:700;font-size:14px}.account-popover button:hover,.account-popover button:focus-visible{background:#f7efef}
-.account-role-icon{width:42px;height:42px;border-radius:50%;background:#f4e8e9;display:grid;place-items:center;flex:none}.account-role-icon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.account-popover p{margin:2px 4px 10px;color:#8d4f53;font-size:13px;font-weight:700;text-align:center}
+.account-popover-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.account-popover-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 4px;border-radius:14px;background:#fbf4f4;border:1px solid #f0dedf;color:#522629;font-weight:700;font-size:12px;text-align:center;transition:background .15s}
+.account-popover-grid button:hover,.account-popover-grid button:focus-visible{background:#f3e4e5}
+.account-profile-btn{width:100%;margin-bottom:10px;padding:10px 12px;border-radius:12px;background:#f4e8e9;border:1px solid #eedbdc;color:#522629;font-weight:700;font-size:13px;text-align:center}
+.account-role-icon{width:44px;height:44px;border-radius:50%;background:#f0dedf;display:grid;place-items:center;flex:none;color:#78383c}.account-role-icon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @keyframes accountReveal{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
 .auth-open{align-items:center;padding:20px}.auth-sheet{background:#fff;max-width:510px;border-radius:24px;padding:28px;max-height:calc(100dvh - 40px);color:#2e1819;box-shadow:0 22px 70px #1b0d0e44}
 .auth-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.auth-top strong{font-size:24px;color:#803c40;line-height:1.4}.auth-top small{display:block;font:600 9px/1.5 Arial;letter-spacing:2px}.auth-title{font-size:26px;margin:24px 0 4px;line-height:1.4}.auth-subtitle{font-size:14px;color:#98565a;margin:0 0 23px}
@@ -392,9 +393,9 @@ body.starting{background:#000!important}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=81">
-<link rel="stylesheet" href="marketplace.css?v=85">
+<link rel="stylesheet" href="marketplace.css?v=94">
 <link rel="stylesheet" href="operations.css?v=58">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="aurora-theme.css?v=95">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="aurora-theme.css?v=72">
 <style>
 .seller-preflight{display:none}
 :root[data-seller-resume] .seller-preflight{display:block}
@@ -409,22 +410,23 @@ body.starting{background:#000!important}
 }catch{}})();
 </script>
 </head>
-<body>
-<div id="startupSplash" hidden class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
+<body class="starting">
+<div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
 <script>
 (()=>{
   const theme=document.querySelector('meta[name="theme-color"]');
   theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7';
   const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7'};
   // Always finish even if the network, image, or sign-in module cannot load.
-  finish()
+  if(matchMedia('(display-mode: standalone)').matches||navigator.standalone){finish()}else{setTimeout(finish,1600)}
 })();
 </script>
 <div class="app">
-  <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-aurora-v69.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="desktop-shortcut header-cart" data-a="tab" data-v="myMarket" aria-label="فتح السلة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off"><button type="submit" aria-label="بحث">⌕</button></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button></div></header>
+  <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-aurora-v69.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="desktop-shortcut header-cart" data-a="tab" data-v="myMarket" aria-label="فتح السلة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off" aria-controls="marketSuggestions"><button type="submit" aria-label="بحث">⌕</button><div id="marketSuggestions" class="mp-suggestions" aria-label="اقتراحات البحث" hidden></div></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button></div></header>
   <main id="view"><div class="seller-preflight"><div class="sw-sitebar seller-session-brand" aria-label="سوق الشطرة"><span></span><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span></div></div></main>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
+    <button data-a="marketSection" data-v="materials"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-4 9 4v10l-9 4-9-4ZM3 7l9 4 9-4M12 11v10" stroke-linecap="round" stroke-linejoin="round"/></svg></span>المواد</button>
     <button data-a="marketSection" data-v="stores"><span class="navicon">▤</span>المتاجر</button>
     <button data-a="tab" data-v="myMarket"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg></span>سوقي<i id="cc" hidden></i></button>
     <button data-a="tab" data-v="chats"><span class="navicon">▣</span>الطلبات</button>
@@ -432,15 +434,15 @@ body.starting{background:#000!important}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جار التحميل</span></div><script src="admin-network-loading.js?v=95"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=87"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="app-loading.js?v=72"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=87"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=88"></script>
+<script src="marketplace.js?v=94"></script>
 <script src="demo-lab.js?v=51"></script>
-<script type="module">import {bootAdminHub} from "./admin-hub.js?v=97";bootAdminHub();</script>
+<script type="module">import {bootAdminHub} from "./admin-hub.js?v=68";bootAdminHub();</script>
 <script>
 // Keep Android users from seeing an empty page when an external module never loads.
 setTimeout(() => {
@@ -453,7 +455,6 @@ setTimeout(() => {
 </script>
 </body>
 </html>
-
 
 
 

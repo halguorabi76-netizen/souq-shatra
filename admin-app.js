@@ -2,9 +2,9 @@
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
-import {createSellerWorkspace} from "./seller-workspace.js?v=85";
+import {createSellerWorkspace} from "./seller-workspace.js?v=94";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=96";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -12,7 +12,7 @@ async function apiFetch(resource,init={}){
   if(source?.aborted)abort();else source?.addEventListener('abort',abort,{once:true});
   const token=window.SouqLoading?.begin();
   const timer=setTimeout(abort,20000);
-  try{const response=await fetch(resource,{...init,signal:controller.signal});window.SouqLoading?.requestSucceeded?.();return response}
+  try{const response=await fetch(resource,{...init,signal:controller.signal});window.SouqLoading?.recovered?.();return response}
   catch(e){if(e?.name==='TypeError'||(e?.name==='AbortError'&&!source?.aborted))window.SouqLoading?.failed?.();throw e}
   finally{clearTimeout(timer);source?.removeEventListener('abort',abort);window.SouqLoading?.end(token)}
 }
@@ -22,7 +22,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
-let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false,adminAccessReady=false;
+let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
@@ -50,49 +50,9 @@ async function clearUnavailableAccount(){
  check(await withTimeout(db.auth.signOut({scope:'local'})));
  if(user?.id)try{localStorage.removeItem('souq-shatra-mode-'+user.id)}catch{}
  try{sessionStorage.removeItem('souq-shatra-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}
- user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;adminAccessReady=false;viewMode='guest';
+ user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;viewMode='guest';
  D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
  deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
-}
-async function refreshAdmin(id,nextUser){
- if(user?.id!==nextUser?.id){
-  adminAccessReady=false;dataReady=false;profile=null;ownStore=null;
-  D.m=[];D.p=[];D.o=[];D.people=[];D.drivers=[];D.driverProfiles=[];D.pickups=[];D.stockMovements=[];D.variants=[];D.catalog=[];deliveryPayments=[];
- }
- user=nextUser;
- const result=nextUser?await withTimeout(db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle()):{data:null};
- if(id!==refreshId)return;
- const nextProfile=check(result);
- if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
- profile=nextProfile;adminAccessReady=true;
- if(!user||profile?.role!=='admin'||profile?.disabled){dataReady=true;render();window.SouqLoading?.recovered?.();return;}
- viewMode='buyer';D.me='owner';D.loading=!dataReady;
- // Show the authorized workspace now; independent datasets load together.
- render();
- const results=await withTimeout(Promise.all([
-  db.from('stores').select('*'),
-  db.from('products').select('*').order('created_at',{ascending:false}),
-  db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}),
-  db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}),
-  db.from('catalog_categories').select('*').order('position'),
-  db.from('product_variants').select('*'),
-  db.from('product_stock_movements').select('*').order('created_at',{ascending:false}).limit(200),
-  db.from('delivery_workers').select('*').order('created_at',{ascending:false}),
-  db.from('driver_profiles').select('*'),
-  db.from('delivery_payments').select('*').order('created_at',{ascending:false}),
-  db.from('delivery_settings').select('*').limit(1).maybeSingle(),
-  db.from('store_pickups').select('*')
- ]));
- if(id!==refreshId)return;
- const [stores,products,orders,people,catalog,variants,movements,drivers,driverProfiles,payments,settings,pickups]=results.map(check);
- D.catalog=catalog||[];D.variants=variants||[];D.stockMovements=movements||[];D.drivers=drivers||[];D.driverProfiles=driverProfiles||[];D.pickups=pickups||[];D.publicCategories=[];
- deliveryPayments=payments||[];deliverySettings=settings||{platform_fee:0,delivery_fee:0,qi_number:''};
- const sellerOnly=false,approvedStore=null;
-  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
-  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:(D.variants||[]).filter(v=>v.product_id===p.id).map(v=>({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''}))}));
- D.o=orders.map(o=>({...fromOrder(o),buyer_id:o.buyer_id,driver_id:o.driver_id,platform_fee:o.platform_fee||0,delivery_fee:o.delivery_fee||0}));D.people=people;
- ownStore=D.m.find(m=>m.owner_id===user.id)||null;D.loading=false;dataReady=true;
- render();window.SouqLoading?.recovered?.();
 }
 async function refresh(){
   const id=++refreshId;
@@ -104,7 +64,6 @@ async function refresh(){
   const session=check(sessionResult);
   const nextUser=session.session?.user||null;
   if(id!==refreshId)return;
-  if(ADMIN_PORTAL)return await refreshAdmin(id,nextUser);
   // Restore the saved identity before querying the marketplace. A slow or failed
   // product/delivery request must never send a signed-in person back to welcome.
   if(user?.id!==nextUser?.id){profile=null;ownStore=null;viewMode='';dataReady=false}
@@ -131,6 +90,7 @@ async function refresh(){
   ]));
   if(id!==refreshId)return;
   const nextProfile=check(pr);
+  // A removed account can still have an unexpired token saved on this device.
   if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
   const stores=check(ms);
   const approvedStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&m.approved&&!m.removed):null;
@@ -186,10 +146,10 @@ async function refresh(){
   D.people=people;
   dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();resumePurchaseAfterLogin();
-  finishAccountEntry();window.SouqLoading?.recovered?.();
+  finishAccountEntry();
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
-async function act(f){const token=window.SouqLoading?.begin();try{await f();window.SouqLoading?.recovered?.()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
+async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
 const $=s=>document.querySelector(s),fmt=n=>(+n||0).toLocaleString('en-US')+' د.ع';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>crypto.randomUUID();
@@ -240,7 +200,11 @@ function requirePurchaseLogin(){
  if(user)return false;
  pendingPurchase=validPurchaseReturn({pid:cur.p.id,vid:cur.vid||null,n:cur.n,tab,publicStoreId,cat,q,filt:{...filt}});
  try{sessionStorage.setItem(PURCHASE_RETURN_KEY,JSON.stringify(pendingPurchase))}catch{}
- rememberMode('buyer');lsheet('m');return true;
+ rememberMode('buyer');
+ A.close();
+ A.accountMenu();
+ toast('سجّل الدخول أولاً لإضافة المنتج والسلة');
+ return true;
 }
 function resumePurchaseAfterLogin(){
  if(!pendingPurchase||!user||!dataReady||ADMIN_PORTAL)return false;
@@ -329,8 +293,8 @@ function buyerEntry(){
  lsheet('m');
 }
 function roleAccess(role){
- clearPurchaseReturn();closeAccountMenu();const seller=role==='seller',name=seller?'بائع':'عامل توصيل',request=seller?'اطلب الانضمام كتاجر':'اطلب الانضمام كسائق توصيل';
- sheet(head('الدخول ك'+name)+`<p>هل لديك حساب في سوق الشطرة؟</p><button class="buy" data-a="roleExisting" data-v="${role}">نعم، لدي حساب</button><p class="auth-switch">ليس لديك حساب؟ <button data-a="roleRequest" data-v="${role}">${request}</button></p>`);
+ clearPurchaseReturn();closeAccountMenu();const seller=role==='seller',name=seller?'بائع':'عامل توصيل',request=seller?'تقديم طلب انضمام كتاجر':'تقديم طلب انضمام كسائق توصيل';
+ sheet(head('حساب ال'+name)+`<p style="font-size:16px;font-weight:700;margin:12px 0 16px">هل تمتلك حسابًا؟</p><button class="buy" data-a="roleExisting" data-v="${role}">نعم، تمتلك حسابًا (تسجيل الدخول)</button><button class="alt" style="margin-top:10px" data-a="roleRequest" data-v="${role}">لا تمتلك حسابًا (${request})</button>`);
 }
 async function existingRole(role){
  if(!['seller','driver'].includes(role))return;
@@ -381,6 +345,7 @@ function sellerResume(){
 
 function render(){
   trackPage();
+  syncMarketSearch();
   if(document.documentElement)delete document.documentElement.dataset.sellerResume;
   activity.sync();
   if(db.preview?.isHome()){db.preview.home();return;}
@@ -409,7 +374,7 @@ function render(){
   const marketButton=$('.tabs [data-v="myMarket"]');marketButton.innerHTML=`<span class="navicon">${sellerView?'▤':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>' }</span>${sellerView?'إعلاناتي':'السلة'}<i id="cc" hidden></i>`;
   const roleNav=$('.tabs [data-v="chats"]');roleNav.innerHTML=viewMode==='driver'?'<span class="navicon">▣</span>التوصيل':'<span class="navicon">▣</span>الطلبات';
   const badge=$('#cc');badge.textContent=n;badge.hidden=!n;
-  document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
   activity.sync();pageBackbar();
@@ -488,8 +453,8 @@ function renderAdminPortal(){
  }
  $('#adminTop [data-a="out"]').hidden=!user;
  window.SouqTheme.set(window.SouqTheme.get(),false);
- if(!adminAccessReady){$('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p></div>';return}
- if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>الدخول مخصص لحساب المالك المعتمد. تسجيل الدخول بحساب آخر لا يمنحه صلاحية الإدارة.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
+ if(!dataReady){$('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p></div>';return}
+ if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>سجّل الدخول بحساب المدير لمراجعة التجار وإدارة الموقع.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
  if(profile?.role!=='admin'||profile?.disabled){$('#view').innerHTML='<div class="admin-gate"><h1>هذا الحساب لا يملك صلاحية الإدارة</h1><p>استخدم حساب المدير المعتمد.</p><button class="buy" data-a="out">تبديل الحساب</button><a href="index.html">العودة إلى السوق</a></div>';return}
  tab='admin';admin();
 }
@@ -504,32 +469,34 @@ function admin(){
 function materialCategories(){
  return '<div class="section-title"><h2>أقسام المواد</h2></div><div class="category-cards">'+CATS.map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'</div>';
 }
+function publicMarketplace(){const stores=D.m.filter(m=>m.ok&&!m.removed),ids=new Set(stores.map(m=>m.id));return {stores,products:D.p.filter(p=>ids.has(p.mid)&&window.SouqMarketplace.forSale(p))};}
+function syncMarketSearch(){
+ const input=$('#q'),panel=$('#marketSuggestions');if(!input)return;
+ const label=tab==='stores'?'ابحث عن المتجر الذي تريده':tab==='catalog'?'ابحث عن أي منتج تريده':'ابحث عن منتج أو متجر في الشطرة';input.placeholder=label;input.setAttribute('aria-label',label);
+ if(!panel)return;const {stores,products}=publicMarketplace(),items=window.SouqMarketplace.suggestions(products,stores,q,tab);
+ panel.innerHTML=items.map(x=>'<button type="button" data-a="searchSuggestion" data-v="'+esc(x.label)+'">'+window.SouqMarketplace.icon(x.kind==='store'?'stores':'materials')+'<span><b>'+esc(x.label)+'</b><small>'+esc(x.kind==='store'?'متجر':x.seller)+'</small></span></button>').join('');panel.hidden=!items.length||document.activeElement!==input;
+}
 function market(){
- const options={category:cat,query:q,min:filt.min,max:filt.max,sort:filt.sort};
- const l=window.SouqCatalog.select(D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)),options,p=>mname(p.mid));
+ const ui=window.SouqMarketplace,{stores,products}=publicMarketplace();
+ const filtered=window.SouqCatalog.select(products,{category:cat,query:'',min:filt.min,max:filt.max,sort:filt.sort});
+ const l=ui.searchProducts(filtered,stores,q),cards=items=>ui.productCards(items,{esc,fmt,thumb,mname});
  const results=tab==='catalog'||cat!=='all'||!!q;
- const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'المواد المعروضة';
- const cards=items=>window.SouqMarketplace.productCards(items,{esc,fmt,thumb,mname});
  if(results){
-  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h2>'+esc(title)+'</h2><span class="note">'+l.length+' منتج</span></div><div class="box"><button class="alt" data-a="filters">تصفية النتائج</button></div>'+ (l.length?cards(l):'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة. جرّب قسمًا آخر أو عدّل البحث.')+'</div>')+'</section>';
+  const matchedStores=q?stores.filter(m=>Number.isFinite(ui.searchRank(m.name,q))):[],grouped=matchedStores.map(store=>({store,products:l.filter(p=>p.mid===store.id)})).filter(x=>x.products.length),groupIds=new Set(grouped.map(x=>x.store.id)),other=l.filter(p=>!groupIds.has(p.mid));
+  const materialResults=(grouped.length?ui.storeMatches(grouped,{esc,fmt,thumb,mname}):'')+(other.length?cards(other):'');
+  const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'المواد';
+  const storeResults=tab==='market'&&q?ui.searchStores(stores,filtered,q):[];
+  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h1>'+esc(title)+'</h1><span class="note" role="status">'+l.length+' مادة</span></div><div class="box"><button class="alt" data-a="filters">تصفية النتائج</button></div>'+(materialResults||'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة متوفرة حاليًا.')+'</div>')+'</section>'+(storeResults.length?'<section class="market-stores"><div class="section-title"><h2>المتاجر المطابقة</h2></div>'+ui.storeMatches(storeResults,{esc,fmt,thumb,mname})+'</section>':'');
   return;
  }
- const stores=D.m.filter(m=>m.ok&&!m.removed);
- $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('home')+
- '<section class="market-materials">'+materialCategories()+'<div class="section-title"><h2>المواد المعروضة</h2><span class="note">'+l.length+' منتج</span><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+
- (l.length?cards(l.slice(0,6)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
- '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+
- (stores.length?window.SouqMarketplace.storeCards(stores.slice(0,4),D.p,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
+ $('#view').innerHTML=bannerHtml()+ui.switcher('home')+
+ '<section class="market-materials">'+materialCategories()+'<div class="section-title"><h2>المواد المعروضة</h2><span class="note">'+l.length+' مادة</span><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+(l.length?cards(l.slice(0,6)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
+ '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+(stores.length?ui.storeCards(stores.slice(0,4),products,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
 }
 function storesPage(){
- storeQuery=q;
- const approved=D.m.filter(m=>m.ok&&!m.removed);
- const published=D.p.filter(p=>p.active&&!p.blocked&&approved.some(m=>m.id===p.mid));
- const categories=CATS.filter(c=>published.some(p=>p.cat===c));
- const stores=approved.filter(m=>window.SouqCatalog.matches([m.name,m.description,m.address].join(' '),storeQuery)&&(cat==='all'||published.some(p=>p.mid===m.id&&p.cat===cat)));
- const sections='<div class="section-title"><h2>أقسام المتاجر</h2></div><div class="category-cards store-category-cards">'+['all',...categories].map(c=>'<button class="category-card" data-a="storeCategory" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+(c==='all'?window.SouqMarketplace.icon('stores'):catIcon(Math.max(0,CATS.indexOf(c))))+'</span>'+esc(c==='all'?'كل المتاجر':c)+'</button>').join('')+'</div>';
- $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h2>متاجر سوق الشطرة</h2><span class="note">'+stores.length+' متجر</span></div>'+
- (stores.length?window.SouqMarketplace.storeCards(stores,D.p,{esc}):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
+ const ui=window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>published.some(p=>p.cat===c)),products=published.filter(p=>cat==='all'||p.cat===cat),eligible=approved.filter(m=>cat==='all'||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
+ const sections='<div class="section-title"><h2>أقسام المتاجر</h2></div><div class="category-cards store-category-cards">'+['all',...categories].map(c=>'<button class="category-card" data-a="storeCategory" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+(c==='all'?ui.icon('stores'):catIcon(Math.max(0,CATS.indexOf(c))))+'</span>'+esc(c==='all'?'كل المتاجر':c)+'</button>').join('')+'</div>';
+ $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+rows.length+' متجر</span></div>'+(rows.length?(q?ui.storeMatches(rows,{esc,fmt,thumb,mname}):ui.storeCards(rows.map(x=>x.store),published,{esc})):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
 }
 function marketSection(section){
  publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
@@ -662,7 +629,7 @@ function lsheet(m){
  const phone=signup?authField('lphone','رقم هاتفك <small>(اختياري للتواصل)</small>','tel','phone','dir="ltr" inputmode="tel" autocomplete="tel" placeholder="07xxxxxxxxx"'):'';
  sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${professional?(signup?'أنشئ حساب الدخول أولًا، ثم أكمل طلب الانضمام.':'استخدم البريد أو حساب Google نفسه الذي ربطت به حسابك القديم.'):signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="${professional?signup?'roleExisting':'roleRequest':'login'}" data-v="${professional?viewMode:signup?'m':'r'}">${signup?'تسجيل الدخول':professional?viewMode==='seller'?'اطلب الانضمام كتاجر':'اطلب الانضمام كسائق توصيل':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
  $('#shade').classList.add('auth-open');$('#sheet').classList.add('auth-sheet');
- if(!pendingPurchase)loadAuthProviders();
+ loadAuthProviders();
 }
 function roleIcon(role){
   const paths=role==='seller'?'<path d="M4 12h24v16H4zM3 12l3-8h20l3 8M11 28V18h10v10M3 12q3 5 6 0 3 5 7 0 4 5 7 0 3 5 6 0"/>':role==='driver'?'<circle cx="8" cy="24" r="5"/><circle cx="25" cy="24" r="5"/><circle cx="18" cy="5" r="3"/><path d="M8 24l8-12 5 3 4 9M16 12l-2 7 7 5M5 8h7v8H5M21 15h5"/>':'<circle cx="16" cy="8" r="4"/><path d="M9 18q7-8 14 0M3 19h26l-4 10H7zM10 22v4M16 22v4M22 22v4"/>';
@@ -723,7 +690,7 @@ const A={
   theme:mode=>{window.SouqTheme.set(mode);settings()},
   accountMenu:()=>{
     const menu=$('#accountMenu');if(!menu.hidden){closeAccountMenu();return}
-    menu.innerHTML=(user?'<button data-a="tab" data-v="profilePage">حسابي وبياناتي</button>':'')+'<p>اختر طريقة استخدام حسابك</p>'+[['buyer','زبون'],['seller','بائع'],['driver','عامل توصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span>${label}</button>`).join('');menu.hidden=false;$('#accountTrigger').setAttribute('aria-expanded','true');
+    menu.innerHTML=(user?'<button class="account-profile-btn" data-a="tab" data-v="profilePage">حسابي وبياناتي</button>':'')+'<p>اختر حسابك</p><div class="account-popover-grid">'+[['buyer','زبون'],['seller','بائع'],['driver','عامل توصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span><span>${label}</span></button>`).join('')+'</div>';menu.hidden=false;$('#accountTrigger').setAttribute('aria-expanded','true');
   },
   showPassword:id=>{const input=$('#'+(id||'lk')),button=$('#sheet [data-a="showPassword"][data-v="'+(id||'lk')+'"]');if(!input||!button)return;const show=input.type==='password';input.type=show?'text':'password';button.innerHTML=authIcon(show?'eye':'eyeOff');button.setAttribute('aria-pressed',String(show));button.setAttribute('aria-label',(show?'إخفاء كلمة المرور':'إظهار كلمة المرور')+(id==='lkConfirm'?' المؤكدة':''))},
   oauth:provider=>act(async()=>{
@@ -807,10 +774,11 @@ const A={
   pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
   storeCategory:v=>{cat=v;render();},
   allcat:()=>{cat='all';tab='catalog';render()},
+  searchSuggestion:v=>{q=v;$('#q').value=v;A.close();render();$('#marketSuggestions').hidden=true;},
   searchfocus:()=>{$('#q')?.focus();$('#q')?.scrollIntoView({block:'center',behavior:'instant'})},
   searchcat:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');cat=v;searchPage()},
   searchsort:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');filt.sort=v;searchPage()},
-  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;if(tab!=='stores')tab='catalog';A.close();render()},
+  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='catalog';A.close();render()},
   searchclear:()=>{q='';cat='all';filt.min='';filt.max='';filt.sort='newest';searchPage()},
   banner:v=>{bannerIndex=+v;updateBanner()},
   filters:filterSheet,
@@ -925,7 +893,10 @@ document.addEventListener('change',async e=>{
   const im=new Image();im.onload=()=>{const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cur.img=c.toDataURL('image/jpeg',.72);$('#pv').innerHTML=`<img src="${cur.img}" alt="">`;updatePostProgress()};
   im.src=URL.createObjectURL(e.target.files[0]);
 });
-document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(tab!=='stores')tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
+document.addEventListener('focusin',e=>{if(e.target.id==='q')syncMarketSearch()});
+document.addEventListener('focusout',e=>{if(e.target.id==='q')setTimeout(()=>{if(!$('#buyerSearch')?.contains(document.activeElement))$('#marketSuggestions').hidden=true},100)});
+document.addEventListener('keydown',e=>{if(e.target.id==='q'&&e.key==='Escape')$('#marketSuggestions').hidden=true;if(e.target.id==='q'&&e.key==='ArrowDown'&&!$('#marketSuggestions').hidden){e.preventDefault();$('#marketSuggestions button')?.focus()}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='market';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
@@ -943,7 +914,6 @@ $('#view').addEventListener('touchend',e=>{
 },{passive:true});
 $('#view').addEventListener('touchcancel',()=>{bannerTouch=null},{passive:true});
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(['market','welcome'].includes(tab)&&!document.hidden&&Date.now()-lastBannerInteraction>5500){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
-window.addEventListener('online',()=>refresh().catch(error));
 db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(recoverySheet,0)});
 if(!ADMIN_PORTAL)window.SouqDemo?.init(render);
 window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':params.get('view')==='materials'||location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
@@ -958,5 +928,3 @@ setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
-
-
