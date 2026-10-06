@@ -703,9 +703,11 @@ function confirmProductDelete(id,source){
  card.append(panel);panel.querySelector('[data-a="cancelProductDelete"]')?.focus();
 }
 
-function buyerRetention(){
+function buyerEntry(){
  sessionStorage.removeItem('souq-role-request');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-seller-onboarding');
- closeAccountMenu();sheet(head('هل أحفظ حسابك على هذا الجهاز؟')+'<p>اختر طريقة الدخول كزبون.</p><button class="buy" data-a="buyerRetention" data-v="device">نعم، احفظ حسابي</button><button class="alt" data-a="buyerRetention" data-v="session">لا، لهذه الجلسة فقط</button>');
+ closeAccountMenu();accountSession?.choose('device');rememberMode('buyer');
+ if(user){tab='market';A.close();render();return}
+ lsheet('m');
 }
 function roleAccess(role){
  clearPurchaseReturn();closeAccountMenu();const seller=role==='seller',name=seller?'بائع':'عامل توصيل',request=seller?'اطلب الانضمام كتاجر':'اطلب الانضمام كسائق توصيل';
@@ -1094,7 +1096,7 @@ const A={
   marketSection,
   submitSellerJoin:()=>act(async()=>{if(!user||profile?.disabled)return;const first=val('sellerFirst'),last=val('sellerLast'),name=val('joinStoreName'),phone=val('joinPhone').replace(/\D/g,''),address=val('joinAddress'),description=val('joinDescription'),kind=val('joinStoreKind');if(!first||!last||name.length<2||phone.length<10||address.length<3||!kind){toast('أكمل الاسم واسم المتجر والهاتف والعنوان');return}const button=$('#sellerJoinForm [type="submit"]');if(button?.disabled)return;if(button)button.disabled=true;try{check(await db.rpc('request_seller_join_location',{p_first:first,p_last:last,p_name:name,p_phone:phone,p_address:address,p_description:description,p_kind:kind}));tab='sellerJoin';await refresh();toast('وصل طلبك إلى الإدارة وبانتظار الموافقة');}finally{if(button?.isConnected)button.disabled=false;}}),
   buyerAccountLogin,
-  loginBuyerAccount:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;dataReady=false;publicStoreId=null;D.p=[];D.o=[];D.cart=[];save();rememberMode('buyer');tab='market';A.close();await refresh();buyerRetention()}),
+  loginBuyerAccount:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;dataReady=false;publicStoreId=null;D.p=[];D.o=[];D.cart=[];save();rememberMode('buyer');tab='market';A.close();await refresh();buyerEntry()}),
   sellerRequest,
   activateSeller:v=>{if(profile?.role!=='admin')return;const p=D.people.find(p=>p.id===v);if(!p||p.disabled)return;const m=D.m.find(m=>m.owner_id===v);sheet(head('تفعيل حساب تاجر')+`<p>بعد التحقق من التاجر، أدخل بيانات متجره لتفعيل البيع.</p><p>${esc(p.full_name||'الحساب')} · <span dir="ltr">${esc(v)}</span></p><label for="sellerName">اسم المتجر</label><input id="sellerName" value="${esc(m?.name||'')}"><label for="sellerPhone">رقم الهاتف</label><input id="sellerPhone" type="tel" value="${esc(m?.phone||p.phone||'')}"><label for="sellerAddress">عنوان المتجر</label><input id="sellerAddress" value="${esc(m?.address||'')}"><button class="buy" data-a="saveSellerActivation" data-v="${esc(v)}">اعتماد التاجر وتفعيل البيع</button>`)},
   saveSellerActivation:v=>act(async()=>{if(profile?.role!=='admin')return;const name=val('sellerName'),phone=val('sellerPhone'),address=val('sellerAddress');if(name.length<2||phone.replace(/\D/g,'').length<10||address.length<3){toast('أدخل اسم المتجر ورقم هاتف صحيح والعنوان');return}check(await db.rpc('admin_activate_seller',{p_user:v,p_name:name,p_phone:phone,p_address:address}));A.close();await refresh();toast('تم اعتماد التاجر وتفعيل البيع')}),
@@ -1166,10 +1168,9 @@ const A={
   saveprofile:()=>act(async()=>{if(!user)return;const name=val('pfname'),phone=val('pfphone').replace(/\D/g,'');if(name.length<2||phone.length<10){toast('اكتب الاسم ورقم هاتف صحيح');return}check(await db.from('profiles').update({full_name:name,phone}).eq('id',user.id));await refresh();toast('تم حفظ الملف الشخصي')}),
   changeaccount:()=>ask('تسجيل الخروج والانتقال إلى حساب آخر؟','out',''),
   geolocate:()=>chooseCheckoutLocation(),
-  buyerRetention:v=>act(async()=>{if(!['device','session'].includes(v))return;accountSession?.choose(v);rememberMode('buyer');if(user){tab='market';A.close();render();return}lsheet('m')}),
   roleExisting:v=>act(()=>existingRole(v)),
   roleRequest:v=>act(()=>requestRole(v)),
-  enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v==='buyer'){buyerAccountLogin();return}if(v==='buyer'){buyerRetention();return}if(['seller','driver'].includes(v)){roleAccess(v);return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0)}},
+  enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v==='buyer'){buyerAccountLogin();return}if(v==='buyer'){act(buyerEntry);return}if(['seller','driver'].includes(v)){roleAccess(v);return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0)}},
   switchrole:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
   tab:v=>{closeAccountMenu();captureCheckout();if(v==='myMarket'&&viewMode!=='seller'&&!ADMIN_PORTAL){A.cart();return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
   allocateReserve:v=>{const [pid,vid]=v.split('|'),p=prod(pid);if(!p||(p.mid!==ownStore?.id&&profile?.role!=='admin')||!p.legacy_stock_reserve)return;sheet(head('توزيع مرتجع قديم')+`<p>الكمية التي لم تحدد نسختها: ${p.legacy_stock_reserve}</p><label for="reserveQty">الكمية التي تخص هذه النسخة</label><input id="reserveQty" type="number" min="1" max="${p.legacy_stock_reserve}" value="1"><button class="buy" data-a="saveReserve" data-v="${v}">تأكيد توزيع الكمية</button>`);},
