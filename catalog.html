@@ -391,7 +391,7 @@ body.starting{background:#000!important}
 <link rel="stylesheet" href="seller-workspace.css?v=57">
 <link rel="stylesheet" href="marketplace.css?v=57">
 <link rel="stylesheet" href="operations.css?v=58">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="main-aurora.css?v=78">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="main-aurora.css?v=79">
 <style>
 .seller-preflight{display:none}
 :root[data-seller-resume] .seller-preflight{display:block}
@@ -429,7 +429,7 @@ body.starting{background:#000!important}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=76"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=76"></script><script src="page-navigation.js?v=79"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
@@ -440,8 +440,8 @@ body.starting{background:#000!important}
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=62';
-import {createSellerWorkspace} from "./seller-workspace.js?v=70";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=58";
+import {createSellerWorkspace} from "./seller-workspace.js?v=79";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
@@ -596,10 +596,39 @@ if(catalogEntry){for(const k of ['min','max']){const v=catalogParams.get(k);if(v
 function openCatalog(){const url=new URL('catalog.html',location.href);if(cat!=='all')url.searchParams.set('category',cat);if(q)url.searchParams.set('q',q);for(const k of ['min','max'])if(filt[k]!=='')url.searchParams.set(k,filt[k]);url.searchParams.set('sort',filt.sort);location.assign(url.href)}
 
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
-function sheet(h){$('#shade').classList.remove('auth-open');$('#sheet').classList.remove('auth-sheet');$('#sheet').innerHTML=h;$('#shade').hidden=false;const c=$('#sheet [data-a="close"]');c&&c.focus()}
-const head=t=>`<div class="sh"><h2>${t}</h2><button class="x" data-a="close" aria-label="إغلاق">✕</button></div>`;
+const pageNav=window.SouqPageNavigation?.create()||null;
+const backIcon='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7M16 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function trackPage(){if(!ADMIN_PORTAL&&!db.preview)pageNav?.track({tab,dt,publicStoreId,cat,q,filt:{...filt},url:location.href,scroll:window.scrollY||0},(user?.id||'guest')+':'+viewMode);}
+function pageBackbar(){
+ if(ADMIN_PORTAL||db.preview||!pageNav)return;
+ const root=viewMode==='seller'?'account':'market',view=$('#view');
+ if(!(pageNav.canBack()||tab!==root||publicStoreId)||view.querySelector('[data-a="back"],[data-s="recordsBack"]'))return;
+ view.insertAdjacentHTML('afterbegin','<div class="page-backbar"><button type="button" data-a="back" aria-label="الرجوع إلى الواجهة السابقة">'+backIcon+'<span>رجوع</span></button></div>');
+}
+function closePage(){
+ $('#shade').hidden=true;pageNav?.closeSheets();$('.app').inert=false;
+}
+function goBack(){
+ if(!$('#shade').hidden){
+  const previous=pageNav?.backSheet();
+  if(previous){$('#sheet').replaceChildren(...previous.nodes);$('#sheet').className=previous.className;$('#shade').className=previous.shadeClass;cur=previous.cur;infoRole=previous.infoRole;$('#sheet').scrollTop=previous.scroll;$('#sheet [data-a="back"],#sheet [data-a="close"]')?.focus();return;}
+  closePage();return;
+ }
+ captureCheckout();
+ const previous=pageNav?.backRoute();
+ if(previous){({tab,dt,publicStoreId,cat,q}=previous);Object.assign(filt,previous.filt);history.replaceState(null,'',previous.url);render();scrollTo(0,previous.scroll||0);return;}
+ publicStoreId=null;tab=viewMode==='seller'?'account':'market';render();scrollTo(0,0);
+}
+
+function sheet(h){
+ const el=$('#sheet'),shade=$('#shade');
+ if(!ADMIN_PORTAL&&!db.preview){const key=(h.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/)?.[1]||h.slice(0,80))+'|'+(cur?.p?.id||cur?.id||'');pageNav?.openSheet(key,shade.hidden?null:{nodes:Array.from(el.childNodes),className:el.className,shadeClass:shade.className,scroll:el.scrollTop,cur:cur?{...cur}:null,infoRole},{cur:cur?{...cur}:null,infoRole});$('.app').inert=true;}
+ shade.classList.remove('auth-open');el.classList.remove('auth-sheet');el.innerHTML=h;shade.hidden=false;el.scrollTop=0;
+ const c=$('#sheet [data-a="back"],#sheet [data-a="close"]');c&&c.focus();
+}
+const head=t=>`<div class="sh"><h2>${t}</h2><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="${ADMIN_PORTAL?'إغلاق':'الرجوع إلى الواجهة السابقة'}">${ADMIN_PORTAL?'✕':backIcon}</button></div>`;
 const val=id=>($('#'+id)||{}).value?.trim()||'';
-const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy" data-a="${act}" data-v="${v}">نعم</button><button class="alt" data-a="close">تراجع</button>`);
+const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy" data-a="${act}" data-v="${v}">نعم</button><button class="alt" data-a="${ADMIN_PORTAL?'close':'back'}">تراجع</button>`);
 
 const sellerAccount=()=>!!user&&profile?.role!=='admin'&&!profile?.disabled&&!!(ownStore?.ok&&!ownStore?.removed);
 function buyerAccountLogin(){if(db.preview){db.preview.selectRole('buyer');return}sheet(head('الدخول بحساب زبون')+'<p>هذا حساب متجرك. لتصفح السوق والشراء، سجّل الخروج وادخل بحساب زبون آخر.</p><button class="buy" data-a="loginBuyerAccount">تسجيل الخروج والدخول كزبون</button><button class="alt" data-a="close">البقاء في متجري</button>')}
@@ -631,6 +660,7 @@ function sellerResume(){
 }
 
 function render(){
+  trackPage();
   if(document.documentElement)delete document.documentElement.dataset.sellerResume;
   activity.sync();
   if(db.preview?.isHome()){db.preview.home();return;}
@@ -648,8 +678,8 @@ function render(){
   if(window.SouqDemo?.isActive()){window.SouqDemo.render();return}
   closeAccountMenu();
   document.body.classList.remove('welcome-mode','profile-mode');document.body.classList.toggle('buyer-cart-mode',tab==='cartPage');const searchInput=$('#q');if(searchInput&&searchInput.value!==q)searchInput.value=q;
-  if(publicStoreId&&tab==='market'){workspace.storefront(publicStoreId);return;}
-  if(workspace.render(tab)){activity.sync();return;}
+  if(publicStoreId&&tab==='market'){workspace.storefront(publicStoreId);pageBackbar();return;}
+  if(workspace.render(tab)){activity.sync();pageBackbar();return;}
   const n=D.cart.reduce((s,c)=>s+c.q,0);
   document.body.classList.toggle('welcome-mode',tab==='welcome');
   document.body.classList.toggle('profile-mode',tab==='profilePage');
@@ -661,7 +691,7 @@ function render(){
   document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
-  activity.sync();
+  activity.sync();pageBackbar();
 }
 function welcome(){
   $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p>${bannerHtml()}<div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#443a31"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#b49f8e"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#b69070"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#48392d"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="طلب الانضمام كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#8e7057"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#e5d5c7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#e5d5c7"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>طلب الانضمام كبائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#efeae5"/><circle cx="49" cy="49" r="8" fill="#efeae5"/><circle cx="17" cy="49" r="3" fill="#866c56"/><circle cx="49" cy="49" r="3" fill="#866c56"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#c8b2a0"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#453b33"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#ae9580"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
@@ -832,7 +862,7 @@ function psheet(){
   sheet(head(esc(p.name))+`<div class="tile big">${thumb(display)}</div>${window.SouqMarketplace.price(display,fmt)}<p class="note">البائع: <a class="mp-product-store" href="./?store=${encodeURIComponent(p.mid)}">${esc(mname(p.mid))} ← زيارة المتجر</a></p>${p.desc?`<p>${esc(p.desc)}</p>`:''}${specifications(p,D.catalog||[])}${p.has_variants?`<div class="va-choice"><label for="buyerVariant">اختر النسخة المطلوبة</label><select id="buyerVariant"><option value="">اختر اللون / المقاس / الخيارات</option>${vs.map(v=>`<option value="${v.id}" ${cur.vid===v.id?'selected':''}>${esc(v.label)} — ${fmt(variantPrice(v))}${!v.available||v.stock<1?' — غير متاحة':''}</option>`).join('')}</select></div>`:p.variant?`<p>${esc(p.variant)}</p>`:''}${activity.controls(p.id)}
   <div class="row"><span>الكمية المطلوبة</span><div class="qty"><button data-a="pq" data-v="-1" aria-label="أقل">−</button><b>${n}</b><button data-a="pq" data-v="1" aria-label="أكثر">+</button></div></div>
   <button class="buy" data-a="add" ${!chosen||chosen.stock<1?'disabled':''}>${!chosen?'اختر النسخة أولًا':chosen.stock<1?'غير متوفرة حاليًا':'أضف للسلة · '+fmt(chosen.price*n)}</button>`);
-  $('#buyerVariant')?.addEventListener('change',e=>{cur.vid=e.target.value||null;cur.n=1;psheet()});
+ 
 }
 function cartRows(){return D.cart.map(c=>({c,p:selectedProduct(prod(c.pid),c.vid)}));}
 function captureCheckout(){if(tab!=='cartPage'||!$('#cn'))return;D.cust={name:val('cn'),phone:val('cp'),addr:val('ca')};checkoutNote=val('cno');save()}
@@ -861,7 +891,7 @@ function lsheet(m){
  if(m==='store'){sellerRequest();return}
  const signup=m==='r',role=viewMode==='seller'?'بائع':viewMode==='driver'?'عامل توصيل':'زبون';
  const phone=signup?authField('lphone','رقم هاتفك <small>(اختياري للتواصل)</small>','tel','phone','dir="ltr" inputmode="tel" autocomplete="tel" placeholder="07xxxxxxxxx"'):'';
- sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="close" aria-label="إغلاق">✕</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب جديد':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="login" data-v="${signup?'m':'r'}">${signup?'تسجيل الدخول':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
+ sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب جديد':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="login" data-v="${signup?'m':'r'}">${signup?'تسجيل الدخول':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
  $('#shade').classList.add('auth-open');$('#sheet').classList.add('auth-sheet');
  loadAuthProviders();
 }
@@ -1024,7 +1054,8 @@ const A={
   react:v=>act(async()=>{const [id,kind]=v.split('|');if(await activity.react(id,kind))psheet()}),
   favorites:()=>act(async()=>{if(!user){A.enter('buyer');return}await activity.poll();const list=D.p.filter(p=>activity.favorites().includes(p.id)&&p.active&&!p.blocked);sheet(head('المفضلة')+(list.length?window.SouqMarketplace.productCards(list,{esc,fmt,thumb,mname}):'<div class="empty">لم تضف مواد إلى المفضلة بعد.</div>'))}),
   addentry:()=>{if(!canSell()){sellerRequest();return}if(!user){A.enter('seller');return}if(profile?.disabled){toast('هذا الحساب معطّل');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}if(ownStore.removed){toast('أزالت الإدارة هذا البائع من السوق');return}fsheet('')},
-  close:()=>{$('#shade').hidden=true},
+  close:closePage,
+  back:goBack,
   prod:v=>{if(sellerAccount()||(viewMode==='seller'&&ownStore)){if(prod(v)?.mid===ownStore.id)fsheet(v);return}cur={p:prod(v),n:1};psheet()},
   pq:v=>{const n=Math.max(1,cur.n+ +v);if(n>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(n>(selectedProduct(cur.p,cur.vid)?.stock||0)){toast('الكمية المطلوبة غير متوفرة حاليًا');return}cur.n=n;psheet()},
   add:()=>{if(sellerAccount()){buyerAccountLogin();return}const {p,n}=cur,chosen=selectedProduct(p,cur.vid);if(!chosen){toast('اختر النسخة المطلوبة');return}const key=cartKey({pid:p.id,vid:cur.vid}),c=D.cart.find(x=>cartKey(x)===key),quantity=(c?.q||0)+n;if(quantity>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(!p.active||p.blocked||quantity>chosen.stock){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا');return}if(c)c.q=quantity;else D.cart.push({pid:p.id,vid:cur.vid||null,q:n});save();A.close();render();toast('أُضيف للسلة')},
@@ -1107,7 +1138,7 @@ async function showOrderNotice(id){
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
 }
-document.addEventListener('change',e=>{const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
+document.addEventListener('change',e=>{if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;psheet();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
@@ -1123,7 +1154,7 @@ document.addEventListener('change',async e=>{
   im.src=URL.createObjectURL(e.target.files[0]);
 });
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){closeAccountMenu();A.close()}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
 let bannerTouch=null,lastBannerInteraction=0;

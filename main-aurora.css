@@ -79,6 +79,21 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 @keyframes main-loading-dots{to{clip-path:inset(0 0 0 0)}}
 @media(prefers-reduced-motion:reduce){#auroraLoading span::after{animation:none;clip-path:none}}
 
+/* Internal screens occupy the viewport; the previous page is hidden. */
+:root:not([data-portal]) body:has(#shade:not([hidden]),#swDrawer,#activityPanel){overflow:hidden}
+:root:not([data-portal]) body:has(#shade:not([hidden]),#swDrawer,#activityPanel) .app{visibility:hidden}
+:root:not([data-portal]) #shade{background:var(--scene-bg)!important;align-items:stretch!important;padding:0!important;backdrop-filter:none!important;z-index:350}
+:root:not([data-portal]) #sheet{width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;animation:none!important;overflow-y:auto;overscroll-behavior:contain;padding:calc(18px + env(safe-area-inset-top,0px)) clamp(16px,4vw,64px) calc(24px + env(safe-area-inset-bottom,0px))!important}
+:root:not([data-portal]) #sheet>.sh{position:sticky;top:0;z-index:2;background:var(--panel-bg);flex-direction:row-reverse;margin-bottom:16px}
+:root:not([data-portal]) .page-backbar{padding:10px 16px;background:var(--scene-bg)}
+:root:not([data-portal]) .page-backbar button{display:flex;align-items:center;gap:8px;color:var(--ink);min-height:44px;font-weight:700}
+:root:not([data-portal]) .page-backbar button svg{color:var(--icon-ink);background:var(--icon-bg);border-radius:10px;padding:5px;width:32px;height:32px}
+:root:not([data-portal]) #swDrawer .sw-drawer{position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;background:var(--panel-bg)!important;overflow:auto}
+:root:not([data-portal]) #swDrawer .sw-drawer-shade{display:none!important}
+:root:not([data-portal]) #activityPanel{position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;z-index:340;padding-top:env(safe-area-inset-top,0px);background:var(--panel-bg)!important}
+:root:not([data-portal]) body:has(#shade:not([hidden]),#swDrawer,#activityPanel) :is(#activityBell,#auroraLoading){visibility:hidden}
+
+
 
 /* Compact mobile navigation: icon above label, with independent touch targets. */
 @media(max-width:767px){

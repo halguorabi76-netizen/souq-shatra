@@ -21,7 +21,7 @@ test('seller layout restores only for the current stored account, and tolerates 
 
 test('pending seller restoration renders the seller shell before any buyer route, without private actions',async()=>{
  const html=await readFile('index.html','utf8'),buttons=[{disabled:false}],view={innerHTML:'',querySelectorAll:()=>buttons},tabs={hidden:false},classes=new Set();
- const context=vm.createContext({dataReady:false,viewMode:'seller',db:{},publicStoreId:null,ADMIN_PORTAL:false,user:null,activity:{sync(){}},workspace:{chrome:()=>'<button>سوق الشطرة</button>'},document:{body:{classList:{add:c=>classes.add(c),remove:(...cs)=>cs.forEach(c=>classes.delete(c))}}},$:(selector)=>selector==='#view'?view:tabs,buyerCalls:0});
+ const context=vm.createContext({trackPage(){},dataReady:false,viewMode:'seller',db:{},publicStoreId:null,ADMIN_PORTAL:false,user:null,activity:{sync(){}},workspace:{chrome:()=>'<button>سوق الشطرة</button>'},document:{body:{classList:{add:c=>classes.add(c),remove:(...cs)=>cs.forEach(c=>classes.delete(c))}}},$:(selector)=>selector==='#view'?view:tabs,buyerCalls:0});
  const resume=html.match(/function sellerResume\(\)\{[\s\S]*?\n\}/)[0];
  const prefix=html.match(/function render\(\)\{([\s\S]*?)  if\(sellerAccount\(\)\)/)[1];
  vm.runInContext(resume+'\nfunction render(){'+prefix+'buyerCalls++;}',context);
