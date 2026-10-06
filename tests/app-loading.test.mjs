@@ -14,5 +14,7 @@ test('overlapping requests, offline recovery and abort cleanup preserve loader s
  navigator.onLine=false;listeners.offline();assert.equal(panel.hidden,false);assert.match(text.textContent,/منقطع/);
  const c=window.SouqLoading.begin();flush();navigator.onLine=true;listeners.online();assert.equal(panel.hidden,false);
  window.SouqLoading.end(c);assert.equal(panel.hidden,true);
- window.SouqLoading.transition();flush();assert.equal(panel.hidden,true);
+ window.SouqLoading.transition();assert.equal(panel.hidden,false);flush();assert.equal(panel.hidden,true);
+ const d=window.SouqLoading.begin();window.SouqLoading.transition();flush();assert.equal(panel.hidden,false);
+ window.SouqLoading.end(d);assert.equal(panel.hidden,true);
 });
