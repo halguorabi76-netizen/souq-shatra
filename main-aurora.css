@@ -85,9 +85,6 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 :root:not([data-portal]) #shade{background:var(--scene-bg)!important;align-items:stretch!important;padding:0!important;backdrop-filter:none!important;z-index:350}
 :root:not([data-portal]) #sheet{width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;animation:none!important;overflow-y:auto;overscroll-behavior:contain;padding:calc(18px + env(safe-area-inset-top,0px)) clamp(16px,4vw,64px) calc(24px + env(safe-area-inset-bottom,0px))!important}
 :root:not([data-portal]) #sheet>.sh{position:sticky;top:0;z-index:2;background:var(--panel-bg);flex-direction:row-reverse;margin-bottom:16px}
-:root:not([data-portal]) .page-backbar{padding:10px 16px;background:var(--scene-bg)}
-:root:not([data-portal]) .page-backbar button{display:flex;align-items:center;gap:8px;color:var(--ink);min-height:44px;font-weight:700}
-:root:not([data-portal]) .page-backbar button svg{color:var(--icon-ink);background:var(--icon-bg);border-radius:10px;padding:5px;width:32px;height:32px}
 :root:not([data-portal]) #swDrawer .sw-drawer{position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;background:var(--panel-bg)!important;overflow:auto}
 :root:not([data-portal]) #swDrawer .sw-drawer-shade{display:none!important}
 :root:not([data-portal]) #activityPanel{position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;z-index:340;padding-top:env(safe-area-inset-top,0px);background:var(--panel-bg)!important}
@@ -157,3 +154,11 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
     z-index:1;
   }
 }
+
+/* Navigation belongs to the top header, without a separate content row. */
+:root:not([data-portal]) .topline .header-page-back{display:grid!important;place-items:center;position:absolute!important;right:0!important;left:auto!important;top:50%!important;transform:translateY(-50%);width:44px!important;height:44px!important;padding:10px!important;border-radius:14px;background:var(--icon-bg)!important;color:var(--icon-ink)!important;z-index:2}
+:root:not([data-portal]) .header-page-back svg{width:24px;height:24px}
+:root:not([data-portal]) .has-page-back .topline>[data-a="searchfocus"],
+:root:not([data-portal]) .has-page-back .profile-back{display:none!important}
+:root:not([data-portal]) body.has-page-back:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:44px 44px minmax(0,1fr) 44px 44px!important}
+@media(max-width:600px){:root:not([data-portal]) body.has-page-back:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:34px 34px minmax(0,1fr) 34px 34px!important}}

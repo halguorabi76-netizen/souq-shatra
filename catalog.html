@@ -388,10 +388,10 @@ body.starting{background:#000!important}
 .auth-sheet .auth-providers{margin:0 0 20px}.auth-provider.google{height:54px;border-radius:14px}.auth-divider{margin:16px 0 0}.auth-phone-link{display:block;width:100%;margin:14px 0 8px;padding:10px;color:var(--navy);text-align:center;border:1px solid var(--line);border-radius:13px}.auth-channels button:not(:disabled){color:var(--ink);cursor:pointer;background:var(--tile)}.auth-channels button:disabled{cursor:wait}.auth-otp-note{color:var(--mut);font-size:14px}.auth-otp-input{letter-spacing:8px;text-align:center;font-size:24px!important}.auth-resend{display:block;padding:12px;color:var(--navy);margin:auto}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
-<link rel="stylesheet" href="seller-workspace.css?v=80">
+<link rel="stylesheet" href="seller-workspace.css?v=81">
 <link rel="stylesheet" href="marketplace.css?v=57">
 <link rel="stylesheet" href="operations.css?v=58">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="main-aurora.css?v=79">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="main-aurora.css?v=80">
 <style>
 .seller-preflight{display:none}
 :root[data-seller-resume] .seller-preflight{display:block}
@@ -439,8 +439,8 @@ body.starting{background:#000!important}
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
-import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=80';
-import {createSellerWorkspace} from "./seller-workspace.js?v=80";
+import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
+import {createSellerWorkspace} from "./seller-workspace.js?v=81";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
@@ -601,9 +601,19 @@ const backIcon='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stro
 function trackPage(){if(!ADMIN_PORTAL&&!db.preview)pageNav?.track({tab,dt,publicStoreId,cat,q,filt:{...filt},url:location.href,scroll:window.scrollY||0},(user?.id||'guest')+':'+viewMode);}
 function pageBackbar(){
  if(ADMIN_PORTAL||db.preview||!pageNav)return;
- const root=viewMode==='seller'?'account':'market',view=$('#view');
- if(!(pageNav.canBack()||tab!==root||publicStoreId)||view.querySelector('[data-a="back"],[data-s="recordsBack"]'))return;
- view.insertAdjacentHTML('afterbegin','<div class="page-backbar"><button type="button" data-a="back" aria-label="الرجوع إلى الواجهة السابقة">'+backIcon+'<span>رجوع</span></button></div>');
+ document.querySelectorAll('.header-page-back').forEach(el=>el.remove());
+ const view=$('#view'),root=viewMode==='seller'?'account':'market';
+ const nativeBack=view.querySelector('[data-a="back"],[data-s="recordsBack"]');
+ const needed=!!nativeBack||pageNav.canBack()||tab!==root||publicStoreId;
+ document.body.classList.toggle('has-page-back',!!needed);
+ if(!needed)return;
+ const bar=view.querySelector('.sw-sitebar')||$('.topline');
+ if(!bar)return;
+ const button=nativeBack||document.createElement('button');
+ button.type='button';button.className='header-page-back '+(bar.classList.contains('sw-sitebar')?'sw-icon':'header-icon');
+ if(!nativeBack)button.dataset.a='back';
+ button.setAttribute('aria-label','الرجوع إلى الواجهة السابقة');button.title='رجوع';button.innerHTML=backIcon;
+ bar.prepend(button);
 }
 function closePage(){
  $('#shade').hidden=true;pageNav?.closeSheets();$('.app').inert=false;
