@@ -181,3 +181,6 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 @media(min-width:768px){
  :root:not([data-portal]) .topline .header-brand{position:absolute;left:50%;right:auto;transform:translateX(-50%);margin:0}
 }
+
+/* Settings and order screens have no marketplace search row. */
+:root:not([data-portal]) body:is([data-main-page="settings"],[data-main-page="chats"],[data-main-page="orders"]) .desktop-search-row{display:none!important}
