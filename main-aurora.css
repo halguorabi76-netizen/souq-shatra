@@ -162,3 +162,11 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 :root:not([data-portal]) .has-page-back .profile-back{display:none!important}
 :root:not([data-portal]) body.has-page-back:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:44px 44px minmax(0,1fr) 44px 44px!important}
 @media(max-width:600px){:root:not([data-portal]) body.has-page-back:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:34px 34px minmax(0,1fr) 34px 34px!important}}
+
+/* Product deletion is an inline confirmation, never a full-screen page. */
+:root:not([data-portal]) .product-delete-confirm{grid-column:1/-1;flex-basis:100%;width:100%;padding:14px;margin-top:12px;border:1px solid var(--line);border-radius:14px;background:var(--panel-bg);color:var(--ink);box-sizing:border-box}
+:root:not([data-portal]) :is(.sw-product,.item):has(>.product-delete-confirm){flex-wrap:wrap}
+:root:not([data-portal]) .product-delete-confirm p{margin:0 0 10px;font-weight:600}
+:root:not([data-portal]) .product-delete-confirm>div{display:flex;gap:10px}
+:root:not([data-portal]) .product-delete-confirm button{width:auto;min-height:44px;padding:8px 20px;border-radius:10px;border:1px solid var(--line);background:var(--icon-bg);color:var(--icon-ink)}
+:root:not([data-portal]) .product-delete-confirm [data-a=pdel2]{background:var(--action-bg);color:white}
