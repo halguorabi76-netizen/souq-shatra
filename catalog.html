@@ -391,7 +391,7 @@ body.starting{background:#000!important}
 <link rel="stylesheet" href="seller-workspace.css?v=81">
 <link rel="stylesheet" href="marketplace.css?v=85">
 <link rel="stylesheet" href="operations.css?v=58">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=84">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=88">
 <style>
 .seller-preflight{display:none}
 :root[data-seller-resume] .seller-preflight{display:block}
@@ -434,7 +434,7 @@ body.starting{background:#000!important}
 <div id="toast" hidden role="status"></div>
 
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=85"></script>
+<script src="marketplace.js?v=88"></script>
 <script src="demo-lab.js?v=51"></script>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
@@ -589,7 +589,7 @@ const ADMIN_PORTAL=document.documentElement.dataset.portal==='admin';
 let adminSearch='',adminFilter='all',adminDetail=null,checkoutNote='',cartReceipt=null;
 const catalogParams=new URLSearchParams(location.search);
 const catalogEntry=location.pathname.endsWith('/catalog.html');
-let tab=publicStoreId?'market':catalogParams.get('view')==='stores'?'stores':catalogEntry?'catalog':'market',cat=catalogEntry?(catalogParams.get('category')||'all').slice(0,80):'all',q=catalogEntry?(catalogParams.get('q')||'').slice(0,200):'',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
+let tab=publicStoreId?'market':catalogParams.get('view')==='stores'?'stores':catalogParams.get('view')==='materials'||catalogEntry?'catalog':'market',cat=catalogEntry?(catalogParams.get('category')||'all').slice(0,80):'all',q=catalogEntry?(catalogParams.get('q')||'').slice(0,200):'',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
 const BANNERS=[['icons/shatra-river.jpeg','اكتشفوا سحر الشطرة'],['icons/shatra-square.jpeg','اكتشفوا أسواق الشطرة'],['icons/shatra-bridge.jpeg','الشطرة تجمعنا']];
 const filt={min:'',max:'',sort:'newest',condition:'all',location:''};
 if(catalogEntry){for(const k of ['min','max']){const v=catalogParams.get(k);if(v!==null&&v!==''&&Number.isFinite(+v)&&+v>=0)filt[k]=v}if(['newest','oldest','cheap','expensive'].includes(catalogParams.get('sort')))filt.sort=catalogParams.get('sort')}
@@ -805,27 +805,39 @@ function admin(){
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
+function materialCategories(){
+ return '<div class="section-title"><h2>أقسام المواد</h2></div><div class="category-cards">'+CATS.map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'</div>';
+}
 function market(){
-  const options={category:cat,query:q,min:filt.min,max:filt.max,sort:filt.sort};
-  const l=window.SouqCatalog.select(D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)),options,p=>mname(p.mid));
-  const results=tab==='catalog'||cat!=='all'||!!q;
-  const stores=q&&cat==='all'&&!filt.min&&!filt.max?D.m.filter(m=>m.ok&&!m.removed&&window.SouqCatalog.matches(m.name,q)):[];
-  const productCards=l.length?window.SouqMarketplace.productCards(l,{esc,fmt,thumb,mname}):'';
-  const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'جميع المنتجات';
-  if(results){
-    $('#view').innerHTML=window.SouqMarketplace.switcher('market')+`<div class="section-title"><h2>${esc(title)}</h2><button data-a="tab" data-v="categories">الأقسام</button></div><div class="box"><p>${l.length} إعلان${cat!=='all'?' · القسم: '+esc(cat):''}</p><button class="alt" data-a="filters">تصفية النتائج</button><button class="alt" data-a="tab" data-v="market">العودة للرئيسية</button></div>`+(stores.length?`<div class="section-title"><h2>متاجر مطابقة</h2></div>`+stores.map(m=>`<div class="box"><b>${esc(m.name)}</b><p>${esc(m.address||'')}</p><a class="buy" href="?store=${encodeURIComponent(m.id)}">زيارة المتجر</a></div>`).join(''):'')+productCards+(!l.length&&!stores.length?`<div class="empty">${!dataReady?'':'لا توجد نتائج مطابقة. جرّب اسمًا آخر أو عدّل الفلاتر.'}</div>`:'');
-    return;
-  }
-  $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('market')+`<div class="desktop-market-intro"><div><h1>اكتشف سوق الشطرة من مكانك</h1><p>من الشطرة… لأهل الشطرة</p></div><button data-a="tab" data-v="categories">تصفح الأقسام</button></div>`+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${esc(c)}"><span aria-hidden="true">${catIcon(i)}</span>${esc(c)}</button>`).join('')}</div><div class="section-title"><h2>المواد المعروضة</h2><span class="note">${l.length} منتج</span></div>`+productCards+(!l.length?`<div class="empty">${!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.'}</div>`:'');
+ const options={category:cat,query:q,min:filt.min,max:filt.max,sort:filt.sort};
+ const l=window.SouqCatalog.select(D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)),options,p=>mname(p.mid));
+ const results=tab==='catalog'||cat!=='all'||!!q;
+ const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'المواد المعروضة';
+ const cards=items=>window.SouqMarketplace.productCards(items,{esc,fmt,thumb,mname});
+ if(results){
+  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h2>'+esc(title)+'</h2><span class="note">'+l.length+' منتج</span></div><div class="box"><button class="alt" data-a="filters">تصفية النتائج</button></div>'+ (l.length?cards(l):'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة. جرّب قسمًا آخر أو عدّل البحث.')+'</div>')+'</section>';
+  return;
+ }
+ const stores=D.m.filter(m=>m.ok&&!m.removed);
+ $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('home')+
+ '<section class="market-materials">'+materialCategories()+'<div class="section-title"><h2>المواد المعروضة</h2><span class="note">'+l.length+' منتج</span><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+
+ (l.length?cards(l.slice(0,6)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
+ '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+
+ (stores.length?window.SouqMarketplace.storeCards(stores.slice(0,4),D.p,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
 }
 function storesPage(){
- storeQuery=q;const stores=D.m.filter(m=>m.ok&&!m.removed&&window.SouqCatalog.matches([m.name,m.description,m.address].join(' '),storeQuery));
- $('#view').innerHTML=window.SouqMarketplace.switcher('stores')+`<div class="section-title"><h2>متاجر سوق الشطرة</h2><span class="note">${stores.length} متجر</span></div>`+(stores.length?window.SouqMarketplace.storeCards(stores,D.p,{esc}):'<div class="empty">'+(storeQuery?'لا توجد متاجر مطابقة للبحث.':'تظهر هنا المتاجر بعد اعتمادها من الإدارة.')+'</div>');
-
+ storeQuery=q;
+ const approved=D.m.filter(m=>m.ok&&!m.removed);
+ const published=D.p.filter(p=>p.active&&!p.blocked&&approved.some(m=>m.id===p.mid));
+ const categories=CATS.filter(c=>published.some(p=>p.cat===c));
+ const stores=approved.filter(m=>window.SouqCatalog.matches([m.name,m.description,m.address].join(' '),storeQuery)&&(cat==='all'||published.some(p=>p.mid===m.id&&p.cat===cat)));
+ const sections='<div class="section-title"><h2>أقسام المتاجر</h2></div><div class="category-cards store-category-cards">'+['all',...categories].map(c=>'<button class="category-card" data-a="storeCategory" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+(c==='all'?window.SouqMarketplace.icon('stores'):catIcon(Math.max(0,CATS.indexOf(c))))+'</span>'+esc(c==='all'?'كل المتاجر':c)+'</button>').join('')+'</div>';
+ $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h2>متاجر سوق الشطرة</h2><span class="note">'+stores.length+' متجر</span></div>'+
+ (stores.length?window.SouqMarketplace.storeCards(stores,D.p,{esc}):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
 }
 function marketSection(section){
- publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':'market';
- const url=new URL('./',location.href);if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0);
+ publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
+ const url=new URL('./',location.href);if(tab==='stores')url.searchParams.set('view','stores');if(tab==='catalog')url.searchParams.set('view','materials');history.pushState(null,'',url);render();scrollTo(0,0);
 }
 function chats(){
   if(viewMode==='driver'){driverPage();return}
@@ -1096,11 +1108,12 @@ const A={
   adminListFilter:v=>{adminFilter=v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   cat:v=>{cat=v;tab='catalog';render()},
   pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
+  storeCategory:v=>{cat=v;render();},
   allcat:()=>{cat='all';tab='catalog';render()},
   searchfocus:()=>{$('#q')?.focus();$('#q')?.scrollIntoView({block:'center',behavior:'instant'})},
   searchcat:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');cat=v;searchPage()},
   searchsort:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');filt.sort=v;searchPage()},
-  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;tab='catalog';A.close();render()},
+  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;if(tab!=='stores')tab='catalog';A.close();render()},
   searchclear:()=>{q='';cat='all';filt.min='';filt.max='';filt.sort='newest';searchPage()},
   banner:v=>{bannerIndex=+v;updateBanner()},
   filters:filterSheet,
@@ -1215,7 +1228,7 @@ document.addEventListener('change',async e=>{
   const im=new Image();im.onload=()=>{const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cur.img=c.toDataURL('image/jpeg',.72);$('#pv').innerHTML=`<img src="${cur.img}" alt="">`;updatePostProgress()};
   im.src=URL.createObjectURL(e.target.files[0]);
 });
-document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
+document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(tab!=='stores')tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
@@ -1235,7 +1248,7 @@ $('#view').addEventListener('touchcancel',()=>{bannerTouch=null},{passive:true})
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(['market','welcome'].includes(tab)&&!document.hidden&&Date.now()-lastBannerInteraction>5500){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
 db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(recoverySheet,0)});
 if(!ADMIN_PORTAL)window.SouqDemo?.init(render);
-window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
+window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':params.get('view')==='materials'||location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
 render();
 refresh().catch(e=>{
   if(!dataReady&&!window.SouqDemo?.isActive()){

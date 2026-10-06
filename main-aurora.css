@@ -170,3 +170,10 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 :root:not([data-portal]) .product-delete-confirm>div{display:flex;gap:10px}
 :root:not([data-portal]) .product-delete-confirm button{width:auto;min-height:44px;padding:8px 20px;border-radius:10px;border:1px solid var(--line);background:var(--icon-bg);color:var(--icon-ink)}
 :root:not([data-portal]) .product-delete-confirm [data-a=pdel2]{background:var(--action-bg);color:white}
+
+/* The home offers two destinations; each destination has its own content. */
+:root:not([data-portal]) .topline #themeToggle{position:absolute;right:0;left:auto;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:10px;z-index:2}
+:root:not([data-portal]) .has-page-back .topline #themeToggle{right:52px}
+:root:not([data-portal]) .market-stores{margin-top:28px;padding-top:10px;border-top:1px solid var(--line)}
+:root:not([data-portal]) .store-category-cards svg{width:30px;height:30px}
+:root:not([data-portal]) .store-category-cards [aria-pressed=true]{background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--icon-ink)}
