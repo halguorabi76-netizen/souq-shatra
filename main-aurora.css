@@ -200,3 +200,9 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
  :root:not([data-portal]) .topline .header-cart{display:grid;place-items:center;position:absolute;left:52px;right:auto;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:10px;border-radius:14px;z-index:2}
  :root:not([data-portal]) .desktop-shortcut[data-v="myMarket"] svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 }
+
+
+/* Materials sit next to home, with six compact mobile destinations. */
+:root:not([data-portal]) body:not(.seller-workspace) .tabs{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media(max-width:767px){:root:not([data-portal]) body:not(.seller-workspace) .tabs button{font-size:.6875rem;gap:4px;min-height:60px}:root:not([data-portal]) body:not(.seller-workspace) .tabs .navicon{width:30px;height:28px}:root:not([data-portal]) body:not(.seller-workspace) .tabs .navicon svg{width:20px;height:20px}}
+@media(min-width:768px){:root:not([data-portal]) body:not(.seller-workspace) .tabs{grid-template-columns:repeat(5,minmax(0,1fr))}}

@@ -389,7 +389,7 @@ body.starting{background:#000!important}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=81">
-<link rel="stylesheet" href="marketplace.css?v=85">
+<link rel="stylesheet" href="marketplace.css?v=94">
 <link rel="stylesheet" href="operations.css?v=58">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=94">
 <style>
@@ -418,10 +418,11 @@ body.starting{background:#000!important}
 })();
 </script>
 <div class="app">
-  <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-aurora-v69.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="desktop-shortcut header-cart" data-a="tab" data-v="myMarket" aria-label="فتح السلة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off"><button type="submit" aria-label="بحث">⌕</button></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button></div></header>
+  <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-aurora-v69.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="desktop-shortcut header-cart" data-a="tab" data-v="myMarket" aria-label="فتح السلة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off" aria-controls="marketSuggestions"><button type="submit" aria-label="بحث">⌕</button><div id="marketSuggestions" class="mp-suggestions" aria-label="اقتراحات البحث" hidden></div></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button></div></header>
   <main id="view"><div class="seller-preflight"><div class="sw-sitebar seller-session-brand" aria-label="سوق الشطرة"><span></span><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span></div></div></main>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
+    <button data-a="marketSection" data-v="materials"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-4 9 4v10l-9 4-9-4ZM3 7l9 4 9-4M12 11v10" stroke-linecap="round" stroke-linejoin="round"/></svg></span>المواد</button>
     <button data-a="marketSection" data-v="stores"><span class="navicon">▤</span>المتاجر</button>
     <button data-a="tab" data-v="myMarket"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg></span>سوقي<i id="cc" hidden></i></button>
     <button data-a="tab" data-v="chats"><span class="navicon">▣</span>الطلبات</button>
@@ -435,13 +436,13 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=88"></script>
+<script src="marketplace.js?v=94"></script>
 <script src="demo-lab.js?v=51"></script>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
-import {createSellerWorkspace} from "./seller-workspace.js?v=85";
+import {createSellerWorkspace} from "./seller-workspace.js?v=94";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
@@ -780,6 +781,7 @@ function sellerResume(){
 
 function render(){
   trackPage();
+  syncMarketSearch();
   if(document.documentElement)delete document.documentElement.dataset.sellerResume;
   activity.sync();
   if(db.preview?.isHome()){db.preview.home();return;}
@@ -808,7 +810,7 @@ function render(){
   const marketButton=$('.tabs [data-v="myMarket"]');marketButton.innerHTML=`<span class="navicon">${sellerView?'▤':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>' }</span>${sellerView?'إعلاناتي':'السلة'}<i id="cc" hidden></i>`;
   const roleNav=$('.tabs [data-v="chats"]');roleNav.innerHTML=viewMode==='driver'?'<span class="navicon">▣</span>التوصيل':'<span class="navicon">▣</span>الطلبات';
   const badge=$('#cc');badge.textContent=n;badge.hidden=!n;
-  document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
   activity.sync();pageBackbar();
@@ -903,32 +905,34 @@ function admin(){
 function materialCategories(){
  return '<div class="section-title"><h2>أقسام المواد</h2></div><div class="category-cards">'+CATS.map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'</div>';
 }
+function publicMarketplace(){const stores=D.m.filter(m=>m.ok&&!m.removed),ids=new Set(stores.map(m=>m.id));return {stores,products:D.p.filter(p=>ids.has(p.mid)&&window.SouqMarketplace.forSale(p))};}
+function syncMarketSearch(){
+ const input=$('#q'),panel=$('#marketSuggestions');if(!input)return;
+ const label=tab==='stores'?'ابحث عن المتجر الذي تريده':tab==='catalog'?'ابحث عن أي منتج تريده':'ابحث عن منتج أو متجر في الشطرة';input.placeholder=label;input.setAttribute('aria-label',label);
+ if(!panel)return;const {stores,products}=publicMarketplace(),items=window.SouqMarketplace.suggestions(products,stores,q,tab);
+ panel.innerHTML=items.map(x=>'<button type="button" data-a="searchSuggestion" data-v="'+esc(x.label)+'">'+window.SouqMarketplace.icon(x.kind==='store'?'stores':'materials')+'<span><b>'+esc(x.label)+'</b><small>'+esc(x.kind==='store'?'متجر':x.seller)+'</small></span></button>').join('');panel.hidden=!items.length||document.activeElement!==input;
+}
 function market(){
- const options={category:cat,query:q,min:filt.min,max:filt.max,sort:filt.sort};
- const l=window.SouqCatalog.select(D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)),options,p=>mname(p.mid));
+ const ui=window.SouqMarketplace,{stores,products}=publicMarketplace();
+ const filtered=window.SouqCatalog.select(products,{category:cat,query:'',min:filt.min,max:filt.max,sort:filt.sort});
+ const l=ui.searchProducts(filtered,stores,q),cards=items=>ui.productCards(items,{esc,fmt,thumb,mname});
  const results=tab==='catalog'||cat!=='all'||!!q;
- const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'المواد المعروضة';
- const cards=items=>window.SouqMarketplace.productCards(items,{esc,fmt,thumb,mname});
  if(results){
-  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h2>'+esc(title)+'</h2><span class="note">'+l.length+' منتج</span></div><div class="box"><button class="alt" data-a="filters">تصفية النتائج</button></div>'+ (l.length?cards(l):'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة. جرّب قسمًا آخر أو عدّل البحث.')+'</div>')+'</section>';
+  const matchedStores=q?stores.filter(m=>Number.isFinite(ui.searchRank(m.name,q))):[],grouped=matchedStores.map(store=>({store,products:l.filter(p=>p.mid===store.id)})).filter(x=>x.products.length),groupIds=new Set(grouped.map(x=>x.store.id)),other=l.filter(p=>!groupIds.has(p.mid));
+  const materialResults=(grouped.length?ui.storeMatches(grouped,{esc,fmt,thumb,mname}):'')+(other.length?cards(other):'');
+  const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'المواد';
+  const storeResults=tab==='market'&&q?ui.searchStores(stores,filtered,q):[];
+  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h1>'+esc(title)+'</h1><span class="note" role="status">'+l.length+' مادة</span></div><div class="box"><button class="alt" data-a="filters">تصفية النتائج</button></div>'+(materialResults||'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة متوفرة حاليًا.')+'</div>')+'</section>'+(storeResults.length?'<section class="market-stores"><div class="section-title"><h2>المتاجر المطابقة</h2></div>'+ui.storeMatches(storeResults,{esc,fmt,thumb,mname})+'</section>':'');
   return;
  }
- const stores=D.m.filter(m=>m.ok&&!m.removed);
- $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('home')+
- '<section class="market-materials">'+materialCategories()+'<div class="section-title"><h2>المواد المعروضة</h2><span class="note">'+l.length+' منتج</span><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+
- (l.length?cards(l.slice(0,6)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
- '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+
- (stores.length?window.SouqMarketplace.storeCards(stores.slice(0,4),D.p,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
+ $('#view').innerHTML=bannerHtml()+ui.switcher('home')+
+ '<section class="market-materials">'+materialCategories()+'<div class="section-title"><h2>المواد المعروضة</h2><span class="note">'+l.length+' مادة</span><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+(l.length?cards(l.slice(0,6)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
+ '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+(stores.length?ui.storeCards(stores.slice(0,4),products,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
 }
 function storesPage(){
- storeQuery=q;
- const approved=D.m.filter(m=>m.ok&&!m.removed);
- const published=D.p.filter(p=>p.active&&!p.blocked&&approved.some(m=>m.id===p.mid));
- const categories=CATS.filter(c=>published.some(p=>p.cat===c));
- const stores=approved.filter(m=>window.SouqCatalog.matches([m.name,m.description,m.address].join(' '),storeQuery)&&(cat==='all'||published.some(p=>p.mid===m.id&&p.cat===cat)));
- const sections='<div class="section-title"><h2>أقسام المتاجر</h2></div><div class="category-cards store-category-cards">'+['all',...categories].map(c=>'<button class="category-card" data-a="storeCategory" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+(c==='all'?window.SouqMarketplace.icon('stores'):catIcon(Math.max(0,CATS.indexOf(c))))+'</span>'+esc(c==='all'?'كل المتاجر':c)+'</button>').join('')+'</div>';
- $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h2>متاجر سوق الشطرة</h2><span class="note">'+stores.length+' متجر</span></div>'+
- (stores.length?window.SouqMarketplace.storeCards(stores,D.p,{esc}):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
+ const ui=window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>published.some(p=>p.cat===c)),products=published.filter(p=>cat==='all'||p.cat===cat),eligible=approved.filter(m=>cat==='all'||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
+ const sections='<div class="section-title"><h2>أقسام المتاجر</h2></div><div class="category-cards store-category-cards">'+['all',...categories].map(c=>'<button class="category-card" data-a="storeCategory" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+(c==='all'?ui.icon('stores'):catIcon(Math.max(0,CATS.indexOf(c))))+'</span>'+esc(c==='all'?'كل المتاجر':c)+'</button>').join('')+'</div>';
+ $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+rows.length+' متجر</span></div>'+(rows.length?(q?ui.storeMatches(rows,{esc,fmt,thumb,mname}):ui.storeCards(rows.map(x=>x.store),published,{esc})):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
 }
 function marketSection(section){
  publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
@@ -1206,10 +1210,11 @@ const A={
   pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
   storeCategory:v=>{cat=v;render();},
   allcat:()=>{cat='all';tab='catalog';render()},
+  searchSuggestion:v=>{q=v;$('#q').value=v;A.close();render();$('#marketSuggestions').hidden=true;},
   searchfocus:()=>{$('#q')?.focus();$('#q')?.scrollIntoView({block:'center',behavior:'instant'})},
   searchcat:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');cat=v;searchPage()},
   searchsort:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');filt.sort=v;searchPage()},
-  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;if(tab!=='stores')tab='catalog';A.close();render()},
+  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='catalog';A.close();render()},
   searchclear:()=>{q='';cat='all';filt.min='';filt.max='';filt.sort='newest';searchPage()},
   banner:v=>{bannerIndex=+v;updateBanner()},
   filters:filterSheet,
@@ -1324,7 +1329,10 @@ document.addEventListener('change',async e=>{
   const im=new Image();im.onload=()=>{const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cur.img=c.toDataURL('image/jpeg',.72);$('#pv').innerHTML=`<img src="${cur.img}" alt="">`;updatePostProgress()};
   im.src=URL.createObjectURL(e.target.files[0]);
 });
-document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(tab!=='stores')tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
+document.addEventListener('focusin',e=>{if(e.target.id==='q')syncMarketSearch()});
+document.addEventListener('focusout',e=>{if(e.target.id==='q')setTimeout(()=>{if(!$('#buyerSearch')?.contains(document.activeElement))$('#marketSuggestions').hidden=true},100)});
+document.addEventListener('keydown',e=>{if(e.target.id==='q'&&e.key==='Escape')$('#marketSuggestions').hidden=true;if(e.target.id==='q'&&e.key==='ArrowDown'&&!$('#marketSuggestions').hidden){e.preventDefault();$('#marketSuggestions button')?.focus()}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='market';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
@@ -1369,5 +1377,6 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 

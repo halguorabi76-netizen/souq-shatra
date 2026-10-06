@@ -8,7 +8,7 @@ const loadUI=()=>{const context={window:{}};vm.runInNewContext(readFileSync(new 
 test('stock produces one card, linked to its seller, without a stock count',()=>{
  const ui=loadUI(),p={id:'product',mid:'store',name:'قميص',price:100,stock:17};
  const html=ui.productCards([p],{esc,fmt,thumb:()=>'',mname:()=> 'متجر'});
- assert.equal((html.match(/class="mp-product"/g)||[]).length,1);assert.match(html,/href="\.\/\?store=store"/);assert.doesNotMatch(html.replace(/<[^>]*>/g,''),/17|المخزون/);
+ assert.equal((html.match(/class="mp-product"/g)||[]).length,1);assert.match(html,/href="\.\/\?store=store"/);assert.doesNotMatch(html.replace(/<svg[\s\S]*?<\/svg>/g,''),/17|المخزون/);
 });
 test('discounts use a valid higher previous price and preserve sale price',()=>{
  const ui=loadUI();assert.equal(ui.discounted({price:100,compare_at_price:125}),true);assert.match(ui.badge({price:100,compare_at_price:125}),/20٪/);
