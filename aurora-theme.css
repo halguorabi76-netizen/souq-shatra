@@ -37,6 +37,7 @@
 :root[data-theme] :is(.auth-submit,.go,.profile-action,.filter-actions button:first-child){background:var(--action-bg)!important;color:white!important}
 
 :root[data-theme] .account-shortcuts button{background:var(--panel-bg)!important;color:var(--ink)}
-body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:46px 1fr 46px 46px!important;background:transparent!important}
-body:is(.seller-workspace,.seller-storefront) .sw-monogram{color:var(--icon-ink)!important}
-@media(max-width:600px){body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:38px 1fr 38px 38px!important;gap:6px}}
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:46px 1fr 46px 46px!important;background:transparent!important}
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-monogram{color:var(--icon-ink)!important}
+body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var(--bg);--sw-card:var(--card);--sw-ink:var(--ink);--sw-muted:var(--mut);--sw-line:var(--line);--sw-icon-ink:var(--icon-ink);--sw-icon-bg:var(--icon-bg);--sw-panel-bg:var(--panel-bg);--sw-action-bg:var(--action-bg)}
+@media(max-width:600px){:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:34px 1fr 34px 34px!important;gap:6px}.sw-sitebar .sw-icon{width:34px!important;height:34px!important}.sw-sitebrand b{font-size:14px!important}}

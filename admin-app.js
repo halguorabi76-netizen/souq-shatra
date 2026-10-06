@@ -199,7 +199,7 @@ function render(){
   document.body.classList.toggle('profile-mode',tab==='profilePage');
   $('.tabs').hidden=tab==='welcome';
   const sellerView=canSell()&&viewMode==='seller';
-  const marketButton=$('.tabs [data-v="myMarket"]');marketButton.innerHTML=`<span class="navicon">${sellerView?'▤':'🛒'}</span>${sellerView?'إعلاناتي':'السلة'}<i id="cc" hidden></i>`;
+  const marketButton=$('.tabs [data-v="myMarket"]');marketButton.innerHTML=`<span class="navicon">${sellerView?'▤':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>' }</span>${sellerView?'إعلاناتي':'السلة'}<i id="cc" hidden></i>`;
   const roleNav=$('.tabs [data-v="chats"]');roleNav.innerHTML=viewMode==='driver'?'<span class="navicon">▣</span>التوصيل':'<span class="navicon">▣</span>الطلبات';
   const badge=$('#cc');badge.textContent=n;badge.hidden=!n;
   document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
