@@ -184,3 +184,12 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 
 /* Settings and order screens have no marketplace search row. */
 :root:not([data-portal]) body:is([data-main-page="settings"],[data-main-page="chats"],[data-main-page="orders"]) .desktop-search-row{display:none!important}
+
+/* Account role choices follow the main site's active color palette. */
+:root:not([data-portal])[data-theme] .account-popover{border-color:var(--line)!important}
+:root:not([data-portal])[data-theme] .account-popover::before{background:var(--card)!important;border-color:var(--line)!important}
+:root:not([data-portal])[data-theme] .account-popover p{color:var(--mut)!important}
+:root:not([data-portal])[data-theme] .account-popover button{background:transparent!important;color:var(--ink)!important}
+:root:not([data-portal])[data-theme] .account-popover button:is(:hover,:focus-visible){background:var(--tile)!important;color:var(--ink)!important}
+:root:not([data-portal])[data-theme] .account-role-icon{background:var(--icon-bg)!important;color:var(--icon-ink)!important;border:1px solid var(--line)}
+:root:not([data-portal])[data-theme] .account-role-icon svg{color:var(--icon-ink)!important;stroke:currentColor!important}
