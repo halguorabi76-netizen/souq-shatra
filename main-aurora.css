@@ -193,3 +193,10 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 :root:not([data-portal])[data-theme] .account-popover button:is(:hover,:focus-visible){background:var(--tile)!important;color:var(--ink)!important}
 :root:not([data-portal])[data-theme] .account-role-icon{background:var(--icon-bg)!important;color:var(--icon-ink)!important;border:1px solid var(--line)}
 :root:not([data-portal])[data-theme] .account-role-icon svg{color:var(--icon-ink)!important;stroke:currentColor!important}
+
+/* Tablet and desktop use the header cart instead of a second navigation entry. */
+@media(min-width:768px){
+ :root:not([data-portal]) body:not(.seller-workspace) .tabs [data-v="myMarket"]{display:none!important}
+ :root:not([data-portal]) .topline .header-cart{display:grid;place-items:center;position:absolute;left:52px;right:auto;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:10px;border-radius:14px;z-index:2}
+ :root:not([data-portal]) .desktop-shortcut[data-v="myMarket"] svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+}
