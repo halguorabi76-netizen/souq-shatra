@@ -206,3 +206,11 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 :root:not([data-portal]) body:not(.seller-workspace) .tabs{grid-template-columns:repeat(6,minmax(0,1fr))}
 @media(max-width:767px){:root:not([data-portal]) body:not(.seller-workspace) .tabs button{font-size:.6875rem;gap:4px;min-height:60px}:root:not([data-portal]) body:not(.seller-workspace) .tabs .navicon{width:30px;height:28px}:root:not([data-portal]) body:not(.seller-workspace) .tabs .navicon svg{width:20px;height:20px}}
 @media(min-width:768px){:root:not([data-portal]) body:not(.seller-workspace) .tabs{grid-template-columns:repeat(5,minmax(0,1fr))}}
+:root:not([data-portal]) .account-popover{width:248px!important;aspect-ratio:1;max-width:calc(100vw - 32px);padding:14px!important;border-radius:14px!important;display:flex;flex-direction:column;justify-content:center;gap:12px}
+:root:not([data-portal]) .account-popover[hidden]{display:none!important}
+:root:not([data-portal]) .account-popover p{text-align:center}
+:root:not([data-portal]) .account-role-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+:root:not([data-portal]) .account-role-grid button{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:10px 3px;font-size:12px;text-align:center;min-height:88px}
+:root:not([data-portal]) .account-profile-link{margin-bottom:8px}
+.professional-contact{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.professional-contact a.buy{display:block;text-align:center;text-decoration:none;padding:14px;border-radius:14px}

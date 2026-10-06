@@ -3,8 +3,8 @@ import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
 import {createSellerWorkspace} from "./seller-workspace.js?v=85";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=96";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=100";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=100";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -73,7 +73,7 @@ async function refreshAdmin(id,nextUser){
   db.from('stores').select('*'),
   db.from('products').select('*').order('created_at',{ascending:false}),
   db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}),
-  db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}),
+  db.rpc('admin_account_profiles'),
   db.from('catalog_categories').select('*').order('position'),
   db.from('product_variants').select('*'),
   db.from('product_stock_movements').select('*').order('created_at',{ascending:false}).limit(200),
@@ -914,7 +914,7 @@ const A={
 const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
 const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('./',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
-const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
+const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice,professional:(role,id)=>{if(profile?.role!=='admin')return;const store=D.m.find(m=>m.owner_id===id);adminDetail={kind:role==='seller'&&store?'seller':role==='driver'&&D.driverProfiles.some(p=>p.user_id===id)?'driver':'customer',id:role==='seller'&&store?store.id:id};adminTab=role==='seller'?'sellers':'drivers';admin();}});
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
 db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
 async function showOrderNotice(id){
@@ -971,5 +971,3 @@ setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
-
-

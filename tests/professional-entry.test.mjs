@@ -1,0 +1,27 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {renderAdminWorkspace} from '../admin-workspace.js';
+const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8');
+const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function extract(s,name){const start=s.indexOf('function '+name+'(');assert.ok(start>=0,name);const end=s.indexOf('\n}',start)+2;return s.slice(start,end);}
+function storage(){const data=new Map();return {getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)};}
+function setup(path){
+ const html=read(path),calls=[],menu={hidden:true,innerHTML:'',querySelector:()=>({focus:()=>calls.push('focus')})},trigger={setAttribute:(k,v)=>calls.push([k,v])};
+ const c={URL,URLSearchParams,console,user:null,profile:null,ownStore:null,driverAccount:null,cur:{p:{id:'product-id'},vid:'variant-id',n:3},tab:'catalog',publicStoreId:'store-id',cat:'ملابس',q:'قميص',filt:{sort:'newest'},pendingPurchase:null,sessionStorage:storage(),location:{origin:'https://example.test',pathname:'/catalog.html',href:'https://example.test/catalog.html'},history:{replaceState(){}},ADMIN_PORTAL:false,db:{preview:false,rpc:(name,args)=>{calls.push([name,args]);return Promise.resolve({});}},reportedProfessionalEntry:'',validPurchaseReturn:v=>v,rememberMode:v=>calls.push(['mode',v]),scrollTo:()=>calls.push('top'),toast:v=>calls.push(['toast',v]),A:{close:()=>calls.push('close')},$:id=>id==='#accountMenu'?menu:trigger,roleIcon:r=>'<svg>'+r+'</svg>',esc:E,sellerRequest:()=>calls.push('sellerRequest'),driverWorkspace:{application:()=>calls.push('driverApplication')},render(){},sheet(){},head:v=>v,canSell:()=>false,PURCHASE_RETURN_KEY:'return',clearPurchaseReturn:()=>{c.pendingPurchase=null},closeAccountMenu:()=>{menu.hidden=true},accountSession:{choose(){}},lsheet:m=>calls.push(['auth',m])};
+ vm.createContext(c);for(const name of ['showAccountMenu','professionalWhatsapp','requirePurchaseLogin','buyerEntry','roleAccess','requestRole','purchaseAuthRedirect','accountAuthRedirect','finishAccountEntry'])vm.runInContext(extract(html,name),c);
+ return {c,calls,menu,html};
+}
+for(const path of ['index.html','catalog.html','preview.html']){
+ test(path+': guest cart opens top-left three-role menu and preserves product/variant/quantity',()=>{const {c,calls,menu}=setup(path);assert.equal(c.requirePurchaseLogin(),true);assert.equal(menu.hidden,false);assert.equal((menu.innerHTML.match(/data-a="enter"/g)||[]).length,3);assert.match(menu.innerHTML,/buyer.*seller.*driver/s);assert.equal(c.pendingPurchase.pid,'product-id');assert.equal(c.pendingPurchase.vid,'variant-id');assert.equal(c.pendingPurchase.n,3);assert.ok(calls.includes('close'));assert.ok(calls.includes('top'));assert.ok(!calls.some(x=>Array.isArray(x)&&x[0]==='auth'));c.buyerEntry();assert.equal(c.pendingPurchase.pid,'product-id');assert.ok(calls.some(x=>x[0]==='auth'&&x[1]==='m'));});
+ test(path+': signed-in buyer does not get a login prompt',()=>{const {c,menu}=setup(path);c.user={id:'buyer'};assert.equal(c.requirePurchaseLogin(),false);assert.equal(menu.hidden,true);});
+ test(path+': professional requests survive email confirmation and notify without approving',async()=>{const {c,calls}=setup(path);c.requestRole('seller');assert.equal(c.sessionStorage.getItem('souq-role-request'),'seller');const url=new URL(c.accountAuthRedirect());assert.equal(url.searchParams.get('roleRequest'),'seller');c.sessionStorage=storage();c.location.href=url.href;c.user={id:'applicant'};c.finishAccountEntry();await Promise.resolve();assert.ok(calls.includes('sellerRequest'));assert.ok(calls.some(x=>x[0]==='record_professional_entry'&&x[1].p_role==='seller'));assert.ok(!calls.some(x=>/approve|activate/.test(x[0]||'')));});
+}
+test('seller WhatsApp contains encoded account and complete application data',()=>{const {c}=setup('index.html');c.user={id:'account',email:'a@example.test'};c.profile={full_name:'اسم & اختبار'};const u=new URL(c.professionalWhatsapp('seller',['المتجر: متجر الاختبار','الهاتف: 07700000000','العنوان: الشطرة']));assert.equal(u.hostname,'wa.me');assert.equal(u.pathname,'/9647837271707');assert.match(u.searchParams.get('text'),/اسم & اختبار/);assert.match(u.searchParams.get('text'),/account/);assert.match(u.searchParams.get('text'),/الشطرة/);});
+test('admin merchant detail displays email, name, phone, address and WhatsApp safely',()=>{
+ const p={id:'owner',full_name:'تاجر <اختبار>',email:'owner@example.test',phone:'07700000000'},m={id:'store',owner_id:'owner',name:'متجر',phone:p.phone,store_kind:'online',pickup_address:'عنوان خاص',description:'نشاط',ok:false};
+ const html=renderAdminWorkspace({data:{people:[p],m:[m],p:[],o:[],drivers:[],driverProfiles:[]},esc:E,fmt:String,when:String,state:{tab:'sellers',detail:{kind:'seller',id:'store'},search:'',filter:'all'},payments:[],settings:{}});
+ assert.match(html,/owner@example.test/);assert.match(html,/تاجر &lt;اختبار&gt;/);assert.match(html,/عنوان خاص/);assert.match(html,/https:\/\/wa.me\/9647700000000/);assert.match(html,/قبل الموافقة/);
+});
+test('admin inbox is enabled only for authorized admin and recognizes professional records',()=>{const s=read('activity-center.js');assert.match(s,/g.adminPortal\?g.profile\?\.role==='admin'/);assert.match(s,/professional_login.*professional_join/);assert.match(s,/ctx.professional\?\./);assert.match(read('admin-app.js'),/db.rpc\('admin_account_profiles'\)/);});
