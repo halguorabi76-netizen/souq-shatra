@@ -388,10 +388,23 @@ body.starting{background:#000!important}
 .auth-sheet .auth-providers{margin:0 0 20px}.auth-provider.google{height:54px;border-radius:14px}.auth-divider{margin:16px 0 0}.auth-phone-link{display:block;width:100%;margin:14px 0 8px;padding:10px;color:var(--navy);text-align:center;border:1px solid var(--line);border-radius:13px}.auth-channels button:not(:disabled){color:var(--ink);cursor:pointer;background:var(--tile)}.auth-channels button:disabled{cursor:wait}.auth-otp-note{color:var(--mut);font-size:14px}.auth-otp-input{letter-spacing:8px;text-align:center;font-size:24px!important}.auth-resend{display:block;padding:12px;color:var(--navy);margin:auto}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
-<link rel="stylesheet" href="seller-workspace.css?v=57">
+<link rel="stylesheet" href="seller-workspace.css?v=80">
 <link rel="stylesheet" href="marketplace.css?v=57">
 <link rel="stylesheet" href="operations.css?v=58"><link rel="stylesheet" href="preview-lab.css?v=63">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=62"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=68"><link rel="stylesheet" href="aurora-theme.css?v=72">
+<style>
+.seller-preflight{display:none}
+:root[data-seller-resume] .seller-preflight{display:block}
+:root[data-seller-resume] .app>.top,:root[data-seller-resume] .app>.tabs{display:none!important}
+:root[data-seller-resume] .app{max-width:1200px}
+</style>
+<script>
+(()=>{try{
+ if(document.documentElement.dataset.portal||new URLSearchParams(location.search).has('store'))return;
+ const session=JSON.parse(localStorage.getItem('sb-nbktyynshqldyerqtjrd-auth-token')||'null'),id=session?.user?.id;
+ if(/^[0-9a-f-]{36}$/i.test(id||'')&&localStorage.getItem('souq-preview-mode-'+id)==='seller')document.documentElement.dataset.sellerResume='true';
+}catch{}})();
+</script>
 </head>
 <body class="starting">
 <div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
@@ -406,7 +419,7 @@ body.starting{background:#000!important}
 </script>
 <div class="app">
   <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-icon" data-a="searchfocus" aria-label="البحث">⌕</button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-aurora-v69.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off"><button type="submit" aria-label="بحث">⌕</button></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button><button class="desktop-shortcut" data-a="tab" data-v="myMarket">السلة</button></div></header>
-  <main id="view"></main>
+  <main id="view"><div class="seller-preflight sw-shell"><div class="sw-sitebar"><span></span><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span></div><div class="sw-header"><h1>متجري</h1></div><div class="sw-home"><section class="sw-card"><h2>المبيعات</h2></section><section class="sw-card"><h2>طلبات الأسبوع</h2></section><section class="sw-card"><h2>المخزون</h2></section><section class="sw-card"><h2>آخر الطلبات</h2></section></div></div></main>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
     <button data-a="marketSection" data-v="stores"><span class="navicon">▤</span>المتاجر</button>
@@ -416,7 +429,7 @@ body.starting{background:#000!important}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="app-loading.js?v=72"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="app-loading.js?v=72"></script><script src="page-navigation.js?v=79"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
@@ -426,9 +439,9 @@ body.starting{background:#000!important}
 <script type="module">
 import {createPreviewClient} from "./preview-lab.js?v=65";
 
-import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=62';
-import {createSellerWorkspace} from "./seller-workspace.js?v=70";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=58";
+import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=80';
+import {createSellerWorkspace} from "./seller-workspace.js?v=80";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
@@ -437,7 +450,8 @@ async function apiFetch(resource,init={}){
   if(source?.aborted)abort();else source?.addEventListener('abort',abort,{once:true});
   const token=window.SouqLoading?.begin();
   const timer=setTimeout(abort,20000);
-  try{return await fetch(resource,{...init,signal:controller.signal})}
+  try{const response=await fetch(resource,{...init,signal:controller.signal});window.SouqLoading?.recovered?.();return response}
+  catch(e){if(e?.name==='TypeError'||(e?.name==='AbortError'&&!source?.aborted))window.SouqLoading?.failed?.();throw e}
   finally{clearTimeout(timer);source?.removeEventListener('abort',abort);window.SouqLoading?.end(token)}
 }
 const db=createPreviewClient();
@@ -449,7 +463,13 @@ let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
-let viewMode='guest',geoPoint=null;
+function savedSellerView(storage,sessionKey){
+ try{const session=JSON.parse(storage.getItem(sessionKey)||'null'),id=session?.user?.id;if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;return storage.getItem('souq-preview-mode-'+id)==='seller';}catch{return false;}
+}
+// Saved mode chooses only the initial layout; it grants no permissions.
+const sellerResumeHint=false;
+
+let viewMode=sellerResumeHint?'seller':'guest',geoPoint=null;
 const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-preview-mode-'+user.id,mode);else if(!user&&mode!=='guest')sessionStorage.setItem('souq-preview-pending-role',mode)}catch{}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
 const check=r=>{if(r.error)throw r.error;return r.data};
@@ -457,7 +477,7 @@ function withTimeout(promise,ms=12000){
   let timer;
   return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.'),{name:'TimeoutError'})),ms)})]).finally(()=>clearTimeout(timer));
 }
-function error(e){if(e?.message?.includes('inventory changed')){toast('تغيّر مخزون هذا المنتج أثناء التعديل. أعد فتح المنتج لتحميل الكميات الجديدة ثم احفظ.');return;}if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
+function error(e){if(e?.name==='TimeoutError'||e?.name==='TypeError')window.SouqLoading?.failed?.();if(e?.message?.includes('inventory changed')){toast('تغيّر مخزون هذا المنتج أثناء التعديل. أعد فتح المنتج لتحميل الكميات الجديدة ثم احفظ.');return;}if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 async function refresh(){
@@ -576,10 +596,39 @@ if(catalogEntry){for(const k of ['min','max']){const v=catalogParams.get(k);if(v
 function openCatalog(){const url=new URL('catalog.html',location.href);if(cat!=='all')url.searchParams.set('category',cat);if(q)url.searchParams.set('q',q);for(const k of ['min','max'])if(filt[k]!=='')url.searchParams.set(k,filt[k]);url.searchParams.set('sort',filt.sort);db.preview.navigate(url)}
 
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
-function sheet(h){$('#shade').classList.remove('auth-open');$('#sheet').classList.remove('auth-sheet');$('#sheet').innerHTML=h;$('#shade').hidden=false;const c=$('#sheet [data-a="close"]');c&&c.focus()}
-const head=t=>`<div class="sh"><h2>${t}</h2><button class="x" data-a="close" aria-label="إغلاق">✕</button></div>`;
+const pageNav=window.SouqPageNavigation?.create()||null;
+const backIcon='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7M16 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function trackPage(){if(!ADMIN_PORTAL&&!db.preview)pageNav?.track({tab,dt,publicStoreId,cat,q,filt:{...filt},url:location.href,scroll:window.scrollY||0},(user?.id||'guest')+':'+viewMode);}
+function pageBackbar(){
+ if(ADMIN_PORTAL||db.preview||!pageNav)return;
+ const root=viewMode==='seller'?'account':'market',view=$('#view');
+ if(!(pageNav.canBack()||tab!==root||publicStoreId)||view.querySelector('[data-a="back"],[data-s="recordsBack"]'))return;
+ view.insertAdjacentHTML('afterbegin','<div class="page-backbar"><button type="button" data-a="back" aria-label="الرجوع إلى الواجهة السابقة">'+backIcon+'<span>رجوع</span></button></div>');
+}
+function closePage(){
+ $('#shade').hidden=true;pageNav?.closeSheets();$('.app').inert=false;
+}
+function goBack(){
+ if(!$('#shade').hidden){
+  const previous=pageNav?.backSheet();
+  if(previous){$('#sheet').replaceChildren(...previous.nodes);$('#sheet').className=previous.className;$('#shade').className=previous.shadeClass;cur=previous.cur;infoRole=previous.infoRole;$('#sheet').scrollTop=previous.scroll;$('#sheet [data-a="back"],#sheet [data-a="close"]')?.focus();return;}
+  closePage();return;
+ }
+ captureCheckout();
+ const previous=pageNav?.backRoute();
+ if(previous){({tab,dt,publicStoreId,cat,q}=previous);Object.assign(filt,previous.filt);history.replaceState(null,'',previous.url);render();scrollTo(0,previous.scroll||0);return;}
+ publicStoreId=null;tab=viewMode==='seller'?'account':'market';render();scrollTo(0,0);
+}
+
+function sheet(h){
+ const el=$('#sheet'),shade=$('#shade');
+ if(!ADMIN_PORTAL&&!db.preview){const key=(h.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/)?.[1]||h.slice(0,80))+'|'+(cur?.p?.id||cur?.id||'');pageNav?.openSheet(key,shade.hidden?null:{nodes:Array.from(el.childNodes),className:el.className,shadeClass:shade.className,scroll:el.scrollTop,cur:cur?{...cur}:null,infoRole},{cur:cur?{...cur}:null,infoRole});$('.app').inert=true;}
+ shade.classList.remove('auth-open');el.classList.remove('auth-sheet');el.innerHTML=h;shade.hidden=false;el.scrollTop=0;
+ const c=$('#sheet [data-a="back"],#sheet [data-a="close"]');c&&c.focus();
+}
+const head=t=>`<div class="sh"><h2>${t}</h2><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="${ADMIN_PORTAL?'إغلاق':'الرجوع إلى الواجهة السابقة'}">${ADMIN_PORTAL?'✕':backIcon}</button></div>`;
 const val=id=>($('#'+id)||{}).value?.trim()||'';
-const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy" data-a="${act}" data-v="${v}">نعم</button><button class="alt" data-a="close">تراجع</button>`);
+const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy" data-a="${act}" data-v="${v}">نعم</button><button class="alt" data-a="${ADMIN_PORTAL?'close':'back'}">تراجع</button>`);
 
 const sellerAccount=()=>!!user&&profile?.role!=='admin'&&!profile?.disabled&&!!(ownStore?.ok&&!ownStore?.removed);
 function buyerAccountLogin(){if(db.preview){db.preview.selectRole('buyer');return}sheet(head('الدخول بحساب زبون')+'<p>هذا حساب متجرك. لتصفح السوق والشراء، سجّل الخروج وادخل بحساب زبون آخر.</p><button class="buy" data-a="loginBuyerAccount">تسجيل الخروج والدخول كزبون</button><button class="alt" data-a="close">البقاء في متجري</button>')}
@@ -602,14 +651,26 @@ function sellerJoinPage(){
  $('#sellerJoinForm').addEventListener('submit',e=>{e.preventDefault();A.submitSellerJoin()});
 }
 /* ===== الواجهات ===== */
+function sellerResume(){
+ document.body.classList.add('seller-workspace');
+ document.body.classList.remove('welcome-mode','profile-mode','buyer-cart-mode');
+ $('.tabs').hidden=true;
+ $('#view').innerHTML='<div class="sw-shell">'+workspace.chrome()+'<div class="sw-header"><h1>متجري</h1></div><div class="sw-home"><section class="sw-card"><h2>المبيعات</h2></section><section class="sw-card"><h2>طلبات الأسبوع</h2></section><section class="sw-card"><h2>المخزون</h2></section><section class="sw-card"><h2>آخر الطلبات</h2></section></div><nav class="sw-nav" aria-label="لوحة البائع"><button disabled aria-current="page">الرئيسية</button><button disabled>الطلبات</button><button disabled>المنتجات</button><button disabled>المزيد</button></nav></div>';
+ $('#view').querySelectorAll('button').forEach(button=>button.disabled=true);
+}
+
 function render(){
+  trackPage();
+  if(document.documentElement)delete document.documentElement.dataset.sellerResume;
   activity.sync();
   if(db.preview?.isHome()){db.preview.home();return;}
   if(ADMIN_PORTAL){renderAdminPortal();return}
   try{if(user&&sessionStorage.getItem('souq-admin-return')==='1'){sessionStorage.removeItem('souq-admin-return');location.replace('admin.html');return}}catch{}
-  if(!dataReady){$('#view').innerHTML='<div class="empty"><h2>جارٍ فتح حسابك…</h2></div>';return}
+  // Public browsing must not wait for account, delivery or workspace requests.
+  // Private actions still use the existing account checks and database policies.
+  if(!dataReady&&viewMode==='seller'&&!db.preview&&!publicStoreId){sellerResume();return}
   if(sellerAccount())viewMode='seller';
-  if(viewMode==='seller'&&!canSell())viewMode='buyer';
+  if(dataReady&&viewMode==='seller'&&!canSell())viewMode='buyer';
   if(canSell()&&viewMode==='seller'&&ownStore){if(publicStoreId&&publicStoreId!==ownStore.id)publicStoreId=null;if(!['account','market','listings','myMarket','chats','settings','profilePage','postPage','orders'].includes(tab))tab='account';}
   window.SouqTheme.set(window.SouqTheme.get(),false);
   document.body.classList.toggle('demo-mode',!!window.SouqDemo?.isActive());
@@ -617,8 +678,8 @@ function render(){
   if(window.SouqDemo?.isActive()){window.SouqDemo.render();return}
   closeAccountMenu();
   document.body.classList.remove('welcome-mode','profile-mode');document.body.classList.toggle('buyer-cart-mode',tab==='cartPage');const searchInput=$('#q');if(searchInput&&searchInput.value!==q)searchInput.value=q;
-  if(publicStoreId&&tab==='market'){workspace.storefront(publicStoreId);return;}
-  if(workspace.render(tab)){activity.sync();return;}
+  if(publicStoreId&&tab==='market'){workspace.storefront(publicStoreId);pageBackbar();return;}
+  if(workspace.render(tab)){activity.sync();pageBackbar();return;}
   const n=D.cart.reduce((s,c)=>s+c.q,0);
   document.body.classList.toggle('welcome-mode',tab==='welcome');
   document.body.classList.toggle('profile-mode',tab==='profilePage');
@@ -630,7 +691,7 @@ function render(){
   document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
-  activity.sync();
+  activity.sync();pageBackbar();
 }
 function welcome(){
   $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p>${bannerHtml()}<div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#443a31"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#b49f8e"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#b69070"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#48392d"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="طلب الانضمام كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#8e7057"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#e5d5c7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#e5d5c7"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>طلب الانضمام كبائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#efeae5"/><circle cx="49" cy="49" r="8" fill="#efeae5"/><circle cx="17" cy="49" r="3" fill="#866c56"/><circle cx="49" cy="49" r="3" fill="#866c56"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#c8b2a0"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#453b33"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#ae9580"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
@@ -660,8 +721,33 @@ function myMarket(){
 function postPage(){
   if(!canSell()){sellerRequest();tab='settings';settings();return}
   const p=cur?.id?prod(cur.id):null;
-  const sellerCategories=[...new Set([...CATS,...workspace.categoryNames(),...D.p.filter(x=>x.mid===ownStore?.id).map(x=>x.cat)])];
-  $('#view').innerHTML=`<div class="sw-shell"><div class="section-title"><h2>${p?'تعديل الإعلان':'نشر إعلان'}</h2><button data-a="tab" data-v="account">رجوع ‹</button></div><div class="post-intro"><b>المعلومات الأساسية لإعلانك</b><p>أدخل البيانات المطلوبة ليظهر المنتج بوضوح للمشترين</p><div class="progress"><i id="post-progress"></i></div></div><div class="post-card" id="variantEditor"></div><div class="post-card"><label for="fcCustom">تصنيف داخل متجرك (اختياري)</label><input id="fcCustom" maxlength="80" list="sellerGroupNames" value="${esc(p?.store_category||'')}" placeholder="مثل: عروض الصيف أو وصل حديثًا"><datalist id="sellerGroupNames">${workspace.categoryNames().map(c=>`<option value="${esc(c)}">`).join('')}</datalist><p class="note">ينظم منتجات متجرك؛ تبقى خصائص المنتج مرتبطة بالقسم والفئة أعلاه.</p></div><div class="post-card"><h2>صورة الإعلان</h2><label for="pimg">أضف صورة واضحة للمنتج</label><input id="pimg" type="file" accept="image/*"><div class="tile" id="pv">${p?thumb(p):'📷'}</div><p class="note">صورة رئيسية للمنتج، ويمكن تخصيص صورة لكل نسخة أدناه.</p></div><div class="post-card"><h2>تفاصيل المنتج</h2><label for="fn">اسم المنتج</label><input id="fn" value="${esc(p?.name||'')}"><label for="fpr">سعر البيع (د.ع)</label><input id="fpr" type="number" inputmode="numeric" min="1" value="${p?.price||''}"><label for="fcompare">السعر قبل التخفيض (اختياري)</label><input id="fcompare" type="number" inputmode="numeric" min="1" value="${p?.compare_at_price??''}"><p class="mp-deal-note">لعرض تخفيض، أدخل السعر القديم هنا وسعر البيع الحالي أعلاه. اتركه فارغًا إذا لا يوجد تخفيض.</p><label for="fs">الكمية المتوفرة — تظهر لك فقط</label><input id="fs" type="number" inputmode="numeric" min="0" value="${p?.stock??''}"><label for="fsku">رمز المنتج أو الباركود (اختياري)</label><input id="fsku" maxlength="80" value="${esc(p?.sku||'')}">${p?.variant?`<label for="fvariant">وصف الخيار القديم (محفوظ)</label><input id="fvariant" maxlength="120" value="${esc(p.variant)}">`:''}<label for="fthreshold">تنبيه المخزون عند الكمية</label><input id="fthreshold" type="number" min="0" step="1" value="${p?.threshold??5}"><label for="factive">حالة النشر</label><select id="factive"><option value="true" ${p?.active!==false?'selected':''}>منشور</option><option value="false" ${p?.active===false?'selected':''}>مسودة غير منشورة</option></select><label for="fd">الوصف</label><textarea id="fd" rows="5" placeholder="اكتب التفاصيل التي يحتاج المشتري إلى معرفتها">${esc(p?.desc||'')}</textarea></div><div class="post-actions"><button class="buy" data-a="psave">حفظ الإعلان</button><button class="alt" data-a="tab" data-v="account">رجوع</button></div></div>`;
+  const field=(id,label,value,type='text',extra='')=>`<div class="pe-field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value??'')}" ${extra}></div>`;
+  $('#view').innerHTML=`<div class="sw-shell pe-shell"><header class="pe-header"><button type="button" data-a="tab" data-v="listings" aria-label="العودة إلى المنتجات">${authIcon('back')}</button><h1>${p?'تعديل المنتج':'إضافة منتج'}</h1><span></span></header><form id="productCreateForm" class="pe-form">
+  <section class="post-card pe-basic">
+  ${field('fn','اسم المنتج <span class="pe-required">*</span>',p?.name,'text','required minlength="2" maxlength="200" autocomplete="off"')}
+  ${field('fsku','رمز المنتج / الباركود',p?.sku,'text','maxlength="80"')}
+  <div class="pe-field"><label for="fd">الوصف</label><textarea id="fd" rows="4" maxlength="5000">${esc(p?.desc||'')}</textarea></div>
+  ${field('fpr','سعر البيع (د.ع) <span class="pe-required">*</span>',p?.price,'number','required min="1" max="2147483647" step="1" inputmode="numeric"')}
+  ${field('fcost','سعر التكلفة (د.ع)',workspace.productCost(p?.id),'number','min="0" max="2147483647" step="1" inputmode="numeric"')}
+  <p class="pe-note">سعر التكلفة خاص بك ولا يظهر للزبون.</p>
+  </section>
+  <section class="post-card" id="variantEditor"></section>
+  <section class="post-card">
+  ${field('fcCustom','المجموعة داخل متجرك',p?.store_category,'text','maxlength="80" list="sellerGroupNames" placeholder="اختر أو اكتب مجموعة"')}
+  <datalist id="sellerGroupNames">${workspace.categoryNames().map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+  ${field('fs','الكمية <span class="pe-required">*</span>',p?.stock??0,'number','required min="0" max="2147483647" step="1" inputmode="numeric"')}
+  <p class="pe-note">المخزون يظهر لك فقط. لكل نسخة كمية مستقلة عند تفعيل الفاريانت.</p>
+  <label for="factive">متاح في السوق</label><select id="factive"><option value="true" ${p?.active!==false?'selected':''}>متاح — منشور</option><option value="false" ${p?.active===false?'selected':''}>غير متاح — مسودة</option></select>
+  <details class="pe-discount" ${p?.compare_at_price?'open':''}><summary>تخفيض على المنتج</summary>
+  ${field('fcompare','السعر قبل التخفيض (د.ع)',p?.compare_at_price,'number','min="1" max="2147483647" step="1" inputmode="numeric"')}
+  <p class="pe-note">أدخل السعر القديم وسعر البيع الحالي لعرض التخفيض. اترك السعر القديم فارغًا لإلغائه.</p></details>
+  <details class="pe-advanced"><summary>إعدادات المخزون</summary>
+  ${field('fthreshold','تنبيه المخزون عند الكمية',p?.threshold??5,'number','min="0" max="2147483647" step="1"')}
+  ${p?.variant?field('fvariant','وصف الخيار القديم',p.variant,'text','maxlength="120"'):''}</details>
+  </section>
+  <section class="post-card pe-images"><h2>الصور</h2><label class="pe-upload" for="pimg">${authIcon('image')}<span>إضافة صورة</span></label><input id="pimg" class="pe-file" type="file" accept="image/*"><div class="tile" id="pv">${p?thumb(p):'📷'}</div><p class="pe-note">صورة رئيسية للمنتج، ويمكن إضافة صورة لكل نسخة.</p></section>
+  <footer class="post-actions pe-actions"><button class="buy" type="submit" data-a="psave">${p?'حفظ التعديلات':'إنشاء'}</button><button class="alt" type="button" data-a="tab" data-v="listings">إلغاء</button></footer></form></div>`;
+  $('#productCreateForm').addEventListener('submit',e=>{e.preventDefault();A.psave()});
   productEditor.mount($('#variantEditor'),p);
   updatePostProgress();
 }
@@ -702,10 +788,10 @@ function market(){
   const productCards=l.length?window.SouqMarketplace.productCards(l,{esc,fmt,thumb,mname}):'';
   const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'جميع المنتجات';
   if(results){
-    $('#view').innerHTML=window.SouqMarketplace.switcher('market')+`<div class="section-title"><h2>${esc(title)}</h2><button data-a="tab" data-v="categories">الأقسام</button></div><div class="box"><p>${l.length} إعلان${cat!=='all'?' · القسم: '+esc(cat):''}</p><button class="alt" data-a="filters">تصفية النتائج</button><button class="alt" data-a="tab" data-v="market">العودة للرئيسية</button></div>`+(stores.length?`<div class="section-title"><h2>متاجر مطابقة</h2></div>`+stores.map(m=>`<div class="box"><b>${esc(m.name)}</b><p>${esc(m.address||'')}</p><a class="buy" href="?store=${encodeURIComponent(m.id)}">زيارة المتجر</a></div>`).join(''):'')+productCards+(!l.length&&!stores.length?`<div class="empty">${!dataReady?'جارٍ تحميل المنتجات…':'لا توجد نتائج مطابقة. جرّب اسمًا آخر أو عدّل الفلاتر.'}</div>`:'');
+    $('#view').innerHTML=window.SouqMarketplace.switcher('market')+`<div class="section-title"><h2>${esc(title)}</h2><button data-a="tab" data-v="categories">الأقسام</button></div><div class="box"><p>${l.length} إعلان${cat!=='all'?' · القسم: '+esc(cat):''}</p><button class="alt" data-a="filters">تصفية النتائج</button><button class="alt" data-a="tab" data-v="market">العودة للرئيسية</button></div>`+(stores.length?`<div class="section-title"><h2>متاجر مطابقة</h2></div>`+stores.map(m=>`<div class="box"><b>${esc(m.name)}</b><p>${esc(m.address||'')}</p><a class="buy" href="?store=${encodeURIComponent(m.id)}">زيارة المتجر</a></div>`).join(''):'')+productCards+(!l.length&&!stores.length?`<div class="empty">${!dataReady?'':'لا توجد نتائج مطابقة. جرّب اسمًا آخر أو عدّل الفلاتر.'}</div>`:'');
     return;
   }
-  $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('market')+`<div class="desktop-market-intro"><div><h1>اكتشف سوق الشطرة من مكانك</h1><p>من الشطرة… لأهل الشطرة</p></div><button data-a="tab" data-v="categories">تصفح الأقسام</button></div>`+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${esc(c)}"><span aria-hidden="true">${catIcon(i)}</span>${esc(c)}</button>`).join('')}</div><div class="section-title"><h2>المواد المعروضة</h2><span class="note">${l.length} منتج</span></div>`+productCards+(!l.length?`<div class="empty">${!dataReady?'جارٍ تحميل المنتجات…':'تظهر هنا منتجات التجار المعتمدين.'}</div>`:'');
+  $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('market')+`<div class="desktop-market-intro"><div><h1>اكتشف سوق الشطرة من مكانك</h1><p>من الشطرة… لأهل الشطرة</p></div><button data-a="tab" data-v="categories">تصفح الأقسام</button></div>`+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${esc(c)}"><span aria-hidden="true">${catIcon(i)}</span>${esc(c)}</button>`).join('')}</div><div class="section-title"><h2>المواد المعروضة</h2><span class="note">${l.length} منتج</span></div>`+productCards+(!l.length?`<div class="empty">${!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.'}</div>`:'');
 }
 function storesPage(){
  storeQuery=q;const stores=D.m.filter(m=>m.ok&&!m.removed&&window.SouqCatalog.matches([m.name,m.description,m.address].join(' '),storeQuery));
@@ -780,6 +866,8 @@ async function saveProduct(){
     const bundle=await productEditor.collect();
     const name=val('fn'),price=+val('fpr'),stock=productEditor.hasVariants()?bundle.variants.filter(v=>!v.archived&&v.available).reduce((n,v)=>n+v.stock,0):+val('fs');
     if(name.length<2||!Number.isSafeInteger(price)||price<1||price>2147483647||!Number.isSafeInteger(stock)||stock<0||stock>2147483647||(!productEditor.hasVariants()&&val('fs')==='')||val('fthreshold')===''||!Number.isSafeInteger(+val('fthreshold'))||+val('fthreshold')<0||+val('fthreshold')>2147483647){toast('اكتب الاسم والسعر والكمية');return}
+    const costText=val('fcost'),cost=costText===''?null:Number(costText);
+    if(cost!==null&&(!Number.isSafeInteger(cost)||cost<0||cost>2147483647)){toast('اكتب سعر تكلفة صحيحًا');return}
     const compare=productEditor.hasVariants()?'':val('fcompare'),compare_at_price=compare?+compare:null;
     if(compare&&(!Number.isSafeInteger(compare_at_price)||compare_at_price<=price||compare_at_price>2147483647)){toast('السعر قبل التخفيض يجب أن يكون أكبر من سعر البيع');return}
     const draft=cur,storeId=ownStore.id,image=draft.img;
@@ -792,8 +880,9 @@ async function saveProduct(){
     }
     f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;f.expected_stock=bundle.expected_stock;
     draft.id=check(await db.rpc('save_product_bundle',{p_id:draft.id||null,p_store:storeId,p_product:f,p_variants:bundle.variants}));
-    tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
-    }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent='حفظ الإعلان'}}
+    let costSaved=true;try{await workspace.saveProductCost(draft.id,cost)}catch{costSaved=false}
+    tab='listings';await refresh();A.close();render();toast(costSaved?'تم حفظ المنتج':'حُفظ المنتج، لكن تعذّر حفظ سعر التكلفة. أعد فتح تعديله للمحاولة مجددًا.');
+    }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent=cur?.id?'حفظ التعديلات':'إنشاء'}}
 }
 
 function psheet(){
@@ -801,7 +890,7 @@ function psheet(){
   sheet(head(esc(p.name))+`<div class="tile big">${thumb(display)}</div>${window.SouqMarketplace.price(display,fmt)}<p class="note">البائع: <a class="mp-product-store" href="./?store=${encodeURIComponent(p.mid)}">${esc(mname(p.mid))} ← زيارة المتجر</a></p>${p.desc?`<p>${esc(p.desc)}</p>`:''}${specifications(p,D.catalog||[])}${p.has_variants?`<div class="va-choice"><label for="buyerVariant">اختر النسخة المطلوبة</label><select id="buyerVariant"><option value="">اختر اللون / المقاس / الخيارات</option>${vs.map(v=>`<option value="${v.id}" ${cur.vid===v.id?'selected':''}>${esc(v.label)} — ${fmt(variantPrice(v))}${!v.available||v.stock<1?' — غير متاحة':''}</option>`).join('')}</select></div>`:p.variant?`<p>${esc(p.variant)}</p>`:''}${activity.controls(p.id)}
   <div class="row"><span>الكمية المطلوبة</span><div class="qty"><button data-a="pq" data-v="-1" aria-label="أقل">−</button><b>${n}</b><button data-a="pq" data-v="1" aria-label="أكثر">+</button></div></div>
   <button class="buy" data-a="add" ${!chosen||chosen.stock<1?'disabled':''}>${!chosen?'اختر النسخة أولًا':chosen.stock<1?'غير متوفرة حاليًا':'أضف للسلة · '+fmt(chosen.price*n)}</button>`);
-  $('#buyerVariant')?.addEventListener('change',e=>{cur.vid=e.target.value||null;cur.n=1;psheet()});
+
 }
 function cartRows(){return D.cart.map(c=>({c,p:selectedProduct(prod(c.pid),c.vid)}));}
 function captureCheckout(){if(tab!=='cartPage'||!$('#cn'))return;D.cust={name:val('cn'),phone:val('cp'),addr:val('ca')};checkoutNote=val('cno');save()}
@@ -820,7 +909,7 @@ function csheet(){
   <button class="buy" data-a="order">إرسال الطلب · الدفع عند الاستلام</button></section></div>`;
 }
 function authIcon(name){
- const paths={person:'<circle cx="12" cy="7" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',phone:'<rect x="7" y="2" width="10" height="20" rx="3"/><path d="M10 18h4"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 7 9 7 9-7"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',eyeOff:'<path d="m3 3 18 18M9 5.5A11 11 0 0 1 12 5c6 0 10 7 10 7a18 18 0 0 1-3 3.5M6 6.5A20 20 0 0 0 2 12s4 7 10 7a12 12 0 0 0 5-1M10 10a3 3 0 0 0 4 4"/>',sms:'<path d="M5 3h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-9l-6 4v-4H3V5a2 2 0 0 1 2-2Z"/><path d="M7 8h10M7 12h6"/>',whatsapp:'<path d="M20 12a8 8 0 0 1-12 7l-5 2 1.5-5A8 8 0 1 1 20 12Z"/><path d="M8 7c-2 4 3 9 7 8l1-2-3-1-1 1-2-2 1-1-1-3Z"/>',support:'<path d="M4 14v-3a8 8 0 0 1 16 0v3M20 18c0 3-4 3-7 3"/><rect x="2" y="11" width="4" height="8" rx="2"/><rect x="18" y="11" width="4" height="8" rx="2"/>'};
+ const paths={back:'<path d="m10 6 6 6-6 6M16 12H4"/>',image:'<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1"/><path d="m3 17 5-5 4 4 3-3 6 6"/>',person:'<circle cx="12" cy="7" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',phone:'<rect x="7" y="2" width="10" height="20" rx="3"/><path d="M10 18h4"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 7 9 7 9-7"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',eyeOff:'<path d="m3 3 18 18M9 5.5A11 11 0 0 1 12 5c6 0 10 7 10 7a18 18 0 0 1-3 3.5M6 6.5A20 20 0 0 0 2 12s4 7 10 7a12 12 0 0 0 5-1M10 10a3 3 0 0 0 4 4"/>',sms:'<path d="M5 3h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-9l-6 4v-4H3V5a2 2 0 0 1 2-2Z"/><path d="M7 8h10M7 12h6"/>',whatsapp:'<path d="M20 12a8 8 0 0 1-12 7l-5 2 1.5-5A8 8 0 1 1 20 12Z"/><path d="M8 7c-2 4 3 9 7 8l1-2-3-1-1 1-2-2 1-1-1-3Z"/>',support:'<path d="M4 14v-3a8 8 0 0 1 16 0v3M20 18c0 3-4 3-7 3"/><rect x="2" y="11" width="4" height="8" rx="2"/><rect x="18" y="11" width="4" height="8" rx="2"/>'};
  return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.person}</svg>`;
 }
 function authField(id,label,type,icon,attrs=''){
@@ -830,7 +919,7 @@ function lsheet(m){
  if(m==='store'){sellerRequest();return}
  const signup=m==='r',role=viewMode==='seller'?'بائع':viewMode==='driver'?'عامل توصيل':'زبون';
  const phone=signup?authField('lphone','رقم هاتفك <small>(اختياري للتواصل)</small>','tel','phone','dir="ltr" inputmode="tel" autocomplete="tel" placeholder="07xxxxxxxxx"'):'';
- sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="close" aria-label="إغلاق">✕</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب جديد':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="login" data-v="${signup?'m':'r'}">${signup?'تسجيل الدخول':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
+ sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب جديد':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="login" data-v="${signup?'m':'r'}">${signup?'تسجيل الدخول':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
  $('#shade').classList.add('auth-open');$('#sheet').classList.add('auth-sheet');
  loadAuthProviders();
 }
@@ -994,7 +1083,8 @@ const A={
   react:v=>act(async()=>{const [id,kind]=v.split('|');if(await activity.react(id,kind))psheet()}),
   favorites:()=>act(async()=>{if(!user){A.enter('buyer');return}await activity.poll();const list=D.p.filter(p=>activity.favorites().includes(p.id)&&p.active&&!p.blocked);sheet(head('المفضلة')+(list.length?window.SouqMarketplace.productCards(list,{esc,fmt,thumb,mname}):'<div class="empty">لم تضف مواد إلى المفضلة بعد.</div>'))}),
   addentry:()=>{if(!canSell()){sellerRequest();return}if(!user){A.enter('seller');return}if(profile?.disabled){toast('هذا الحساب معطّل');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}if(ownStore.removed){toast('أزالت الإدارة هذا البائع من السوق');return}fsheet('')},
-  close:()=>{$('#shade').hidden=true},
+  close:closePage,
+  back:goBack,
   prod:v=>{if(sellerAccount()||(viewMode==='seller'&&ownStore)){if(prod(v)?.mid===ownStore.id)fsheet(v);return}cur={p:prod(v),n:1};psheet()},
   pq:v=>{const n=Math.max(1,cur.n+ +v);if(n>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(n>(selectedProduct(cur.p,cur.vid)?.stock||0)){toast('الكمية المطلوبة غير متوفرة حاليًا');return}cur.n=n;psheet()},
   add:()=>{if(sellerAccount()){buyerAccountLogin();return}const {p,n}=cur,chosen=selectedProduct(p,cur.vid);if(!chosen){toast('اختر النسخة المطلوبة');return}const key=cartKey({pid:p.id,vid:cur.vid}),c=D.cart.find(x=>cartKey(x)===key),quantity=(c?.q||0)+n;if(quantity>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(!p.active||p.blocked||quantity>chosen.stock){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا');return}if(c)c.q=quantity;else D.cart.push({pid:p.id,vid:cur.vid||null,q:n});save();A.close();render();toast('أُضيف للسلة')},
@@ -1077,11 +1167,11 @@ async function showOrderNotice(id){
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
 }
-document.addEventListener('change',e=>{const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
+document.addEventListener('change',e=>{if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;psheet();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
-  const t=e.target.closest('[data-a]');if(t?.matches('#authForm [type="submit"],#sellerJoinForm [type="submit"]'))return;if(t&&A[t.dataset.a])A[t.dataset.a](t.dataset.v);
+  const t=e.target.closest('[data-a]');if(t?.matches('#authForm [type="submit"],#sellerJoinForm [type="submit"],#productCreateForm [type="submit"]'))return;if(t&&A[t.dataset.a])A[t.dataset.a](t.dataset.v);
 });
 document.addEventListener('change',async e=>{
   if(e.target.id==='avatarInput'&&e.target.files[0]){
@@ -1093,7 +1183,7 @@ document.addEventListener('change',async e=>{
   im.src=URL.createObjectURL(e.target.files[0]);
 });
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){closeAccountMenu();A.close()}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
 let bannerTouch=null,lastBannerInteraction=0;
@@ -1116,7 +1206,7 @@ window.addEventListener('popstate',()=>{const params=new URLSearchParams(locatio
 render();
 refresh().catch(e=>{
   if(!dataReady&&!window.SouqDemo?.isActive()){
-    $('#view').innerHTML='<div class="empty"><h2>تعذّر التحقق من جلسة الدخول</h2><p>تحقق من الاتصال ثم حاول مجددًا.</p><button class="buy" data-a="retry">إعادة المحاولة</button></div>';
+    render();
   }
   error(e);
 });

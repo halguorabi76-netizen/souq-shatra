@@ -48,6 +48,20 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  vm.runInContext("A.editCustomerPhone()",context);assert.match(nodes.get('#sheet').innerHTML,/customerPhoneForm/);assert.doesNotMatch(nodes.get('#sheet').innerHTML,/pfname/);
  vm.runInContext("A.close()",context);
  vm.runInContext("db.preview.selectRole('seller')",context);await settle();assert.match(nodes.get('#view').innerHTML,/لوحة متجرك|متجر المعاينة/);assert.match(nodes.get('#view').innerHTML,/مبيعات اليوم المكتملة/);
+ vm.runInContext("A.pform(D.p[0].id)",context);
+ assert.match(nodes.get('#view').innerHTML,/productCreateForm|إضافة صورة/);
+ const values={fn:'قميص محدّث',fpr:'11000',fs:'20',fthreshold:'5',fcost:'7000',fcompare:'',factive:'true',fd:'وصف جديد',fcCustom:'وصل حديثًا',fsku:'SH-1'};
+ for(const [id,value] of Object.entries(values))document.querySelector('#'+id).value=value;
+ await vm.runInContext('saveProduct()',context);
+ assert.equal(vm.runInContext('workspace.productCost(D.p[0].id)',context),7000);
+ assert.equal(vm.runInContext('D.p[0].name',context),'قميص محدّث');
+ const productResult=await vm.runInContext("db.from('products').select('*')",context);
+ const workspaceResult=await vm.runInContext("db.from('seller_workspace_settings').select('*')",context);
+ const saved={products:productResult.data,seller_workspace_settings:workspaceResult.data};
+ assert.equal(saved.products[0].cost_price,undefined);
+ assert.equal(saved.seller_workspace_settings[0].settings.productCosts[saved.products[0].id],7000);
+ await vm.runInContext('refresh()',context);
+ assert.equal(vm.runInContext('workspace.productCost(D.p[0].id)',context),7000);
  vm.runInContext("db.preview.selectRole('driver')",context);await settle();assert.match(nodes.get('#view').innerHTML,/مساحة التوصيل/);assert.match(nodes.get('#view').innerHTML,/رصيد مستحق للتطبيق/);
 });
 
