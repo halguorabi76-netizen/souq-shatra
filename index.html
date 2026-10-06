@@ -433,6 +433,7 @@ body.starting{background:#000!important}
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
+<script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
 <script src="marketplace.js?v=88"></script>
 <script src="demo-lab.js?v=51"></script>
@@ -454,7 +455,8 @@ async function apiFetch(resource,init={}){
   catch(e){if(e?.name==='TypeError'||(e?.name==='AbortError'&&!source?.aborted))window.SouqLoading?.failed?.();throw e}
   finally{clearTimeout(timer);source?.removeEventListener('abort',abort);window.SouqLoading?.end(token)}
 }
-const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true},global:{fetch:apiFetch}});
+const accountSession=window.SouqAccountAccess?.createStorage(localStorage,sessionStorage,'sb-'+new URL(SUPABASE_URL).hostname.split('.')[0]+'-auth-token');
+const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:accountSession?.storage},global:{fetch:apiFetch}});
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
@@ -493,7 +495,7 @@ async function refresh(){
   user=nextUser;
   if(user){
     if(!viewMode){
-      try{viewMode=localStorage.getItem('souq-shatra-mode-'+user.id)||sessionStorage.getItem('souq-shatra-pending-role')||''}catch{}
+      try{viewMode=sessionStorage.getItem('souq-shatra-pending-role')||localStorage.getItem('souq-shatra-mode-'+user.id)||''}catch{}
       if(viewMode==='guest')viewMode='';
     }
     if(tab==='welcome'){
@@ -565,7 +567,7 @@ async function refresh(){
   D.people=people;
   dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();
-  try{if(user&&!ADMIN_PORTAL&&sessionStorage.getItem('souq-seller-onboarding')==='1'){sessionStorage.removeItem('souq-seller-onboarding');sellerRequest();}}catch{}
+  finishAccountEntry();
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
 async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
@@ -659,11 +661,41 @@ function confirmProductDelete(id,source){
  card.append(panel);panel.querySelector('[data-a="cancelProductDelete"]')?.focus();
 }
 
+function buyerRetention(){
+ sessionStorage.removeItem('souq-role-request');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-seller-onboarding');
+ closeAccountMenu();sheet(head('هل أحفظ حسابك على هذا الجهاز؟')+'<p>اختر طريقة الدخول كزبون.</p><button class="buy" data-a="buyerRetention" data-v="device">نعم، احفظ حسابي</button><button class="alt" data-a="buyerRetention" data-v="session">لا، لهذه الجلسة فقط</button>');
+}
+function roleAccess(role){
+ closeAccountMenu();const seller=role==='seller',name=seller?'بائع':'عامل توصيل',request=seller?'اطلب الانضمام كتاجر':'اطلب الانضمام كسائق توصيل';
+ sheet(head('الدخول ك'+name)+`<p>هل لديك حساب في سوق الشطرة؟</p><button class="buy" data-a="roleExisting" data-v="${role}">نعم، لدي حساب</button><p class="auth-switch">ليس لديك حساب؟ <button data-a="roleRequest" data-v="${role}">${request}</button></p>`);
+}
+async function existingRole(role){
+ if(!['seller','driver'].includes(role))return;
+ if(user&&((role==='seller'&&canSell())||(role==='driver'&&driverAccount))){rememberMode(role);tab='account';A.close();render();return}
+ if(user){check(await db.auth.signOut());user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;D.o=[];D.cart=[];save()}
+ accountSession?.choose('device');sessionStorage.removeItem('souq-role-request');sessionStorage.setItem('souq-role-login',role);rememberMode(role);lsheet('m');
+}
+function requestRole(role){
+ if(!['seller','driver'].includes(role))return;
+ sessionStorage.removeItem('souq-role-login');
+ if(user){if(role==='seller')sellerRequest();else{rememberMode('driver');driverWorkspace.application()}return}
+ accountSession?.choose('device');sessionStorage.setItem('souq-role-request',role);rememberMode(role);lsheet('r');
+}
+function finishAccountEntry(){
+ if(!user||ADMIN_PORTAL)return;
+ let request='',role='';try{request=sessionStorage.getItem('souq-role-request')||'';role=sessionStorage.getItem('souq-role-login')||'';if(sessionStorage.getItem('souq-seller-onboarding')==='1')request='seller';sessionStorage.removeItem('souq-role-request');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-seller-onboarding')}catch{}
+ if(request==='seller'){sellerRequest();return}
+ if(request==='driver'){rememberMode('driver');driverWorkspace.application();return}
+ if(!['seller','driver'].includes(role))return;
+ const exists=role==='seller'?!!ownStore:!!driverAccount;
+ if(exists){if(role==='seller'&&!canSell())sellerRequest();else{rememberMode(role);tab='account';render()}return}
+ sheet(head('هذا الحساب غير مسجّل '+(role==='seller'?'كتاجر':'كسائق توصيل'))+`<p>استخدم بريدك أو حساب Google المرتبط بحسابك القديم، أو أرسل طلب انضمام بهذا الحساب.</p><button class="buy" data-a="roleRequest" data-v="${role}">${role==='seller'?'طلب الانضمام كتاجر':'طلب الانضمام كسائق توصيل'}</button><button class="alt" data-a="roleExisting" data-v="${role}">الدخول بحساب آخر</button>`);
+}
 function sellerRequest(){
  if(db.preview){db.preview.selectRole('seller');return}
  closeAccountMenu();
  if(user&&canSell()&&ownStore){rememberMode('seller');tab='account';render();return}
- if(!user){try{sessionStorage.setItem('souq-seller-onboarding','1')}catch{}rememberMode('buyer');sheet(head('الانضمام كتاجر')+'<p>ابدأ بحساب Google الخاص بمتجرك، ثم أكمل اسمك وبيانات المتجر لإرسال طلب إلى الإدارة.</p><button class="buy" data-a="oauth" data-v="google">المتابعة باستخدام Google</button>');return}
+ if(!user){requestRole('seller');return}
  tab='sellerJoin';render();scrollTo(0,0);
 }
 function storeLocationFields(prefix,m){
@@ -719,11 +751,11 @@ function render(){
   activity.sync();pageBackbar();
 }
 function welcome(){
-  $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p>${bannerHtml()}<div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#443a31"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#b49f8e"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#b69070"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#48392d"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="طلب الانضمام كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#8e7057"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#e5d5c7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#e5d5c7"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>طلب الانضمام كبائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#efeae5"/><circle cx="49" cy="49" r="8" fill="#efeae5"/><circle cx="17" cy="49" r="3" fill="#866c56"/><circle cx="49" cy="49" r="3" fill="#866c56"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#c8b2a0"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#453b33"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#ae9580"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
+  $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p>${bannerHtml()}<div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#443a31"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#b49f8e"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#b69070"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#48392d"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="الدخول كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#8e7057"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#e5d5c7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#e5d5c7"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>بائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#efeae5"/><circle cx="49" cy="49" r="8" fill="#efeae5"/><circle cx="17" cy="49" r="3" fill="#866c56"/><circle cx="49" cy="49" r="3" fill="#866c56"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#c8b2a0"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#453b33"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#ae9580"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
 }
 function profilePage(){
  if(canSell()&&viewMode==='seller'&&ownStore){$('#view').innerHTML=`<div class="sw-shell"><section class="sw-card"><h1>حساب متجري</h1><h2>${esc(ownStore.name)}</h2><p>${esc(profile?.full_name||'')}</p><p dir="ltr">${esc(user.email||'')}</p><p>رقم الحساب: <span dir="ltr">${esc(user.id)}</span></p><p dir="ltr">${esc(profile?.phone||ownStore.phone||'')}</p><p>${esc(ownStore.address||'')}</p><div class="sw-actions"><button data-a="editprofile">تعديل بيانات حسابي</button><button data-a="storeEdit">تعديل معلومات المتجر</button><button data-a="editEmail">تغيير البريد الإلكتروني</button></div></section><section class="sw-card"><button class="sw-primary" data-a="tab" data-v="account">العودة إلى إدارة متجري</button><button data-a="switchrole" data-v="buyer">الدخول بحساب زبون</button><button data-a="changeaccount">تسجيل الخروج</button></section></div>`;return}
- if(!user){$('#view').innerHTML='<div class="box"><h2>حساب سوق الشطرة</h2><p>تستطيع تصفح السوق كضيف. سجّل الدخول للشراء أو البيع أو العمل بالتوصيل.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">طلب الانضمام كبائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button></div>';return}
+ if(!user){$('#view').innerHTML='<div class="box"><h2>حساب سوق الشطرة</h2><p>تستطيع تصفح السوق كضيف. سجّل الدخول للشراء أو البيع أو العمل بالتوصيل.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">بائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button></div>';return}
  const name=profile?.full_name||user.user_metadata?.full_name||'مستخدم سوق الشطرة';
  const mine=D.o.filter(o=>o.buyer_id===user.id),completed=mine.filter(o=>o.st===3),last=mine.length?new Date(mine[0].ts).toLocaleDateString('ar-IQ'):'';
  let address='',avatar='';try{address=localStorage.getItem('souq-shatra-address-'+user.id)||'';avatar=localStorage.getItem('souq-shatra-avatar-'+user.id)||''}catch{}
@@ -865,12 +897,12 @@ function orders(){
   $('#view').innerHTML='<div class="dh"><h2 style="margin:0">طلباتي</h2></div>'+(l.length?l.map(o=>ordCard(o,false)).join(''):'<div class="empty">ما عندك طلبات بعد.<br>اختر منتجاً من السوق وأرسل طلبك.</div>');
 }
 function account(){
-  if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">طلب الانضمام كبائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
+  if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">بائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
   if(profile?.disabled){$('#view').innerHTML='<div class="box"><h2>الحساب معطّل</h2><p>تم إيقاف استخدام هذا الحساب في السوق. تواصل مع إدارة التطبيق إذا كان لديك استفسار.</p><button class="alt" data-a="out">خروج</button></div>';return}
-  if(viewMode==='guest'){$('#view').innerHTML=`<div class="box"><h2>تتصفح السوق كضيف</h2><p>اختر حساب الزبون للشراء، أو حساب البائع لنشر المواد.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">طلب الانضمام كبائع</button><button class="alt" data-a="out">تسجيل الخروج من الحساب المحفوظ</button></div>`;return}
+  if(viewMode==='guest'){$('#view').innerHTML=`<div class="box"><h2>تتصفح السوق كضيف</h2><p>اختر حساب الزبون للشراء، أو حساب البائع لنشر المواد.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">بائع</button><button class="alt" data-a="out">تسجيل الخروج من الحساب المحفوظ</button></div>`;return}
   if(viewMode==='driver'&&profile?.role!=='admin'){driverPage();return}
   if(viewMode==='buyer'){$('#view').innerHTML=`<div class="account-head"><b>حساب الزبون</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>متابعة مشترياتي</button><button data-a="cart">▣<br>السلة</button><button data-a="favorites">★<br>المفضلة</button></div><div class="box"><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="seller">${canSell()?'إدارة متجري':'طلب الانضمام كبائع'}</button><button class="alt" data-a="out">خروج</button></div>`;return}
-  if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حساب البائع</b><small>${esc(user.email)}</small></div><div class="box"><p>تواصل مع الإدارة لاعتماد متجرك وتفعيل أدوات البيع.</p><button class="buy" data-a="login" data-v="store">طلب الانضمام كبائع</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="out">خروج</button></div>`;return}
+  if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حساب البائع</b><small>${esc(user.email)}</small></div><div class="box"><p>تواصل مع الإدارة لاعتماد متجرك وتفعيل أدوات البيع.</p><button class="buy" data-a="login" data-v="store">بائع</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="out">خروج</button></div>`;return}
   const me=D.me,own=me==='owner',T=[...(ownStore?[['p','منتجاتي'],['o','الطلبات']]:[]),...(own?[['m','التجار والأرباح']]:[])];
   let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':ownStore?.removed?'<small>أزالت الإدارة هذا البائع من السوق.</small>':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="storeEdit">تعديل اسم المتجر وعنوانه</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
   const mine=D.p.filter(p=>p.mid===(own?ownStore?.id:me)),mo=D.o.filter(o=>o.mid===(own?ownStore?.id:me));
@@ -962,9 +994,9 @@ function authField(id,label,type,icon,attrs=''){
 }
 function lsheet(m){
  if(m==='store'){sellerRequest();return}
- const signup=m==='r',role=viewMode==='seller'?'بائع':viewMode==='driver'?'عامل توصيل':'زبون';
+ const signup=m==='r',professional=['seller','driver'].includes(viewMode),role=viewMode==='seller'?'بائع':viewMode==='driver'?'عامل توصيل':'زبون';
  const phone=signup?authField('lphone','رقم هاتفك <small>(اختياري للتواصل)</small>','tel','phone','dir="ltr" inputmode="tel" autocomplete="tel" placeholder="07xxxxxxxxx"'):'';
- sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب جديد':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="login" data-v="${signup?'m':'r'}">${signup?'تسجيل الدخول':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
+ sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${professional?(signup?'أنشئ حساب الدخول أولًا، ثم أكمل طلب الانضمام.':'استخدم البريد أو حساب Google نفسه الذي ربطت به حسابك القديم.'):signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب جديد':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="${professional?signup?'roleExisting':'roleRequest':'login'}" data-v="${professional?viewMode:signup?'m':'r'}">${signup?'تسجيل الدخول':professional?viewMode==='seller'?'اطلب الانضمام كتاجر':'اطلب الانضمام كسائق توصيل':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
  $('#shade').classList.add('auth-open');$('#sheet').classList.add('auth-sheet');
  loadAuthProviders();
 }
@@ -1019,16 +1051,15 @@ const A={
   marketSection,
   submitSellerJoin:()=>act(async()=>{if(!user||profile?.disabled)return;const first=val('sellerFirst'),last=val('sellerLast'),name=val('joinStoreName'),phone=val('joinPhone').replace(/\D/g,''),address=val('joinAddress'),description=val('joinDescription'),kind=val('joinStoreKind');if(!first||!last||name.length<2||phone.length<10||address.length<3||!kind){toast('أكمل الاسم واسم المتجر والهاتف والعنوان');return}const button=$('#sellerJoinForm [type="submit"]');if(button?.disabled)return;if(button)button.disabled=true;try{check(await db.rpc('request_seller_join_location',{p_first:first,p_last:last,p_name:name,p_phone:phone,p_address:address,p_description:description,p_kind:kind}));tab='sellerJoin';await refresh();toast('وصل طلبك إلى الإدارة وبانتظار الموافقة');}finally{if(button?.isConnected)button.disabled=false;}}),
   buyerAccountLogin,
-  loginBuyerAccount:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;dataReady=false;publicStoreId=null;D.p=[];D.o=[];D.cart=[];save();rememberMode('buyer');tab='market';A.close();await refresh();sheet(head('الدخول بحساب زبون آخر')+'<p>اختر حساب Google مختلفًا عن حساب متجرك. سيبقى حساب المتجر مستقلًا.</p><button class="buy" data-a="oauth" data-v="google">الدخول باستخدام Google</button>')}),
+  loginBuyerAccount:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;dataReady=false;publicStoreId=null;D.p=[];D.o=[];D.cart=[];save();rememberMode('buyer');tab='market';A.close();await refresh();buyerRetention()}),
   sellerRequest,
   activateSeller:v=>{if(profile?.role!=='admin')return;const p=D.people.find(p=>p.id===v);if(!p||p.disabled)return;const m=D.m.find(m=>m.owner_id===v);sheet(head('تفعيل حساب تاجر')+`<p>بعد التحقق من التاجر، أدخل بيانات متجره لتفعيل البيع.</p><p>${esc(p.full_name||'الحساب')} · <span dir="ltr">${esc(v)}</span></p><label for="sellerName">اسم المتجر</label><input id="sellerName" value="${esc(m?.name||'')}"><label for="sellerPhone">رقم الهاتف</label><input id="sellerPhone" type="tel" value="${esc(m?.phone||p.phone||'')}"><label for="sellerAddress">عنوان المتجر</label><input id="sellerAddress" value="${esc(m?.address||'')}"><button class="buy" data-a="saveSellerActivation" data-v="${esc(v)}">اعتماد التاجر وتفعيل البيع</button>`)},
   saveSellerActivation:v=>act(async()=>{if(profile?.role!=='admin')return;const name=val('sellerName'),phone=val('sellerPhone'),address=val('sellerAddress');if(name.length<2||phone.replace(/\D/g,'').length<10||address.length<3){toast('أدخل اسم المتجر ورقم هاتف صحيح والعنوان');return}check(await db.rpc('admin_activate_seller',{p_user:v,p_name:name,p_phone:phone,p_address:address}));A.close();await refresh();toast('تم اعتماد التاجر وتفعيل البيع')}),
   toggleTheme:()=>{window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark');if(tab==='settings')settings()},
   theme:mode=>{window.SouqTheme.set(mode);settings()},
   accountMenu:()=>{
-    if(user){tab='profilePage';render();scrollTo(0,0);return}
     const menu=$('#accountMenu');if(!menu.hidden){closeAccountMenu();return}
-    menu.innerHTML='<p>اختر طريقة استخدام حسابك</p>'+[['buyer','زبون'],['seller',canSell()?'إدارة متجري':'طلب الانضمام كبائع'],['driver','عامل توصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span>${label}</button>`).join('');menu.hidden=false;$('#accountTrigger').setAttribute('aria-expanded','true');
+    menu.innerHTML=(user?'<button data-a="tab" data-v="profilePage">حسابي وبياناتي</button>':'')+'<p>اختر طريقة استخدام حسابك</p>'+[['buyer','زبون'],['seller','بائع'],['driver','عامل توصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span>${label}</button>`).join('');menu.hidden=false;$('#accountTrigger').setAttribute('aria-expanded','true');
   },
   showPassword:id=>{const input=$('#'+(id||'lk')),button=$('#sheet [data-a="showPassword"][data-v="'+(id||'lk')+'"]');if(!input||!button)return;const show=input.type==='password';input.type=show?'text':'password';button.innerHTML=authIcon(show?'eye':'eyeOff');button.setAttribute('aria-pressed',String(show));button.setAttribute('aria-label',(show?'إخفاء كلمة المرور':'إظهار كلمة المرور')+(id==='lkConfirm'?' المؤكدة':''))},
   oauth:provider=>act(async()=>{
@@ -1092,9 +1123,12 @@ const A={
   saveprofile:()=>act(async()=>{if(!user)return;const name=val('pfname'),phone=val('pfphone').replace(/\D/g,'');if(name.length<2||phone.length<10){toast('اكتب الاسم ورقم هاتف صحيح');return}check(await db.from('profiles').update({full_name:name,phone}).eq('id',user.id));await refresh();toast('تم حفظ الملف الشخصي')}),
   changeaccount:()=>ask('تسجيل الخروج والانتقال إلى حساب آخر؟','out',''),
   geolocate:()=>chooseCheckoutLocation(),
-  enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0);return}rememberMode(v);if(user){tab=['seller','driver'].includes(v)?'account':'market';render();return}lsheet('m')},
+  buyerRetention:v=>act(async()=>{if(!['device','session'].includes(v))return;accountSession?.choose(v);rememberMode('buyer');if(user){tab='market';A.close();render();return}lsheet('m')}),
+  roleExisting:v=>act(()=>existingRole(v)),
+  roleRequest:v=>act(()=>requestRole(v)),
+  enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v==='buyer'){buyerAccountLogin();return}if(v==='buyer'){buyerRetention();return}if(['seller','driver'].includes(v)){roleAccess(v);return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0)}},
   switchrole:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
-  tab:v=>{captureCheckout();if(v==='myMarket'&&viewMode!=='seller'&&!ADMIN_PORTAL){A.cart();return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
+  tab:v=>{closeAccountMenu();captureCheckout();if(v==='myMarket'&&viewMode!=='seller'&&!ADMIN_PORTAL){A.cart();return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
   allocateReserve:v=>{const [pid,vid]=v.split('|'),p=prod(pid);if(!p||(p.mid!==ownStore?.id&&profile?.role!=='admin')||!p.legacy_stock_reserve)return;sheet(head('توزيع مرتجع قديم')+`<p>الكمية التي لم تحدد نسختها: ${p.legacy_stock_reserve}</p><label for="reserveQty">الكمية التي تخص هذه النسخة</label><input id="reserveQty" type="number" min="1" max="${p.legacy_stock_reserve}" value="1"><button class="buy" data-a="saveReserve" data-v="${v}">تأكيد توزيع الكمية</button>`);},
   saveReserve:v=>act(async()=>{const [pid,vid]=v.split('|'),qty=Number(val('reserveQty'));check(await db.rpc('allocate_legacy_variant_stock',{p_product:pid,p_variant:vid,p_quantity:qty}));await refresh();A.close();render();toast('تم توزيع المرتجع على النسخة المحددة');}),
   catalogEdit:v=>catalogManager.show(v),
@@ -1171,7 +1205,7 @@ const A={
         signedIn=data.user;
       }else signedIn=check(await withTimeout(db.auth.signInWithPassword({email,password}))).user;
       user=signedIn;rememberMode(['seller','driver'].includes(viewMode)?viewMode:'buyer');profile=null;ownStore=null;dt='m';tab=['seller','driver'].includes(viewMode)?'account':'market';A.close();render();toast('تم الدخول');
-      refresh().catch(error);
+      await refresh();
     }finally{
       if(button.isConnected){button.disabled=false;button.textContent=m==='r'?'إنشاء الحساب':'دخول'}
     }
