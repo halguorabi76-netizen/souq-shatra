@@ -6,7 +6,7 @@ export function adminGroups(data){
 }
 export function renderAdminWorkspace(ctx){
  const {data:D,esc:E,fmt:F,when:W,state:s,payments=[],settings={}}=ctx,g=adminGroups(D);
- const num=n=>Number(n||0).toLocaleString('ar-IQ'),date=t=>t?W(t):'غير مسجل',empty=t=>`<div class="admin-empty">${t||'لا توجد نتائج مطابقة. غيّر البحث أو التصفية.'}</div>`;
+ const num=n=>D.loading?'—':Number(n||0).toLocaleString('ar-IQ'),date=t=>t?W(t):'غير مسجل',empty=t=>`<div class="admin-empty">${D.loading?'تُحدّث البيانات…':t||'لا توجد نتائج مطابقة. غيّر البحث أو التصفية.'}</div>`;
  const btn=(a,v,t,c='')=>`<button class="${c}" data-a="${a}" data-v="${E(v)}">${t}</button>`;
  const pill=(t,ok=false)=>`<span class="admin-status ${ok?'is-ok':''}">${t}</span>`;
  const field=(t,v)=>`<div><dt>${t}</dt><dd>${E(v||'غير مسجل')}</dd></div>`;
@@ -76,4 +76,5 @@ export function renderAdminWorkspace(ctx){
  }
  return h+'</div></div>';
 }
+
 

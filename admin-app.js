@@ -4,7 +4,7 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=81';
 import {createSellerWorkspace} from "./seller-workspace.js?v=85";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=79";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=63";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=96";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -22,7 +22,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
-let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
+let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false,adminAccessReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
@@ -50,9 +50,49 @@ async function clearUnavailableAccount(){
  check(await withTimeout(db.auth.signOut({scope:'local'})));
  if(user?.id)try{localStorage.removeItem('souq-shatra-mode-'+user.id)}catch{}
  try{sessionStorage.removeItem('souq-shatra-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}
- user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;viewMode='guest';
+ user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;adminAccessReady=false;viewMode='guest';
  D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
  deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
+}
+async function refreshAdmin(id,nextUser){
+ if(user?.id!==nextUser?.id){
+  adminAccessReady=false;dataReady=false;profile=null;ownStore=null;
+  D.m=[];D.p=[];D.o=[];D.people=[];D.drivers=[];D.driverProfiles=[];D.pickups=[];D.stockMovements=[];D.variants=[];D.catalog=[];deliveryPayments=[];
+ }
+ user=nextUser;
+ const result=nextUser?await withTimeout(db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle()):{data:null};
+ if(id!==refreshId)return;
+ const nextProfile=check(result);
+ if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
+ profile=nextProfile;adminAccessReady=true;
+ if(!user||profile?.role!=='admin'||profile?.disabled){dataReady=true;render();window.SouqLoading?.recovered?.();return;}
+ viewMode='buyer';D.me='owner';D.loading=!dataReady;
+ // Show the authorized workspace now; independent datasets load together.
+ render();
+ const results=await withTimeout(Promise.all([
+  db.from('stores').select('*'),
+  db.from('products').select('*').order('created_at',{ascending:false}),
+  db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}),
+  db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}),
+  db.from('catalog_categories').select('*').order('position'),
+  db.from('product_variants').select('*'),
+  db.from('product_stock_movements').select('*').order('created_at',{ascending:false}).limit(200),
+  db.from('delivery_workers').select('*').order('created_at',{ascending:false}),
+  db.from('driver_profiles').select('*'),
+  db.from('delivery_payments').select('*').order('created_at',{ascending:false}),
+  db.from('delivery_settings').select('*').limit(1).maybeSingle(),
+  db.from('store_pickups').select('*')
+ ]));
+ if(id!==refreshId)return;
+ const [stores,products,orders,people,catalog,variants,movements,drivers,driverProfiles,payments,settings,pickups]=results.map(check);
+ D.catalog=catalog||[];D.variants=variants||[];D.stockMovements=movements||[];D.drivers=drivers||[];D.driverProfiles=driverProfiles||[];D.pickups=pickups||[];D.publicCategories=[];
+ deliveryPayments=payments||[];deliverySettings=settings||{platform_fee:0,delivery_fee:0,qi_number:''};
+ const sellerOnly=false,approvedStore=null;
+  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
+  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:(D.variants||[]).filter(v=>v.product_id===p.id).map(v=>({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''}))}));
+ D.o=orders.map(o=>({...fromOrder(o),buyer_id:o.buyer_id,driver_id:o.driver_id,platform_fee:o.platform_fee||0,delivery_fee:o.delivery_fee||0}));D.people=people;
+ ownStore=D.m.find(m=>m.owner_id===user.id)||null;D.loading=false;dataReady=true;
+ render();window.SouqLoading?.recovered?.();
 }
 async function refresh(){
   const id=++refreshId;
@@ -64,6 +104,7 @@ async function refresh(){
   const session=check(sessionResult);
   const nextUser=session.session?.user||null;
   if(id!==refreshId)return;
+  if(ADMIN_PORTAL)return await refreshAdmin(id,nextUser);
   // Restore the saved identity before querying the marketplace. A slow or failed
   // product/delivery request must never send a signed-in person back to welcome.
   if(user?.id!==nextUser?.id){profile=null;ownStore=null;viewMode='';dataReady=false}
@@ -447,7 +488,7 @@ function renderAdminPortal(){
  }
  $('#adminTop [data-a="out"]').hidden=!user;
  window.SouqTheme.set(window.SouqTheme.get(),false);
- if(!dataReady){$('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p></div>';return}
+ if(!adminAccessReady){$('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p></div>';return}
  if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>الدخول مخصص لحساب المالك المعتمد. تسجيل الدخول بحساب آخر لا يمنحه صلاحية الإدارة.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
  if(profile?.role!=='admin'||profile?.disabled){$('#view').innerHTML='<div class="admin-gate"><h1>هذا الحساب لا يملك صلاحية الإدارة</h1><p>استخدم حساب المدير المعتمد.</p><button class="buy" data-a="out">تبديل الحساب</button><a href="index.html">العودة إلى السوق</a></div>';return}
  tab='admin';admin();
@@ -917,4 +958,5 @@ setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
+
 
