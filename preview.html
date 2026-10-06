@@ -434,7 +434,7 @@ body.starting{background:#000!important}
 <div id="toast" hidden role="status"></div>
 
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=85"></script>
+<script src="marketplace.js?v=88"></script>
 
 <script type="module">
 import {createPreviewClient} from "./preview-lab.js?v=65";
@@ -564,7 +564,7 @@ async function refresh(){
   D.o=orders.map(o=>({...fromOrder(o),buyer_id:o.buyer_id,driver_id:o.driver_id,platform_fee:o.platform_fee||0,delivery_fee:o.delivery_fee||0}));
   D.people=people;
   dataReady=true;
-  D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();
+  D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();resumePurchaseAfterLogin();
   try{if(user&&!ADMIN_PORTAL&&sessionStorage.getItem('souq-seller-onboarding')==='1'){sessionStorage.removeItem('souq-seller-onboarding');sellerRequest();}}catch{}
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
@@ -589,10 +589,49 @@ const ADMIN_PORTAL=document.documentElement.dataset.portal==='admin';
 let adminSearch='',adminFilter='all',adminDetail=null,checkoutNote='',cartReceipt=null;
 const catalogParams=new URLSearchParams(location.search);
 const catalogEntry=location.pathname.endsWith('/catalog.html');
-let tab=publicStoreId?'market':catalogParams.get('view')==='stores'?'stores':catalogEntry?'catalog':'market',cat=catalogEntry?(catalogParams.get('category')||'all').slice(0,80):'all',q=catalogEntry?(catalogParams.get('q')||'').slice(0,200):'',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
+let tab=publicStoreId?'market':catalogParams.get('view')==='stores'?'stores':catalogParams.get('view')==='materials'||catalogEntry?'catalog':'market',cat=catalogEntry?(catalogParams.get('category')||'all').slice(0,80):'all',q=catalogEntry?(catalogParams.get('q')||'').slice(0,200):'',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
 const BANNERS=[['icons/shatra-river.jpeg','اكتشفوا سحر الشطرة'],['icons/shatra-square.jpeg','اكتشفوا أسواق الشطرة'],['icons/shatra-bridge.jpeg','الشطرة تجمعنا']];
 const filt={min:'',max:'',sort:'newest',condition:'all',location:''};
 if(catalogEntry){for(const k of ['min','max']){const v=catalogParams.get(k);if(v!==null&&v!==''&&Number.isFinite(+v)&&+v>=0)filt[k]=v}if(['newest','oldest','cheap','expensive'].includes(catalogParams.get('sort')))filt.sort=catalogParams.get('sort')}
+const PURCHASE_RETURN_KEY=KEY+'-purchase-return';
+function validPurchaseReturn(value){
+ if(!value||!(/^[0-9a-f-]{36}$/i.test(value.pid||'')))return null;
+ const n=Number(value.n);if(!Number.isInteger(n)||n<1||n>100)return null;
+ const vid=value.vid==null||value.vid===''?null:value.vid;if(vid&&!/^[0-9a-f-]{36}$/i.test(vid))return null;
+ return {pid:value.pid,vid,n,tab:['market','catalog','stores','cartPage'].includes(value.tab)?value.tab:'market',publicStoreId:/^[0-9a-f-]{36}$/i.test(value.publicStoreId||'')?value.publicStoreId:null,cat:String(value.cat||'all').slice(0,80),q:String(value.q||'').slice(0,200),filt:value.filt&&typeof value.filt==='object'?value.filt:{}};
+}
+function readPurchaseReturn(){
+ const params=new URLSearchParams(location.search);
+ if(params.has('resumeProduct'))return validPurchaseReturn({pid:params.get('resumeProduct'),vid:params.get('resumeVariant'),n:Number(params.get('resumeQuantity')||1),tab:catalogEntry?'catalog':'market',publicStoreId,cat,q,filt});
+ try{return validPurchaseReturn(JSON.parse(sessionStorage.getItem(PURCHASE_RETURN_KEY)||'null'))}catch{return null}
+}
+let pendingPurchase=readPurchaseReturn();
+function clearPurchaseReturn(){
+ pendingPurchase=null;try{sessionStorage.removeItem(PURCHASE_RETURN_KEY)}catch{}
+ const url=new URL(location.href);if(url.searchParams.has('resumeProduct')){for(const key of ['resumeProduct','resumeVariant','resumeQuantity'])url.searchParams.delete(key);history.replaceState(null,'',url)}
+}
+function purchaseAuthRedirect(){
+ const url=new URL(location.href);url.hash='';
+ if(pendingPurchase){url.searchParams.set('resumeProduct',pendingPurchase.pid);if(pendingPurchase.vid)url.searchParams.set('resumeVariant',pendingPurchase.vid);else url.searchParams.delete('resumeVariant');url.searchParams.set('resumeQuantity',pendingPurchase.n)}
+ return url.href;
+}
+function requirePurchaseLogin(){
+ if(user)return false;
+ pendingPurchase=validPurchaseReturn({pid:cur.p.id,vid:cur.vid||null,n:cur.n,tab,publicStoreId,cat,q,filt:{...filt}});
+ try{sessionStorage.setItem(PURCHASE_RETURN_KEY,JSON.stringify(pendingPurchase))}catch{}
+ rememberMode('buyer');lsheet('m');return true;
+}
+function resumePurchaseAfterLogin(){
+ if(!pendingPurchase||!user||!dataReady||ADMIN_PORTAL)return false;
+ const destination=pendingPurchase;
+ if(profile?.disabled||sellerAccount()){clearPurchaseReturn();A.close();toast(profile?.disabled?'هذا الحساب معطّل':'سجّل بحساب زبون لشراء المادة');return false}
+ const p=prod(destination.pid);
+ if(!p||!p.active||p.blocked||!mok(p.mid)){clearPurchaseReturn();A.close();toast('هذه المادة لم تعد متاحة للشراء');return false}
+ tab=destination.tab;publicStoreId=destination.publicStoreId;cat=destination.cat;q=destination.q;Object.assign(filt,destination.filt);
+ A.close();render();cur={p,n:destination.n,vid:destination.vid};
+ if(p.has_variants&&!p.variants?.some(v=>v.id===cur.vid&&!v.archived))cur.vid=null;
+ clearPurchaseReturn();psheet();return true;
+}
 function openCatalog(){const url=new URL('catalog.html',location.href);if(cat!=='all')url.searchParams.set('category',cat);if(q)url.searchParams.set('q',q);for(const k of ['min','max'])if(filt[k]!=='')url.searchParams.set(k,filt[k]);url.searchParams.set('sort',filt.sort);db.preview.navigate(url)}
 
 function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
@@ -617,6 +656,7 @@ function pageBackbar(){
  bar.prepend(button);
 }
 function closePage(){
+ if($('#sheet').classList.contains('auth-sheet')&&pendingPurchase)clearPurchaseReturn();
  window.SouqLocationPicker?.close();
  $('#shade').hidden=true;pageNav?.closeSheets();$('.app').inert=false;
 }
@@ -624,6 +664,7 @@ function goBack(){
  if(!$('#shade').hidden){
   window.SouqLocationPicker?.close();
   const previous=pageNav?.backSheet();
+  if(pendingPurchase&&$('#sheet').classList.contains('auth-sheet')&&!previous?.className?.includes('auth-sheet'))clearPurchaseReturn();
   if(previous){$('#sheet').replaceChildren(...previous.nodes);$('#sheet').className=previous.className;$('#shade').className=previous.shadeClass;cur=previous.cur;infoRole=previous.infoRole;$('#sheet').scrollTop=previous.scroll;$('#sheet [data-a="back"],#sheet [data-a="close"]')?.focus();return;}
   closePage();return;
  }
@@ -690,6 +731,7 @@ function render(){
   activity.sync();
   if(db.preview?.isHome()){db.preview.home();return;}
   if(ADMIN_PORTAL){renderAdminPortal();return}
+  if(pendingPurchase&&!dataReady&&!db.preview){$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ العودة إلى المادة…</div>';return}
   try{if(user&&sessionStorage.getItem('souq-admin-return')==='1'){sessionStorage.removeItem('souq-admin-return');location.replace('admin.html');return}}catch{}
   // Public browsing must not wait for account, delivery or workspace requests.
   // Private actions still use the existing account checks and database policies.
@@ -805,27 +847,39 @@ function admin(){
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
+function materialCategories(){
+ return '<div class="section-title"><h2>أقسام المواد</h2></div><div class="category-cards">'+CATS.map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'</div>';
+}
 function market(){
-  const options={category:cat,query:q,min:filt.min,max:filt.max,sort:filt.sort};
-  const l=window.SouqCatalog.select(D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)),options,p=>mname(p.mid));
-  const results=tab==='catalog'||cat!=='all'||!!q;
-  const stores=q&&cat==='all'&&!filt.min&&!filt.max?D.m.filter(m=>m.ok&&!m.removed&&window.SouqCatalog.matches(m.name,q)):[];
-  const productCards=l.length?window.SouqMarketplace.productCards(l,{esc,fmt,thumb,mname}):'';
-  const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'جميع المنتجات';
-  if(results){
-    $('#view').innerHTML=window.SouqMarketplace.switcher('market')+`<div class="section-title"><h2>${esc(title)}</h2><button data-a="tab" data-v="categories">الأقسام</button></div><div class="box"><p>${l.length} إعلان${cat!=='all'?' · القسم: '+esc(cat):''}</p><button class="alt" data-a="filters">تصفية النتائج</button><button class="alt" data-a="tab" data-v="market">العودة للرئيسية</button></div>`+(stores.length?`<div class="section-title"><h2>متاجر مطابقة</h2></div>`+stores.map(m=>`<div class="box"><b>${esc(m.name)}</b><p>${esc(m.address||'')}</p><a class="buy" href="?store=${encodeURIComponent(m.id)}">زيارة المتجر</a></div>`).join(''):'')+productCards+(!l.length&&!stores.length?`<div class="empty">${!dataReady?'':'لا توجد نتائج مطابقة. جرّب اسمًا آخر أو عدّل الفلاتر.'}</div>`:'');
-    return;
-  }
-  $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('market')+`<div class="desktop-market-intro"><div><h1>اكتشف سوق الشطرة من مكانك</h1><p>من الشطرة… لأهل الشطرة</p></div><button data-a="tab" data-v="categories">تصفح الأقسام</button></div>`+`<div class="section-title"><h2>تصفح الأقسام</h2><button data-a="tab" data-v="categories">عرض الكل ‹</button></div><div class="category-cards">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${esc(c)}"><span aria-hidden="true">${catIcon(i)}</span>${esc(c)}</button>`).join('')}</div><div class="section-title"><h2>المواد المعروضة</h2><span class="note">${l.length} منتج</span></div>`+productCards+(!l.length?`<div class="empty">${!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.'}</div>`:'');
+ const options={category:cat,query:q,min:filt.min,max:filt.max,sort:filt.sort};
+ const l=window.SouqCatalog.select(D.p.filter(p=>p.active&&!p.blocked&&mok(p.mid)),options,p=>mname(p.mid));
+ const results=tab==='catalog'||cat!=='all'||!!q;
+ const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:'المواد المعروضة';
+ const cards=items=>window.SouqMarketplace.productCards(items,{esc,fmt,thumb,mname});
+ if(results){
+  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h2>'+esc(title)+'</h2><span class="note">'+l.length+' منتج</span></div><div class="box"><button class="alt" data-a="filters">تصفية النتائج</button></div>'+ (l.length?cards(l):'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة. جرّب قسمًا آخر أو عدّل البحث.')+'</div>')+'</section>';
+  return;
+ }
+ const stores=D.m.filter(m=>m.ok&&!m.removed);
+ $('#view').innerHTML=bannerHtml()+window.SouqMarketplace.switcher('home')+
+ '<section class="market-materials">'+materialCategories()+'<div class="section-title"><h2>المواد المعروضة</h2><span class="note">'+l.length+' منتج</span><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+
+ (l.length?cards(l.slice(0,6)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
+ '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+
+ (stores.length?window.SouqMarketplace.storeCards(stores.slice(0,4),D.p,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
 }
 function storesPage(){
- storeQuery=q;const stores=D.m.filter(m=>m.ok&&!m.removed&&window.SouqCatalog.matches([m.name,m.description,m.address].join(' '),storeQuery));
- $('#view').innerHTML=window.SouqMarketplace.switcher('stores')+`<div class="section-title"><h2>متاجر سوق الشطرة</h2><span class="note">${stores.length} متجر</span></div>`+(stores.length?window.SouqMarketplace.storeCards(stores,D.p,{esc}):'<div class="empty">'+(storeQuery?'لا توجد متاجر مطابقة للبحث.':'تظهر هنا المتاجر بعد اعتمادها من الإدارة.')+'</div>');
-
+ storeQuery=q;
+ const approved=D.m.filter(m=>m.ok&&!m.removed);
+ const published=D.p.filter(p=>p.active&&!p.blocked&&approved.some(m=>m.id===p.mid));
+ const categories=CATS.filter(c=>published.some(p=>p.cat===c));
+ const stores=approved.filter(m=>window.SouqCatalog.matches([m.name,m.description,m.address].join(' '),storeQuery)&&(cat==='all'||published.some(p=>p.mid===m.id&&p.cat===cat)));
+ const sections='<div class="section-title"><h2>أقسام المتاجر</h2></div><div class="category-cards store-category-cards">'+['all',...categories].map(c=>'<button class="category-card" data-a="storeCategory" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+(c==='all'?window.SouqMarketplace.icon('stores'):catIcon(Math.max(0,CATS.indexOf(c))))+'</span>'+esc(c==='all'?'كل المتاجر':c)+'</button>').join('')+'</div>';
+ $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h2>متاجر سوق الشطرة</h2><span class="note">'+stores.length+' متجر</span></div>'+
+ (stores.length?window.SouqMarketplace.storeCards(stores,D.p,{esc}):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
 }
 function marketSection(section){
- publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':'market';
- const url=new URL('preview.html',location.href);if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0);
+ publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
+ const url=new URL('preview.html',location.href);if(tab==='stores')url.searchParams.set('view','stores');if(tab==='catalog')url.searchParams.set('view','materials');history.pushState(null,'',url);render();scrollTo(0,0);
 }
 function chats(){
   if(viewMode==='driver'){driverPage();return}
@@ -952,9 +1006,9 @@ function lsheet(m){
  if(m==='store'){sellerRequest();return}
  const signup=m==='r',role=viewMode==='seller'?'بائع':viewMode==='driver'?'عامل توصيل':'زبون';
  const phone=signup?authField('lphone','رقم هاتفك <small>(اختياري للتواصل)</small>','tel','phone','dir="ltr" inputmode="tel" autocomplete="tel" placeholder="07xxxxxxxxx"'):'';
- sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب جديد':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="login" data-v="${signup?'m':'r'}">${signup?'تسجيل الدخول':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
+ sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="login" data-v="${signup?'m':'r'}">${signup?'تسجيل الدخول':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
  $('#shade').classList.add('auth-open');$('#sheet').classList.add('auth-sheet');
- loadAuthProviders();
+ if(!pendingPurchase)loadAuthProviders();
 }
 function roleIcon(role){
   const paths=role==='seller'?'<path d="M4 12h24v16H4zM3 12l3-8h20l3 8M11 28V18h10v10M3 12q3 5 6 0 3 5 7 0 4 5 7 0 3 5 6 0"/>':role==='driver'?'<circle cx="8" cy="24" r="5"/><circle cx="25" cy="24" r="5"/><circle cx="18" cy="5" r="3"/><path d="M8 24l8-12 5 3 4 9M16 12l-2 7 7 5M5 8h7v8H5M21 15h5"/>':'<circle cx="16" cy="8" r="4"/><path d="M9 18q7-8 14 0M3 19h26l-4 10H7zM10 22v4M16 22v4M22 22v4"/>';
@@ -1097,11 +1151,12 @@ const A={
   adminListFilter:v=>{adminFilter=v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   cat:v=>{cat=v;tab='catalog';render()},
   pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
+  storeCategory:v=>{cat=v;render();},
   allcat:()=>{cat='all';tab='catalog';render()},
   searchfocus:()=>{$('#q')?.focus();$('#q')?.scrollIntoView({block:'center',behavior:'instant'})},
   searchcat:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');cat=v;searchPage()},
   searchsort:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');filt.sort=v;searchPage()},
-  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;tab='catalog';A.close();render()},
+  searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;if(tab!=='stores')tab='catalog';A.close();render()},
   searchclear:()=>{q='';cat='all';filt.min='';filt.max='';filt.sort='newest';searchPage()},
   banner:v=>{bannerIndex=+v;updateBanner()},
   filters:filterSheet,
@@ -1120,7 +1175,7 @@ const A={
   back:goBack,
   prod:v=>{if(sellerAccount()||(viewMode==='seller'&&ownStore)){if(prod(v)?.mid===ownStore.id)fsheet(v);return}cur={p:prod(v),n:1};psheet()},
   pq:v=>{const n=Math.max(1,cur.n+ +v);if(n>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(n>(selectedProduct(cur.p,cur.vid)?.stock||0)){toast('الكمية المطلوبة غير متوفرة حاليًا');return}cur.n=n;psheet()},
-  add:()=>{if(sellerAccount()){buyerAccountLogin();return}const {p,n}=cur,chosen=selectedProduct(p,cur.vid);if(!chosen){toast('اختر النسخة المطلوبة');return}const key=cartKey({pid:p.id,vid:cur.vid}),c=D.cart.find(x=>cartKey(x)===key),quantity=(c?.q||0)+n;if(quantity>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(!p.active||p.blocked||quantity>chosen.stock){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا');return}if(c)c.q=quantity;else D.cart.push({pid:p.id,vid:cur.vid||null,q:n});save();A.close();render();toast('أُضيف للسلة')},
+  add:()=>{if(sellerAccount()){buyerAccountLogin();return}const {p,n}=cur,chosen=selectedProduct(p,cur.vid);if(!chosen){toast('اختر النسخة المطلوبة');return}const key=cartKey({pid:p.id,vid:cur.vid}),c=D.cart.find(x=>cartKey(x)===key),quantity=(c?.q||0)+n;if(quantity>100){toast('الحد الأقصى للطلب الواحد ١٠٠ قطعة');return}if(!p.active||p.blocked||quantity>chosen.stock){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا');return}if(requirePurchaseLogin())return;if(c)c.q=quantity;else D.cart.push({pid:p.id,vid:cur.vid||null,q:n});save();A.close();render();toast('أُضيف للسلة')},
   cart:()=>{if(sellerAccount()){buyerAccountLogin();return}A.close();cartReceipt=null;tab='cartPage';render();scrollTo(0,0)},
   cartRemove:v=>{captureCheckout();D.cart=D.cart.filter(c=>cartKey(c)!==v);save();render()},
   cq:v=>{captureCheckout();const [id,d]=v.split('|'),c=D.cart.find(x=>cartKey(x)===id),p=c?selectedProduct(prod(c.pid),c.vid):null;if(!c)return;const quantity=c.q+ +d;if(+d>0&&(!p||quantity>p.stock||quantity>100)){toast('الكمية المطلوبة غير متوفرة لهذا الطلب');return}if(quantity<1)D.cart=D.cart.filter(x=>x!==c);else c.q=quantity;save();render()},
@@ -1154,18 +1209,18 @@ const A={
       let signedIn;
       if(m==='r'){
         const name=val('ln'),phone=val('lphone').replace(/[\s()+-]/g,'');if(name.length<2){toast('اكتب اسمك');return}if(phone&&!/^[0-9]{10,15}$/.test(phone)){toast('اكتب رقم هاتف صحيح');$('#lphone')?.focus();return}if(password!==val('lkConfirm')){toast('كلمتا المرور غير متطابقتين');$('#lkConfirm')?.focus();return}
-        const data=check(await withTimeout(db.auth.signUp({email,password,options:{data:{full_name:name,contact_phone:phone},emailRedirectTo:location.origin+location.pathname}})));
-        if(!data.session){A.close();toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول');return}
+        const data=check(await withTimeout(db.auth.signUp({email,password,options:{data:{full_name:name,contact_phone:phone},emailRedirectTo:pendingPurchase?purchaseAuthRedirect():location.origin+location.pathname}})));
+        if(!data.session){if(pendingPurchase){lsheet('m');toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول للعودة إلى المادة')}else{A.close();toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول')}return}
         signedIn=data.user;
       }else signedIn=check(await withTimeout(db.auth.signInWithPassword({email,password}))).user;
-      user=signedIn;rememberMode(['seller','driver'].includes(viewMode)?viewMode:'buyer');profile=null;ownStore=null;dt='m';tab=['seller','driver'].includes(viewMode)?'account':'market';A.close();render();toast('تم الدخول');
+      user=signedIn;rememberMode(['seller','driver'].includes(viewMode)?viewMode:'buyer');profile=null;ownStore=null;if(pendingPurchase){await refresh();toast('تم الدخول؛ يمكنك متابعة شراء المادة');return}dt='m';tab=['seller','driver'].includes(viewMode)?'account':'market';A.close();render();toast('تم الدخول');
       refresh().catch(error);
     }finally{
       if(button.isConnected){button.disabled=false;button.textContent=m==='r'?'إنشاء الحساب':'دخول'}
     }
   }),
   register:()=>sellerRequest(),
-  out:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.o=[];deliveryPayments=[];adminDetail=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
+  out:()=>act(async()=>{check(await db.auth.signOut());clearPurchaseReturn();user=null;profile=null;ownStore=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.o=[];deliveryPayments=[];adminDetail=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
   dtab:v=>{dt=v;render()},
   pform:v=>{if(!canSell()){sellerRequest();return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}fsheet(v)},
   psave:()=>act(saveProduct),
@@ -1216,7 +1271,7 @@ document.addEventListener('change',async e=>{
   const im=new Image();im.onload=()=>{const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cur.img=c.toDataURL('image/jpeg',.72);$('#pv').innerHTML=`<img src="${cur.img}" alt="">`;updatePostProgress()};
   im.src=URL.createObjectURL(e.target.files[0]);
 });
-document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
+document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(tab!=='stores')tab='catalog';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
@@ -1236,7 +1291,7 @@ $('#view').addEventListener('touchcancel',()=>{bannerTouch=null},{passive:true})
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(['market','welcome'].includes(tab)&&!document.hidden&&Date.now()-lastBannerInteraction>5500){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
 db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(recoverySheet,0)});
 if(!ADMIN_PORTAL)window.SouqDemo?.init(render);
-window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
+window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':params.get('view')==='materials'||location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
 render();
 refresh().catch(e=>{
   if(!dataReady&&!window.SouqDemo?.isActive()){
