@@ -28,7 +28,7 @@ function workspaceContext(mode='guest'){
  vm.runInNewContext(readFileSync(new URL('../seller-workspace.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,'')+';window.createWorkspace=createSellerWorkspace;',context);
  const g={mode,data,store:mode==='seller'?data.m[0]:null,canSell:mode==='seller'};
  const ctx={get:()=>g,esc,fmt,thumb:()=>'',status:[],when:String,publicStore(){},run:f=>f(),render:()=>workspace.storefront('one')};
- const workspace=context.window.createWorkspace(ctx);return {workspace,view,events,data};
+ const workspace=context.window.createWorkspace(ctx);return {workspace,view,events,data,g};
 }
 test('storefront shows only its seller, has an offers filter, and hides stock',()=>{
  const {workspace,view,events}=workspaceContext();workspace.storefront('one');assert.match(view.innerHTML,/قميص|حذاء/);assert.doesNotMatch(view.innerHTML,/تفاح|المتوفر 5/);assert.match(view.innerHTML,/تصفح التخفيضات/);
@@ -38,4 +38,25 @@ test('storefront shows only its seller, has an offers filter, and hides stock',(
 test('owner preview returns to management, without exposing management to visitors',()=>{
  const owner=workspaceContext('seller');owner.workspace.storefront('one');assert.match(owner.view.innerHTML,/العودة لإدارة متجري|معاينة ما يراه الزبون/);
  const visitor=workspaceContext();visitor.workspace.storefront('one');assert.doesNotMatch(visitor.view.innerHTML,/data-s="openMenu"/);assert.match(visitor.view.innerHTML,/جميع المتاجر/);
+});
+
+test('direct store entry waits for initial data instead of showing a false unavailable screen',()=>{
+ const {workspace,view,data,g}=workspaceContext();g.dataReady=false;const stores=data.m;data.m=[];workspace.storefront('one');
+ assert.doesNotMatch(view.innerHTML,/المتجر غير متاح|العودة إلى المتاجر/);assert.match(view.innerHTML,/aria-busy="true"/);
+ data.m=stores;g.dataReady=true;workspace.storefront('one');assert.match(view.innerHTML,/المتجر الأول/);
+ data.m=[];workspace.storefront('one');assert.match(view.innerHTML,/المتجر غير متاح الآن/);
+});
+test('store cards, product seller links and search matches retain hrefs and support immediate in-app navigation',()=>{
+ const ui=loadUI(),m={id:'one',name:'المتجر',ok:true},p={id:'p',mid:'one',name:'قميص',active:true,stock:2,price:10},opts={esc,fmt,thumb:()=>'',mname:()=>m.name};
+ for(const html of [ui.storeCards([m],[p],opts),ui.productCards([p],opts),ui.storeMatches([{store:m,products:[p]}],opts)]){
+  assert.match(html,/href="\.\/\?store=one" data-a="visitStore" data-v="one"/);
+ }
+});
+test('opening a store keeps loaded marketplace data and uses history instead of a page reload',()=>{
+ const id='11111111-1111-4111-8111-111111111111',html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),line=html.split('\n').find(x=>x.startsWith('  visitStore:'));
+ const data={m:[{id}],p:[{mid:id}]},events=[],context={A:{close(){}},D:data,db:{},URL,location:new URL('https://market.invalid/catalog.html?q=shirt'),closeAccountMenu(){},history:{pushState(_a,_b,url){events.push(String(url))}},render(){events.push('render')},scrollTo(){},publicStoreId:null,tab:'stores'};
+ vm.createContext(context);vm.runInContext('Object.assign(A,{'+line+'});',context);context.A.visitStore(id);
+ assert.equal(context.publicStoreId,id);assert.equal(context.tab,'market');assert.equal(context.D,data);assert.equal(events[0],'https://market.invalid/?store='+id);assert.equal(events[1],'render');
+ const count=events.length;context.A.visitStore('https://other.invalid');assert.equal(events.length,count);
+ context.db.preview=true;context.A.visitStore(id);assert.equal(events[count],'https://market.invalid/preview.html?store='+id);
 });
