@@ -37,7 +37,7 @@ test('purchase auth provides create-account wording and waits for refreshed prod
 });
 function authActions(x,{signupSession=true,failure=false,failureCode='invalid_credentials'}={}){
  const c=x.c,button={disabled:false,isConnected:true},values={lp:'buyer@example.com',lk:'secret123',lkConfirm:'secret123',ln:'زبون',lphone:'07700000000'};
- Object.assign(c,{act:f=>f(),val:id=>values[id]||'',$:()=>button,withTimeout:p=>p,check:r=>{if(r.error)throw r.error;return r.data},viewMode:'buyer',ownStore:null,dt:'p',isInvalidPasswordLogin:e=>e.code==='invalid_credentials',loginAccountNotice:email=>x.events.push(['loginNotice',email]),db:{auth:{signInWithPassword:async()=>failure?{error:Object.assign(new Error('invalid credentials'),{code:failureCode})}:{data:{user:{id:'buyer'}}},signUp:async()=>({data:{user:{id:'buyer'},session:signupSession?{user:{id:'buyer'}}:null}})}},refresh:async()=>{c.resumePurchaseAfterLogin()}});
+ Object.assign(c,{act:f=>f(),val:id=>values[id]||'',$:()=>button,withTimeout:p=>p,check:r=>{if(r.error)throw r.error;return r.data},viewMode:'buyer',ownStore:null,dt:'p',isInvalidPasswordLogin:e=>e.code==='invalid_credentials',loginAccountNotice:email=>x.events.push(['loginNotice',email]),db:{auth:{signInWithPassword:async()=>failure?{error:Object.assign(new Error('invalid credentials'),{code:failureCode})}:{data:{user:{id:'buyer'}}},signUp:async()=>({data:{user:{id:'buyer'},session:signupSession?{user:{id:'buyer'}}:null}})}},refresh:async()=>{c.dataReady=true;c.resumePurchaseAfterLogin()}});
  const start=html.indexOf('  dologin:m=>'),end=html.indexOf('  register:',start);vm.runInContext('Object.assign(A,{'+html.slice(start,end)+'});',c);return c;
 }
 test('actual email login and immediate-session signup return to the requested material',async()=>{
@@ -52,3 +52,4 @@ test('failed login and email confirmation keep the return target for the next su
 test('network and other auth failures do not tell the customer to create an account',async()=>{
  const x=setup();x.c.A.add();authActions(x,{failure:true,failureCode:'request_timeout'});await assert.rejects(x.c.A.dologin('m'),/invalid credentials/);assert.equal(x.events.some(e=>e[0]==='loginNotice'),false);assert.equal(x.storage.has('test-purchase-return'),true);
 });
+

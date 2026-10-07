@@ -397,8 +397,8 @@ body.starting{background:#000!important}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=81">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=100"><link rel="stylesheet" href="preview-lab.css?v=63">
-<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=109"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=100">
+<link rel="stylesheet" href="operations.css?v=110"><link rel="stylesheet" href="preview-lab.css?v=63">
+<link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=100">
 <style>
 .seller-preflight{display:none}
 :root[data-seller-resume] .buyer-preflight{display:none}
@@ -410,8 +410,9 @@ body.starting{background:#000!important}
 <script>
 (()=>{try{
  if(document.documentElement.dataset.portal||new URLSearchParams(location.search).has('store'))return;
- const session=JSON.parse(localStorage.getItem('sb-nbktyynshqldyerqtjrd-auth-token')||'null'),id=session?.user?.id;
- if(/^[0-9a-f-]{36}$/i.test(id||'')&&localStorage.getItem('souq-preview-mode-'+id)==='seller')document.documentElement.dataset.sellerResume='true';
+ const retention=sessionStorage.getItem('souq-auth-retention')||localStorage.getItem('souq-auth-retention'),area=retention==='session'?sessionStorage:localStorage;
+ const session=JSON.parse(area.getItem('sb-nbktyynshqldyerqtjrd-auth-token')||'null'),id=session?.user?.id;
+ if(/^[0-9a-f-]{36}$/i.test(id||'')&&localStorage.getItem('souq-preview-mode-'+id)!=='buyer'&&localStorage.getItem('souq-preview-mode-'+id)!=='driver')document.documentElement.dataset.sellerResume='true';
 }catch{}})();
 </script>
 </head>
@@ -451,9 +452,9 @@ body.starting{background:#000!important}
 <script type="module">
 import {createPreviewClient} from "./preview-lab.js?v=109";
 
-import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=109';
+import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=109";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=107";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=110";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=109";
 async function apiFetch(resource,init={}){
@@ -476,8 +477,8 @@ let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
-function savedSellerView(storage,sessionKey){
- try{const session=JSON.parse(storage.getItem(sessionKey)||'null'),id=session?.user?.id;if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;return storage.getItem('souq-preview-mode-'+id)==='seller';}catch{return false;}
+function savedSellerView(storage,sessionKey,modeStorage=storage){
+ try{const session=JSON.parse(storage.getItem(sessionKey)||'null'),id=session?.user?.id;if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;return (modeStorage.getItem('souq-preview-mode-'+id)||storage.getItem('souq-preview-mode-'+id))==='seller';}catch{return false;}
 }
 // Saved mode chooses only the initial layout; it grants no permissions.
 const sellerResumeHint=false;
@@ -885,7 +886,8 @@ function myMarket(){
 }
 function postPage(){
   if(!canSell()){sellerRequest();tab='settings';settings();return}
-  const p=cur?.id?prod(cur.id):null;const sellingUnit=p?.attributes?._selling?.unit||p?.attributes?.sale_unit||'قطعة';
+  const original=cur?.id?prod(cur.id):null,baseVariant=original?.variants?.find(v=>v.id===original.attributes?._base_variant_id)||original?.variants?.find(v=>!v.archived),baseOverrides=baseVariant&&(!original.attributes?._manual_variants||!(original.attributes?._variant_inherit||[]).includes(baseVariant.id));
+  const p=baseOverrides?{...original,price:variantPrice(baseVariant),compare_at_price:baseVariant.sale_price?baseVariant.price:null}:original;const sellingUnit=p?.attributes?._selling?.unit||p?.attributes?.sale_unit||'قطعة';
   const field=(id,label,value,type='text',extra='')=>`<div class="pe-field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value??'')}" ${extra}></div>`;
   $('#view').innerHTML=`<div class="sw-shell pe-shell"><header class="pe-header"><button type="button" data-a="tab" data-v="listings" aria-label="العودة إلى المنتجات">${authIcon('back')}</button><h1>${p?'تعديل المنتج':'إضافة منتج'}</h1><span></span></header><form id="productCreateForm" class="pe-form">
   <section class="post-card pe-images"><h2>صورة المنتج الرئيسية</h2><label class="pe-upload" for="pimg">${authIcon('image')}<span>إضافة صورة المنتج</span></label><input id="pimg" class="pe-file" type="file" accept="image/*"><div class="tile" id="pv">${p?thumb(p):'📷'}</div></section>
@@ -894,8 +896,9 @@ function postPage(){
   <label for="fd">وصف المنتج</label><textarea id="fd" rows="4" maxlength="5000">${esc(p?.desc||'')}</textarea>
   <label for="funit">وحدة البيع</label><select id="funit">${['قطعة','زوج','كيلوغرام','غرام','متر','أخرى'].map(u=>`<option ${((['قطعة','زوج','كيلوغرام','غرام','متر'].includes(sellingUnit)?sellingUnit:sellingUnit?'أخرى':'قطعة')===u)?'selected':''}>${u}</option>`).join('')}</select>
   <div id="customUnitBox" ${sellingUnit&&!['قطعة','زوج','كيلوغرام','غرام','متر'].includes(sellingUnit)?'':'hidden'}>${field('funitCustom','وحدة البيع الأخرى',sellingUnit,'text','maxlength="80"')}</div>
-  ${field('fpr','سعر البيع (د.ع) *',p?.price,'number','required min="1" max="2147483647" step="1" inputmode="numeric"')}
+  ${field('fpr','سعر البيع / السعر بعد التخفيض (د.ع) *',p?.price,'number','required min="1" max="2147483647" step="1" inputmode="numeric"')}
   </section>
+  <section class="post-card"><label class="va-check"><input id="baseDiscount" type="checkbox" ${p?.compare_at_price?'checked':''}>هل يوجد تخفيض للنسخة الأساسية؟</label><div id="baseDiscountFields" ${p?.compare_at_price?'':'hidden'}>${field('fcompare','السعر قبل التخفيض (د.ع)',p?.compare_at_price,'number','min="1" max="2147483647" step="1"')}<p class="note">السعر بعد التخفيض هو سعر البيع المكتوب أعلاه.</p></div></section>
   <section class="post-card" id="variantEditor"></section>
   <section class="post-card">${field('fs','المخزون',p?.stock??0,'number','required min="0" max="2147483647" step="1" inputmode="numeric"')}<p class="note">عند تفعيل النسخ، تُدخل كمية كل نسخة أعلاه؛ هذا مجموع المتاح للبيع.</p></section>
   <section class="post-card"><label class="va-check"><input id="advancedEnabled" type="checkbox">الخيارات المتقدمة</label><div id="productAdvanced" hidden>
@@ -904,7 +907,7 @@ function postPage(){
   ${field('fstoreCode','رمز المنتج الخاص بالمتجر',p?.attributes?._selling?.store_code,'text','maxlength="80" placeholder="A15 أو SH-25"')}
   ${field('fsku','SKU',p?.sku,'text','maxlength="80"')}
   ${field('fbarcode','Barcode',p?.attributes?._selling?.barcode,'text','maxlength="80"')}
-  ${field('fcompare','السعر قبل التخفيض (د.ع)',p?.compare_at_price,'number','min="1" max="2147483647" step="1"')}<p class="note">سعر البيع الحالي أعلاه. سعر التخفيض الخاص بالنسخة في إعداداتها.</p>
+
   ${field('fthreshold','تنبيه المخزون عند الكمية',p?.threshold??5,'number','min="0" max="2147483647" step="1"')}
   ${p?.variant?field('fvariant','وصف الخيار القديم',p.variant,'text','maxlength="120"'):''}
   <label for="factive">حالة النشر</label><select id="factive"><option value="true" ${p?.active!==false?'selected':''}>متاح — منشور</option><option value="false" ${p?.active===false?'selected':''}>مؤرشف — غير منشور</option></select>
@@ -1043,7 +1046,7 @@ async function saveProduct(){
     const bundle=await productEditor.collect();
     const name=val('fn'),price=+val('fpr'),stock=productEditor.hasVariants()?bundle.variants.filter(v=>!v.archived&&v.available).reduce((n,v)=>n+v.stock,0):+val('fs');
     if(name.length<2||!Number.isSafeInteger(price)||price<1||price>2147483647||!Number.isSafeInteger(stock)||stock<0||stock>2147483647||(!productEditor.hasVariants()&&val('fs')==='')||val('fthreshold')===''||!Number.isSafeInteger(+val('fthreshold'))||+val('fthreshold')<0||+val('fthreshold')>2147483647){toast('اكتب الاسم والسعر والكمية');return}
-    const compare=val('fcompare'),compare_at_price=compare?+compare:null;
+    const compare=$('#baseDiscount').checked?val('fcompare'):'',compare_at_price=compare?+compare:null;
     if(compare&&(!Number.isSafeInteger(compare_at_price)||compare_at_price<=price||compare_at_price>2147483647)){toast('السعر قبل التخفيض يجب أن يكون أكبر من سعر البيع');return}
     const draft=cur,storeId=ownStore.id,image=draft.img;
     const f={name,price,compare_at_price,stock,category:bundle.category,description:val('fd'),store_category:val('fcCustom'),store_id:storeId,sku:val('fsku').slice(0,80),variant:val('fvariant').slice(0,120),low_stock_threshold:+val('fthreshold'),active:$('#factive').value==='true'};
@@ -1063,7 +1066,7 @@ function productDetailBody(){
  const {p,n}=cur,chosen=selectedProduct(p,cur.vid),display=chosen||p,m=mrec(p.mid),owner=canSell()&&ownStore?.id===p.mid;
  const defs=[...categoryDefinitions(D.catalog||[],p.catalog_category_id),...(p.attributes?._custom_options||[])],vs=(p.variants||[]).filter(v=>!v.archived),axes=[...new Set(vs.flatMap(v=>Object.keys(v.attributes)))];
  const selected=cur.options||{},unit=p.attributes?._selling?.unit||p.attributes?.sale_unit||'قطعة';
- return `<div class="product-detail"><div class="tile big" id="productPhoto">${thumb(display)}</div><h1>${esc(p.name)}</h1><div id="productPrice">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${p.has_variants?`<section class="va-choice" aria-label="خيارات المنتج">${axes.map(k=>`<fieldset><legend>${esc(defs.find(d=>d.key===k)?.label||k)}</legend><div class="va-chips">${[...new Set(vs.map(v=>v.attributes[k]))].map(value=>{const possible=vs.some(v=>v.available&&v.stock>0&&v.attributes[k]===value&&Object.entries(selected).every(([axis,val])=>axis===k||!val||v.attributes[axis]===val));return `<button type="button" class="va-chip ${selected[k]===value?'va-selected':''}" data-a="chooseVariantOption" data-axis="${esc(k)}" data-option="${esc(value)}" aria-pressed="${selected[k]===value}" ${!possible?'disabled title="هذه التركيبة غير متوفرة"':''}>${esc(value)}</button>`;}).join('')}</div></fieldset>`).join('')}<button class="alt" data-a="resetVariantOptions">تغيير جميع الخيارات</button><p role="status">${chosen?esc(chosen.selectedVariant.label):'اختر خصائص النسخة المطلوبة؛ الخيارات غير المتوفرة معطلة.'}</p></section>`:''}
+ return `<div class="product-detail"><div class="tile big" id="productPhoto">${thumb(display)}</div><h1>${esc(p.name)}</h1><div id="productPrice">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${p.has_variants?`<section class="va-choice" aria-label="خيارات المنتج">${variantChoices(p,defs,selected)}<button class="alt" data-a="resetVariantOptions">تغيير جميع الخيارات</button><p role="status">${chosen?esc(chosen.selectedVariant.label):'اختر خصائص النسخة المطلوبة؛ الخيارات غير المتوفرة معطلة.'}</p></section>`:''}
  ${owner?`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="row"><span>الكمية</span><div class="qty"><button type="button" data-a="pq" data-v="-1" aria-label="تقليل الكمية">−</button><b id="productQuantity">${n}</b><button type="button" data-a="pq" data-v="1" aria-label="زيادة الكمية">+</button></div></div><button type="button" class="buy" data-a="add" ${!chosen||chosen.stock<1?'disabled':''}>${!chosen?'اختر النسخة أولًا':chosen.stock<1?'غير متوفرة حاليًا':'أضف للسلة · '+fmt(chosen.price*n)}</button>`}
  ${p.desc?`<section><h2>معلومات المنتج</h2><p class="product-description">${esc(p.desc)}</p></section>`:''}${specifications(p,D.catalog||[])?`<details><summary>مواصفات المنتج</summary>${specifications(p,D.catalog||[])}</details>`:''}${m?`<a class="product-seller-card" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">${window.SouqMarketplace.avatar(m,esc)}<div><b>${esc(m.name)}</b>${m.username?`<small dir="ltr">@${esc(m.username)}</small>`:''}<small>${esc(m.description||m.address||'عرض معلومات المتجر ومنتجاته')}</small>${m.verified?'<small class="seller-verified">✓ بائع موثّق</small>':''}</div><span>←</span></a>`:''}</div>`;
 }
@@ -1313,7 +1316,7 @@ const A={
   close:closePage,
   back:goBack,
   prod:v=>{const p=prod(v);if(!p)return;if(sellerAccount()&&p.mid!==ownStore?.id)return;cur={p,n:1,vid:null,options:{},added:false};psheet()},
-  chooseVariantOption:(_,button)=>{if(!cur?.p||button.disabled)return;cur.options={...cur.options,[button.dataset.axis]:button.dataset.option};const vs=cur.p.variants.filter(v=>!v.archived&&v.available&&v.stock>0),v=vs.find(v=>Object.keys(v.attributes).every(k=>cur.options[k]===v.attributes[k]));cur.vid=v?.id||null;cur.n=1;cur.added=false;updateProductDetail()},
+  chooseVariantOption:(_,button)=>{if(!cur?.p||button.disabled)return;const choice=chooseVariant(cur.p.variants,cur.options||{},button.dataset.axis,button.dataset.option);cur.options=choice.options;cur.vid=choice.vid;cur.n=1;cur.added=false;updateProductDetail()},
   resetVariantOptions:()=>{cur.options={};cur.vid=null;cur.n=1;cur.added=false;updateProductDetail()},
   pq:v=>{if(!cur?.p)return;const d=Number(v),chosen=selectedProduct(cur.p,cur.vid);if(!chosen){toast('اختر النسخة أولًا');return;}if(![1,-1].includes(d))return;const n=Math.max(1,Number(cur.n)+d);if(n>Math.min(100,chosen.stock)){toast('الكمية المطلوبة غير متوفرة');return;}cur.n=n;updateProductQuantity()},
   add:()=>{const button=$('#sheet [data-a="add"]');if(button?.disabled||!cur?.p||cur.added)return;if(sellerAccount()){buyerAccountLogin();return;}const {p}=cur,n=Number(cur.n),chosen=selectedProduct(p,cur.vid);if(!chosen||!Number.isInteger(n)||n<1){toast('اختر النسخة والكمية');return;}const key=cartKey({pid:p.id,vid:cur.vid}),c=D.cart.find(x=>cartKey(x)===key),quantity=(Number(c?.q)||0)+n;if(quantity>100||!p.active||p.blocked||quantity>chosen.stock){toast('الكمية المطلوبة غير متوفرة');return;}if(requirePurchaseLogin())return;cur.added=true;if(button)button.disabled=true;if(c)c.q=quantity;else D.cart.push({pid:p.id,vid:cur.vid||null,q:n,attributes:chosen.selectedVariant?.attributes||{},price:chosen.price});save();A.close();render();toast('أُضيف للسلة')},
@@ -1355,7 +1358,7 @@ const A={
         if(!data.session){if(pendingPurchase){lsheet('m');toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول للعودة إلى المادة')}else{A.close();toast('تحقق من بريدك الإلكتروني، ثم سجّل الدخول')}return}
         signedIn=data.user;
       }else{const result=await withTimeout(db.auth.signInWithPassword({email,password}));if(result.error&&isInvalidPasswordLogin(result.error)){loginAccountNotice(email);return}signedIn=check(result).user;}
-      user=signedIn;rememberMode(['seller','driver'].includes(viewMode)?viewMode:'buyer');profile=null;ownStore=null;if(pendingPurchase){await refresh();toast('تم الدخول؛ يمكنك متابعة شراء المادة');return}dt='m';tab=['seller','driver'].includes(viewMode)?'account':'market';A.close();render();toast('تم الدخول');
+      dataReady=false;user=signedIn;rememberMode(['seller','driver'].includes(viewMode)?viewMode:'buyer');profile=null;ownStore=null;if(pendingPurchase){await refresh();toast('تم الدخول؛ يمكنك متابعة شراء المادة');return}dt='m';tab=['seller','driver'].includes(viewMode)?'account':'market';A.close();render();toast('تم الدخول');
       await refresh();
     }finally{
       if(button.isConnected){button.disabled=false;button.textContent=m==='r'?'إنشاء الحساب':'دخول'}
@@ -1386,7 +1389,7 @@ const A={
   comm:()=>{toast('إعداد العمولة يحتاج تفعيلًا في قاعدة البيانات')}
 
 };
-const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
+const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0,compare_at_price:$('#baseDiscount')?.checked?Number(val('fcompare')):null}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
 const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
 const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
@@ -1398,7 +1401,7 @@ async function showOrderNotice(id){
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
 }
-document.addEventListener('change',e=>{if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;updateProductDetail();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
+document.addEventListener('change',e=>{if(e.target.id==='baseDiscount'){$('#baseDiscountFields').hidden=!e.target.checked;return;}if(e.target.dataset.variantType==='true'){A.chooseVariantOption(null,{disabled:false,dataset:{axis:e.target.dataset.axis,option:e.target.value}});return;}if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;updateProductDetail();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
@@ -1452,3 +1455,4 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
 </body>
 </html>
+

@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 test('seller layout restores only for the current stored account, and tolerates missing or damaged storage',async()=>{
  const html=await readFile('index.html','utf8');
- const helper=html.match(/function savedSellerView\(storage,sessionKey\)\{[\s\S]*?\n\}/)[0];
+ const helper=html.match(/function savedSellerView\(storage,sessionKey,modeStorage=storage\)\{[\s\S]*?\n\}/)[0];
  const context=vm.createContext({});vm.runInContext(helper,context);
  const seller='11111111-1111-1111-1111-111111111111',buyer='22222222-2222-2222-2222-222222222222';
  const values=new Map([['session',JSON.stringify({user:{id:seller}})],['souq-shatra-mode-'+seller,'seller'],['souq-shatra-mode-'+buyer,'buyer']]);
@@ -28,3 +28,4 @@ test('pending seller restoration shows the seller shell without a buyer flash or
  vm.runInContext('render()',context);assert.match(view.innerHTML,/boot-seller-shell/);assert.match(view.innerHTML,/sw-nav/);assert.doesNotMatch(view.innerHTML,/مبيعات اليوم|طلبات الأسبوع|٠ د\.ع|0 د\.ع/);assert.match(view.innerHTML,/<button disabled>/);assert.equal(context.buyerCalls,0);assert.equal(tabs.hidden,true);assert.equal(classes.has('seller-workspace'),true);
  vm.runInContext("viewMode='guest';render()",context);assert.equal(context.buyerCalls,1);
 });
+

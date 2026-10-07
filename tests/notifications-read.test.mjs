@@ -56,10 +56,11 @@ test('failed persistence keeps unread badge and can be retried',async()=>{
 test('changing account during load does not mark prior-account notifications',async()=>{
  const f=fixture();let release;f.setHold(new Promise(r=>release=r));const pending=f.center.show();f.state.user={id:'account-two'};release();await pending;assert.equal(f.updates.length,0);assert.equal(f.notices[0].read_at,null);
 });
-test('social reactions are excluded from feed, unread badge and read updates; sign-in and operational notices remain',async()=>{
+test('social reactions are excluded from feed, unread badge and read updates; seller sign-in is excluded and operational notices remain',async()=>{
  const f=fixture();f.notices.splice(0);
  for(const kind of ['like','favorite','professional_login','professional_join','order','status','assigned','approval','inventory','payment','warning','site_update'])f.notices.push({id:kind,recipient_id:'account-one',event_kind:kind,event_key:kind+':test',title:kind,body:'',read_at:null});
- await f.center.poll();assert.equal(f.badge.textContent,10);await f.center.show();assert.equal(f.badge.hidden,true);
+ await f.center.poll();assert.equal(f.badge.textContent,8);await f.center.show();assert.equal(f.badge.hidden,true);
  assert.equal(f.notices.find(n=>n.id==='like').read_at,null);assert.equal(f.notices.find(n=>n.id==='favorite').read_at,null);
- assert.ok(f.notices.find(n=>n.id==='professional_login').read_at);assert.equal(f.updates[0].filters.find(([k])=>k==='id')[1].length,10);
+ assert.equal(f.notices.find(n=>n.id==='professional_login').read_at,null);assert.equal(f.updates[0].filters.find(([k])=>k==='id')[1].length,8);
 });
+

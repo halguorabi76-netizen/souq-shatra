@@ -14,3 +14,18 @@ test('custom section exposes its optional category field immediately',()=>{const
 test('selling unit is not duplicated among advanced specifications',()=>{const x=setup();try{assert(!x.nodes.get('productSpecs').innerHTML.includes('id="vaAttrsale_unit"'));}finally{x.restore();}});
 test('adding an existing custom variant property reuses its identity',async()=>{const x=setup();try{x.change('vaEnabled',true);x.click('addAxis');let key=/data-ve-attribute="(custom_[a-z0-9_]+)"/.exec(x.host.innerHTML)[1];x.input(0,key,'128GB');x.click('addAxis');const b=await x.editor.collect();assert.equal(b.attributes._custom_options.length,1);assert.deepEqual(Object.keys(b.variants[0].attributes),[key]);}finally{x.restore();}});
 test('existing custom specification can become a variant axis without a second definition',async()=>{const x=setup({catalog_category_id:category,stock:10,attributes:{_custom_options:[{key:'custom_storage',label:'السعة التخزينية',icon:'🏷️',type:'text',options:[],variant:false,required:false}]}});try{x.change('vaEnabled',true);x.click('addAxis');x.input(0,'custom_storage','256GB');const b=await x.editor.collect();assert.equal(b.attributes._custom_options.length,1);assert.equal(b.attributes._custom_options[0].variant,true);assert.equal(b.variants[0].attributes.custom_storage,'256GB');}finally{x.restore();}});
+
+
+test('base asks only axis identity; discounts persist separately on base and added rows',async()=>{
+ const x=setup();try{
+ x.change('vaEnabled',true);x.change('',true,'',{veAxis:'color'});
+ const block=x.host.innerHTML.match(/<fieldset class="va-row va-base">([\s\S]*?)<\/fieldset>/)[1];
+ assert.match(block,/ما هو اللون للنسخة الأساسية/);assert.doesNotMatch(block,/vimage|vprice|vsku|vsale/);
+ x.input(0,'color','أسود');x.click('addRow');x.input(1,'color','أزرق');x.stock(1,2);
+ x.change('',true,'',{veRow:'1',veField:'discount'});
+ x.host.oninput({target:{dataset:{veRow:'1',veField:'price'},type:'number',value:'1700'}});
+ x.host.oninput({target:{dataset:{veRow:'1',veField:'sale_price'},type:'number',value:'1300'}});
+ let b=await x.editor.collect();assert.equal(b.variants[1].price,1700);assert.equal(b.variants[1].sale_price,1300);assert.equal(b.variants[0].sale_price,null);
+ x.change('',false,'',{veRow:'1',veField:'discount'});b=await x.editor.collect();assert.equal(b.variants[1].sale_price,null);
+ }finally{x.restore();}
+});

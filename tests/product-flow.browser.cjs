@@ -14,7 +14,7 @@ assert.deepEqual(await f.locator('#funit option').allTextContents(),['قطعة',
 await f.locator('#fn').fill('قميص اختبار يدوي');await f.locator('#fd').fill('وصف تجريبي للمنتج');await f.locator('#fpr').fill('1000');await f.locator('#vaRoot').selectOption({label:'ملابس'});
 await f.locator('#vaEnabled').check();await f.locator('[data-ve-axis="color"]').check();await f.locator('[data-ve-axis="size"]').check();
 const attr=(i,k)=>f.locator(`[data-ve-row="${i}"][data-ve-attribute="${k}"]`);
-await attr(0,'color').fill('أسود');await attr(0,'size').fill('L');await f.locator('#vstock0').fill('10');
+await attr(0,'color').fill('أسود');await attr(0,'size').fill('L');await f.locator('#veBaseStock').fill('10');
 await f.locator('[data-ve="addRow"]').click();await attr(1,'color').fill('أسود');await attr(1,'size').fill('XL');await f.locator('#vstock1').fill('4');await f.locator('[data-ve-row="1"][data-ve-field="inherit"]').check();await f.locator('#vprice1').fill('1700');
 await f.locator('[data-ve="addRow"]').click();await attr(2,'color').fill('أبيض');await attr(2,'size').fill('L');await f.locator('#vstock2').fill('7');
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1UAAAAASUVORK5CYII=','base64');
@@ -33,3 +33,4 @@ await f.locator('[data-a="cart"]').last().click();await f.locator('#cn').fill('�
 assert.deepEqual(errors,[]);assert.deepEqual(await f.evaluate(()=>window.__operationErrors||[]),[]);assert.equal(await f.locator('#auroraLoading').isVisible(),false);console.log('PASS: real browser seller create/edit, base/image/price inheritance, three manual stocks, phone/tablet/desktop layout, owner preview, variant chips, unavailable combinations, responsive quantity, duplicate-click guard, variant cart/order debit, real store navigation');
 }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
+

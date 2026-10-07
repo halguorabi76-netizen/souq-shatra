@@ -5,7 +5,7 @@ if(!appModule)throw new Error('Missing application source module');
 // Preserve the independent admin entry and its fast authorization gate.
 const portalMain=main;
 const adminTemplate=await readFile('admin.html','utf8');
-const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,'$1?v=109');
+const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,'$1?v=110');
 await writeFile('admin.html',admin);
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
@@ -36,3 +36,4 @@ for (const file of ['account-access.js', 'index.html', 'admin.html', 'catalog.ht
 await cp('icons', 'www/icons', { recursive: true });
 
 await cp('vendor', 'www/vendor', { recursive: true });
+
