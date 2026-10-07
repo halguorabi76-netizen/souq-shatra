@@ -33,7 +33,7 @@ test('invalid return targets and quantities are rejected, and cancellation clear
  c.A.add();storage.set('other','preserved');c.clearPurchaseReturn();assert.equal(storage.has('test-purchase-return'),false);assert.equal(storage.get('other'),'preserved');c.user={id:'buyer'};assert.equal(c.resumePurchaseAfterLogin(),false);
 });
 test('purchase auth provides create-account wording and waits for refreshed product data',()=>{
- assert.doesNotMatch(html,/إنشاء حساب جديد/);assert.match(html,/if\(pendingPurchase\)\{await refresh\(\)/);assert.match(html,/if\(!pendingPurchase\)loadAuthProviders\(\)/);
+ assert.doesNotMatch(html,/إنشاء حساب جديد/);assert.match(html,/if\(pendingPurchase\)\{await refresh\(\)/);assert.doesNotMatch(html,/if\(!pendingPurchase\)loadAuthProviders\(\)/);assert.match(html,/loadAuthProviders\(\);/);
 });
 function authActions(x,{signupSession=true,failure=false,failureCode='invalid_credentials'}={}){
  const c=x.c,button={disabled:false,isConnected:true},values={lp:'buyer@example.com',lk:'secret123',lkConfirm:'secret123',ln:'زبون',lphone:'07700000000'};
