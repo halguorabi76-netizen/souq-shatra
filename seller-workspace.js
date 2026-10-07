@@ -50,6 +50,7 @@ export function createSellerWorkspace(ctx){
   if(g.mode==='seller'&&g.canSell&&g.store&&!ownerPreview){ctx.publicStore(null);return;}
   if(publicLoadedStore!==id){publicLoadedStore=id;publicCategory='';publicQuery='';publicDeals=false;publicNew=false;}
   closeMenu();document.body.classList.add('seller-storefront');document.body.classList.remove('seller-workspace');$('#sellerNav')?.remove();
+  if(!m&&g.dataReady===false){$('#view').innerHTML='<div class="sw-shell" aria-busy="true" aria-label="تحميل بيانات المتجر"></div>';return;}
   if(!m){$('#view').innerHTML=`<div class="sw-shell">${empty('المتجر غير متاح الآن')}<button data-s="leaveStore" class="sw-primary">العودة إلى المتاجر</button></div>`;return;}
   const ui=window.SouqMarketplace,app=normalizeAppearance(m.appearance),all=g.data.p.filter(p=>p.mid===id&&p.active&&!p.blocked),cats=[...new Set(all.map(p=>p.store_category||p.cat))],deals=all.filter(ui.discounted);
   const list=all.filter(p=>(!publicCategory||(p.store_category||p.cat)===publicCategory)&&(!publicDeals||ui.discounted(p))&&window.SouqCatalog.matches([p.name,p.desc,p.variant].join(' '),publicQuery)).sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));if(publicNew)list.splice(12);
@@ -98,6 +99,5 @@ export function createSellerWorkspace(ctx){
  document.addEventListener('keydown',e=>{const drawer=document.getElementById('swDrawer');if(e.key==='Escape'){closeMenu();return}if(e.key==='Tab'&&drawer){const buttons=[...drawer.querySelectorAll('aside button')],first=buttons[0],last=buttons.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}});
  return {render,load,storefront,chrome,categoryNames:records.names,productCost:id=>settings.productCosts[id]??null,saveProductCost:async(id,cost)=>{if((settings.productCosts[id]??null)===cost)return;const next={...settings,productCosts:{...settings.productCosts}};if(cost===null)delete next.productCosts[id];else next.productCosts[id]=cost;await saveConfig(next);}};
 }
-
 
 

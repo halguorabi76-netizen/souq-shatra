@@ -443,13 +443,13 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=88"></script>
+<script src="marketplace.js?v=104"></script>
 
 <script type="module">
 import {createPreviewClient} from "./preview-lab.js?v=65";
 
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=103';
-import {createSellerWorkspace} from "./seller-workspace.js?v=85";
+import {createSellerWorkspace} from "./seller-workspace.js?v=104";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=102";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=102";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
@@ -1158,6 +1158,7 @@ function infoSheet(){
 /* ===== الإجراءات ===== */
 const A={
   marketSection,
+  visitStore:id=>{if(!/^[0-9a-f-]{36}$/i.test(id||''))return;closeAccountMenu();A.close();publicStoreId=id;tab='market';const url=new URL(db.preview?'preview.html':'./',location.href);url.searchParams.set('store',id);history.pushState(null,'',url);render();scrollTo(0,0)},
   chooseSellerLocation,
   submitSellerJoin:()=>act(submitSellerApplication),
   buyerAccountLogin,
@@ -1346,7 +1347,7 @@ const A={
 };
 const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
-const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
+const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
 const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
 db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
@@ -1360,7 +1361,7 @@ document.addEventListener('change',e=>{if(e.target.id==='buyerVariant'){cur.vid=
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
-  const t=e.target.closest('[data-a]');if(t?.matches('#authForm [type="submit"],#sellerJoinForm [type="submit"],#productCreateForm [type="submit"]'))return;if(t&&A[t.dataset.a])A[t.dataset.a](t.dataset.v,t);
+  const t=e.target.closest('[data-a]');if(t?.dataset.a==='visitStore'){if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();}if(t?.matches('#authForm [type="submit"],#sellerJoinForm [type="submit"],#productCreateForm [type="submit"]'))return;if(t&&A[t.dataset.a])A[t.dataset.a](t.dataset.v,t);
 });
 document.addEventListener('change',async e=>{
   if(e.target.id==='avatarInput'&&e.target.files[0]){
