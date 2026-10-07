@@ -3,7 +3,7 @@ import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=103';
 import {createSellerWorkspace} from "./seller-workspace.js?v=104";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=106";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=107";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=102";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=58";
 async function apiFetch(resource,init={}){

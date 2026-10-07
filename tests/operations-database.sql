@@ -30,8 +30,7 @@ end $$;
 select set_config('qa.order',public.place_order(current_setting('qa.store')::uuid,jsonb_build_array(jsonb_build_object('id',current_setting('qa.product'),'quantity',1)),'QA CUSTOMER SECRET','07811111111','QA CUSTOMER ADDRESS','')::text,true);
 select set_config('request.jwt.claim.sub',current_setting('qa.owner'),true);
 do $$ begin
- if not exists(select 1 from public.account_notifications where event_kind='favorite' and product_id=current_setting('qa.product')::uuid) then raise exception 'favorite notification absent';end if;
- if (select count(*) from public.account_notifications where event_key like 'interaction:'||current_setting('qa.buyer')||':%')<>2 then raise exception 'like/favorite missing or duplicate notices';end if;
+ if exists(select 1 from public.account_notifications where event_key like 'interaction:'||current_setting('qa.buyer')||':%') then raise exception 'social reaction generated notification';end if;
  if not exists(select 1 from public.account_notifications where order_id=current_setting('qa.order')::uuid and event_kind='order' and body like '%× 1%') then raise exception 'order items absent from notice';end if;
 end $$;
 select public.set_order_status(current_setting('qa.order')::uuid,'accepted');
