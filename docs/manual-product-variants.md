@@ -16,9 +16,11 @@ Customers see product details, available options, immediate quantity controls an
 
 ## Verification
 
-- `npm run build` and `npm test`: 137 passing tests.
+- `npm run build` and `npm test`: 142 passing tests.
 - `PLAYWRIGHT_CHROME=/path/to/chrome-headless-shell node tests/product-flow.browser.cjs`: real Chromium exercises seller create/edit, the base variant, three manual combinations, image and price inheritance/override, independent stock, owner preview, invalid-combination prevention, quantity stability, double-click protection, cart and order variant snapshots, checkout debit and real store navigation. Layout checks cover 390, 820 and 1440 pixel widths. The preview uses local isolated data, not production writes.
 - `tests/manual-variants-database.sql`: transactional database fixtures exercise ordinary/custom products, independent checkout debit/cancellation restoration, snapshots, editing, archive/historical deletion, verification authorization, unique merchant/driver usernames and actual authenticated RLS. The entire fixture transaction rolls back.
 - Old test fixtures were repaired for current browser helpers, RPC responses, isolated module imports and independent admin authentication. Cartesian-generation tests now verify manual additions and legacy preservation; stock and authorization assertions remain.
 
 The independent fast admin authorization entry is preserved by the build. Preview now uses the same full-page layout and network-only loading controller as the main site, with no artificial loading timer. Private production Google sign-in and physical Android-device behavior require account/device testing beyond the isolated browser checks.
+
+Follow-up verification preserves concurrent main changes. Legacy `sale_unit` values load into the single unit field and stay synchronized on save; custom sections expose an optional subcategory immediately. Existing custom properties are reused when selected as variant axes. The reconciliation migration removes only superseded helper functions, duplicate constraints/indexes and temporary direct username grants, retaining the professional RPC, unique indexes, usernames and all existing records.

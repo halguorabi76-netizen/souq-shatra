@@ -68,3 +68,5 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  assert.equal(vm.runInContext('workspace.productCost(D.p[0].id)',context),7000);
  vm.runInContext("db.preview.selectRole('driver')",context);await settle();assert.match(nodes.get('#view').innerHTML,/مساحة التوصيل/);assert.match(nodes.get('#view').innerHTML,/رصيد مستحق للتطبيق/);
 });
+
+test('generated embedded preview includes the toolbar stylesheet after production CSS version changes',()=>{const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8');assert.match(source,/<link rel="stylesheet" href="preview-lab\.css\?v=\d+">/);});

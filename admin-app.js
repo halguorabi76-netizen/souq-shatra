@@ -1,11 +1,11 @@
 
 const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
-import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=108';
-import {createSellerWorkspace} from "./seller-workspace.js?v=108";
+import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=109';
+import {createSellerWorkspace} from "./seller-workspace.js?v=109";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=107";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=108";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=108";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=109";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -441,15 +441,15 @@ function myMarket(){
 }
 function postPage(){
   if(!canSell()){sellerRequest();tab='settings';settings();return}
-  const p=cur?.id?prod(cur.id):null;
+  const p=cur?.id?prod(cur.id):null;const sellingUnit=p?.attributes?._selling?.unit||p?.attributes?.sale_unit||'قطعة';
   const field=(id,label,value,type='text',extra='')=>`<div class="pe-field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value??'')}" ${extra}></div>`;
   $('#view').innerHTML=`<div class="sw-shell pe-shell"><header class="pe-header"><button type="button" data-a="tab" data-v="listings" aria-label="العودة إلى المنتجات">${authIcon('back')}</button><h1>${p?'تعديل المنتج':'إضافة منتج'}</h1><span></span></header><form id="productCreateForm" class="pe-form">
   <section class="post-card pe-images"><h2>صورة المنتج الرئيسية</h2><label class="pe-upload" for="pimg">${authIcon('image')}<span>إضافة صورة المنتج</span></label><input id="pimg" class="pe-file" type="file" accept="image/*"><div class="tile" id="pv">${p?thumb(p):'📷'}</div></section>
   <section class="post-card pe-basic">
   ${field('fn','اسم المنتج *',p?.name,'text','required minlength="2" maxlength="150"')}
   <label for="fd">وصف المنتج</label><textarea id="fd" rows="4" maxlength="5000">${esc(p?.desc||'')}</textarea>
-  <label for="funit">وحدة البيع</label><select id="funit">${['قطعة','زوج','كيلوغرام','غرام','متر','أخرى'].map(u=>`<option ${((['قطعة','زوج','كيلوغرام','غرام','متر'].includes(p?.attributes?._selling?.unit)?p.attributes._selling.unit:p?.attributes?._selling?.unit?'أخرى':'قطعة')===u)?'selected':''}>${u}</option>`).join('')}</select>
-  <div id="customUnitBox" ${p?.attributes?._selling?.unit&&!['قطعة','زوج','كيلوغرام','غرام','متر'].includes(p.attributes._selling.unit)?'':'hidden'}>${field('funitCustom','وحدة البيع الأخرى',p?.attributes?._selling?.unit,'text','maxlength="80"')}</div>
+  <label for="funit">وحدة البيع</label><select id="funit">${['قطعة','زوج','كيلوغرام','غرام','متر','أخرى'].map(u=>`<option ${((['قطعة','زوج','كيلوغرام','غرام','متر'].includes(sellingUnit)?sellingUnit:sellingUnit?'أخرى':'قطعة')===u)?'selected':''}>${u}</option>`).join('')}</select>
+  <div id="customUnitBox" ${sellingUnit&&!['قطعة','زوج','كيلوغرام','غرام','متر'].includes(sellingUnit)?'':'hidden'}>${field('funitCustom','وحدة البيع الأخرى',sellingUnit,'text','maxlength="80"')}</div>
   ${field('fpr','سعر البيع (د.ع) *',p?.price,'number','required min="1" max="2147483647" step="1" inputmode="numeric"')}
   </section>
   <section class="post-card" id="variantEditor"></section>
@@ -607,7 +607,7 @@ async function saveProduct(){
       image_path=`${storeId}/${uid()}.jpg`;
       check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));
     }
-    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes._selling={...f.attributes._selling,unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.expected_stock=bundle.expected_stock;
+    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.expected_stock=bundle.expected_stock;
     draft.id=check(await db.rpc('save_product_bundle',{p_id:draft.id||null,p_store:storeId,p_product:f,p_variants:bundle.variants}));
     tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
     }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent=cur?.id?'حفظ التعديلات':'إنشاء'}}
@@ -616,7 +616,7 @@ async function saveProduct(){
 function productDetailBody(){
  const {p,n}=cur,chosen=selectedProduct(p,cur.vid),display=chosen||p,m=mrec(p.mid),owner=canSell()&&ownStore?.id===p.mid;
  const defs=[...categoryDefinitions(D.catalog||[],p.catalog_category_id),...(p.attributes?._custom_options||[])],vs=(p.variants||[]).filter(v=>!v.archived),axes=[...new Set(vs.flatMap(v=>Object.keys(v.attributes)))];
- const selected=cur.options||{},unit=p.attributes?._selling?.unit||'قطعة';
+ const selected=cur.options||{},unit=p.attributes?._selling?.unit||p.attributes?.sale_unit||'قطعة';
  return `<div class="product-detail"><div class="tile big" id="productPhoto">${thumb(display)}</div><h1>${esc(p.name)}</h1><div id="productPrice">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${p.has_variants?`<section class="va-choice" aria-label="خيارات المنتج">${axes.map(k=>`<fieldset><legend>${esc(defs.find(d=>d.key===k)?.label||k)}</legend><div class="va-chips">${[...new Set(vs.map(v=>v.attributes[k]))].map(value=>{const possible=vs.some(v=>v.available&&v.stock>0&&v.attributes[k]===value&&Object.entries(selected).every(([axis,val])=>axis===k||!val||v.attributes[axis]===val));return `<button type="button" class="va-chip ${selected[k]===value?'va-selected':''}" data-a="chooseVariantOption" data-axis="${esc(k)}" data-option="${esc(value)}" aria-pressed="${selected[k]===value}" ${!possible?'disabled title="هذه التركيبة غير متوفرة"':''}>${esc(value)}</button>`;}).join('')}</div></fieldset>`).join('')}<button class="alt" data-a="resetVariantOptions">تغيير جميع الخيارات</button><p role="status">${chosen?esc(chosen.selectedVariant.label):'اختر خصائص النسخة المطلوبة؛ الخيارات غير المتوفرة معطلة.'}</p></section>`:''}
  ${owner?`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="row"><span>الكمية</span><div class="qty"><button type="button" data-a="pq" data-v="-1" aria-label="تقليل الكمية">−</button><b id="productQuantity">${n}</b><button type="button" data-a="pq" data-v="1" aria-label="زيادة الكمية">+</button></div></div><button type="button" class="buy" data-a="add" ${!chosen||chosen.stock<1?'disabled':''}>${!chosen?'اختر النسخة أولًا':chosen.stock<1?'غير متوفرة حاليًا':'أضف للسلة · '+fmt(chosen.price*n)}</button>`}
  ${p.desc?`<section><h2>معلومات المنتج</h2><p class="product-description">${esc(p.desc)}</p></section>`:''}${specifications(p,D.catalog||[])?`<details><summary>مواصفات المنتج</summary>${specifications(p,D.catalog||[])}</details>`:''}${m?`<a class="product-seller-card" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">${window.SouqMarketplace.avatar(m,esc)}<div><b>${esc(m.name)}</b>${m.username?`<small dir="ltr">@${esc(m.username)}</small>`:''}<small>${esc(m.description||m.address||'عرض معلومات المتجر ومنتجاته')}</small>${m.verified?'<small class="seller-verified">✓ بائع موثّق</small>':''}</div><span>←</span></a>`:''}</div>`;
@@ -927,7 +927,7 @@ async function showOrderNotice(id){
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
 }
-document.addEventListener('change',e=>{if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;psheet();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
+document.addEventListener('change',e=>{if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;updateProductDetail();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();

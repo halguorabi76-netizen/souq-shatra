@@ -5,7 +5,7 @@ if(!appModule)throw new Error('Missing application source module');
 // Preserve the independent admin entry and its fast authorization gate.
 const portalMain=main;
 const adminTemplate=await readFile('admin.html','utf8');
-const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,'$1?v=108');
+const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,'$1?v=109');
 await writeFile('admin.html',admin);
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
@@ -15,9 +15,9 @@ const preview=portalMain
  .replace(/const sellerResumeHint=[^\n]*\n/,'const sellerResumeHint=false;\n')
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
- .replace('<link rel="stylesheet" href="operations.css?v=58">','<link rel="stylesheet" href="operations.css?v=58"><link rel="stylesheet" href="preview-lab.css?v=63">')
+ .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=63">')
  .replace('<script src="demo-lab.js?v=51"></script>','')
- .replace('<script src="vendor/supabase/supabase-2.57.0.js"></script>','').replace('const {createClient}=window.supabase;','import {createPreviewClient} from "./preview-lab.js?v=108";')
+ .replace('<script src="vendor/supabase/supabase-2.57.0.js"></script>','').replace('const {createClient}=window.supabase;','import {createPreviewClient} from "./preview-lab.js?v=109";')
  .replace('import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";','')
  .replace('const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:accountSession?.storage},global:{fetch:apiFetch}});','const db=createPreviewClient();')
  .replace("const response=await apiFetch(SUPABASE_URL+'/auth/v1/settings',{headers:{apikey:SUPABASE_ANON_KEY}});","throw new Error('المعاينة تعمل بلا تسجيل دخول.');\n const response=null;")
