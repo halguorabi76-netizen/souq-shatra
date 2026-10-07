@@ -400,7 +400,13 @@ body.starting{background:#000!important}
 <link rel="stylesheet" href="operations.css?v=110"><link rel="stylesheet" href="preview-lab.css?v=63">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=100">
 <style>
-.seller-preflight{display:none}
+.seller-preflight,.account-preflight{display:none}
+:root[data-account-resume] .buyer-preflight{display:none}
+:root[data-account-resume] .account-preflight{display:grid}
+:root[data-seller-resume] .account-preflight{display:none}
+:root[data-account-resume] .app>.top,:root[data-account-resume] .app>.tabs{display:none!important}
+.account-preflight,.account-resume{min-height:70dvh;align-content:center;justify-items:center;text-align:center;padding:24px;color:var(--ink)}
+.account-preflight img,.account-resume img{width:88px;height:88px;border-radius:24px}.account-resume{display:grid}.account-resume button{width:auto;padding:10px 22px}
 :root[data-seller-resume] .buyer-preflight{display:none}
 .boot-content-lines{display:grid;gap:15px;padding:16px 0}.boot-content-lines i{height:15px;width:75%;background:var(--sw-line,var(--line));border-radius:8px;opacity:.45}.boot-content-lines i:nth-child(2){width:55%}.boot-seller-shell .sw-card{margin-bottom:18px}.boot-seller-shell button:disabled{opacity:.7}.buyer-preflight .mp-switcher a{display:flex;align-items:center;gap:12px;padding:20px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);text-decoration:none}.buyer-preflight .mp-switcher a small{display:block}.buyer-preflight .category-card{text-decoration:none;color:var(--ink)}
 :root[data-seller-resume] .seller-preflight{display:block}
@@ -409,9 +415,12 @@ body.starting{background:#000!important}
 </style>
 <script>
 (()=>{try{
- if(document.documentElement.dataset.portal||new URLSearchParams(location.search).has('store'))return;
+ if(document.documentElement.dataset.portal)return;
+ const params=new URLSearchParams(location.search),hash=new URLSearchParams(location.hash.slice(1));
+ if(params.has('code')||hash.has('access_token'))document.documentElement.dataset.accountResume='true';
  const retention=sessionStorage.getItem('souq-auth-retention')||localStorage.getItem('souq-auth-retention'),area=retention==='session'?sessionStorage:localStorage;
  const session=JSON.parse(area.getItem('sb-nbktyynshqldyerqtjrd-auth-token')||'null'),id=session?.user?.id;
+ if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
  if(/^[0-9a-f-]{36}$/i.test(id||'')&&localStorage.getItem('souq-preview-mode-'+id)!=='buyer'&&localStorage.getItem('souq-preview-mode-'+id)!=='driver')document.documentElement.dataset.sellerResume='true';
 }catch{}})();
 </script>
@@ -430,7 +439,7 @@ body.starting{background:#000!important}
 </script>
 <div class="app">
   <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-purple-v120.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="desktop-shortcut header-cart" data-a="tab" data-v="myMarket" aria-label="فتح السلة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off" aria-controls="marketSuggestions"><button type="submit" aria-label="بحث">⌕</button><div id="marketSuggestions" class="mp-suggestions" aria-label="اقتراحات البحث" hidden></div></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button></div></header>
-  <main id="view"><div class="buyer-preflight"><div class="banner-wrap"><div class="banner"><img src="icons/shatra-river.jpeg" alt="مشهد من مدينة الشطرة" decoding="async" fetchpriority="high"><span class="banner-caption">اكتشفوا سحر الشطرة</span></div></div><nav class="mp-switcher" aria-label="تصفح السوق"><a href="catalog.html"><span>▣</span><span><b>المواد</b><small>منتجات جميع التجار</small></span></a><a href="./?view=stores"><span>▤</span><span><b>المتاجر</b><small>اختر متجرًا وتصفح مواده</small></span></a></nav><section class="market-materials"><div class="section-title"><h2>تصفح الأقسام</h2></div><div class="category-cards"><a class="category-card" href="catalog.html?category=%D9%85%D9%88%D8%A7%D8%AF%20%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9"><span aria-hidden="true">🛒</span>مواد غذائية</a><a class="category-card" href="catalog.html?category=%D8%AE%D8%B6%D8%A7%D8%B1%20%D9%88%D9%81%D9%88%D8%A7%D9%83%D9%87"><span aria-hidden="true">🥬</span>خضار وفواكه</a><a class="category-card" href="catalog.html?category=%D8%AA%D9%85%D9%88%D8%B1"><span aria-hidden="true">🌴</span>تمور</a><a class="category-card" href="catalog.html?category=%D9%85%D9%84%D8%A7%D8%A8%D8%B3"><span aria-hidden="true">👕</span>ملابس</a><a class="category-card" href="catalog.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9"><span aria-hidden="true">📱</span>أجهزة</a><a class="category-card" href="catalog.html?category=%D9%85%D9%86%D8%B2%D9%84%D9%8A%D8%A9"><span aria-hidden="true">🏠</span>منزلية</a><a class="category-card" href="catalog.html?category=%D8%A3%D8%AE%D8%B1%D9%89"><span aria-hidden="true">📦</span>أخرى</a></div></section><section class="market-materials"><div class="section-title"><h2>المواد المعروضة</h2></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section></div><div class="seller-preflight"><div class="sw-shell boot-seller-shell"><div class="sw-sitebar"><button class="sw-icon" disabled aria-label="قائمة متجري">☰</button><span class="sw-sitebrand"><img src="icons/brand-purple-v120.png" alt=""><b>سوق الشطرة</b></span><button class="sw-icon" disabled aria-label="الإشعارات">♧</button></div><header class="sw-header"><h1>متجري</h1></header><section class="sw-card"><h2>المنتجات</h2><div class="sw-product-tabs"><button disabled>قائمة المنتجات</button><button disabled>المخزون</button><button disabled>أقسام المتجر</button></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i><i></i></div></section><section class="sw-card"><h2>الطلبات</h2><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section><nav class="sw-nav" aria-label="لوحة البائع"><button disabled>⌂<span>الرئيسية</span></button><button disabled>▣<span>الطلبات</span></button><button disabled>▤<span>المنتجات</span></button><button disabled>⚙<span>المزيد</span></button></nav></div></div></main><template id="sellerStartTemplate"><div class="sw-shell boot-seller-shell"><div class="sw-sitebar"><button class="sw-icon" disabled aria-label="قائمة متجري">☰</button><span class="sw-sitebrand"><img src="icons/brand-purple-v120.png" alt=""><b>سوق الشطرة</b></span><button class="sw-icon" disabled aria-label="الإشعارات">♧</button></div><header class="sw-header"><h1>متجري</h1></header><section class="sw-card"><h2>المنتجات</h2><div class="sw-product-tabs"><button disabled>قائمة المنتجات</button><button disabled>المخزون</button><button disabled>أقسام المتجر</button></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i><i></i></div></section><section class="sw-card"><h2>الطلبات</h2><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section><nav class="sw-nav" aria-label="لوحة البائع"><button disabled>⌂<span>الرئيسية</span></button><button disabled>▣<span>الطلبات</span></button><button disabled>▤<span>المنتجات</span></button><button disabled>⚙<span>المزيد</span></button></nav></div></template>
+  <main id="view"><div class="account-preflight" role="status"><img src="icons/brand-purple-v120.png" alt=""><p>جارٍ فتح حسابك…</p></div><div class="buyer-preflight"><div class="banner-wrap"><div class="banner"><img src="icons/shatra-river.jpeg" alt="مشهد من مدينة الشطرة" decoding="async" fetchpriority="high"><span class="banner-caption">اكتشفوا سحر الشطرة</span></div></div><nav class="mp-switcher" aria-label="تصفح السوق"><a href="catalog.html"><span>▣</span><span><b>المواد</b><small>منتجات جميع التجار</small></span></a><a href="./?view=stores"><span>▤</span><span><b>المتاجر</b><small>اختر متجرًا وتصفح مواده</small></span></a></nav><section class="market-materials"><div class="section-title"><h2>تصفح الأقسام</h2></div><div class="category-cards"><a class="category-card" href="catalog.html?category=%D9%85%D9%88%D8%A7%D8%AF%20%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9"><span aria-hidden="true">🛒</span>مواد غذائية</a><a class="category-card" href="catalog.html?category=%D8%AE%D8%B6%D8%A7%D8%B1%20%D9%88%D9%81%D9%88%D8%A7%D9%83%D9%87"><span aria-hidden="true">🥬</span>خضار وفواكه</a><a class="category-card" href="catalog.html?category=%D8%AA%D9%85%D9%88%D8%B1"><span aria-hidden="true">🌴</span>تمور</a><a class="category-card" href="catalog.html?category=%D9%85%D9%84%D8%A7%D8%A8%D8%B3"><span aria-hidden="true">👕</span>ملابس</a><a class="category-card" href="catalog.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9"><span aria-hidden="true">📱</span>أجهزة</a><a class="category-card" href="catalog.html?category=%D9%85%D9%86%D8%B2%D9%84%D9%8A%D8%A9"><span aria-hidden="true">🏠</span>منزلية</a><a class="category-card" href="catalog.html?category=%D8%A3%D8%AE%D8%B1%D9%89"><span aria-hidden="true">📦</span>أخرى</a></div></section><section class="market-materials"><div class="section-title"><h2>المواد المعروضة</h2></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section></div><div class="seller-preflight"><div class="sw-shell boot-seller-shell"><div class="sw-sitebar"><button class="sw-icon" disabled aria-label="قائمة متجري">☰</button><span class="sw-sitebrand"><img src="icons/brand-purple-v120.png" alt=""><b>سوق الشطرة</b></span><button class="sw-icon" disabled aria-label="الإشعارات">♧</button></div><header class="sw-header"><h1>متجري</h1></header><section class="sw-card"><h2>المنتجات</h2><div class="sw-product-tabs"><button disabled>قائمة المنتجات</button><button disabled>المخزون</button><button disabled>أقسام المتجر</button></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i><i></i></div></section><section class="sw-card"><h2>الطلبات</h2><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section><nav class="sw-nav" aria-label="لوحة البائع"><button disabled>⌂<span>الرئيسية</span></button><button disabled>▣<span>الطلبات</span></button><button disabled>▤<span>المنتجات</span></button><button disabled>⚙<span>المزيد</span></button></nav></div></div></main><template id="sellerStartTemplate"><div class="sw-shell boot-seller-shell"><div class="sw-sitebar"><button class="sw-icon" disabled aria-label="قائمة متجري">☰</button><span class="sw-sitebrand"><img src="icons/brand-purple-v120.png" alt=""><b>سوق الشطرة</b></span><button class="sw-icon" disabled aria-label="الإشعارات">♧</button></div><header class="sw-header"><h1>متجري</h1></header><section class="sw-card"><h2>المنتجات</h2><div class="sw-product-tabs"><button disabled>قائمة المنتجات</button><button disabled>المخزون</button><button disabled>أقسام المتجر</button></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i><i></i></div></section><section class="sw-card"><h2>الطلبات</h2><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section><nav class="sw-nav" aria-label="لوحة البائع"><button disabled>⌂<span>الرئيسية</span></button><button disabled>▣<span>الطلبات</span></button><button disabled>▤<span>المنتجات</span></button><button disabled>⚙<span>المزيد</span></button></nav></div></template>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
     <button data-a="marketSection" data-v="materials"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-4 9 4v10l-9 4-9-4ZM3 7l9 4 9-4M12 11v10" stroke-linecap="round" stroke-linejoin="round"/></svg></span>المواد</button>
@@ -503,6 +512,7 @@ async function clearUnavailableAccount(){
  if(user?.id)try{localStorage.removeItem('souq-preview-mode-'+user.id)}catch{}
  try{sessionStorage.removeItem('souq-preview-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}
  user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;viewMode='guest';
+ delete document.documentElement.dataset.accountResume;
  D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
  deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
 }
@@ -515,6 +525,7 @@ async function refresh(){
   if(unavailableSession(sessionResult.error)){await clearUnavailableAccount();return refresh()}
   const session=check(sessionResult);
   const nextUser=session.session?.user||null;
+  if(!nextUser)delete document.documentElement.dataset.accountResume;
   if(id!==refreshId)return;
   // Restore the saved identity before querying the marketplace. A slow or failed
   // product/delivery request must never send a signed-in person back to welcome.
@@ -817,7 +828,14 @@ function sellerJoinPage(){
  $('#sellerJoinForm').addEventListener('submit',e=>{e.preventDefault();A.submitSellerJoin()});
 }
 /* ===== الواجهات ===== */
+function accountResume(){
+ document.documentElement.dataset.accountResume='true';
+ document.body.classList.remove('seller-workspace','seller-storefront','welcome-mode','profile-mode','buyer-cart-mode');
+ $('.tabs').hidden=true;
+ $('#view').innerHTML='<div class="account-resume" role="status"><img src="icons/brand-purple-v120.png" alt=""><p>جارٍ فتح حسابك…</p><button class="alt" data-a="retryAccount">إعادة المحاولة</button></div>';
+}
 function sellerResume(){
+ document.documentElement.dataset.accountResume='true';
  document.body.classList.add('seller-workspace');
  document.body.classList.remove('welcome-mode','profile-mode','buyer-cart-mode');
  $('.tabs').hidden=true;
@@ -828,15 +846,15 @@ function render(){
   globalThis.window?.SouqBuyerVoiceRuntime?.sync();
   trackPage();
   syncMarketSearch();
-  if(document.documentElement)delete document.documentElement.dataset.sellerResume;
+  if(document.documentElement){delete document.documentElement.dataset.sellerResume;if(dataReady||db.preview)delete document.documentElement.dataset.accountResume;}
   activity.sync();
   if(db.preview?.isHome()){db.preview.home();return;}
   if(ADMIN_PORTAL){renderAdminPortal();return}
   if(pendingPurchase&&!dataReady&&!db.preview){$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ العودة إلى المادة…</div>';return}
   try{if(user&&sessionStorage.getItem('souq-admin-return')==='1'){sessionStorage.removeItem('souq-admin-return');location.replace('admin.html');return}}catch{}
-  // Public browsing must not wait for account, delivery or workspace requests.
-  // Private actions still use the existing account checks and database policies.
-  if(!dataReady&&viewMode==='seller'&&!db.preview&&!publicStoreId){sellerResume();return}
+  // Guests browse immediately. Saved or newly signed-in accounts wait for their
+  // verified role so a merchant never briefly sees customer navigation.
+  if(!dataReady&&!db.preview){if(viewMode==='seller'){sellerResume();return}if(user||document.documentElement.dataset.accountResume==='true'){accountResume();return}}
   if(sellerAccount())viewMode='seller';
   if(dataReady&&viewMode==='seller'&&!canSell())viewMode='buyer';
   if(canSell()&&viewMode==='seller'&&ownStore){if(publicStoreId&&publicStoreId!==ownStore.id)publicStoreId=null;if(!['account','market','listings','myMarket','chats','settings','profilePage','postPage','orders'].includes(tab))tab='account';}
@@ -1220,6 +1238,7 @@ const A={
   printReceipt:()=>window.print(),
   buyerVoice:()=>window.SouqBuyerVoiceRuntime?.show(),
   productImage:v=>{if(!cur?.p)return;const images=[...new Set([cur.p.img,...(cur.p.variants||[]).filter(x=>!x.archived).map(x=>x.img)].filter(src=>typeof src==='string'&&(src.startsWith('https://')||src.startsWith('data:image/'))))];if(images[+v]){cur.photo=images[+v];updateProductDetail()}},
+  retryAccount:()=>act(refresh),
   toggleTheme:()=>{window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark');if(tab==='settings')settings()},
   theme:mode=>{window.SouqTheme.set(mode);settings()},
   accountMenu:()=>{

@@ -14,7 +14,7 @@ test('seller layout restores only for the current stored account, and tolerates 
  values.delete('session');assert.equal(context.savedSellerView(storage,'session'),false);
  values.set('session','{');assert.equal(context.savedSellerView(storage,'session'),false);
  assert.equal(context.savedSellerView({getItem:()=>{throw Error('unavailable')}},'session'),false);
- assert.match(html,/if\(!dataReady&&viewMode==='seller'&&!db.preview&&!publicStoreId\)\{sellerResume\(\);return\}/);
+ assert.match(html,/if\(!dataReady&&!db.preview\)\{if\(viewMode==='seller'\)\{sellerResume\(\);return\}/);
  assert.match(html,/if\(dataReady&&viewMode==='seller'&&!canSell\(\)\)viewMode='buyer'/);
  assert.doesNotMatch(html.match(/function sellerResume\(\)\{[\s\S]*?\n\}/)[0],/sw-card|sw-nav|<button|متجري|المبيعات|المخزون/);
 });
@@ -26,6 +26,13 @@ test('pending seller restoration shows the seller shell without a buyer flash or
  const prefix=html.match(/function render\(\)\{([\s\S]*?)  if\(sellerAccount\(\)\)/)[1];
  vm.runInContext(resume+'\nfunction render(){'+prefix+'buyerCalls++;}',context);
  vm.runInContext('render()',context);assert.match(view.innerHTML,/boot-seller-shell/);assert.match(view.innerHTML,/sw-nav/);assert.doesNotMatch(view.innerHTML,/مبيعات اليوم|طلبات الأسبوع|٠ د\.ع|0 د\.ع/);assert.match(view.innerHTML,/<button disabled>/);assert.equal(context.buyerCalls,0);assert.equal(tabs.hidden,true);assert.equal(classes.has('seller-workspace'),true);
- vm.runInContext("viewMode='guest';render()",context);assert.equal(context.buyerCalls,1);
+ vm.runInContext("delete document.documentElement.dataset.accountResume;viewMode='guest';render()",context);assert.equal(context.buyerCalls,1);
 });
 
+test('newly signed-in account waits for verified role even when login was opened as a buyer',async()=>{
+ const html=await readFile('index.html','utf8'),view={innerHTML:'customer page'},tabs={hidden:false},dataset={};
+ const c=vm.createContext({user:{id:'new-account'},profile:null,viewMode:'buyer',dataReady:false,db:{},pendingPurchase:null,ADMIN_PORTAL:false,publicStoreId:null,document:{documentElement:{dataset},body:{classList:{remove(){}}}},$:(s)=>s==='#view'?view:tabs,trackPage(){},syncMarketSearch(){},activity:{sync(){}},buyerCalls:0});
+ const gate=html.match(/function accountResume\(\)\{[\s\S]*?\n\}/)[0],prefix=html.match(/function render\(\)\{([\s\S]*?)  if\(sellerAccount\(\)\)/)[1];
+ vm.runInContext(gate+'\nfunction render(){'+prefix+'buyerCalls++;}',c);vm.runInContext('render()',c);assert.equal(c.buyerCalls,0);assert.match(view.innerHTML,/جارٍ فتح حسابك/);assert.equal(tabs.hidden,true);assert.equal(dataset.accountResume,'true');
+ vm.runInContext('dataReady=true;render()',c);assert.equal(c.buyerCalls,1);assert.equal(dataset.accountResume,undefined);
+});
