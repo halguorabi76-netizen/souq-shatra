@@ -49,7 +49,7 @@ test('failed migration keeps the previous session and preference intact',()=>{
 });
 function routing(){
  const source=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- const c={user:{email:'old@example.test'},ownStore:null,driverAccount:null,ADMIN_PORTAL:false,sessionStorage:new Storage(),tab:'market',calls:[],sheet:s=>c.calls.push(['sheet',s]),head:s=>s,rememberMode:r=>c.calls.push(['mode',r]),canSell:()=>!!c.ownStore?.ok,render:()=>c.calls.push(['render']),sellerRequest:()=>c.calls.push(['sellerRequest']),driverWorkspace:{application:()=>c.calls.push(['driverApplication'])}};
+ const c={URL,location:new URL('https://test.invalid/'),history:{replaceState(){}},db:{rpc:async()=>({data:null})},reportedProfessionalEntry:'',user:{email:'old@example.test'},ownStore:null,driverAccount:null,ADMIN_PORTAL:false,sessionStorage:new Storage(),tab:'market',calls:[],sheet:s=>c.calls.push(['sheet',s]),head:s=>s,rememberMode:r=>c.calls.push(['mode',r]),canSell:()=>!!c.ownStore?.ok,render:()=>c.calls.push(['render']),sellerRequest:()=>c.calls.push(['sellerRequest']),driverWorkspace:{application:()=>c.calls.push(['driverApplication'])}};
  vm.createContext(c);vm.runInContext(source.slice(source.indexOf('function finishAccountEntry(){'),source.indexOf('function sellerRequest(){')),c);return c;
 }
 test('existing approved seller and driver enter their own workspace',()=>{

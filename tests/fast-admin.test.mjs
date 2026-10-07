@@ -11,7 +11,7 @@ function setup(role='admin',disabled=false){
   const chain={select:f=>{fields=f;return chain},order:()=>chain,limit:()=>chain,eq:()=>chain,maybeSingle:()=>Promise.resolve({data:fields==='*'&&table==='profiles'?result:null}),then:(ok,bad)=>(table==='stores'?pending:Promise.resolve({data:[]})).then(ok,bad)};
   return chain;
  }
- const c={user:null,profile:null,ownStore:null,refreshId:1,adminAccessReady:false,dataReady:false,D:{m:[],p:[],o:[],people:[]},deliveryPayments:[],deliverySettings:{},viewMode:'guest',db:{from:query},withTimeout:p=>p,check:r=>{if(r.error)throw r.error;return r.data},render:()=>renders.push({role:c.profile?.role,ready:c.adminAccessReady,dataReady:c.dataReady}),window:{SouqLoading:{recovered(){}}},fromOrder:o=>o,clearUnavailableAccount:async()=>{},refresh:async()=>{}};
+ const c={user:null,profile:null,ownStore:null,refreshId:1,adminAccessReady:false,dataReady:false,D:{m:[],p:[],o:[],people:[]},deliveryPayments:[],deliverySettings:{},viewMode:'guest',db:{from:query,rpc:async name=>{queries.push(name);return {data:[]}}},withTimeout:p=>p,check:r=>{if(r.error)throw r.error;return r.data},render:()=>renders.push({role:c.profile?.role,ready:c.adminAccessReady,dataReady:c.dataReady}),window:{SouqLoading:{recovered(){}}},fromOrder:o=>o,clearUnavailableAccount:async()=>{},refresh:async()=>{}};
  vm.createContext(c);vm.runInContext(source.slice(source.indexOf('async function refreshAdmin('),source.indexOf('async function refresh(){')),c);
  return {c,queries,renders,release:()=>release({data:[]})};
 }

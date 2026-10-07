@@ -1,0 +1,52 @@
+-- Production-compatible integration fixtures. Always rolled back.
+begin;
+do $test$
+declare seller uuid:=gen_random_uuid();buyer uuid:=gen_random_uuid();driver uuid:=gen_random_uuid();store uuid:=gen_random_uuid();p uuid;o uuid;plain uuid;cid uuid;attrs jsonb;rows jsonb;a uuid:=gen_random_uuid();b uuid:=gen_random_uuid();n integer;
+begin
+ insert into auth.users(id,email,raw_user_meta_data) values(seller,'manual-seller-'||seller||'@example.invalid','{"full_name":"اختبار تاجر"}'),(buyer,'manual-buyer-'||buyer||'@example.invalid','{"full_name":"اختبار زبون"}'),(driver,'manual-driver-'||driver||'@example.invalid','{"full_name":"اختبار سائق"}');
+ update public.profiles set role='seller' where id=seller;
+ insert into public.stores(id,owner_id,name,approved) values(store,seller,'متجر اختبار مؤقت',true);
+ insert into public.delivery_workers(user_id) values(driver);
+ if (select username from public.profiles where id=driver) is null then raise exception 'driver username missing';end if;
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',seller,'role','authenticated')::text,true);
+ perform public.set_professional_username('test_'||left(replace(seller::text,'-',''),20));
+ if (select username from public.stores where id=store) is distinct from (select username from public.profiles where id=seller) then raise exception 'store username not synchronized';end if;
+ begin update public.stores set verified=true where id=store;raise exception 'seller verified self';exception when others then if sqlerrm='seller verified self' then raise;end if;end;
+ select id into cid from public.catalog_categories where name='قمصان وتيشيرتات';
+ attrs:=jsonb_build_object('_manual_variants',true,'_base_variant_id',a,'_variant_inherit',jsonb_build_array(a),'_selling',jsonb_build_object('unit','قطعة','store_code','A15','barcode','12345'),'_custom_options','[{"key":"custom_storage","label":"السعة التخزينية","icon":"🏷️","type":"text","options":[],"variant":true,"required":false}]'::jsonb);
+ rows:=jsonb_build_array(jsonb_build_object('id',a,'attributes',jsonb_build_object('color','أسود','size','L','custom_storage','128GB'),'label','أسود L 128GB','price',1000,'stock',10,'available',true),jsonb_build_object('id',b,'attributes',jsonb_build_object('color','أبيض','size','XL','custom_storage','256GB'),'label','أبيض XL 256GB','price',800,'stock',4,'available',true,'image_path',store::text||'/variant.jpg'));
+ p:=public.save_product_bundle(null,store,jsonb_build_object('name','اختبار نسخ يدوي','price',1000,'stock',0,'image_path',store::text||'/main.jpg','catalog_category_id',cid,'attributes',attrs),rows);
+ if (select price from public.products where id=p)<>1000 then raise exception 'main price replaced by min variant';end if;
+ if (select count(*) from public.product_variants where product_id=p)<>2 then raise exception 'unexpected generated combinations';end if;
+ plain:=public.save_product_bundle(null,store,jsonb_build_object('name','اختبار بدون نسخ','price',1500,'stock',7,'category','قسم خاص','attributes','{"_manual_variants":true,"_selling":{"unit":"علبة","section":"قسم خاص","subcategory":"فئة خاصة"}}'::jsonb),'[]');
+ -- Custom sections also accept product-specific axes without a catalog UUID.
+ perform public.save_product_bundle(null,store,jsonb_build_object('name','اختبار قسم خاص بنسخ','price',1000,'stock',0,'category','أخرى','attributes',attrs),jsonb_build_array(jsonb_build_object('attributes',jsonb_build_object('custom_storage','128GB'),'label','128GB','price',1000,'stock',2,'available',true)));
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',buyer,'role','authenticated')::text,true);
+ execute 'set local role authenticated';
+ if exists(select 1 from public.profiles where id=seller) or exists(select 1 from public.driver_profiles where user_id=driver) then raise exception 'private professional data exposed';end if;
+ begin perform public.set_professional_username('test_customer');raise exception 'buyer required username';exception when others then if sqlerrm='buyer required username' then raise;end if;end;
+ begin perform public.save_product_bundle(p,store,jsonb_build_object('name','غير مسموح','price',1,'stock',0),'[]');raise exception 'buyer changed inventory';exception when others then if sqlerrm='buyer changed inventory' then raise;end if;end;
+ o:=public.place_order(store,jsonb_build_array(jsonb_build_object('id',p,'variant_id',b,'quantity',2)),'اختبار زبون','07700000000','عنوان اختبار');
+ if (select stock from public.product_variants where id=a)<>10 or (select stock from public.product_variants where id=b)<>2 then raise exception 'wrong variant debit';end if;
+ if (select price from public.order_items where order_id=o)<>800 or (select variant_id from public.order_items where order_id=o)<>b or (select variant_snapshot->'attributes'->>'custom_storage' from public.order_items where order_id=o)<>'256GB' then raise exception 'wrong order snapshot';end if;
+ begin perform public.place_order(store,jsonb_build_array(jsonb_build_object('id',p,'variant_id',gen_random_uuid(),'quantity',1)),'اختبار','07700000000','عنوان');raise exception 'nonexistent combination purchased';exception when others then if sqlerrm='nonexistent combination purchased' then raise;end if;end;
+ execute 'reset role';
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',driver,'role','authenticated')::text,true);
+ begin perform public.set_professional_username((select username from public.profiles where id=seller));raise exception 'duplicate username accepted';exception when unique_violation then null;end;
+ perform public.set_professional_username('test_driver_'||left(replace(driver::text,'-',''),15));
+ perform set_config('request.jwt.claims',jsonb_build_object('sub',seller,'role','authenticated')::text,true);
+ select jsonb_agg(to_jsonb(v)) into rows from public.product_variants v where product_id=p;
+ perform public.save_product_bundle(p,store,jsonb_build_object('name','تعديل محفوظ','price',1100,'stock',0,'catalog_category_id',cid,'attributes',attrs),rows);
+ if (select stock from public.product_variants where id=a)<>10 or (select stock from public.product_variants where id=b)<>2 then raise exception 'edit altered independent stock';end if;
+ update public.products set active=false where id=p;
+ if not exists(select 1 from public.order_items where order_id=o and variant_id=b) then raise exception 'archive lost history';end if;
+ perform public.delete_product_safely(p);
+ if not exists(select 1 from public.products where id=p and not active and attributes->>'_deleted'='true') then raise exception 'historical product deleted';end if;
+ perform public.set_order_status(o,'cancelled');
+ if (select stock from public.product_variants where id=b)<>4 or (select stock from public.product_variants where id=a)<>10 then raise exception 'cancel did not restore chosen variant';end if;
+ perform public.delete_product_safely(plain);
+ if exists(select 1 from public.products where id=plain) then raise exception 'unreferenced product not deleted';end if;
+ if has_function_privilege('anon','public.set_professional_username(text)','execute') or has_function_privilege('anon','public.delete_product_safely(uuid)','execute') then raise exception 'unsafe public grants';end if;
+end;$test$;
+select 'PASS: manual variants, ordinary/custom categories, independent debit and restoration, prices and snapshots, edit, archive, historic delete, private verification, professional unique usernames and permissions' result;
+rollback;

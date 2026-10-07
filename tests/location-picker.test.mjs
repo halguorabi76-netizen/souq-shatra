@@ -10,7 +10,7 @@ function setup(){
  const L={map(){const map={events:{},setView(){return this},on(type,callback){this.events[type]=callback;return this},invalidateSize(){},remove(){this.removed=true}};maps.push(map);return map},tileLayer(){return {on(){return this},addTo(){return this}}},divIcon:x=>x,marker(coords){const marker={coords,events:{},addTo(){return this},on(type,callback){this.events[type]=callback;return this},setLatLng(coords){this.coords=coords},getLatLng(){return {lat:this.coords[0],lng:this.coords[1]}}};markers.push(marker);return marker}};
  const context={window:{L},navigator:{geolocation:{getCurrentPosition(success,failure){geo.push({success,failure})}}},document:{activeElement:{focus(){}},getElementById:id=>nodes.get(id)},MutationObserver:class{observe(){}disconnect(){}},setTimeout,clearTimeout};vm.createContext(context);vm.runInContext(code,context);
  const api=context.window.SouqLocationPicker;
- const show=value=>api.show({value,sheet(){for(const id of ['deliveryMap','mapStatus','mapConfirm','mapLocate','mapRetry'])node(id);nodes.get('mapConfirm').disabled=true},head:()=>'',onConfirm:p=>confirmed.push(p)});
+ const show=value=>api.show({value,sheet(){for(const id of ['deliveryMap','mapStatus','mapConfirm','mapLocate','mapRetry','mapExternal'])node(id);nodes.get('mapConfirm').disabled=true},head:()=>'',onConfirm:p=>confirmed.push(p)});
  return {api,show,nodes,geo,maps,markers,confirmed};
 }
 test('map remains selectable when GPS is denied and confirms only the chosen point',async()=>{

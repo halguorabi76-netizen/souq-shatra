@@ -34,10 +34,11 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  const nodes=new Map(),storage=new Map();
  const element=(id='')=>{const e={id,innerHTML:'',textContent:'',dataset:{},style:{setProperty(){}},classList:{add(){},remove(){},toggle(){},contains(){return false}},setAttribute(){},removeAttribute(){},addEventListener(){},focus(){},append(child){if(child.id)nodes.set('#'+child.id,child)},prepend(child){this.append(child)},before(){},remove(){nodes.delete('#'+e.id)},insertAdjacentHTML(_p,html){e.innerHTML+=html},querySelector(){return element()},querySelectorAll(){return []}};if(id)nodes.set('#'+id,e);return e;};
  const document={hidden:false,documentElement:{dataset:{portal:'preview'},style:{setProperty(){},getPropertyValue(){return ''}}},body:element('body'),createElement:()=>element(),getElementById:id=>nodes.get('#'+id)||null,querySelector:s=>nodes.get(s)||element(s.startsWith('#')?s.slice(1):s),querySelectorAll:()=>[],addEventListener(){}};
- const url=new URL('https://preview.invalid/preview.html'),context={document,location:url,URL,URLSearchParams,structuredClone,crypto:{randomUUID:()=> 'a9999999-0000-4000-8000-'+String(Math.random()).slice(2,14).padEnd(12,'0')},navigator:{},history:{replaceState(){},pushState(){}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},sessionStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},matchMedia:()=>({matches:true}),setTimeout,clearTimeout,setInterval(){},scrollTo(){},alert(){throw new Error('Unexpected dialog')},confirm:()=>true,fetch(){throw new Error('Preview attempted a network request')}};
+ const url=new URL('https://preview.invalid/preview.html'),context={TextEncoder,document,location:url,URL,URLSearchParams,structuredClone,crypto:{randomUUID:()=> 'a9999999-0000-4000-8000-'+String(Math.random()).slice(2,14).padEnd(12,'0')},navigator:{},history:{replaceState(){},pushState(){}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},sessionStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},matchMedia:()=>({matches:true}),setTimeout,clearTimeout,setInterval(){},scrollTo(){},alert(){throw new Error('Unexpected dialog')},confirm:()=>true,fetch(){throw new Error('Preview attempted a network request')}};
  context.CATALOG_SEEDS=CATALOG_SEEDS;context.window=context;context.addEventListener=()=>{};context.SouqTheme={get:()=> 'light',set(){}};
  vm.createContext(context);
- const variantCode=readFileSync(new URL('../product-variants.js',import.meta.url),'utf8').replace(/export /g,'');vm.runInContext('{'+variantCode+';Object.assign(globalThis,{createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey});}',context);
+ const strip=code=>code.replace(/^import .*;$/gm,'').replace(/^export \{.*\} from .*;$/gm,'').replace(/export /g,'');
+ for(const file of ['product-options.js','product-variants.js','product-editor.js']){const code=readFileSync(new URL('../'+file,import.meta.url),'utf8'),names=[...code.matchAll(/export (?:const|function|async function) ([a-zA-Z0-9_]+)/g)].map(m=>m[1]);vm.runInContext('{'+strip(code)+';Object.assign(globalThis,{'+names.join(',')+'});}',context);}
  for(const file of ['catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
  const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8').match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;$/gm,'');vm.runInContext(source,context,{filename:'preview.html'});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();assert.match(nodes.get('#view').innerHTML,/أي واجهة تريد تجربتها/);
@@ -45,14 +46,15 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  vm.runInContext("A.prod(D.p[0].id);A.add();A.cart()",context);
  assert.match(nodes.get('#view').innerHTML,/buyer-checkout-layout/);assert.match(nodes.get('#view').innerHTML,/المبلغ النهائي المطلوب/);assert.doesNotMatch(nodes.get('#view').innerHTML,/حصة التطبيق|لكل بائع/);assert.equal(nodes.get('#shade').hidden,true);
  document.querySelector('#accountMenu').hidden=true;
- vm.runInContext("A.accountMenu()",context);assert.match(nodes.get('#accountMenu').innerHTML,/حسابي وبياناتي/);assert.match(nodes.get('#accountMenu').innerHTML,/عامل توصيل/);
+ vm.runInContext("A.accountMenu()",context);assert.match(nodes.get('#accountMenu').innerHTML,/حسابي وبياناتي/);assert.match(nodes.get('#accountMenu').innerHTML,/سائق التوصيل/);assert.match(nodes.get('#accountMenu').innerHTML,/data-v="driver"/);
  vm.runInContext("A.tab('profilePage')",context);assert.match(nodes.get('#view').innerHTML,/data-a="editCustomerPhone"/);
  vm.runInContext("A.editCustomerPhone()",context);assert.match(nodes.get('#sheet').innerHTML,/customerPhoneForm/);assert.doesNotMatch(nodes.get('#sheet').innerHTML,/pfname/);
  vm.runInContext("A.close()",context);
  vm.runInContext("db.preview.selectRole('seller')",context);await settle();assert.match(nodes.get('#view').innerHTML,/لوحة متجرك|متجر المعاينة/);assert.match(nodes.get('#view').innerHTML,/مبيعات اليوم المكتملة/);
+ await vm.runInContext("workspace.saveProductCost(D.p[0].id,7000)",context);
  vm.runInContext("A.pform(D.p[0].id)",context);
  assert.match(nodes.get('#view').innerHTML,/productCreateForm|إضافة صورة/);
- const values={fn:'قميص محدّث',fpr:'11000',fs:'20',fthreshold:'5',fcost:'7000',fcompare:'',factive:'true',fd:'وصف جديد',fcCustom:'وصل حديثًا',fsku:'SH-1'};
+ const values={fn:'قميص محدّث',fpr:'11000',fs:'20',fthreshold:'5',funit:'قطعة',fcompare:'',factive:'true',fd:'وصف جديد',fcCustom:'وصل حديثًا',fsku:'SH-1'};
  for(const [id,value] of Object.entries(values))document.querySelector('#'+id).value=value;
  await vm.runInContext('saveProduct()',context);
  assert.equal(vm.runInContext('workspace.productCost(D.p[0].id)',context),7000);
@@ -66,4 +68,3 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  assert.equal(vm.runInContext('workspace.productCost(D.p[0].id)',context),7000);
  vm.runInContext("db.preview.selectRole('driver')",context);await settle();assert.match(nodes.get('#view').innerHTML,/مساحة التوصيل/);assert.match(nodes.get('#view').innerHTML,/رصيد مستحق للتطبيق/);
 });
-
