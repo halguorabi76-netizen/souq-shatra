@@ -401,6 +401,8 @@ body.starting{background:#000!important}
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=103"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=100">
 <style>
 .seller-preflight{display:none}
+:root[data-seller-resume] .buyer-preflight{display:none}
+.boot-content-lines{display:grid;gap:15px;padding:16px 0}.boot-content-lines i{height:15px;width:75%;background:var(--sw-line,var(--line));border-radius:8px;opacity:.45}.boot-content-lines i:nth-child(2){width:55%}.boot-seller-shell .sw-card{margin-bottom:18px}.boot-seller-shell button:disabled{opacity:.7}.buyer-preflight .mp-switcher a{display:flex;align-items:center;gap:12px;padding:20px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);text-decoration:none}.buyer-preflight .mp-switcher a small{display:block}.buyer-preflight .category-card{text-decoration:none;color:var(--ink)}
 :root[data-seller-resume] .seller-preflight{display:block}
 :root[data-seller-resume] .app>.top,:root[data-seller-resume] .app>.tabs{display:none!important}
 :root[data-seller-resume] .app{max-width:1200px}
@@ -413,20 +415,20 @@ body.starting{background:#000!important}
 }catch{}})();
 </script>
 </head>
-<body class="starting">
-<div id="startupSplash" class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
+<body>
+<div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
 <script>
 (()=>{
   const theme=document.querySelector('meta[name="theme-color"]');
   theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7';
   const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7'};
   // Always finish even if the network, image, or sign-in module cannot load.
-  requestAnimationFrame(finish);
+  finish();
 })();
 </script>
 <div class="app">
   <header class="top"><div class="topline"><button id="themeToggle" class="theme-toggle" data-a="toggleTheme" type="button" aria-label="تفعيل الوضع الغامق" title="تفعيل الوضع الغامق"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button><button class="header-brand" data-a="tab" data-v="market" aria-label="سوق الشطرة — الرئيسية"><img class="header-logo" src="icons/brand-aurora-v69.png" alt=""><span class="header-brand-name">سوق الشطرة<small lang="en" dir="ltr">SOUQ AL-SHATRA</small></span></button><button id="accountTrigger" class="header-icon" data-a="accountMenu" aria-label="الحساب وتسجيل الدخول" aria-controls="accountMenu" aria-expanded="false"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></button><button class="desktop-shortcut header-cart" data-a="tab" data-v="myMarket" aria-label="فتح السلة"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg></button><div id="accountMenu" class="account-popover" hidden></div><button class="header-icon profile-back" data-a="tab" data-v="settings" aria-label="رجوع إلى الإعدادات">→</button></div><div class="desktop-search-row"><form class="desktop-search" id="buyerSearch" role="search"><input id="q" type="search" placeholder="ابحث عن منتج أو متجر في الشطرة" aria-label="البحث عن منتج أو متجر" autocomplete="off"><button type="submit" aria-label="بحث">⌕</button></form><button class="desktop-shortcut" data-a="tab" data-v="categories">الأقسام</button></div></header>
-  <main id="view"><div class="seller-preflight"><div class="sw-sitebar seller-session-brand" aria-label="سوق الشطرة"><span></span><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span></div></div></main>
+  <main id="view"><div class="buyer-preflight"><div class="banner-wrap"><div class="banner"><img src="icons/shatra-river.jpeg" alt="مشهد من مدينة الشطرة" decoding="async" fetchpriority="high"><span class="banner-caption">اكتشفوا سحر الشطرة</span></div></div><nav class="mp-switcher" aria-label="تصفح السوق"><a href="catalog.html"><span>▣</span><span><b>المواد</b><small>منتجات جميع التجار</small></span></a><a href="./?view=stores"><span>▤</span><span><b>المتاجر</b><small>اختر متجرًا وتصفح مواده</small></span></a></nav><section class="market-materials"><div class="section-title"><h2>تصفح الأقسام</h2></div><div class="category-cards"><a class="category-card" href="catalog.html?category=%D9%85%D9%88%D8%A7%D8%AF%20%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9"><span aria-hidden="true">🛒</span>مواد غذائية</a><a class="category-card" href="catalog.html?category=%D8%AE%D8%B6%D8%A7%D8%B1%20%D9%88%D9%81%D9%88%D8%A7%D9%83%D9%87"><span aria-hidden="true">🥬</span>خضار وفواكه</a><a class="category-card" href="catalog.html?category=%D8%AA%D9%85%D9%88%D8%B1"><span aria-hidden="true">🌴</span>تمور</a><a class="category-card" href="catalog.html?category=%D9%85%D9%84%D8%A7%D8%A8%D8%B3"><span aria-hidden="true">👕</span>ملابس</a><a class="category-card" href="catalog.html?category=%D8%A3%D8%AC%D9%87%D8%B2%D8%A9"><span aria-hidden="true">📱</span>أجهزة</a><a class="category-card" href="catalog.html?category=%D9%85%D9%86%D8%B2%D9%84%D9%8A%D8%A9"><span aria-hidden="true">🏠</span>منزلية</a><a class="category-card" href="catalog.html?category=%D8%A3%D8%AE%D8%B1%D9%89"><span aria-hidden="true">📦</span>أخرى</a></div></section><section class="market-materials"><div class="section-title"><h2>المواد المعروضة</h2></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section></div><div class="seller-preflight"><div class="sw-shell boot-seller-shell"><div class="sw-sitebar"><button class="sw-icon" disabled aria-label="قائمة متجري">☰</button><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span><button class="sw-icon" disabled aria-label="الإشعارات">♧</button></div><header class="sw-header"><h1>متجري</h1></header><section class="sw-card"><h2>المنتجات</h2><div class="sw-product-tabs"><button disabled>قائمة المنتجات</button><button disabled>المخزون</button><button disabled>أقسام المتجر</button></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i><i></i></div></section><section class="sw-card"><h2>الطلبات</h2><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section><nav class="sw-nav" aria-label="لوحة البائع"><button disabled>⌂<span>الرئيسية</span></button><button disabled>▣<span>الطلبات</span></button><button disabled>▤<span>المنتجات</span></button><button disabled>⚙<span>المزيد</span></button></nav></div></div></main><template id="sellerStartTemplate"><div class="sw-shell boot-seller-shell"><div class="sw-sitebar"><button class="sw-icon" disabled aria-label="قائمة متجري">☰</button><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span><button class="sw-icon" disabled aria-label="الإشعارات">♧</button></div><header class="sw-header"><h1>متجري</h1></header><section class="sw-card"><h2>المنتجات</h2><div class="sw-product-tabs"><button disabled>قائمة المنتجات</button><button disabled>المخزون</button><button disabled>أقسام المتجر</button></div><div class="boot-content-lines" aria-hidden="true"><i></i><i></i><i></i></div></section><section class="sw-card"><h2>الطلبات</h2><div class="boot-content-lines" aria-hidden="true"><i></i><i></i></div></section><nav class="sw-nav" aria-label="لوحة البائع"><button disabled>⌂<span>الرئيسية</span></button><button disabled>▣<span>الطلبات</span></button><button disabled>▤<span>المنتجات</span></button><button disabled>⚙<span>المزيد</span></button></nav></div></template>
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
     <button data-a="marketSection" data-v="stores"><span class="navicon">▤</span>المتاجر</button>
@@ -444,8 +446,9 @@ body.starting{background:#000!important}
 <script src="catalog-filter.js?v=62"></script>
 <script src="marketplace.js?v=104"></script>
 <script src="demo-lab.js?v=51"></script>
+<script src="vendor/supabase/supabase-2.57.0.js"></script>
 <script type="module">
-import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.0";
+const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey} from './product-variants.js?v=103';
 import {createSellerWorkspace} from "./seller-workspace.js?v=104";
@@ -527,14 +530,13 @@ async function refresh(){
   let orderQuery=nextUser?db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null});
   let categoryQuery=db.from('seller_categories').select('store_id,name').eq('active',true).is('deleted_at',null);
   if(sellerOnly){productQuery=productQuery.eq('store_id',approvedStore.id);orderQuery=orderQuery.eq('store_id',approvedStore.id);categoryQuery=categoryQuery.eq('store_id',approvedStore.id);}
-  const [ps,rs,cs]=await withTimeout(Promise.all([productQuery,orderQuery,categoryQuery]));
-  const products=check(ps),orders=check(rs);
-  const catalogResult=await withTimeout(db.from('catalog_categories').select('*').order('position'));D.catalog=check(catalogResult)||[];
-  const variantResult=products.length?await withTimeout(db.from('product_variants').select('*').in('product_id',products.map(p=>p.id))):{data:[]};D.variants=check(variantResult)||[];
-  D.stockMovements=nextUser&&(sellerOnly||nextProfile?.role==='admin')?check(await withTimeout(db.from('product_stock_movements').select('*').order('created_at',{ascending:false}).limit(200))):[];
-  for(const c of D.catalog.filter(c=>!c.parent_id&&c.active))if(!CATS.includes(c.name))CATS.push(c.name);
-  const people=nextProfile?.role==='admin'&&!nextProfile.disabled?check(await withTimeout(db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}))):[];
-  const dl=await withTimeout(Promise.all([
+  const settingsStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&(nextProfile?.role==='admin'||m.approved&&!m.removed)):null;
+  // Start unrelated data reads together, rather than waiting for each screen's data.
+  const auxiliaryResults=withTimeout(Promise.all([
+    nextUser&&(sellerOnly||nextProfile?.role==='admin')?db.from('product_stock_movements').select('*').order('created_at',{ascending:false}).limit(200):Promise.resolve({data:[]}),
+    nextProfile?.role==='admin'&&!nextProfile.disabled?db.from('profiles').select('id,full_name,phone,role,disabled,created_at').order('created_at',{ascending:false}):Promise.resolve({data:[]}),
+    settingsStore?db.from('seller_workspace_settings').select('settings').eq('store_id',settingsStore.id).maybeSingle():Promise.resolve({data:null}),
+    Promise.all([
     db.from('delivery_settings').select('*').limit(1).maybeSingle(),
     nextUser?db.from('delivery_workers').select('*').eq('user_id',nextUser.id).maybeSingle():Promise.resolve({data:null}),
     nextUser?db.from('delivery_payments').select('*').order('created_at',{ascending:false}):Promise.resolve({data:[]}),
@@ -543,7 +545,20 @@ async function refresh(){
     nextUser?db.rpc('assigned_delivery_contacts'):Promise.resolve({data:[]}),
     nextProfile?.role==='admin'&&!nextProfile.disabled?db.from('driver_profiles').select('*'):Promise.resolve({data:[]}),
     nextUser?db.from('store_pickups').select('*'):Promise.resolve({data:[]})
+  ])
   ]));
+  auxiliaryResults.catch(()=>{}); // awaited below; attach a handler while product IDs arrive.
+  const coreResults=await withTimeout(Promise.all([productQuery,orderQuery,categoryQuery,db.from('catalog_categories').select('*').order('position')]));
+  const [ps,rs,cs,catalogResult]=coreResults;
+  const products=check(ps),orders=check(rs);
+  D.catalog=check(catalogResult)||[];
+  const variantResult=products.length?await withTimeout(db.from('product_variants').select('*').in('product_id',products.map(p=>p.id))):{data:[]};D.variants=check(variantResult)||[];
+  const [stockResult,peopleResult,workspaceResult,dl]=await auxiliaryResults;
+  if(id!==refreshId)return;
+  D.stockMovements=check(stockResult)||[];
+  const people=check(peopleResult)||[],workspaceRow=check(workspaceResult);
+  for(const c of D.catalog.filter(c=>!c.parent_id&&c.active))if(!CATS.includes(c.name))CATS.push(c.name);
+
   // An older deployment can load the rest of the market before the migration is installed.
   if(id!==refreshId)return;
   deliverySettings=dl[0].data||{platform_fee:0,delivery_fee:0,qi_number:''};
@@ -558,10 +573,11 @@ async function refresh(){
   D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,pickup_latitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.latitude,pickup_longitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.longitude,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
   D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:(D.variants||[]).filter(v=>v.product_id===p.id).map(v=>({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''}))}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
-  let workspaceRow=null;
-  if(ownStore&&canSell()){workspaceRow=check(await withTimeout(db.from('seller_workspace_settings').select('settings').eq('store_id',ownStore.id).maybeSingle()));}
+
   if(id!==refreshId)return;
-  await workspace.load(workspaceRow?.settings,ownStore?.appearance,ownStore?.id||null);
+  // Customer/category records are secondary; never block the initial seller page.
+  const recordsReady=workspace.load(workspaceRow?.settings,ownStore?.appearance,ownStore?.id||null);
+  recordsReady.then(()=>{if(id===refreshId&&dataReady&&['settings','listings'].includes(tab)&&$('#shade').hidden&&!document.querySelector('input:focus,textarea:focus'))render();}).catch(error);
   if(id!==refreshId)return;
   if(sellerOnly){rememberMode('seller');if(!dataReady||!['account','market','listings','myMarket','chats','settings','profilePage','postPage','orders'].includes(tab))tab='account';if(publicStoreId!==approvedStore.id)publicStoreId=null;}
   if(user&&!viewMode)viewMode=nextProfile?.role==='admin'?'buyer':ownStore?.ok&&!ownStore?.removed?'seller':nextProfile?.role==='driver'?'driver':'buyer';
@@ -784,7 +800,7 @@ function sellerResume(){
  document.body.classList.add('seller-workspace');
  document.body.classList.remove('welcome-mode','profile-mode','buyer-cart-mode');
  $('.tabs').hidden=true;
- $('#view').innerHTML='<div class="sw-sitebar seller-session-brand" aria-label="سوق الشطرة"><span></span><span class="sw-sitebrand"><img src="icons/brand-aurora-v69.png" alt=""><b>سوق الشطرة</b></span></div>';
+ if(!$('#view .boot-seller-shell'))$('#view').innerHTML=$('#sellerStartTemplate').innerHTML;
 }
 
 function render(){
@@ -1403,15 +1419,6 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
 </script>
-<script>
-// Keep Android users from seeing an empty page when an external module never loads.
-setTimeout(() => {
-  const view=document.getElementById('view');
-  if(view && !view.firstElementChild){
-    document.getElementById('loading').hidden=true;
-    view.innerHTML='<div class="empty"><h2>تعذّر بدء التطبيق</h2><p>تحقق من اتصال الإنترنت ثم افتح التطبيق مجددًا.</p><button class="buy" onclick="location.reload()">إعادة المحاولة</button></div>';
-  }
-},15000);
-</script>
+
 </body>
 </html>
