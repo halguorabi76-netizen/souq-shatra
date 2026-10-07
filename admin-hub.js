@@ -6,7 +6,7 @@ export async function bootAdminHub(){
  const params=new URLSearchParams(location.search),preview=params.get('section')==='preview';
  document.body.classList.add('admin-portal');
  const header=document.createElement('header');header.id='adminTop';header.innerHTML=adminHubHeader(preview);document.getElementById('view').before(header);
- if(!preview){await import('./admin-app.js?v=112');return;}
+ if(!preview){await import('./admin-app.js?v=121');return;}
  document.body.classList.add('admin-preview-host');document.body.classList.remove('starting');document.getElementById('loading').hidden=true;
  const route=new URL('preview.html',location.href);params.delete('section');route.search=params.toString();
  const frame=document.createElement('iframe');frame.id='adminPreviewFrame';frame.title='معاينة واجهات سوق الشطرة المعزولة';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals');frame.src=route.href;

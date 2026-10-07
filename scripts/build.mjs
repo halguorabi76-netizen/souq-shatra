@@ -5,8 +5,8 @@ if(!appModule)throw new Error('Missing application source module');
 // Preserve the independent admin entry and its fast authorization gate.
 const portalMain=main;
 const adminTemplate=await readFile('admin.html','utf8');
-const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,'$1?v=110');
-await writeFile('admin.html',admin.replace(/admin-app\.js\?v=\d+/g,'admin-app.js?v=112'));
+const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,m=>m.includes('?v=121')?m:m.replace(/\?v=\d+$/,'?v=110'));
+await writeFile('admin.html',admin.replace(/admin-app\.js\?v=\d+/g,'admin-app.js?v=121'));
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
 // Preview never imports real configuration, Supabase, or live authentication.

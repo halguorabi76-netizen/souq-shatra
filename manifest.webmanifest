@@ -12,13 +12,13 @@
   "theme_color": "#45205e",
   "icons": [
     {
-      "src": "icons/brand-purple-192-v120.png",
+      "src": "icons/brand-classic-purple-192-v121.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/brand-purple-512-v120.png",
+      "src": "icons/brand-classic-purple-512-v121.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
