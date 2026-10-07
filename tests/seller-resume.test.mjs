@@ -19,12 +19,12 @@ test('seller layout restores only for the current stored account, and tolerates 
  assert.doesNotMatch(html.match(/function sellerResume\(\)\{[\s\S]*?\n\}/)[0],/sw-card|sw-nav|<button|متجري|المبيعات|المخزون/);
 });
 
-test('pending seller restoration shows branding only, without the temporary dashboard or buyer flash',async()=>{
- const html=await readFile('index.html','utf8'),buttons=[{disabled:false}],view={innerHTML:'',querySelectorAll:()=>buttons},tabs={hidden:false},classes=new Set();
- const context=vm.createContext({trackPage(){},pendingPurchase:null,dataReady:false,viewMode:'seller',db:{},publicStoreId:null,ADMIN_PORTAL:false,user:null,activity:{sync(){}},workspace:{chrome:()=>'<button>سوق الشطرة</button>'},document:{body:{classList:{add:c=>classes.add(c),remove:(...cs)=>cs.forEach(c=>classes.delete(c))}}},$:(selector)=>selector==='#view'?view:tabs,buyerCalls:0});
+test('pending seller restoration shows the seller shell without a buyer flash or invented sales/stock counts',async()=>{
+ const html=await readFile('index.html','utf8'),template={innerHTML:html.match(/<template id="sellerStartTemplate">([\s\S]*?)<\/template>/)[1]},view={innerHTML:''},tabs={hidden:false},classes=new Set();
+ const context=vm.createContext({trackPage(){},syncMarketSearch(){},pendingPurchase:null,dataReady:false,viewMode:'seller',db:{},publicStoreId:null,ADMIN_PORTAL:false,user:null,activity:{sync(){}},document:{documentElement:{dataset:{}},body:{classList:{add:c=>classes.add(c),remove:(...cs)=>cs.forEach(c=>classes.delete(c))}}},$:(selector)=>selector==='#view'?view:selector==='#sellerStartTemplate'?template:selector==='#view .boot-seller-shell'?(view.innerHTML?{}:null):tabs,buyerCalls:0});
  const resume=html.match(/function sellerResume\(\)\{[\s\S]*?\n\}/)[0];
  const prefix=html.match(/function render\(\)\{([\s\S]*?)  if\(sellerAccount\(\)\)/)[1];
  vm.runInContext(resume+'\nfunction render(){'+prefix+'buyerCalls++;}',context);
- vm.runInContext('render()',context);assert.match(view.innerHTML,/seller-session-brand/);assert.doesNotMatch(view.innerHTML,/متجري|المبيعات|المخزون|sw-nav|<button/);assert.equal(context.buyerCalls,0);assert.equal(tabs.hidden,true);assert.equal(classes.has('seller-workspace'),true);
+ vm.runInContext('render()',context);assert.match(view.innerHTML,/boot-seller-shell/);assert.match(view.innerHTML,/sw-nav/);assert.doesNotMatch(view.innerHTML,/مبيعات اليوم|طلبات الأسبوع|٠ د\.ع|0 د\.ع/);assert.match(view.innerHTML,/<button disabled>/);assert.equal(context.buyerCalls,0);assert.equal(tabs.hidden,true);assert.equal(classes.has('seller-workspace'),true);
  vm.runInContext("viewMode='guest';render()",context);assert.equal(context.buyerCalls,1);
 });
