@@ -11,9 +11,9 @@ const root=path.resolve(__dirname,'..'),capture=process.env.SOUQ_CAPTURE;
  await frame.evaluate(async()=>{
   const {previewFixture}=await import('./preview-lab.js?v=109');const data=previewFixture(new Date().toISOString());
   const artwork=color=>'data:image/svg+xml;base64,'+btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="320" height="400" viewBox="0 0 320 400"><path d="M125 75q35 32 70 0l67 33-25 75-37-18v190H120V165l-37 18-25-75z" fill="${color}" stroke="#442440" stroke-width="3"/><path d="M125 75q35 56 70 0" fill="none" stroke="#ffffff88" stroke-width="6"/><path d="M163 29q0-17 13-17t0 25l-61 37h101l-40-37" fill="none" stroke="#978998" stroke-width="4"/></svg>`);
-  data.products[0].name='قميص ساتان';data.products[0].has_variants=true;data.products[0].image_path='shirt';data.products[0].stock=8;data.products[0].attributes={_manual_variants:true};data.images.shirt=artwork('#dac6ac');
+  data.products[0].name='قميص ساتان';data.products[0].has_variants=true;data.products[0].image_path='shirt';data.products[0].stock=8;data.products[0].attributes={_manual_variants:true,_selling:{condition:'new',sale_mode:'retail'}};data.images.shirt=artwork('#dac6ac');
   data.product_variants=[['أسود','S',5,'black'],['بيج','M',3,'beige'],['بيج','XL',0,'beige']].map(([color,size,stock,image],i)=>({id:'a4000000-0000-4000-8000-00000000000'+(i+1),product_id:data.products[0].id,attributes:{color,size},label:color+' · '+size,price:10000,stock,available:true,archived:false,image_path:image}));data.images.black=artwork('#262230');data.images.beige=data.images.shirt;
-  data.products[1].image_path='dates';data.images.dates=artwork('#ad6883');data.products[2].image_path='bag';data.images.bag=artwork('#b4c5c3');
+  data.products[1].attributes={_selling:{condition:'used',sale_mode:'wholesale'}};data.products[1].category='تمور';data.products[1].image_path='dates';data.images.dates=artwork('#ad6883');data.products[2].image_path='bag';data.images.bag=artwork('#b4c5c3');
   data.stores[0].storefront_settings={color:'violet',mode:'light',icons:'outline'};
   localStorage.setItem('souq-shatra-interface-preview-v1',JSON.stringify(data));
  });
@@ -21,6 +21,12 @@ const root=path.resolve(__dirname,'..'),capture=process.env.SOUQ_CAPTURE;
  const snap=async name=>{if(capture)await page.screenshot({path:path.join(capture,name+'.png')});};
  await frame.evaluate(()=>window.SouqBuyerVoiceRuntime.show());await frame.locator('[data-gender="female"]').click();assert.equal(await frame.locator('#buyerVoiceDialog').count(),0);assert.equal(await frame.evaluate(()=>window.SouqBuyerVoiceRuntime.gender()),'female');
  assert.match(await frame.locator('#q').getAttribute('placeholder'),/ابحثي/);await snap('home');
+ await frame.locator('#accountTrigger').click();assert.match(await frame.locator('#accountMenu').innerText(),/ملفي الشخصي وبياناتي/);assert.equal(await frame.locator('#accountMenu [data-a="enter"]').count(),0);await frame.locator('#accountMenu [data-v="profilePage"]').click();assert.match(await frame.locator('.profile-page').innerText(),/بيانات الحساب الأساسية/);
+ await frame.locator('.tabs [data-v="stores"]').click();assert.equal(await frame.locator('.store-category-cards [data-v="تمور"]').count(),0);
+ await frame.locator('.tabs [data-v="materials"]').click();await frame.locator('[data-a="materialType"][data-v="condition:used"]').click();assert.equal(await frame.locator('.mp-product-open').count(),1);await frame.locator('[data-a="materialType"][data-v="saleMode:retail"]').click();assert.equal(await frame.locator('.mp-product-open').count(),0);await frame.locator('[data-a="materialType"][data-v="condition:all"]').click();assert.equal(await frame.locator('.mp-product-open').count(),1);await frame.locator('[data-a="materialType"][data-v="saleMode:all"]').click();
+ const iconColor=await frame.locator('.category-card svg').first().evaluate(el=>getComputedStyle(el).color);assert.equal(iconColor,'rgb(69, 32, 94)');
+ await frame.locator('.tabs [data-v="market"]').click();
+
  await frame.locator('.mp-product-store').first().click();await frame.locator('.boutique-storebar').waitFor();assert.equal(await frame.locator('#sellerNav').count(),0);assert.match(await frame.locator('.boutique-store-hero').innerText(),/تسوقي/);await snap('store');
  await frame.locator('.sw-public-product').first().click();await frame.locator('.product-detail').waitFor();await frame.locator('[data-axis="color"][data-option="بيج"]').click();await frame.locator('[data-axis="size"][data-option="M"]').click();assert.equal(await frame.locator('[data-axis="size"][data-option="XL"]').isEnabled(),false);
  assert.match(await frame.locator('[data-a="add"]').innerText(),/أضيفي/);assert.equal(await frame.locator('.boutique-thumbnails button').count(),2);await frame.locator('.boutique-thumbnails button').last().click();await snap('product');

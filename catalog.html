@@ -415,7 +415,7 @@ body.starting{background:#000!important}
  if(/^[0-9a-f-]{36}$/i.test(id||'')&&localStorage.getItem('souq-shatra-mode-'+id)!=='buyer'&&localStorage.getItem('souq-shatra-mode-'+id)!=='driver')document.documentElement.dataset.sellerResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="boutique-theme.css?v=120">
+<link rel="stylesheet" href="boutique-theme.css?v=121">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
@@ -446,7 +446,7 @@ body.starting{background:#000!important}
 <div id="toast" hidden role="status"></div>
 
 <script src="account-access.js?v=89"></script>
-<script src="catalog-filter.js?v=62"></script>
+<script src="catalog-filter.js?v=121"></script>
 <script src="boutique-presentation.js?v=120"></script><script src="buyer-voice.js?v=120"></script><script src="marketplace.js?v=120"></script>
 <script src="demo-lab.js?v=51"></script>
 <script src="vendor/supabase/supabase-2.57.0.js"></script>
@@ -637,7 +637,7 @@ const catalogParams=new URLSearchParams(location.search);
 const catalogEntry=location.pathname.endsWith('/catalog.html');
 let tab=publicStoreId?'market':catalogParams.get('view')==='stores'?'stores':catalogParams.get('view')==='materials'||catalogEntry?'catalog':'market',cat=catalogEntry?(catalogParams.get('category')||'all').slice(0,80):'all',q=catalogEntry?(catalogParams.get('q')||'').slice(0,200):'',dt='p',cur=null,infoRole='seller',adminTab='overview',bannerIndex=0;
 const BANNERS=[['icons/shatra-river.jpeg','اكتشفوا سحر الشطرة'],['icons/shatra-square.jpeg','اكتشفوا أسواق الشطرة'],['icons/shatra-bridge.jpeg','الشطرة تجمعنا']];
-const filt={min:'',max:'',sort:'newest',condition:'all',location:''};
+const filt={min:'',max:'',sort:'newest',condition:'all',saleMode:'all',location:''};
 if(catalogEntry){for(const k of ['min','max']){const v=catalogParams.get(k);if(v!==null&&v!==''&&Number.isFinite(+v)&&+v>=0)filt[k]=v}if(['newest','oldest','cheap','expensive'].includes(catalogParams.get('sort')))filt.sort=catalogParams.get('sort')}
 const PURCHASE_RETURN_KEY=KEY+'-purchase-return';
 function validPurchaseReturn(value){
@@ -871,7 +871,7 @@ function profilePage(){
  const mine=D.o.filter(o=>o.buyer_id===user.id),completed=mine.filter(o=>o.st===3),last=mine.length?new Date(mine[0].ts).toLocaleDateString('ar-IQ'):'';
  let address='',avatar='';try{address=localStorage.getItem('souq-shatra-address-'+user.id)||'';avatar=localStorage.getItem('souq-shatra-avatar-'+user.id)||''}catch{}
  let location=null;try{const saved=JSON.parse(localStorage.getItem('souq-shatra-location-'+user.id)||'null');if(saved&&Number.isFinite(+saved.lat)&&Number.isFinite(+saved.lon))location=saved}catch{}
- $('#view').innerHTML=`<div class="profile-page"><section class="profile-card profile-hero"><div class="profile-photo"><div class="portrait" aria-label="صورة الحساب">${avatar.startsWith('data:image/jpeg;base64,')?`<img src="${avatar}" alt="صورة الحساب">`:esc(name.trim().slice(0,1))}</div><button data-a="chooseAvatar" aria-label="إضافة صورة للحساب">✎</button><input id="avatarInput" type="file" accept="image/*" hidden></div><div><b>${esc(name)}</b><small>${esc(user.email||'')}</small></div></section><section class="profile-card"><div class="profile-heading"><h2>بيانات الحساب الأساسية</h2>${profile?.username?`<p dir="ltr">@${esc(profile.username)}</p>`:''}<button class="profile-edit" data-a="editprofile" aria-label="تعديل بيانات الحساب">✎</button></div><div class="profile-detail"><span class="picon">♙</span><span>${esc(name)}</span></div><div class="profile-detail"><span class="picon">☎</span><button class="buyer-phone-action" data-a="editCustomerPhone" ${profile?.phone?'dir="ltr"':''}>${esc(profile?.phone||'أضف رقم هاتفك')}</button></div><div class="profile-detail"><span class="picon">✉</span><span dir="ltr">${esc(user.email||'')}</span></div></section><div class="profile-pair"><section class="profile-card"><h3>ملخص الطلبات</h3><p>${completed.length} طلب مكتمل</p><small>${last?'آخر طلب: '+esc(last):'لم تطلب بعد'}</small><button class="profile-action" data-a="tab" data-v="orders">عرض طلباتي</button></section><section class="profile-card"><h3>عنوان التوصيل</h3><p>${address?esc(address):'لم تُضف عنوانًا بعد'}</p><div class="profile-address-actions"><button class="profile-action" data-a="editaddress">${address?'تعديل العنوان':'إضافة عنوان'}</button><button class="profile-gps" data-a="saveProfileLocation" aria-label="تحديد موقعي عبر GPS" title="تحديد موقعي عبر GPS">📍</button></div><small class="profile-location-status">${location?'الموقع محفوظ ويمكن مشاركته عند الطلب':'اضغط علامة الموقع لتحديد مكانك'}</small></section></div><section class="profile-card"><button class="profile-link" data-a="tab" data-v="orders">♧ طلباتي <span>‹</span></button><button class="profile-link" data-a="paymentinfo">▣ طريقة الدفع <span>‹</span></button><button class="profile-link" data-a="editaddress">⌖ عنواني <span>‹</span></button><button class="profile-link" data-a="editEmail">✉ تغيير البريد الإلكتروني <span>‹</span></button></section><section class="profile-card"><h3>استخدام الحساب</h3><div class="profile-role-actions"><button data-a="profileSwitch" data-v="buyer" aria-pressed="${viewMode==='buyer'}">🛒 الدخول كزبون</button><button data-a="profileSwitch" data-v="seller" aria-pressed="${viewMode==='seller'}">${canSell()?'▤ إدارة متجري':'طلب الانضمام كبائع'}</button></div><p class="note">${sellerAccount()?'حسابك مخصص لإدارة متجرك. للشراء ادخل بحساب زبون آخر.':'تُفتح أدوات البيع بعد اعتماد الإدارة لمتجرك.'}</p></section><button class="profile-logout" data-a="changeaccount">تسجيل الخروج من الحساب</button></div>`;
+ $('#view').innerHTML=`<div class="profile-page"><section class="profile-card profile-hero"><div class="profile-photo"><div class="portrait" aria-label="صورة الحساب">${avatar.startsWith('data:image/jpeg;base64,')?`<img src="${avatar}" alt="صورة الحساب">`:esc(name.trim().slice(0,1))}</div><button data-a="chooseAvatar" aria-label="إضافة صورة للحساب">✎</button><input id="avatarInput" type="file" accept="image/*" hidden></div><div><b>${esc(name)}</b><small>${esc(user.email||'')}</small></div></section><section class="profile-card"><div class="profile-heading"><h2>بيانات الحساب الأساسية</h2>${profile?.username?`<p dir="ltr">@${esc(profile.username)}</p>`:''}<button class="profile-edit" data-a="editprofile" aria-label="تعديل بيانات الحساب">✎</button></div><div class="profile-detail"><span class="picon">♙</span><span>${esc(name)}</span></div><div class="profile-detail"><span class="picon">☎</span><button class="buyer-phone-action" data-a="editCustomerPhone" ${profile?.phone?'dir="ltr"':''}>${esc(profile?.phone||'أضف رقم هاتفك')}</button></div><div class="profile-detail"><span class="picon">✉</span><span dir="ltr">${esc(user.email||'')}</span></div></section><div class="profile-pair"><section class="profile-card"><h3>ملخص الطلبات</h3><p>${completed.length} طلب مكتمل</p><small>${last?'آخر طلب: '+esc(last):'لم تطلب بعد'}</small><button class="profile-action" data-a="tab" data-v="orders">عرض طلباتي</button></section><section class="profile-card"><h3>عنوان التوصيل</h3><p>${address?esc(address):'لم تُضف عنوانًا بعد'}</p><div class="profile-address-actions"><button class="profile-action" data-a="editaddress">${address?'تعديل العنوان':'إضافة عنوان'}</button><button class="profile-gps" data-a="saveProfileLocation" aria-label="تحديد موقعي عبر GPS" title="تحديد موقعي عبر GPS">📍</button></div><small class="profile-location-status">${location?'الموقع محفوظ ويمكن مشاركته عند الطلب':'اضغط علامة الموقع لتحديد مكانك'}</small></section></div><section class="profile-card"><button class="profile-link" data-a="tab" data-v="orders">♧ طلباتي <span>‹</span></button><button class="profile-link" data-a="paymentinfo">▣ طريقة الدفع <span>‹</span></button><button class="profile-link" data-a="editaddress">⌖ عنواني <span>‹</span></button><button class="profile-link" data-a="editEmail">✉ تغيير البريد الإلكتروني <span>‹</span></button></section><section class="profile-card"><h3>استخدام الحساب</h3><div class="profile-role-actions"><button data-a="profileSwitch" data-v="buyer" aria-pressed="${viewMode==='buyer'}">${window.SouqMarketplace.icon('cart')} الدخول كزبون</button><button data-a="profileSwitch" data-v="seller" aria-pressed="${viewMode==='seller'}">${canSell()?'▤ إدارة متجري':'طلب الانضمام كبائع'}</button></div><p class="note">${sellerAccount()?'حسابك مخصص لإدارة متجرك. للشراء ادخل بحساب زبون آخر.':'تُفتح أدوات البيع بعد اعتماد الإدارة لمتجرك.'}</p></section><button class="profile-logout" data-a="changeaccount">تسجيل الخروج من الحساب</button></div>`;
 }
 function settings(){
  $('#view').innerHTML=`<div class="section-title"><h2>الإعدادات</h2></div><section class="box" aria-labelledby="appearanceTitle"><h2 id="appearanceTitle">مظهر التطبيق</h2>${user&&viewMode==='buyer'?'<button class="setting-row" data-a="buyerVoice">صيغة الخطاب · ذكر أو أنثى</button>':''}<p>اختر الوضع الذي يناسبك</p><div class="theme-options" role="group" aria-label="مظهر التطبيق"><button data-a="theme" data-v="light" aria-pressed="${window.SouqTheme.get()==='light'}">☀ الوضع الفاتح</button><button data-a="theme" data-v="dark" aria-pressed="${window.SouqTheme.get()==='dark'}">☾ الوضع الغامق</button></div></section><div class="box"><button class="setting-row" data-a="tab" data-v="account">حسابي وإدارة نشاطي</button><button class="setting-row" data-a="tab" data-v="profilePage"><span class="avatar"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></span>ملفي الشخصي ومعلوماتي</button>${ownStore&&viewMode==='seller'?'<button class="setting-row" data-a="tab" data-v="listings">إعلاناتي ومنتجاتي</button>':''}<button class="setting-row" data-a="tab" data-v="orders">طلباتي</button><button class="setting-row" data-a="tab" data-v="market">الإعلانات والمنتجات الجديدة</button><button class="setting-row" data-a="info">شرح التطبيق والأسئلة الشائعة</button><button class="setting-row" data-demo="open">لوحة التجربة</button><button class="setting-row" data-a="support">تواصل مع الدعم</button></div>`;
@@ -884,7 +884,7 @@ function categories(){
 }
 function myMarket(){
   if(canSell()&&viewMode==='seller'){listings();return}
-  $('#view').innerHTML='<div class="section-title"><h2>سوقي</h2></div><div class="market-section"><h2>تسوّقك</h2><button data-a="cart">🛒 السلة · '+D.cart.reduce((s,c)=>s+c.q,0)+' منتج</button></div>';
+  $('#view').innerHTML='<div class="section-title"><h2>سوقي</h2></div><div class="market-section"><h2>تسوّقك</h2><button data-a="cart">'+window.SouqMarketplace.icon('cart')+' السلة · '+D.cart.reduce((s,c)=>s+c.q,0)+' منتج</button></div>';
 }
 function postPage(){
   if(!canSell()){sellerRequest();tab='settings';settings();return}
@@ -896,6 +896,7 @@ function postPage(){
   <section class="post-card pe-basic">
   ${field('fn','اسم المنتج *',p?.name,'text','required minlength="2" maxlength="150"')}
   <label for="fd">وصف المنتج</label><textarea id="fd" rows="4" maxlength="5000">${esc(p?.desc||'')}</textarea>
+  <div class="pe-selling-types"><div><label for="fcondition">حالة المنتج</label><select id="fcondition"><option value="">غير محددة</option>${[['new','جديد'],['used','مستعمل']].map(([v,t])=>`<option value="${v}" ${((p?window.SouqCatalog.productType(p).condition:'new')===v)?'selected':''}>${t}</option>`).join('')}</select></div><div><label for="fsaleMode">طريقة البيع</label><select id="fsaleMode"><option value="">غير محددة</option>${[['retail','مفرد'],['wholesale','جملة'],['both','مفرد وجملة']].map(([v,t])=>`<option value="${v}" ${((p?window.SouqCatalog.productType(p).saleMode:'retail')===v)?'selected':''}>${t}</option>`).join('')}</select></div></div>
   <label for="funit">وحدة البيع</label><select id="funit">${['قطعة','زوج','كيلوغرام','غرام','متر','أخرى'].map(u=>`<option ${((['قطعة','زوج','كيلوغرام','غرام','متر'].includes(sellingUnit)?sellingUnit:sellingUnit?'أخرى':'قطعة')===u)?'selected':''}>${u}</option>`).join('')}</select>
   <div id="customUnitBox" ${sellingUnit&&!['قطعة','زوج','كيلوغرام','غرام','متر'].includes(sellingUnit)?'':'hidden'}>${field('funitCustom','وحدة البيع الأخرى',sellingUnit,'text','maxlength="80"')}</div>
   ${field('fpr','سعر البيع / السعر بعد التخفيض (د.ع) *',p?.price,'number','required min="1" max="2147483647" step="1" inputmode="numeric"')}
@@ -921,7 +922,7 @@ function postPage(){
 }
 function updatePostProgress(){const bar=$('#post-progress');if(!bar)return;const fields=['fn','fpr','fs','fd'].map(id=>val(id)),image=cur?.img||cur?.id&&prod(cur.id)?.img;bar.style.width=Math.round((fields.filter(Boolean).length+(image?1:0))/5*100)+'%'}
 function searchPage(){
-  $('#view').innerHTML=`<div class="search-page"><h2>البحث عن منتج أو متجر</h2><p class="note">اكتب في حقل البحث أعلى الصفحة، ثم عدّل خيارات البحث هنا.</p><div class="filter-group"><h3>القسم</h3><div class="filter-chips">${['all',...CATS].map(c=>`<button data-a="searchcat" data-v="${c}" aria-pressed="${cat===c}">${c==='all'?'الكل':c}</button>`).join('')}</div></div><div class="filter-group"><h3>الموقع</h3><select disabled aria-label="اختر المحافظة"><option>اختر المحافظة</option></select><p class="note">سيعمل هذا الخيار بعد إضافة موقع الإعلان.</p></div><div class="filter-group"><h3>السعر (د.ع)</h3><div class="filter-range"><label>من<input id="fmin" type="number" inputmode="numeric" min="0" placeholder="0" value="${esc(filt.min)}"></label><label>إلى<input id="fmax" type="number" inputmode="numeric" min="0" placeholder="بدون حد" value="${esc(filt.max)}"></label></div></div><div class="filter-group"><h3>الحالة</h3><div class="filter-chips"><button disabled>الكل</button><button disabled>جديد</button><button disabled>مستعمل</button></div><p class="note">سيعمل هذا الخيار بعد إضافة حالة المنتج إلى الإعلان.</p></div><div class="filter-group"><h3>الترتيب</h3><div class="filter-chips">${[['newest','الأحدث'],['oldest','الأقدم'],['cheap','السعر الأقل'],['expensive','السعر الأعلى']].map(([v,t])=>`<button data-a="searchsort" data-v="${v}" aria-pressed="${filt.sort===v}">${t}</button>`).join('')}</div></div><div class="filter-actions"><button class="buy" data-a="searchapply">عرض النتائج</button><button class="alt" data-a="searchclear">حذف الفلاتر</button></div></div>`;
+  $('#view').innerHTML=`<div class="search-page"><h2>البحث عن منتج أو متجر</h2><p class="note">اكتب في حقل البحث أعلى الصفحة، ثم عدّل خيارات البحث هنا.</p><div class="filter-group"><h3>القسم</h3><div class="filter-chips">${['all',...CATS].map(c=>`<button data-a="searchcat" data-v="${c}" aria-pressed="${cat===c}">${c==='all'?'الكل':c}</button>`).join('')}</div></div><div class="filter-group"><h3>الموقع</h3><select disabled aria-label="اختر المحافظة"><option>اختر المحافظة</option></select><p class="note">سيعمل هذا الخيار بعد إضافة موقع الإعلان.</p></div><div class="filter-group"><h3>السعر (د.ع)</h3><div class="filter-range"><label>من<input id="fmin" type="number" inputmode="numeric" min="0" placeholder="0" value="${esc(filt.min)}"></label><label>إلى<input id="fmax" type="number" inputmode="numeric" min="0" placeholder="بدون حد" value="${esc(filt.max)}"></label></div></div>${materialTypeFilters('searchType')}<div class="filter-group"><h3>الترتيب</h3><div class="filter-chips">${[['newest','الأحدث'],['oldest','الأقدم'],['cheap','السعر الأقل'],['expensive','السعر الأعلى']].map(([v,t])=>`<button data-a="searchsort" data-v="${v}" aria-pressed="${filt.sort===v}">${t}</button>`).join('')}</div></div><div class="filter-actions"><button class="buy" data-a="searchapply">عرض النتائج</button><button class="alt" data-a="searchclear">حذف الفلاتر</button></div></div>`;
 }
 function renderAdminPortal(){
  document.body.classList.add('admin-portal');
@@ -948,8 +949,12 @@ function admin(){
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
+function materialTypeFilters(action='materialType'){
+ const group=(key,title,items)=>`<div class="material-type-group"><h3>${title}</h3><div class="filter-chips">${items.map(([v,label])=>`<button type="button" data-a="${action}" data-v="${key}:${v}" aria-pressed="${(filt[key]||'all')===v}">${label}</button>`).join('')}</div></div>`;
+ return '<section class="material-type-filters" aria-label="حالة المواد وطريقة البيع">'+group('condition','حالة المواد',[['all','الكل'],['new','مواد جديدة'],['used','مواد مستعملة']])+group('saleMode','طريقة البيع',[['all','الكل'],['retail','مفرد'],['wholesale','جملة']])+'</section>';
+}
 function materialCategories(){
- return '<div class="section-title"><h2>أقسام المواد</h2></div><div class="category-cards">'+CATS.map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'</div>';
+ return (tab==='catalog'?materialTypeFilters():'')+'<div class="section-title"><h2>أقسام المواد</h2></div><div class="category-cards">'+CATS.map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'</div>';
 }
 function publicMarketplace(){const stores=D.m.filter(m=>m.ok&&!m.removed),ids=new Set(stores.map(m=>m.id));return {stores,products:D.p.filter(p=>ids.has(p.mid)&&window.SouqMarketplace.forSale(p))};}
 function syncMarketSearch(){
@@ -960,7 +965,7 @@ function syncMarketSearch(){
 }
 function market(){
  const ui=window.SouqMarketplace,{stores,products}=publicMarketplace();
- const filtered=window.SouqCatalog.select(products,{category:cat,query:'',min:filt.min,max:filt.max,sort:filt.sort});
+ const filtered=window.SouqCatalog.select(products,{category:cat,query:'',min:filt.min,max:filt.max,sort:filt.sort,condition:filt.condition,saleMode:filt.saleMode});
  const l=ui.searchProducts(filtered,stores,q),cards=items=>ui.productCards(items,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()});
  const results=tab==='catalog'||cat!=='all'||!!q;
  if(results){
@@ -976,12 +981,12 @@ function market(){
  '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+(stores.length?ui.storeCards(stores.slice(0,4),products,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
 }
 function storesPage(){
- const ui=window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>published.some(p=>p.cat===c)),products=published.filter(p=>cat==='all'||p.cat===cat),eligible=approved.filter(m=>cat==='all'||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
+ const ui=window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>c!=='تمور'&&published.some(p=>p.cat===c)),products=published.filter(p=>cat==='all'||p.cat===cat),eligible=approved.filter(m=>cat==='all'||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
  const sections='<div class="section-title"><h2>أقسام المتاجر</h2></div><div class="category-cards store-category-cards">'+['all',...categories].map(c=>'<button class="category-card" data-a="storeCategory" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+(c==='all'?ui.icon('stores'):catIcon(Math.max(0,CATS.indexOf(c))))+'</span>'+esc(c==='all'?'كل المتاجر':c)+'</button>').join('')+'</div>';
  $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+rows.length+' متجر</span></div>'+(rows.length?(q?ui.storeMatches(rows,{esc,fmt,thumb,mname}):ui.storeCards(rows.map(x=>x.store),published,{esc})):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
 }
 function marketSection(section){
- publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
+ publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';filt.condition='all';filt.saleMode='all';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
  const url=new URL('./',location.href);if(tab==='stores')url.searchParams.set('view','stores');if(tab==='catalog')url.searchParams.set('view','materials');history.pushState(null,'',url);render();scrollTo(0,0);
 }
 function chats(){
@@ -1014,10 +1019,10 @@ function account(){
   if(profile?.disabled){$('#view').innerHTML='<div class="box"><h2>الحساب معطّل</h2><p>تم إيقاف استخدام هذا الحساب في السوق. تواصل مع إدارة التطبيق إذا كان لديك استفسار.</p><button class="alt" data-a="out">خروج</button></div>';return}
   if(viewMode==='guest'){$('#view').innerHTML=`<div class="box"><h2>تتصفح السوق كضيف</h2><p>اختر حساب الزبون للشراء، أو حساب البائع لنشر المواد.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">بائع</button><button class="alt" data-a="out">تسجيل الخروج من الحساب المحفوظ</button></div>`;return}
   if(viewMode==='driver'&&profile?.role!=='admin'){driverPage();return}
-  if(viewMode==='buyer'){$('#view').innerHTML=`<div class="account-head"><b>حساب الزبون</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>متابعة مشترياتي</button><button data-a="cart">▣<br>السلة</button><button data-a="favorites">★<br>المفضلة</button></div><div class="box"><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="seller">${canSell()?'إدارة متجري':'طلب الانضمام كبائع'}</button><button class="alt" data-a="out">خروج</button></div>`;return}
+  if(viewMode==='buyer'){$('#view').innerHTML=`<div class="account-head"><b>حساب الزبون</b><small>${esc(user.email)}</small></div><div class="account-shortcuts"><button data-a="tab" data-v="orders">${window.SouqMarketplace.icon('cart')}<br>متابعة مشترياتي</button><button data-a="cart">▣<br>السلة</button><button data-a="favorites">★<br>المفضلة</button></div><div class="box"><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="seller">${canSell()?'إدارة متجري':'طلب الانضمام كبائع'}</button><button class="alt" data-a="out">خروج</button></div>`;return}
   if(!D.me){$('#view').innerHTML=`<div class="account-head"><b>حساب البائع</b><small>${esc(user.email)}</small></div><div class="box"><p>تواصل مع الإدارة لاعتماد متجرك وتفعيل أدوات البيع.</p><button class="buy" data-a="login" data-v="store">بائع</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="out">خروج</button></div>`;return}
   const me=D.me,own=me==='owner',T=[...(ownStore?[['p','منتجاتي'],['o','الطلبات']]:[]),...(own?[['m','التجار والأرباح']]:[])];
-  let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':ownStore?.removed?'<small>أزالت الإدارة هذا البائع من السوق.</small>':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">🛒<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="storeEdit">تعديل اسم المتجر وعنوانه</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
+  let h=`<div class="account-head"><b>${esc(mname(me))}</b><small>${esc(user.email)}</small>${mok(me)?'':ownStore?.removed?'<small>أزالت الإدارة هذا البائع من السوق.</small>':'<small>بانتظار موافقة الإدارة. منتجاتك لا تظهر بعد.</small>'}</div><div class="account-shortcuts"><button data-a="tab" data-v="orders">${window.SouqMarketplace.icon('cart')}<br>طلباتي</button><button data-a="tab" data-v="${own?'admin':'listings'}">${own?'▦<br>لوحة الإدارة':'▤<br>إعلاناتي'}</button></div><div class="box"><button class="buy" data-a="addentry">＋ إضافة إعلان</button><button class="alt" data-a="storeEdit">تعديل اسم المتجر وعنوانه</button><button class="alt" data-a="info">عن التطبيق</button><button class="alt" data-a="notifications">الإشعارات</button><button class="alt" data-a="switchrole" data-v="buyer">الانتقال إلى وضع الزبون</button></div><div class="dh"><b>إدارة المتجر</b><button class="link" data-a="out">خروج</button></div><div class="chips">${T.map(t=>`<button class="chip" data-a="dtab" data-v="${t[0]}" aria-pressed="${t[0]===dt}">${t[1]}</button>`).join('')}</div>`;
   const mine=D.p.filter(p=>p.mid===(own?ownStore?.id:me)),mo=D.o.filter(o=>o.mid===(own?ownStore?.id:me));
   if(dt==='p'&&!ownStore)dt='m';
   if(dt==='p')h+=`<div style="padding:0 16px"><button class="buy" style="margin-top:0" data-a="pform" data-v="">＋ إضافة منتج</button></div>`+(mine.length?mine.map(p=>`<div class="item"><div class="tile">${thumb(p)}</div><div><b>${esc(p.name)}</b><small>${fmt(p.price)} · المتوفر ${p.stock}</small><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="pdel" data-v="${p.id}">حذف</button></div></div></div>`).join(''):'<div class="empty">ما أضفت منتجات بعد.</div>');
@@ -1058,7 +1063,7 @@ async function saveProduct(){
       image_path=`${storeId}/${uid()}.jpg`;
       check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));
     }
-    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.expected_stock=bundle.expected_stock;
+    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,unit,store_code:val('fstoreCode'),barcode:val('fbarcode'),condition:val('fcondition'),sale_mode:val('fsaleMode')};f.expected_stock=bundle.expected_stock;
     draft.id=check(await db.rpc('save_product_bundle',{p_id:draft.id||null,p_store:storeId,p_product:f,p_variants:bundle.variants}));
     tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
     }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent=cur?.id?'حفظ التعديلات':'إنشاء'}}
@@ -1138,8 +1143,8 @@ function roleIcon(role){
 }
 function showAccountMenu(){
  const menu=$('#accountMenu');if(!menu)return;
- menu.innerHTML=(user?'<button class="account-profile-link" data-a="tab" data-v="profilePage">حسابي وبياناتي</button>':'')+'<p>اختر نوع الحساب</p><div class="account-role-grid">'+[['buyer','زبون'],['seller','بائع'],['driver','سائق التوصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span><span>${label}</span></button>`).join('')+'</div>';
- menu.hidden=false;$('#accountTrigger')?.setAttribute('aria-expanded','true');menu.querySelector('[data-a="enter"]')?.focus();
+ menu.innerHTML=user?`<p><b>${esc(profile?.full_name||'حسابي')}</b><small class="profile-email">${esc(user.email||'')}</small></p><button class="account-profile-link" data-a="tab" data-v="profilePage">ملفي الشخصي وبياناتي</button><button data-a="tab" data-v="account">حسابي وإدارة نشاطي</button><button data-a="tab" data-v="orders">طلباتي</button><button data-a="tab" data-v="settings">الإعدادات</button><button data-a="out">تسجيل الخروج</button>`:'<p>اختر نوع الحساب</p><div class="account-role-grid">'+[['buyer','زبون'],['seller','بائع'],['driver','سائق التوصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span><span>${label}</span></button>`).join('')+'</div>';
+ menu.hidden=false;$('#accountTrigger')?.setAttribute('aria-expanded','true');menu.querySelector('button')?.focus();
 }
 async function submitSellerApplication(){
  if(!user||profile?.disabled)return;
@@ -1190,7 +1195,7 @@ function filterSheet(){
   sheet(head('فلتر')+`<div class="filter-group"><h3>القسم</h3><div class="filter-chips">${['all',...CATS].map(c=>`<button data-a="fcat" data-v="${c}" aria-pressed="${cat===c}">${c==='all'?'الكل':c}</button>`).join('')}</div></div>
   <div class="filter-group"><h3>الموقع</h3><p class="note">تصفية المحافظة ستتوفر حين تصبح مواقع المنتجات محفوظة في التطبيق.</p></div>
   <div class="filter-group"><h3>السعر (د.ع)</h3><div class="filter-range"><label>من<input id="fmin" type="number" inputmode="numeric" min="0" placeholder="0" value="${esc(filt.min)}"></label><label>إلى<input id="fmax" type="number" inputmode="numeric" min="0" placeholder="بدون حد" value="${esc(filt.max)}"></label></div></div>
-  <div class="filter-group"><h3>الحالة</h3><p class="note">فلتر جديد أو مستعمل سيُفعّل بعد إضافة حالة المنتج إلى بيانات الإعلان.</p></div>
+  ${materialTypeFilters('filterType')}
   <div class="filter-group"><h3>الترتيب</h3><div class="filter-chips">${[['newest','الأحدث'],['oldest','الأقدم'],['cheap','السعر: الأقل أولًا'],['expensive','السعر: الأعلى أولًا']].map(([v,t])=>`<button data-a="fsort" data-v="${v}" aria-pressed="${filt.sort===v}">${t}</button>`).join('')}</div></div><div class="filter-actions"><button class="buy" data-a="fapply">عرض النتائج</button><button class="alt" data-a="fclear">حذف الفلاتر</button></div>`);
 }
 function infoSheet(){
@@ -1300,7 +1305,10 @@ const A={
   adminStat:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminSearch='';adminTab=v==='pending'?'sellers':v==='accounts'?'customers':'activity';adminFilter=v==='accounts'?'all':v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   adminListFilter:v=>{adminFilter=v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   cat:v=>{cat=v;tab='catalog';render()},
-  pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
+  pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';filt.condition='all';filt.saleMode='all';openCatalog()},
+  materialType:v=>{const [key,value]=v.split(':');if(!['condition','saleMode'].includes(key))return;filt[key]=value;tab='catalog';render()},
+  searchType:v=>{const [key,value]=v.split(':');if(!['condition','saleMode'].includes(key))return;filt.min=val('fmin');filt.max=val('fmax');filt[key]=value;searchPage()},
+  filterType:v=>{const [key,value]=v.split(':');if(!['condition','saleMode'].includes(key))return;filt.min=val('fmin');filt.max=val('fmax');filt[key]=value;filterSheet()},
   storeCategory:v=>{cat=v;render();},
   allcat:()=>{cat='all';tab='catalog';render()},
   searchSuggestion:v=>{q=v;$('#q').value=v;A.close();render();$('#marketSuggestions').hidden=true;},
@@ -1308,13 +1316,13 @@ const A={
   searchcat:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');cat=v;searchPage()},
   searchsort:v=>{q=val('q');filt.min=val('fmin');filt.max=val('fmax');filt.sort=v;searchPage()},
   searchapply:()=>{const min=$('#fmin')?val('fmin'):filt.min,max=$('#fmax')?val('fmax'):filt.max;if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}q=val('q');filt.min=min;filt.max=max;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='catalog';A.close();render()},
-  searchclear:()=>{q='';cat='all';filt.min='';filt.max='';filt.sort='newest';searchPage()},
+  searchclear:()=>{q='';cat='all';filt.min='';filt.max='';filt.sort='newest';filt.condition='all';filt.saleMode='all';searchPage()},
   banner:v=>{bannerIndex=+v;updateBanner()},
   filters:filterSheet,
   fcat:v=>{cat=v;filterSheet()},
   fsort:v=>{filt.sort=v;filterSheet()},
   fapply:()=>{const min=val('fmin'),max=val('fmax');if((min&&+min<0)||(max&&+max<0)||(min&&max&&+min>+max)){toast('تحقق من حدود السعر');return}filt.min=min;filt.max=max;A.close();market()},
-  fclear:()=>{cat='all';filt.min='';filt.max='';filt.sort='newest';A.close();market()},
+  fclear:()=>{cat='all';filt.min='';filt.max='';filt.sort='newest';filt.condition='all';filt.saleMode='all';A.close();market()},
   info:infoSheet,
   inforole:v=>{infoRole=v;infoSheet()},
   notifications:()=>act(()=>activity.show()),

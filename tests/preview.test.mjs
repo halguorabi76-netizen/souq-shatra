@@ -46,7 +46,7 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  vm.runInContext("A.prod(D.p[0].id);A.add();A.cart()",context);
  assert.match(nodes.get('#view').innerHTML,/buyer-checkout-layout/);assert.match(nodes.get('#view').innerHTML,/المبلغ النهائي المطلوب/);assert.doesNotMatch(nodes.get('#view').innerHTML,/حصة التطبيق|لكل بائع/);assert.equal(nodes.get('#shade').hidden,true);
  document.querySelector('#accountMenu').hidden=true;
- vm.runInContext("A.accountMenu()",context);assert.match(nodes.get('#accountMenu').innerHTML,/حسابي وبياناتي/);assert.match(nodes.get('#accountMenu').innerHTML,/سائق التوصيل/);assert.match(nodes.get('#accountMenu').innerHTML,/data-v="driver"/);
+ vm.runInContext("A.accountMenu()",context);assert.match(nodes.get('#accountMenu').innerHTML,/ملفي الشخصي وبياناتي/);assert.match(nodes.get('#accountMenu').innerHTML,/تسجيل الخروج/);assert.doesNotMatch(nodes.get('#accountMenu').innerHTML,/اختر نوع الحساب|data-a="enter"/);
  vm.runInContext("A.tab('profilePage')",context);assert.match(nodes.get('#view').innerHTML,/data-a="editCustomerPhone"/);
  vm.runInContext("A.editCustomerPhone()",context);assert.match(nodes.get('#sheet').innerHTML,/customerPhoneForm/);assert.doesNotMatch(nodes.get('#sheet').innerHTML,/pfname/);
  vm.runInContext("A.close()",context);
