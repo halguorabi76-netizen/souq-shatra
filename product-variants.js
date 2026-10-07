@@ -35,7 +35,7 @@ export function chooseVariant(variants,selected,axis,value){
 }
 export function variantChoices(p,defs,selected){
  const rows=(p.variants||[]).filter(v=>!v.archived),axes=[...new Set(rows.flatMap(v=>Object.keys(v.attributes)))].sort((a,b)=>Number(isTypeAxis(b,defs))-Number(isTypeAxis(a,defs)));
- return axes.map(k=>{const color=isColorAxis(k,defs),type=isTypeAxis(k,defs),label=defs.find(d=>d.key===k)?.label||({custom_color:'اللون',custom_type:'النوع',custom_size:'المقاس'})[k]||k;
+ return axes.map(k=>{const color=isColorAxis(k,defs),type=isTypeAxis(k,defs),label=defs.find(d=>d.key===k)?.label||({color:'اللون',size:'المقاس',type:'النوع',custom_color:'اللون',custom_type:'النوع',custom_size:'المقاس'})[k]||k;
  const values=[...new Set(rows.filter(v=>!color||Object.entries(selected).every(([axis,val])=>!isTypeAxis(axis,defs)||!val||v.attributes[axis]===val)).map(v=>v.attributes[k]))];
  const available=value=>rows.some(v=>v.available&&v.stock>0&&v.attributes[k]===value&&(type||Object.entries(selected).every(([axis,val])=>axis===k||!val||v.attributes[axis]===val)));
  if(type)return `<fieldset><legend>${E(label)}</legend><select id="variantType-${E(k)}" data-variant-type="true" data-axis="${E(k)}" aria-label="${E(label)}"><option value="" disabled ${selected[k]?'':'selected'}>اختر ${E(label)}</option>${values.map(value=>`<option value="${E(value)}" ${selected[k]===value?'selected':''} ${available(value)?'':'disabled'}>${E(value)}${available(value)?'':' · غير متوفر'}</option>`).join('')}</select></fieldset>`;

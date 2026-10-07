@@ -8,12 +8,18 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#e6eaf7",
-  "theme_color": "#e6eaf7",
+  "background_color": "#ffffff",
+  "theme_color": "#45205e",
   "icons": [
     {
-      "src": "icons/brand-aurora-v69.png",
-      "sizes": "1254x1254",
+      "src": "icons/brand-purple-192-v120.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/brand-purple-512-v120.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }
