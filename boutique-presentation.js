@@ -14,7 +14,7 @@ function gallery(p,display,photo,{esc,thumb}){
 }
 function storeBar(m,{esc}){
  if(!m?.id)return '';
- const tones={violet:'#45205e',blue:'#245bc5',sky:'#08779b',indigo:'#3843a5',lightIndigo:'#6268c5',red:'#9c2e45',green:'#21654a',brown:'#694632'},color=tones[m.appearance?.color]||'#45205e';
+ const color='#45205e';
  return `<div class="boutique-storebar boutique-checkout-bar" style="--store-header:${color}"><button class="sw-icon" data-a="back" aria-label="العودة إلى المتجر">←</button><span class="sw-sitebrand"><b>${esc(m.name)}</b></span><button class="sw-icon" data-a="tab" data-v="orders" aria-label="طلباتي"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></button></div>`;
 }
 window.SouqBoutique={previewOptions,gallery,storeBar};

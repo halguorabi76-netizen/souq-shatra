@@ -415,7 +415,7 @@ body.starting{background:#000!important}
  if(/^[0-9a-f-]{36}$/i.test(id||'')&&localStorage.getItem('souq-preview-mode-'+id)!=='buyer'&&localStorage.getItem('souq-preview-mode-'+id)!=='driver')document.documentElement.dataset.sellerResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="boutique-theme.css?v=121">
+<link rel="stylesheet" href="boutique-theme.css?v=122">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
@@ -447,15 +447,15 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=121"></script>
-<script src="boutique-presentation.js?v=120"></script><script src="buyer-voice.js?v=120"></script><script src="marketplace.js?v=120"></script>
+<script src="boutique-presentation.js?v=122"></script><script src="buyer-voice.js?v=120"></script><script src="marketplace.js?v=120"></script>
 
 
 <script type="module">
 import {createPreviewClient} from "./preview-lab.js?v=109";
 
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=120';
-import {createSellerWorkspace} from "./seller-workspace.js?v=120";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=110";
+import {createSellerWorkspace} from "./seller-workspace.js?v=122";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=122";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=109";
 async function apiFetch(resource,init={}){

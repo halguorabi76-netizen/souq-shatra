@@ -2,8 +2,8 @@
 const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=120';
-import {createSellerWorkspace} from "./seller-workspace.js?v=120";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=110";
+import {createSellerWorkspace} from "./seller-workspace.js?v=122";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=122";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=109";
 async function apiFetch(resource,init={}){

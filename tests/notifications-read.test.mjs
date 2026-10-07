@@ -64,3 +64,7 @@ test('social reactions are excluded from feed, unread badge and read updates; se
  assert.equal(f.notices.find(n=>n.id==='professional_login').read_at,null);assert.equal(f.updates[0].filters.find(([k])=>k==='id')[1].length,8);
 });
 
+
+test('switching to seller removes cached sign-in notifications before showing an unread badge',async()=>{
+ const f=fixture({driver:true});f.notices.push({id:'login',recipient_id:'account-one',event_kind:'professional_login',event_key:'professional:seller:login:account-one',title:'دخول حساب بائع',read_at:null});await f.center.poll();assert.equal(f.badge.textContent,3);f.state.mode='seller';f.center.sync();assert.equal(f.badge.textContent,2);assert.equal(f.notices.find(n=>n.id==='login').read_at,null);
+});

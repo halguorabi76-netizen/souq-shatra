@@ -102,3 +102,9 @@
 .pe-selling-types{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pe-selling-types>div{min-width:0}.pe-selling-types select{width:100%}
 @media(max-width:450px){:root:not([data-portal=admin])[data-theme] .material-type-filters{grid-template-columns:1fr}}
 .account-shortcuts svg,.profile-role-actions svg,.market-section button svg{width:22px;height:22px;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.8}
+/* The merchant drawer follows the marketplace brand and opens from the right. */
+:root:not([data-portal=admin])[data-theme] .seller-workspace .sw-sitebar{direction:rtl}
+.sw-sitebar [data-s=openMenu] svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.sw-seller-drawer{box-sizing:border-box;width:min(360px,90vw);right:0;left:auto;direction:rtl}
+.sw-market-brand{text-align:center;padding:20px 8px 8px;clear:both}.sw-market-logo{display:grid;place-items:center;width:88px;height:88px;margin:0 auto 16px;border:1px solid var(--line);border-radius:26px;background:var(--card);box-shadow:0 8px 24px #45205e15}.sw-market-logo img{width:76px;height:76px;object-fit:contain;border-radius:20px}.sw-market-brand h2{margin:0;font-size:23px;color:var(--navy)}.sw-market-brand small{font-size:12px}
+.sw-seller-drawer nav button>span{display:block}.sw-seller-drawer nav button small{margin:4px 0 0;font-size:11px}
