@@ -419,7 +419,7 @@ body.starting{background:#000!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=136">
+<link rel="stylesheet" href="market-refinement.css?v=137">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
@@ -1480,7 +1480,7 @@ refresh().catch(e=>{
 });
 setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['chats','account'].includes(tab))||(profile?.role==='admin'&&ADMIN_PORTAL)||(ownStore&&!ownStore.ok&&!ownStore.removed)))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=136',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=137',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
 </script>
 

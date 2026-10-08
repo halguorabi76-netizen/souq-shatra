@@ -11,9 +11,13 @@
 @media(max-width:480px){.boutique-storebar{padding:10px;gap:6px}.boutique-storebar .sw-sitebrand b{font-size:16px}.boutique-store-hero h2{font-size:22px}.boutique-store-hero small{font-size:11px}.sw-seller-drawer .sw-market-logo{width:56px;height:56px}.seller-workspace .sw-sitebar{padding-inline:10px;gap:5px;grid-template-columns:36px minmax(0,1fr) 36px 36px}}
 
 /* Keep the original illustrated entry choices in a compact account panel. */
-:root:not([data-portal]) .account-popover{width:300px!important;aspect-ratio:auto;padding:16px!important;border-radius:22px!important;gap:10px}
-:root:not([data-portal]) .account-role-grid{gap:8px}
-:root:not([data-portal]) .account-role-grid button{min-height:112px;padding:10px 4px;border-radius:16px;font-size:13px;gap:10px}
-:root:not([data-portal]) .account-role-icon{width:66px;height:66px;background:var(--aurora-soft,#f0ecff);border:1px solid #8261c51f;box-shadow:0 4px 12px #4930760d}
-:root:not([data-portal]) .account-role-icon svg{width:52px;height:52px;stroke:#58465f;stroke-width:1.5}
+:root:not([data-portal]) .account-popover{width:236px!important;aspect-ratio:auto;padding:10px!important;border-radius:18px!important;gap:6px;z-index:1001!important}
+:root:not([data-portal]) .account-role-grid{gap:4px}
+:root:not([data-portal]) .account-role-grid button{min-height:82px;padding:7px 2px;border-radius:12px;font-size:12px;gap:7px}
+:root:not([data-portal]) .account-role-icon{width:46px;height:46px;background:var(--aurora-soft,#f0ecff);border:1px solid #8261c51f;box-shadow:0 4px 12px #4930760d}
+:root:not([data-portal]) .account-role-icon svg{width:36px;height:36px;stroke:#58465f;stroke-width:1.5}
 :root:not([data-portal]) .account-role-grid button:hover{background:#8261c50b}
+
+:root:not([data-portal]) .top:has(.account-popover:not([hidden])){z-index:1000!important;overflow:visible!important}
+:root:not([data-portal]) .top:has(.account-popover:not([hidden])) .topline{z-index:2;overflow:visible!important}
+:root:not([data-portal]) .top:has(.account-popover:not([hidden])) .desktop-search-row{position:relative;z-index:1}
