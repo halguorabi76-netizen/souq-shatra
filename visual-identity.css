@@ -47,3 +47,5 @@
 #swDrawer .sw-drawer{animation:marketDrawerEnter 240ms cubic-bezier(.22,.61,.36,1)}
 @keyframes marketDrawerEnter{from{transform:translateX(100%)}to{transform:translateX(0)}}
 .sw-drawer-leaving{position:fixed;inset:0;z-index:120;pointer-events:none}
+:root[data-theme] body.seller-workspace[data-seller-mode=light]{--bg:#eef2fb;--card:#fff;--ink:#182444;--mut:#566681;--line:#d4deef;--tile:#e7edfa;--scene-bg:linear-gradient(145deg,#f6f8ff,#edf2fb);--panel-bg:#fff;--icon-bg:#e7edfa;--icon-ink:#344cc0}
+:root[data-theme] body.seller-workspace[data-seller-mode=dark]{--bg:#070f26;--card:#101d3b;--ink:#f4f7ff;--mut:#b4c2dc;--line:#283959;--tile:#142647;--scene-bg:linear-gradient(150deg,#050d20,#0b1633 70%,#19163d);--panel-bg:#101d3b;--icon-bg:#142647;--icon-ink:#75cfff}
