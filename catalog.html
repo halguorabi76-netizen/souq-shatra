@@ -413,7 +413,7 @@ body.starting{background:#000!important}
  if(document.documentElement.dataset.portal)return;
  const retention=sessionStorage.getItem('souq-auth-retention')||localStorage.getItem('souq-auth-retention'),area=retention==='session'?sessionStorage:localStorage;
  const session=JSON.parse(area.getItem('sb-nbktyynshqldyerqtjrd-auth-token')||'null'),id=session?.user?.id;
- const pending=sessionStorage.getItem('souq-shatra-pending-role'),mode=id?localStorage.getItem('souq-shatra-mode-'+id):null;
+ const routeRole=new URLSearchParams(location.search).get('roleLogin')||new URLSearchParams(location.search).get('roleRequest'),pending=routeRole||sessionStorage.getItem('souq-role-login')||sessionStorage.getItem('souq-role-request')||sessionStorage.getItem('souq-shatra-pending-role'),mode=id?localStorage.getItem('souq-shatra-mode-'+id):null;
  if(pending==='seller'||(/^[0-9a-f-]{36}$/i.test(id||'')&&(mode==='seller'||localStorage.getItem('souq-shatra-account-layout-'+id)==='seller')))document.documentElement.dataset.sellerResume='true';
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
@@ -489,6 +489,7 @@ const sellerResumeHint=(()=>{if(document.documentElement.dataset.portal)return f
 
 let viewMode=sellerResumeHint?'seller':'guest',geoPoint=null;
 let accountResolving=document.documentElement.dataset.accountResume==='true';
+let sellerEntryPending=sellerResumeHint;
 const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-shatra-mode-'+user.id,mode);else if(!user&&mode!=='guest')sessionStorage.setItem('souq-shatra-pending-role',mode)}catch{}};
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
 const check=r=>{if(r.error)throw r.error;return r.data};
@@ -506,7 +507,7 @@ async function clearUnavailableAccount(){
  check(await withTimeout(db.auth.signOut({scope:'local'})));
  if(user?.id)try{localStorage.removeItem('souq-shatra-mode-'+user.id)}catch{}
  try{sessionStorage.removeItem('souq-shatra-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}
- user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;accountResolving=false;viewMode='guest';
+ user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;accountResolving=false;sellerEntryPending=false;viewMode='guest';
  D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
  deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
 }
@@ -534,6 +535,7 @@ async function refresh(){
       render();
     }
   }else if(viewMode!=='guest'){
+    try{if(!['souq-role-login','souq-role-request','souq-shatra-pending-role'].some(key=>sessionStorage.getItem(key)==='seller'))sellerEntryPending=false;}catch{sellerEntryPending=false;}
     profile=null;ownStore=null;
     // Every device opens the storefront. Guests choose a role from the account menu.
     viewMode='guest';
@@ -553,6 +555,7 @@ async function refresh(){
   const approvedStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&m.approved&&!m.removed):null;
   const sellerOnly=!!approvedStore&&nextProfile?.role!=='admin'&&!ADMIN_PORTAL;
   accountResolving=false;
+  if(nextUser&&nextUser.id===user?.id)sellerEntryPending=false;
   if(nextUser&&!ADMIN_PORTAL)try{localStorage.setItem('souq-shatra-account-layout-'+nextUser.id,sellerOnly?'seller':'buyer')}catch{}
   if(sellerOnly&&!dataReady){rememberMode('seller');publicStoreId=null;tab='account';render();}
   let productQuery=db.from('products').select('*').order('created_at',{ascending:false});
@@ -712,9 +715,12 @@ function pageBackbar(){
  bar.prepend(button);
 }
 function closePage(){
+ const cancelSellerEntry=sellerEntryPending&&!user;
+ if(cancelSellerEntry){sellerEntryPending=false;viewMode='guest';try{sessionStorage.removeItem('souq-shatra-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}}
  if($('#sheet').classList.contains('auth-sheet')&&pendingPurchase)clearPurchaseReturn();
  window.SouqLocationPicker?.close();
  $('#shade').hidden=true;pageNav?.closeSheets();$('.app').inert=false;
+ if(cancelSellerEntry)render();
 }
 function goBack(){
  if(!$('#shade').hidden){
@@ -769,8 +775,8 @@ function roleAccess(role){
 async function existingRole(role){
  if(!['seller','driver'].includes(role))return;
  if(user&&((role==='seller'&&canSell())||(role==='driver'&&driverAccount))){rememberMode(role);tab='account';A.close();render();return}
- if(user){check(await db.auth.signOut());user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;D.o=[];D.cart=[];save()}
- accountSession?.choose('device');sessionStorage.removeItem('souq-role-request');sessionStorage.setItem('souq-role-login',role);rememberMode(role);lsheet('m');
+ if(user){refreshId++;check(await db.auth.signOut());user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;dataReady=false;D.o=[];D.cart=[];save()}
+ accountSession?.choose('device');sessionStorage.removeItem('souq-role-request');sessionStorage.setItem('souq-role-login',role);rememberMode(role);if(role==='seller'&&!ADMIN_PORTAL&&!db.preview){sellerEntryPending=true;sellerResume();}lsheet('m');
 }
 function requestRole(role){
  if(!['seller','driver'].includes(role))return;
@@ -840,6 +846,7 @@ function render(){
   activity.sync();
   if(db.preview?.isHome()){db.preview.home();return;}
   if(ADMIN_PORTAL){renderAdminPortal();return}
+  if(sellerEntryPending&&!db.preview&&!sellerAccount()){sellerResume();return}
   if(pendingPurchase&&!dataReady&&!db.preview){$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ العودة إلى المادة…</div>';return}
   try{if(user&&sessionStorage.getItem('souq-admin-return')==='1'){sessionStorage.removeItem('souq-admin-return');location.replace('admin.html');return}}catch{}
   // Public browsing must not wait for account, delivery or workspace requests.
@@ -1361,6 +1368,7 @@ const A={
     const requestedRole=sessionStorage.getItem('souq-role-login')||sessionStorage.getItem('souq-role-request')||viewMode;
     const loginRole=['seller','driver'].includes(requestedRole)?requestedRole:'buyer';
     if(button.disabled)return;
+    if(loginRole==='seller'&&!ADMIN_PORTAL&&!db.preview){sellerEntryPending=true;sellerResume();}
     button.disabled=true;button.textContent='جارٍ الاتصال…';
     try{
       let signedIn;
@@ -1377,7 +1385,7 @@ const A={
     }
   }),
   register:()=>sellerRequest(),
-  out:()=>act(async()=>{check(await db.auth.signOut());clearPurchaseReturn();accountResolving=false;user=null;profile=null;ownStore=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.o=[];deliveryPayments=[];adminDetail=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
+  out:()=>act(async()=>{check(await db.auth.signOut());clearPurchaseReturn();accountResolving=false;sellerEntryPending=false;user=null;profile=null;ownStore=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.o=[];deliveryPayments=[];adminDetail=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
   dtab:v=>{dt=v;render()},
   pform:v=>{if(!canSell()){sellerRequest();return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}closePage();fsheet(v)},
   psave:()=>act(saveProduct),
@@ -1461,7 +1469,7 @@ refresh().catch(e=>{
 });
 setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['chats','account'].includes(tab))||(profile?.role==='admin'&&ADMIN_PORTAL)||(ownStore&&!ownStore.ok&&!ownStore.removed)))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=134',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
 </script>
 

@@ -59,5 +59,5 @@ test('guest plus goes straight to buyer login and retains the chosen product',()
 });
 
 test('seller login retains the chosen role while background work changes the previous view',async()=>{
- const x=setup(),c=authActions(x);c.viewMode='seller';c.rememberMode=mode=>{c.viewMode=mode;x.events.push(['mode',mode]);};c.render=()=>x.events.push(['render',c.viewMode]);c.db.auth.signInWithPassword=async()=>{c.viewMode='guest';return {data:{user:{id:'seller'}}};};await c.A.dologin('m');assert.equal(c.viewMode,'seller');assert.ok(x.events.some(e=>e[0]==='render'&&e[1]==='seller'));assert.ok(!x.events.some(e=>e[0]==='render'&&e[1]==='buyer'));
+ const x=setup(),c=authActions(x);c.ADMIN_PORTAL=false;c.sellerResume=()=>x.events.push(['seller-shell']);c.viewMode='seller';c.rememberMode=mode=>{c.viewMode=mode;x.events.push(['mode',mode]);};c.render=()=>x.events.push(['render',c.viewMode]);c.db.auth.signInWithPassword=async()=>{c.viewMode='guest';return {data:{user:{id:'seller'}}};};await c.A.dologin('m');assert.equal(c.viewMode,'seller');assert.ok(x.events.some(e=>e[0]==='render'&&e[1]==='seller'));assert.ok(!x.events.some(e=>e[0]==='render'&&e[1]==='buyer'));
 });
