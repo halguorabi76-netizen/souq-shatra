@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 const pages=['index.html','catalog.html','preview.html'];
-test('first HTML paint contains both public and seller layouts, no logo-only wait or splash timer',async()=>{
- for(const path of pages){const t=await readFile(path,'utf8');assert(t.includes('<body>'));assert(t.includes('id="startupSplash" class="startup-splash" hidden'));assert(t.includes('class="buyer-preflight"'));assert(t.includes('class="boot-seller-shell')||t.includes('sw-shell boot-seller-shell'));assert(t.includes('id="sellerStartTemplate"'));assert(!t.includes('requestAnimationFrame(finish)'));assert(!t.includes('},15000)'));assert(!t.includes('https://esm.sh/@supabase'));if(path!=='preview.html'){assert(t.includes('vendor/supabase/supabase-2.57.0.js'));assert(t.includes('const {createClient}=window.supabase;'));}
+test('first HTML paint defers buyer layout until account resolution and retains seller shell',async()=>{
+ for(const path of pages){const t=await readFile(path,'utf8');assert(t.includes('<body>'));assert(t.includes('id="startupSplash" class="startup-splash" hidden'));assert(!t.includes('class="buyer-preflight"'));assert(t.includes('data-account-boot="true"'));assert(t.includes('initialAccountResolved'));assert(t.includes('class="boot-seller-shell')||t.includes('sw-shell boot-seller-shell'));assert(t.includes('id="sellerStartTemplate"'));assert(!t.includes('requestAnimationFrame(finish)'));assert(!t.includes('},15000)'));assert(!t.includes('https://esm.sh/@supabase'));if(path!=='preview.html'){assert(t.includes('vendor/supabase/supabase-2.57.0.js'));assert(t.includes('const {createClient}=window.supabase;'));}
  const f=t.slice(t.indexOf('function sellerResume(){'),t.indexOf('function render(){'));assert(f.includes("$('#sellerStartTemplate').innerHTML"));assert(!f.includes('seller-session-brand'));
  }
 });
@@ -25,3 +25,4 @@ test('pinned local browser SDK exposes the unchanged client/session/storage API 
  assert.equal(typeof client.auth.getSession,'function');assert.equal(typeof client.from('products').select,'function');assert.equal(typeof client.rpc,'function');assert(client.storage.from('products').getPublicUrl('a.jpg').data.publicUrl.endsWith('/products/a.jpg'));
  const session=await client.auth.getSession();assert.equal(session.error,null);assert.equal(session.data.session,null);
 });
+
