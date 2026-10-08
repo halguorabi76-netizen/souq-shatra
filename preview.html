@@ -845,7 +845,7 @@ function render(){
   // Public browsing must not wait for account, delivery or workspace requests.
   // Private actions still use the existing account checks and database policies.
   if(!dataReady&&viewMode==='seller'&&!db.preview){sellerResume();return}
-  if(accountResolving&&!dataReady&&!db.preview){$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ فتح حسابك…</div>';return}
+  if(accountResolving&&!dataReady&&!db.preview){document.documentElement.dataset.accountResume='true';$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ فتح حسابك…</div>';return}
   if(sellerAccount())viewMode='seller';
   if(dataReady&&viewMode==='seller'&&!canSell())viewMode='buyer';
   if(canSell()&&viewMode==='seller'&&ownStore){if(publicStoreId&&publicStoreId!==ownStore.id)publicStoreId=null;if(!['account','market','listings','myMarket','chats','settings','profilePage','postPage','orders'].includes(tab))tab='account';}
