@@ -57,3 +57,7 @@ test('network and other auth failures do not tell the customer to create an acco
 test('guest plus goes straight to buyer login and retains the chosen product',()=>{
  const {c,events,storage}=setup();c.viewMode='guest';c.closeAccountMenu=()=>events.push(['close-menu']);c.lsheet=mode=>events.push(['login',mode]);c.A.prod=()=>{c.cur.n=1;c.cur.vid=null;};c.A.add=()=>{throw Error('guest must not add before login')};const start=html.indexOf('  quickAdd:'),end=html.indexOf('  prod:',start);vm.runInContext('Object.assign(A,{'+html.slice(start,end)+'});A.quickAdd("product")',c);assert.ok(events.some(e=>e[0]==='login'&&e[1]==='m'));assert.equal(JSON.parse(storage.get('test-purchase-return')).pid,pid);
 });
+
+test('seller login retains the chosen role while background work changes the previous view',async()=>{
+ const x=setup(),c=authActions(x);c.viewMode='seller';c.rememberMode=mode=>{c.viewMode=mode;x.events.push(['mode',mode]);};c.render=()=>x.events.push(['render',c.viewMode]);c.db.auth.signInWithPassword=async()=>{c.viewMode='guest';return {data:{user:{id:'seller'}}};};await c.A.dologin('m');assert.equal(c.viewMode,'seller');assert.ok(x.events.some(e=>e[0]==='render'&&e[1]==='seller'));assert.ok(!x.events.some(e=>e[0]==='render'&&e[1]==='buyer'));
+});
