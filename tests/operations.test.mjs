@@ -25,8 +25,9 @@ test('pending driver sees application review, no delivery offers or customer dat
 });
 test('approved driver sees only own current work, pickup and customer details',()=>{
  const order={id:'abcdef',mid:'store',driver_id:'a',st:1,ts:'now',items:[{name:'قميص',q:2}],cust:{name:'زبون',addr:'عنوان الزبون',phone:'07811111111'},total:12000,platform_fee:1000,delivery_fee:2000};
- const g={user:{id:'a'},profile:{},driver:{approved:true,amount_due:5000,debt_limit:5000},driverProfile:{full_name:'السائق'},data:{o:[order,{...order,driver_id:'b',items:[{name:'OTHER-DRIVER',q:1}]}],m:[{id:'store',name:'متجر',phone:'07822222222'}],driverContacts:[{order_id:'abcdef',pickup_address:'استلام خاص'}]},offers:[],payments:[]};const {w,view}=workspace(g);w.render();assert.match(view.innerHTML,/استلام خاص|عنوان الزبون|قميص/);assert.doesNotMatch(view.innerHTML,/OTHER-DRIVER/);assert.match(view.innerHTML,/بلغت حد المستحقات/);assert.match(view.innerHTML,/استلمت المواد ودفعت للتاجر/);
+ const g={user:{id:'a'},profile:{},driver:{approved:true,amount_due:5000,debt_limit:5000},driverProfile:{full_name:'السائق'},data:{o:[order,{...order,driver_id:'b',items:[{name:'OTHER-DRIVER',q:1}]}],m:[{id:'store',name:'متجر',phone:'07822222222'}],driverContacts:[{order_id:'abcdef',pickup_address:'استلام خاص'}]},offers:[],payments:[]};const {w,view}=workspace(g);w.render();assert.match(view.innerHTML,/استلام خاص|عنوان الزبون|قميص/);assert.doesNotMatch(view.innerHTML,/OTHER-DRIVER/);assert.match(view.innerHTML,/بلغت حد المستحقات/);assert.match(view.innerHTML,/استلمت المواد من التاجر/);
 });
 test('seller driver contact escapes names and exposes only supplied contact fields',()=>{
  const c=load('delivery-workspace.js'),html=c.driverContact({full_name:'<script>',phone:'07811111111',vehicle:'دراجة',email:'PRIVATE',address:'PRIVATE'},E);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/PRIVATE/);
 });
+

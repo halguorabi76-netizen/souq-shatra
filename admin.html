@@ -25,7 +25,7 @@
 <link rel="preload" as="image" href="icons/basket-mascot-v69.png">
 <link rel="icon" href="icons/admin-192-v97.png" sizes="192x192">
 <link rel="apple-touch-icon" href="icons/admin-192-v97.png">
-<link rel="modulepreload" href="admin-app.js?v=121">
+<link rel="modulepreload" href="admin-app.js?v=130">
 <link rel="preconnect" href="https://esm.sh" crossorigin>
 <link rel="preconnect" href="https://nbktyynshqldyerqtjrd.supabase.co" crossorigin>
 <title>إدارة ومعاينة سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
@@ -415,6 +415,7 @@ body.starting{background:#000!important}
  if(/^[0-9a-f-]{36}$/i.test(id||'')&&localStorage.getItem('souq-shatra-mode-'+id)==='seller')document.documentElement.dataset.sellerResume='true';
 }catch{}})();
 </script>
+<link rel="stylesheet" href="market-refinement.css?v=130">
 </head>
 <body>
 <div id="startupSplash" hidden class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
@@ -445,10 +446,10 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=104"></script>
+<script src="marketplace.js?v=130"></script>
 <script src="demo-lab.js?v=51"></script>
 <script src="vendor/supabase/supabase-2.57.0.js"></script>
-<script type="module">import {bootAdminHub} from "./admin-hub.js?v=121";bootAdminHub();</script>
+<script type="module">import {bootAdminHub} from "./admin-hub.js?v=130";bootAdminHub();</script>
 <script>
 // Keep Android users from seeing an empty page when an external module never loads.
 setTimeout(() => {
@@ -462,4 +463,5 @@ setTimeout(() => {
 <script src="interaction-motion.js?v=112"></script>
 </body>
 </html>
+
 

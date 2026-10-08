@@ -60,3 +60,9 @@ test('opening a store keeps loaded marketplace data and uses history instead of 
  const count=events.length;context.A.visitStore('https://other.invalid');assert.equal(events.length,count);
  context.db.preview=true;context.A.visitStore(id);assert.equal(events[count],'https://market.invalid/preview.html?store='+id);
 });
+
+
+test('plus is an actual separate accessible button and preserves the product details control',()=>{
+ const ui=loadUI(),p={id:'p',mid:'s',name:'قميص',active:true,price:100,stock:2};const html=ui.productCards([p],{esc,fmt,thumb:()=>'',mname:()=>''});assert.match(html,/class="market-card-plus" data-a="quickAdd" data-v="p"/);assert.match(html,/data-a="prod"/);assert.doesNotMatch(ui.productFace(p,{esc,fmt,thumb:()=>''}),/data-a="quickAdd"|boutique-card-plus/);
+ assert.match(ui.quickAddButton({...p,stock:0},esc),/disabled/);
+});

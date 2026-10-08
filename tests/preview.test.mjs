@@ -39,14 +39,14 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  vm.createContext(context);
  const strip=code=>code.replace(/^import .*;$/gm,'').replace(/^export \{.*\} from .*;$/gm,'').replace(/export /g,'');
  for(const file of ['product-options.js','product-variants.js','product-editor.js']){const code=readFileSync(new URL('../'+file,import.meta.url),'utf8'),names=[...code.matchAll(/export (?:const|function|async function) ([a-zA-Z0-9_]+)/g)].map(m=>m[1]);vm.runInContext('{'+strip(code)+';Object.assign(globalThis,{'+names.join(',')+'});}',context);}
- for(const file of ['boutique-presentation.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
+ for(const file of ['catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
  const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8').match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;$/gm,'');vm.runInContext(source,context,{filename:'preview.html'});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();assert.match(nodes.get('#view').innerHTML,/أي واجهة تريد تجربتها/);
  vm.runInContext("db.preview.selectRole('buyer')",context);await settle();assert.match(nodes.get('#view').innerHTML,/المواد المعروضة|قميص تجريبي/);
- vm.runInContext("A.prod(D.p[0].id);A.add();A.cart()",context);
+ vm.runInContext("A.quickAdd(D.p[0].id);if(!cur.quickAdd||!cur.added||$('#shade').hidden)throw Error('quick add must keep product open');A.cart()",context);
  assert.match(nodes.get('#view').innerHTML,/buyer-checkout-layout/);assert.match(nodes.get('#view').innerHTML,/المبلغ النهائي المطلوب/);assert.doesNotMatch(nodes.get('#view').innerHTML,/حصة التطبيق|لكل بائع/);assert.equal(nodes.get('#shade').hidden,true);
  document.querySelector('#accountMenu').hidden=true;
- vm.runInContext("A.accountMenu()",context);assert.match(nodes.get('#accountMenu').innerHTML,/ملفي الشخصي وبياناتي/);assert.match(nodes.get('#accountMenu').innerHTML,/تسجيل الخروج/);assert.doesNotMatch(nodes.get('#accountMenu').innerHTML,/اختر نوع الحساب|data-a="enter"/);
+ vm.runInContext("A.accountMenu()",context);assert.match(nodes.get('#accountMenu').innerHTML,/حسابي وبياناتي/);assert.doesNotMatch(nodes.get('#accountMenu').innerHTML,/اختر نوع الحساب|سائق التوصيل|data-v="driver"/);
  vm.runInContext("A.tab('profilePage')",context);assert.match(nodes.get('#view').innerHTML,/data-a="editCustomerPhone"/);
  vm.runInContext("A.editCustomerPhone()",context);assert.match(nodes.get('#sheet').innerHTML,/customerPhoneForm/);assert.doesNotMatch(nodes.get('#sheet').innerHTML,/pfname/);
  vm.runInContext("A.close()",context);
@@ -70,3 +70,11 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
 });
 
 test('generated embedded preview includes the toolbar stylesheet after production CSS version changes',()=>{const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8');assert.match(source,/<link rel="stylesheet" href="preview-lab\.css\?v=\d+">/);});
+
+
+test('delivery may approve a new order before seller, but pickup waits for seller approval',async()=>{
+ const {model,ids}=setup(),product=model.snapshot().products[0];model.setRole('buyer');const id=ok(await model.rpc('place_order',{p_store:ids.store,p_lines:[{id:product.id,quantity:1}],p_name:'Buyer',p_phone:'00000000000',p_address:'Private address'}));
+ const notices=model.snapshot().account_notifications;for(const recipient of [ids.seller,ids.driver,ids.admin])assert.ok(notices.some(n=>n.order_id===id&&n.recipient_id===recipient));
+ model.setRole('driver');assert.ok(ok(await model.rpc('delivery_offer_details')).some(o=>o.order_id===id));ok(await model.rpc('claim_delivery',{p_order:id}));assert.ok((await model.rpc('delivery_step',{p_order:id,p_status:'delivery'})).error);
+ model.setRole('seller');ok(await model.rpc('set_order_status',{p_order:id,p_status:'accepted'}));model.setRole('driver');ok(await model.rpc('delivery_step',{p_order:id,p_status:'delivery'}));assert.equal(model.snapshot().products[0].stock,19);
+});

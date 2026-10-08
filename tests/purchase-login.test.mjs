@@ -53,3 +53,7 @@ test('network and other auth failures do not tell the customer to create an acco
  const x=setup();x.c.A.add();authActions(x,{failure:true,failureCode:'request_timeout'});await assert.rejects(x.c.A.dologin('m'),/invalid credentials/);assert.equal(x.events.some(e=>e[0]==='loginNotice'),false);assert.equal(x.storage.has('test-purchase-return'),true);
 });
 
+
+test('guest plus goes straight to buyer login and retains the chosen product',()=>{
+ const {c,events,storage}=setup();c.viewMode='guest';c.closeAccountMenu=()=>events.push(['close-menu']);c.lsheet=mode=>events.push(['login',mode]);c.A.prod=()=>{c.cur.n=1;c.cur.vid=null;};c.A.add=()=>{throw Error('guest must not add before login')};const start=html.indexOf('  quickAdd:'),end=html.indexOf('  prod:',start);vm.runInContext('Object.assign(A,{'+html.slice(start,end)+'});A.quickAdd("product")',c);assert.ok(events.some(e=>e[0]==='login'&&e[1]==='m'));assert.equal(JSON.parse(storage.get('test-purchase-return')).pid,pid);
+});
