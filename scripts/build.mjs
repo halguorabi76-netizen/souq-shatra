@@ -5,7 +5,7 @@ if(!appModule)throw new Error('Missing application source module');
 // Preserve the independent admin entry and its fast authorization gate.
 const portalMain=main;
 const adminTemplate=await readFile('admin.html','utf8');
-const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,m=>(m.includes('?v=121')||m.includes('?v=130'))?m:m.replace(/\?v=\d+$/,'?v=110'));
+const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,m=>(m.includes('?v=121')||m.includes('?v=130')||m.includes('?v=139'))?m:m.replace(/\?v=\d+$/,'?v=110'));
 await writeFile('admin.html',admin.replace(/admin-app\.js\?v=\d+/g,'admin-app.js?v=131'));
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
@@ -31,7 +31,7 @@ const preview=portalMain
 if(preview.includes('SUPABASE_ANON_KEY')||preview.includes('import {createClient}'))throw new Error('Preview must not contain the production client');
 await writeFile('preview.html',preview);
 await mkdir('www', { recursive: true });
-for (const file of ['professional-login.js', 'market-refinement.css', 'interaction-motion.js', 'account-access.js', 'index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-editor.js', 'product-options.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js', 'main-aurora.css', 'main-loading.js', 'page-navigation.js', 'location-picker.js']) await copyFile(file, `www/${file}`);
+for (const file of ['visual-identity.css', 'market-drawer.js', 'professional-login.js', 'market-refinement.css', 'interaction-motion.js', 'account-access.js', 'index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'admin-portal.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-editor.js', 'product-options.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js', 'main-aurora.css', 'main-loading.js', 'page-navigation.js', 'location-picker.js']) await copyFile(file, `www/${file}`);
 // Include every referenced image, including temporary startup artwork.
 await cp('icons', 'www/icons', { recursive: true });
 

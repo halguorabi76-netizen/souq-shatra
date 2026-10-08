@@ -2,8 +2,8 @@
 const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
-import {createSellerWorkspace} from "./seller-workspace.js?v=130";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=130";
+import {createSellerWorkspace} from "./seller-workspace.js?v=139";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=139";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=130";
 async function apiFetch(resource,init={}){
@@ -378,7 +378,7 @@ function sellerResume(){
  document.body.classList.add('seller-workspace');
  document.body.classList.remove('welcome-mode','profile-mode','buyer-cart-mode');
  $('.tabs').hidden=true;
- $('#view').innerHTML='<div class="sw-sitebar seller-session-brand" aria-label="سوق الشطرة"><span></span><span class="sw-sitebrand"><img src="icons/brand-classic-purple-512-v121.png" alt=""><b>سوق الشطرة</b></span></div>';
+ $('#view').innerHTML='<div class="sw-sitebar seller-session-brand" aria-label="سوق الشطرة"><span></span><span class="sw-sitebrand"><img src="icons/shatra-smile-display-v139.png" alt=""><b>سوق الشطرة</b></span></div>';
 }
 
 function render(){

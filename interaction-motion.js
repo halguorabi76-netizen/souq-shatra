@@ -14,6 +14,9 @@ button.ui-pressed:not(:disabled){filter:brightness(.96)}
 @media(prefers-reduced-motion:reduce){button,#shade{transition:none}}
 `;document.head.append(style);
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+function pulse(el){if(!el||reduced.matches||!el.animate)return;el.animate([{transform:'scale(1)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:240,easing:'ease-out'});}
+window.SouqMotion={pulse};
+let cartCount=null;const noticeCounts=new WeakMap();new MutationObserver(()=>{const badge=document.getElementById('cc'),count=Number(badge?.textContent)||0;if(cartCount!==null&&count>cartCount)pulse(document.querySelector('.tabs [data-v="myMarket"] .navicon'));cartCount=count;document.querySelectorAll('[data-notice-count]').forEach(el=>{const n=Number(el.textContent)||0,old=noticeCounts.get(el);if(old!==undefined&&n>old)pulse(el.closest('button'));noticeCounts.set(el,n);});}).observe(document.body,{childList:true,subtree:true,characterData:true});
 const animations=new WeakMap();let inputAt=-Infinity,pressed=null;
 function animate(el,kind){
  if(!el||reduced.matches||!el.animate||document.hidden)return;
