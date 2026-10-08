@@ -1,0 +1,5 @@
+project_id = "nbktyynshqldyerqtjrd"
+
+# This pre-login endpoint verifies the submitted password with Supabase Auth.
+[functions.professional-login]
+verify_jwt = false
