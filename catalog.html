@@ -419,7 +419,7 @@ body.starting{background:#000!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=130">
+<link rel="stylesheet" href="market-refinement.css?v=136">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
@@ -1153,12 +1153,12 @@ function lsheet(m){
  loadAuthProviders();
 }
 function roleIcon(role){
-  const paths=role==='seller'?'<path d="M4 12h24v16H4zM3 12l3-8h20l3 8M11 28V18h10v10M3 12q3 5 6 0 3 5 7 0 4 5 7 0 3 5 6 0"/>':role==='driver'?'<circle cx="8" cy="24" r="5"/><circle cx="25" cy="24" r="5"/><circle cx="18" cy="5" r="3"/><path d="M8 24l8-12 5 3 4 9M16 12l-2 7 7 5M5 8h7v8H5M21 15h5"/>':'<circle cx="16" cy="8" r="4"/><path d="M9 18q7-8 14 0M3 19h26l-4 10H7zM10 22v4M16 22v4M22 22v4"/>';
-  return `<svg viewBox="0 0 32 32" aria-hidden="true">${paths}</svg>`;
+  const icons={buyer: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#443a31"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#b49f8e"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#b69070"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#48392d"/><path d="M24 35l4 5m12-5-4 5"/></svg>', seller: '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#8e7057"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#e5d5c7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#e5d5c7"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg>', driver: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#efeae5"/><circle cx="49" cy="49" r="8" fill="#efeae5"/><circle cx="17" cy="49" r="3" fill="#866c56"/><circle cx="49" cy="49" r="3" fill="#866c56"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#c8b2a0"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#453b33"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#ae9580"/><path d="M38 37l6 10m-16-14-6 13"/></svg>'};
+  return icons[role]||icons.buyer;
 }
 function showAccountMenu(){
  const menu=$('#accountMenu');if(!menu)return;
- if(user){menu.innerHTML='<button class="account-profile-link" data-a="tab" data-v="profilePage">حسابي وبياناتي</button><button data-a="tab" data-v="orders">طلباتي</button><button data-a="out">تسجيل الخروج</button>';}else menu.innerHTML='<p>اختر نوع الحساب</p><div class="account-role-grid">'+[['buyer','زبون'],['seller','بائع'],['driver','سائق التوصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span><span>${label}</span></button>`).join('')+'</div>';
+ if(user){menu.innerHTML='<button class="account-profile-link" data-a="tab" data-v="profilePage">حسابي وبياناتي</button><button data-a="tab" data-v="orders">طلباتي</button><button data-a="out">تسجيل الخروج</button>';}else menu.innerHTML='<p>اختر نوع الحساب</p><div class="account-role-grid">'+[['buyer','زبون'],['seller','بائع'],['driver','عامل توصيل']].map(([role,label])=>`<button data-a="enter" data-v="${role}"><span class="account-role-icon">${roleIcon(role)}</span><span>${label}</span></button>`).join('')+'</div>';
  menu.hidden=false;$('#accountTrigger')?.setAttribute('aria-expanded','true');menu.querySelector('button')?.focus();
 }
 async function submitSellerApplication(){
@@ -1233,6 +1233,7 @@ const A={
   toggleTheme:()=>{window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark');if(tab==='settings')settings()},
   theme:mode=>{window.SouqTheme.set(mode);settings()},
   accountMenu:()=>{
+    if(user&&viewMode==='buyer'){A.tab('profilePage');return}
     const menu=$('#accountMenu');if(!menu.hidden){closeAccountMenu();return}
     showAccountMenu();
   },
@@ -1479,7 +1480,7 @@ refresh().catch(e=>{
 });
 setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['chats','account'].includes(tab))||(profile?.role==='admin'&&ADMIN_PORTAL)||(ownStore&&!ownStore.ok&&!ownStore.removed)))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=135',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=136',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
 </script>
 
