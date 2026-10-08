@@ -49,3 +49,9 @@
 .sw-drawer-leaving{position:fixed;inset:0;z-index:120;pointer-events:none}
 :root[data-theme] body.seller-workspace[data-seller-mode=light]{--bg:#eef2fb;--card:#fff;--ink:#182444;--mut:#566681;--line:#d4deef;--tile:#e7edfa;--scene-bg:linear-gradient(145deg,#f6f8ff,#edf2fb);--panel-bg:#fff;--icon-bg:#e7edfa;--icon-ink:#344cc0}
 :root[data-theme] body.seller-workspace[data-seller-mode=dark]{--bg:#070f26;--card:#101d3b;--ink:#f4f7ff;--mut:#b4c2dc;--line:#283959;--tile:#142647;--scene-bg:linear-gradient(150deg,#050d20,#0b1633 70%,#19163d);--panel-bg:#101d3b;--icon-bg:#142647;--icon-ink:#75cfff}
+:root[data-theme] .topline #themeToggle{position:static!important;transform:none!important;flex:none;margin:0!important}
+:root[data-theme] .topline .header-brand{position:static!important;transform:none!important;width:auto!important;min-width:0;flex:1;margin:0!important}
+:root[data-theme] .topline #accountTrigger{margin:0!important;flex:none}
+:root[data-theme] .tabs button[aria-current=page]{border-bottom:0!important}
+:root[data-theme] .tabs button::after{display:none!important}
+:root[data-theme] .has-page-back #marketMenuToggle{visibility:hidden}
