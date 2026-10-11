@@ -207,5 +207,9 @@ html[data-shatra-ui] .app{font-family:'Tajawal',sans-serif!important}
 html[data-shatra-ui] .app:has(.dw-shell)>.tabs,html[data-shatra-ui] .app:has(.dw-shell) .desktop-search-row{display:none!important}
 html[data-shatra-ui] .figma-logo-frame{display:block;width:62px;height:44px;overflow:hidden;flex:none;border-radius:8px}
 html[data-shatra-ui] .figma-logo-frame .header-logo{display:block!important;width:62px!important;height:62px!important;transform:translateY(-9px)!important;object-fit:contain}
+html[data-shatra-ui] .figma-ribbon{order:-2!important}
+html[data-shatra-ui] .top{order:-1!important}
+html[data-shatra-ui] .figma-hero-note{max-width:280px;min-width:160px;text-align:right}
+html[data-shatra-ui] .figma-hero .banner-caption{max-width:none!important;width:auto!important;white-space:normal;font-size:14px!important}
 @media(max-width:640px){html[data-shatra-ui] .figma-logo-frame{width:52px;height:38px}html[data-shatra-ui] .figma-logo-frame .header-logo{width:52px!important;height:52px!important;transform:translateY(-7px)!important}}
 @media(max-width:359px){html[data-shatra-ui] .figma-logo-frame{width:34px;height:30px}html[data-shatra-ui] .figma-logo-frame .header-logo{width:34px!important;height:34px!important;transform:translateY(-5px)!important}}
