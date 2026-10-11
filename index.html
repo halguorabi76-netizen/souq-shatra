@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-account-boot="true">
+<html lang="ar" dir="rtl" data-account-boot="true" data-shatra-ui="figma-20261012">
 <head>
 <meta charset="utf-8">
 <style>:root[data-account-boot] .app>.top,:root[data-account-boot] .app>.tabs{display:none!important}:root[data-account-boot] .account-preflight{display:block}:root[data-account-boot][data-seller-resume] .account-preflight{display:none}</style>
@@ -419,7 +419,7 @@ body.starting{background:#000!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=143">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/shatra-smile-display-v139.png" alt="" fetchpriority="high"></div>
@@ -450,7 +450,7 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=139"></script>
+<script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=143"></script>
 <script src="demo-lab.js?v=51"></script>
 <script src="vendor/supabase/supabase-2.57.0.js"></script>
 <script type="module">
@@ -904,7 +904,7 @@ function settings(){
 }
 function supportSheet(){sheet(head('تواصل مع الدعم')+`<p>مصمم ومبرمج تقني لتطبيق سوق الشطرة.</p><p><a href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">واتساب: 07837271707</a></p><p><a href="https://www.instagram.com/haider.alguorabi?stkn=Nzd2eTluem9oNnNr" target="_blank" rel="noopener noreferrer">حساب إنستغرام</a></p>`)}
 
-function bannerHtml(){const [src,caption]=BANNERS[bannerIndex];return `<div class="banner-wrap"><div class="banner" aria-label="صور الشطرة؛ اسحب للتنقل بين الصور"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async" draggable="false"><span class="banner-caption">${caption}</span></div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
+function bannerHtml(){const [src,caption]=BANNERS[bannerIndex];const figma=window.SouqFigmaUI;return `<div class="banner-wrap"><div class="banner ${figma?'figma-hero':''}" aria-label="صور الشطرة؛ اسحب للتنقل بين الصور"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async" draggable="false">${figma?`<div class="figma-hero-copy"><span class="figma-eyebrow">من الشطرة وإليها</span><h1>اكتشف محلات مدينتك<br>من مكانك</h1><p>منتجات محلية، وتسوق أسهل كل يوم.</p><button class="figma-button" data-a="marketSection" data-v="materials">ابدأ التسوق ${figma.icon('arrow')}</button></div><div class="figma-hero-note"><small>أسواق مدينتك</small><strong class="banner-caption">${esc(caption)}</strong></div>`:`<span class="banner-caption">${caption}</span>`}</div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
 function categories(){
   $('#view').innerHTML=`<div class="section-title"><h2>الأقسام</h2></div><div class="category-cards" style="flex-wrap:wrap;justify-content:center">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div>`;
 }
@@ -984,7 +984,7 @@ function syncMarketSearch(){
  panel.innerHTML=items.map(x=>'<button type="button" data-a="searchSuggestion" data-v="'+esc(x.label)+'">'+window.SouqMarketplace.icon(x.kind==='store'?'stores':'materials')+'<span><b>'+esc(x.label)+'</b><small>'+esc(x.kind==='store'?'متجر':x.seller)+'</small></span></button>').join('');panel.hidden=!items.length||document.activeElement!==input;
 }
 function market(){
- const ui=window.SouqMarketplace,{stores,products}=publicMarketplace();
+ const ui=window.SouqFigmaUI||window.SouqMarketplace,{stores,products}=publicMarketplace();
  const filtered=window.SouqCatalog.select(products,{category:cat,query:'',min:filt.min,max:filt.max,sort:filt.sort,condition:filt.condition,saleMode:filt.condition==='new'?filt.saleMode:'all'});
  const l=ui.searchProducts(filtered,stores,q),cards=items=>ui.productCards(items,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()});
  const results=tab==='catalog'||cat!=='all'||!!q;
@@ -996,12 +996,13 @@ function market(){
   $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h1>'+esc(title)+'</h1><span class="note" role="status">'+l.length+' مادة</span></div>'+(materialResults||'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة متوفرة حاليًا.')+'</div>')+'</section>'+(storeResults.length?'<section class="market-stores"><div class="section-title"><h2>المتاجر المطابقة</h2></div>'+ui.storeMatches(storeResults,{esc,fmt,thumb,mname})+'</section>':'');
   return;
  }
- $('#view').innerHTML=bannerHtml()+ui.switcher('home')+
- '<section class="market-materials">'+materialCategories()+'<div class="section-title"><h2>المواد المعروضة</h2><span class="note">'+l.length+' مادة</span><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+(l.length?cards(l.slice(0,6)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
- '<section class="market-stores"><div class="section-title"><h2>المتاجر</h2><span class="note">'+stores.length+' متجر</span><button data-a="marketSection" data-v="stores">عرض الكل ‹</button></div>'+(stores.length?ui.storeCards(stores.slice(0,4),products,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
+ $('#view').innerHTML=bannerHtml()+`<div class="figma-trust"><span>${ui.icon('stores')} متاجر الشطرة</span><span>${ui.icon('truck')} توصيل محلي</span><span>${ui.icon('cart')} الدفع عند الاستلام</span></div>`+ui.switcher('home')+
+ '<section class="figma-section"><div class="section-title"><div><h2>تسوّق حسب القسم</h2><p>كل ما تحتاجه من أسواق مدينتك</p></div><button data-a="tab" data-v="categories">كل الأقسام ‹</button></div>'+materialCategories()+'</section>'+
+ '<section class="market-materials"><div class="section-title"><div><h2>مختارات اليوم</h2><p>'+l.length+' مادة من التجار المعتمدين</p></div><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+(l.length?cards(l.slice(0,8)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
+ '<section class="market-stores"><div class="section-title"><div><h2>متاجر من الشطرة</h2><p>'+stores.length+' متجر · تسوّق من محلات مدينتك</p></div><button data-a="marketSection" data-v="stores">كل المتاجر ‹</button></div>'+(stores.length?ui.storeCards(stores.slice(0,3),products,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
 }
 function storesPage(){
- const ui=window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>c!=='تمور'&&published.some(p=>p.cat===c)),products=window.SouqCatalog.select(published,{category:cat,...filt,saleMode:filt.condition==='new'?filt.saleMode:'all'}),eligible=approved.filter(m=>cat==='all'&&filt.condition==='all'&&filt.min===''&&filt.max===''||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
+ const ui=window.SouqFigmaUI||window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>c!=='تمور'&&published.some(p=>p.cat===c)),products=window.SouqCatalog.select(published,{category:cat,...filt,saleMode:filt.condition==='new'?filt.saleMode:'all'}),eligible=approved.filter(m=>cat==='all'&&filt.condition==='all'&&filt.min===''&&filt.max===''||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
  const sections='';
  $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+rows.length+' متجر</span></div>'+(rows.length?(q?ui.storeMatches(rows,{esc,fmt,thumb,mname}):ui.storeCards(rows.map(x=>x.store),published,{esc})):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
 }
@@ -1116,7 +1117,7 @@ function csheet(){
   const it=cartRows(),tot=it.reduce((s,x)=>s+(x.p?.price||0)*x.c.q,0);
   if(!it.length){$('#view').innerHTML=heading+'<section class="buyer-checkout-card empty"><h2>سلتك فارغة</h2><p>اختر مشترياتك من السوق لتظهر هنا.</p><button class="buy" data-a="tab" data-v="market">تصفح المنتجات</button></section>';return}
   const u={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',addr:D.cust.addr||''},fees=(deliverySettings.platform_fee||0)+(deliverySettings.delivery_fee||0),orderCount=new Set(it.map(x=>x.p?.mid).filter(Boolean)).size;
-  $('#view').innerHTML=heading+'<div class="buyer-checkout-layout"><section class="buyer-checkout-card"><h2>مشترياتك</h2>'+it.map(x=>`<div class="row"><div><b>${esc(x.p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small class="note" style="display:block;margin:0">${esc(x.p?.selectedVariant?.label||x.p?.variant||'')} · ${x.p?esc(mname(x.p.mid))+' · '+fmt(x.p.price):'هذه النسخة غير متاحة؛ أزلها من السلة'}</small>${x.p&&(!x.p.active||x.p.blocked||x.p.stock<x.c.q)?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><div class="qty"><button data-a="cq" data-v="${cartKey(x.c)}|-1" aria-label="أقل">−</button><b>${x.c.q}</b><button data-a="cq" data-v="${cartKey(x.c)}|1" aria-label="أكثر">+</button><button data-a="cartRemove" data-v="${cartKey(x.c)}" aria-label="إزالة">×</button></div></div>`).join('')+
+  $('#view').innerHTML=heading+'<div class="buyer-checkout-layout"><section class="buyer-checkout-card"><h2>مشترياتك</h2>'+it.map(x=>`<div class="row figma-cart-item"><div class="figma-cart-image">${x.p?thumb(x.p):''}</div><div><b>${esc(x.p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small class="note" style="display:block;margin:0">${esc(x.p?.selectedVariant?.label||x.p?.variant||'')} · ${x.p?esc(mname(x.p.mid))+' · '+fmt(x.p.price):'هذه النسخة غير متاحة؛ أزلها من السلة'}</small>${x.p&&(!x.p.active||x.p.blocked||x.p.stock<x.c.q)?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><div class="qty"><button data-a="cq" data-v="${cartKey(x.c)}|-1" aria-label="أقل">−</button><b>${x.c.q}</b><button data-a="cq" data-v="${cartKey(x.c)}|1" aria-label="أكثر">+</button><button data-a="cartRemove" data-v="${cartKey(x.c)}" aria-label="إزالة">×</button></div></div>`).join('')+
   `<div class="row"><span>المنتجات</span><b>${fmt(tot)}</b></div><div class="row buyer-total"><b>المبلغ النهائي المطلوب</b><b>${fmt(tot+fees*orderCount)}</b></div>
   </section><section class="buyer-checkout-card"><h2>بيانات استلام الطلب</h2><label for="cn">الاسم</label><input id="cn" value="${esc(u.name)}" autocomplete="name">
   <label for="cp">رقم الهاتف</label><input id="cp" type="tel" inputmode="numeric" value="${esc(u.phone)}" placeholder="07xxxxxxxxx" autocomplete="tel">

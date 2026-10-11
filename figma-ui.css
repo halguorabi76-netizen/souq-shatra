@@ -1,0 +1,211 @@
+/* Public-site-only adaptation of the supplied Figma Make design. */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap');
+html[data-shatra-ui]{--indigo:#3547a5;--blue:#247bb9;--cyan:#72c9d7;--sand:#d7b890;--success:#1f876d;--shadow:0 14px 45px rgba(20,36,72,.09);font-family:'Tajawal',sans-serif;color-scheme:light}
+html[data-shatra-ui][data-theme=light]{--ink:#0d1834;--ink-soft:#4e5d78;--navy:#101f48;--paper:#f7f8fc;--surface:#fff;--surface-2:#edf2f8;--line:#dce3ee;--bg:var(--paper);--card:var(--surface);--mut:var(--ink-soft);--tile:var(--surface-2);--gold:var(--indigo);--accent:var(--indigo);--scene-bg:var(--paper);--panel-bg:var(--surface);--icon-bg:var(--surface-2);--icon-ink:var(--indigo);--action-bg:linear-gradient(135deg,var(--indigo),#101f48)}
+html[data-shatra-ui][data-theme=dark]{--ink:#f3f6ff;--ink-soft:#b1bdd2;--navy:#101f48;--paper:#080d1a;--surface:#101827;--surface-2:#172135;--line:#26324a;--shadow:0 16px 40px rgba(0,0,0,.25);--bg:var(--paper);--card:var(--surface);--mut:var(--ink-soft);--tile:var(--surface-2);--gold:#9cacfa;--accent:#9cacfa;--scene-bg:var(--paper);--panel-bg:var(--surface);--icon-bg:var(--surface-2);--icon-ink:#a9b9ff;--action-bg:linear-gradient(135deg,#3547a5,#101f48);color-scheme:dark}
+html[data-shatra-ui] body{margin:0;min-width:320px;font-family:'Tajawal',sans-serif!important;color:var(--ink);background:var(--paper)!important}
+html[data-shatra-ui] :is(button,input,select,textarea){font-family:inherit}
+html[data-shatra-ui] .app{max-width:none!important;width:100%;min-height:100dvh;background:radial-gradient(circle at 85% 0%,#72c9d726,transparent 26rem),var(--paper)!important;box-shadow:none!important;padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}
+html[data-shatra-ui][data-theme=dark] .app{background:radial-gradient(circle at 85% 0%,#3547a540,transparent 30rem),var(--paper)!important}
+html[data-shatra-ui] #view{width:100%;max-width:1320px;margin:24px auto 0!important;padding:0 4vw;min-width:0;overflow-x:clip}
+html[data-shatra-ui] .figma-ribbon{height:34px;padding:0 max(5vw,16px);background:#101f48;color:#dce9ff;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+html[data-shatra-ui] .top{position:sticky;top:0;z-index:35;max-width:none;margin:0;padding:0!important;background:var(--surface)!important;border-bottom:1px solid var(--line);box-shadow:none!important}
+html[data-shatra-ui] .top::before,html[data-shatra-ui] .top::after{display:none!important}
+html[data-shatra-ui] .topline{position:relative!important;display:flex!important;max-width:1320px;width:100%;height:76px;padding:0 4vw!important;margin:0 auto!important;gap:16px;justify-content:space-between!important;align-items:center}
+html[data-shatra-ui] .figma-header-brand,html[data-shatra-ui] .figma-header-actions{display:flex;align-items:center;gap:12px;min-width:0}
+html[data-shatra-ui] .figma-header-actions{gap:7px;flex:none}
+html[data-shatra-ui] .topline .header-brand{position:static!important;transform:none!important;flex:none!important;width:auto!important;margin:0!important;display:flex;gap:12px!important;align-items:center;justify-content:flex-start!important}
+html[data-shatra-ui] .header-brand-name{font-size:17px!important;color:var(--ink)!important;white-space:nowrap}
+html[data-shatra-ui] .header-brand-name small{display:block!important;font-size:11px!important;color:var(--ink-soft)!important;font-weight:400;letter-spacing:0}
+html[data-shatra-ui] .header-logo{width:62px!important;height:44px!important;object-fit:contain;filter:none!important}
+html[data-shatra-ui] :is(.header-icon,.topline #themeToggle){position:static!important;transform:none!important;width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important;border-radius:13px!important;padding:10px!important;border:1px solid var(--line)!important;background:var(--surface-2)!important;color:var(--icon-ink)!important;flex:none;margin:0!important;box-shadow:none}
+html[data-shatra-ui] .topline #marketMenuToggle{background:#101f48!important;color:white!important;border-color:#101f48!important}
+html[data-shatra-ui] #accountTrigger{border-radius:50%!important}
+html[data-shatra-ui] .header-cart,html[data-shatra-ui] .desktop-search-row>.desktop-shortcut{display:none!important}
+html[data-shatra-ui] .header-icon svg{width:22px;height:22px;flex:none}
+html[data-shatra-ui] .desktop-search-row{width:100%;max-width:1320px;margin:0 auto;padding:0 4vw 12px!important}
+html[data-shatra-ui] .desktop-search{position:relative;display:flex!important;align-items:center;gap:10px;flex:1;max-width:none;margin:0!important;padding:7px 9px!important;background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:17px!important;box-shadow:var(--shadow)!important}
+html[data-shatra-ui] .desktop-search::before{display:none!important}
+html[data-shatra-ui] .desktop-search input{min-width:0!important;min-height:40px;padding:6px 10px!important;margin:0!important;border:0!important;border-radius:0;background:transparent!important;color:var(--ink)!important;font-size:16px!important;box-shadow:none!important}
+html[data-shatra-ui] .desktop-search>button{min-height:38px;min-width:38px;position:static!important;transform:none!important;border-radius:12px;background:var(--surface-2)!important;color:var(--ink)!important;padding:6px 10px!important;font-size:22px!important;flex:none}
+html[data-shatra-ui] .mp-suggestions{top:100%;left:0;right:0;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+html[data-shatra-ui] .banner-wrap{margin:0!important;padding:0!important;max-width:none}
+html[data-shatra-ui] .figma-hero{position:relative;min-height:430px;height:auto!important;overflow:hidden;color:white;border-radius:24px;background:#101f48;isolation:isolate}
+html[data-shatra-ui] .figma-hero .banner-caption{position:static!important;font-size:14px;line-height:1.6;background:transparent!important;padding:0!important;color:white!important}
+html[data-shatra-ui] .banner-dots button{background:var(--line)!important}
+html[data-shatra-ui] .banner-dots [aria-current=true]{background:var(--indigo)!important}
+html[data-shatra-ui] .figma-hero>img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover}
+html[data-shatra-ui] .figma-hero::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,#0a122d1a,#080f26d4)}
+html[data-shatra-ui] .figma-hero-copy{position:relative;z-index:1;padding:clamp(32px,7vw,80px);max-width:670px}
+html[data-shatra-ui] .figma-eyebrow{display:block;color:var(--cyan);font-weight:800;font-size:13px;margin-bottom:8px}
+html[data-shatra-ui] .figma-hero h1{margin:0;font-size:clamp(32px,5vw,64px);line-height:1.16;letter-spacing:-.035em}
+html[data-shatra-ui] .figma-hero p{color:#dce6f3;margin:16px 0 24px;line-height:1.7}
+html[data-shatra-ui] .figma-button{border:0;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:13px;min-height:42px;padding:10px 17px;font-weight:700;background:var(--surface-2);color:var(--ink);cursor:pointer}
+html[data-shatra-ui] .figma-hero .figma-button{background:white;color:#101f48}
+html[data-shatra-ui] .figma-hero-note{position:absolute;z-index:1;bottom:24px;left:24px;padding:13px 16px;border:1px solid #ffffff40;border-radius:14px;background:#080f2666;display:grid;gap:4px}
+html[data-shatra-ui] .figma-hero-note small{color:#d5def0;font-size:11px}
+html[data-shatra-ui] .figma-trust{display:flex;align-items:center;justify-content:center;gap:32px;margin:16px 0 36px;color:var(--ink-soft)}
+html[data-shatra-ui] .figma-trust span{display:flex;align-items:center;gap:6px;font-size:14px}
+html[data-shatra-ui] .figma-trust svg{color:var(--success)}
+html[data-shatra-ui] :is(.figma-section,.market-materials,.market-stores){margin:48px 0 0;padding:0;border:0}
+html[data-shatra-ui] .section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin:0 0 20px!important;padding:0!important;background:transparent!important;box-shadow:none}
+html[data-shatra-ui] .section-title h2{font-size:clamp(22px,3vw,32px)!important;margin:0;color:var(--ink)!important}
+html[data-shatra-ui] .section-title h1{font-size:clamp(32px,4vw,56px);margin:0;color:var(--ink)}
+html[data-shatra-ui] .section-title p,html[data-shatra-ui] .section-title .note{color:var(--ink-soft);margin:5px 0 0}
+html[data-shatra-ui] .section-title button{width:auto;min-width:0;background:transparent!important;color:var(--ink-soft)!important;font-size:14px;padding:8px;border:0}
+html[data-shatra-ui] .category-cards{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px!important;padding:0!important;margin:0!important;overflow:auto;scrollbar-width:thin}
+html[data-shatra-ui] .category-card{display:flex!important;flex:none;width:auto!important;min-width:0;min-height:90px!important;border-radius:13px!important;padding:10px!important;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--ink)!important;box-shadow:none!important;gap:6px;flex-direction:column;justify-content:center!important;align-items:center;font-size:14px!important}
+html[data-shatra-ui] .category-card>span{width:auto!important;height:30px!important;background:transparent!important;border:0!important;box-shadow:none!important;color:var(--icon-ink)!important;display:grid;place-items:center;font-size:24px}
+html[data-shatra-ui] .category-card svg{width:26px;height:26px;stroke:var(--icon-ink)!important}
+html[data-shatra-ui] .figma-product-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important;margin:0!important;padding:0!important}
+html[data-shatra-ui] .figma-product-card{position:relative;min-width:0;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--ink);border-radius:20px!important;overflow:hidden;box-shadow:var(--shadow)!important}
+html[data-shatra-ui] .figma-product-media{display:block;position:relative;width:100%;height:240px;margin:0;padding:0;background:var(--surface-2);overflow:hidden;color:var(--ink);border:0;text-align:initial}
+html[data-shatra-ui] .figma-product-media .tile{width:100%;height:100%!important;aspect-ratio:auto;border-radius:0;margin:0;display:grid;place-items:center}
+html[data-shatra-ui] .figma-product-media img{width:100%;height:100%;object-fit:cover;transition:transform 300ms ease}
+html[data-shatra-ui] .figma-product-card .boutique-favorite{position:absolute;top:10px;left:10px;right:auto;z-index:2;width:38px;height:38px;padding:9px;border-radius:13px;background:#fffffff2!important;color:#101f48!important;box-shadow:none;border:0}
+html[data-shatra-ui] .figma-product-card .boutique-favorite svg{width:18px;height:18px;fill:none;stroke:currentColor}
+html[data-shatra-ui] .figma-product-card .boutique-favorite[aria-pressed=true]{color:#bd3d64!important;background:#fbe8ee!important}
+html[data-shatra-ui] .figma-product-card .boutique-favorite[aria-pressed=true] svg{fill:currentColor}
+html[data-shatra-ui] .mp-discount{top:12px;right:12px;background:#fffffff2;color:#101f48;font-size:11px;padding:6px 10px;border-radius:9px}
+html[data-shatra-ui] .figma-product-info{padding:16px}
+html[data-shatra-ui] .figma-store-link{display:block;color:var(--ink-soft);font-size:13px;text-decoration:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+html[data-shatra-ui] .figma-product-name{display:block;width:100%;background:transparent;color:var(--ink);font-size:16px;font-weight:700;text-align:right;line-height:1.5;padding:4px 0 12px;border:0;overflow-wrap:anywhere}
+html[data-shatra-ui] .figma-product-row{display:flex;justify-content:space-between;gap:6px;align-items:center}
+html[data-shatra-ui] .figma-product-row .mp-price{margin:0;min-width:0;gap:4px}
+html[data-shatra-ui] .mp-price strong{font-size:16px;color:var(--gold)}
+html[data-shatra-ui] .figma-add{width:36px;height:36px;min-width:36px;display:grid;place-items:center;background:#101f48;color:white;border-radius:13px;border:0;cursor:pointer}
+html[data-shatra-ui] .figma-add:disabled{opacity:.4;cursor:not-allowed}
+html[data-shatra-ui] .figma-store-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px;margin:0!important;padding:0!important}
+html[data-shatra-ui] .figma-store-card{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;padding:18px!important;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--ink);border-radius:24px!important;box-shadow:none!important;max-width:none!important;text-decoration:none;min-width:0}
+html[data-shatra-ui] .figma-store-card .mp-store-avatar{width:54px!important;height:54px!important;border-radius:17px!important;background:linear-gradient(145deg,var(--sand),var(--indigo))!important;color:white;border:0}
+html[data-shatra-ui] .figma-store-card>div{min-width:0}
+html[data-shatra-ui] .figma-store-card h3{font-size:16px;margin:0;color:var(--ink)}
+html[data-shatra-ui] .figma-store-card p,html[data-shatra-ui] .figma-store-card small{font-size:12px;line-height:1.6;color:var(--ink-soft);margin:2px 0;overflow-wrap:anywhere}
+html[data-shatra-ui] .figma-store-card>svg{color:var(--icon-ink);flex:none}
+html[data-shatra-ui] .mp-switcher{display:none!important}
+html[data-shatra-ui] .category-cards[style]{grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
+html[data-shatra-ui] .tabs{display:grid!important;direction:ltr!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;position:fixed!important;top:auto!important;bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;left:50%!important;right:auto!important;inset-inline:auto!important;transform:translateX(-50%);width:min(94%,620px)!important;max-width:620px!important;margin:0!important;padding:7px!important;background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:22px!important;box-shadow:0 15px 50px #0a14332e!important;z-index:40;gap:0}
+html[data-shatra-ui] .tabs[hidden]{display:none!important}
+html[data-shatra-ui] .tabs button{display:flex!important;flex-direction:column;justify-content:center;align-items:center;direction:rtl;min-width:0!important;width:auto!important;height:52px;min-height:52px!important;padding:5px!important;background:transparent!important;color:var(--ink-soft)!important;border:0!important;border-radius:13px!important;font-size:11px!important;gap:2px;box-shadow:none!important}
+html[data-shatra-ui] .tabs button::before,html[data-shatra-ui] .tabs button::after{display:none!important}
+html[data-shatra-ui] .tabs .navicon{width:24px!important;height:24px!important;padding:0!important;margin:0!important;display:grid!important;place-items:center;background:transparent!important;color:inherit!important;box-shadow:none!important;border:0!important;border-radius:0!important}
+html[data-shatra-ui] .tabs .navicon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+html[data-shatra-ui] .tabs button[aria-current=page]{background:#101f48!important;color:white!important;border:0!important}
+html[data-shatra-ui] .tabs [data-v=market][aria-current=page]{transform:translateY(-12px);width:64px!important;height:64px;min-height:64px!important;border-radius:20px!important;justify-self:center;box-shadow:0 10px 25px #101f484d!important}
+html[data-shatra-ui] .tabs #cc{background:var(--sand)!important;color:#101f48!important;top:1px;left:calc(50% + 6px);right:auto;min-width:16px;height:16px;padding:2px;border-radius:50%;font-size:10px}
+html[data-shatra-ui] .market-drawer-panel{width:min(86vw,360px);background:var(--surface)!important;color:var(--ink);padding:24px}
+html[data-shatra-ui] .market-drawer-brand{margin:0 0 24px;justify-content:flex-start;gap:12px}
+html[data-shatra-ui] .market-drawer-close{position:absolute;left:20px;top:20px;width:42px;height:42px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:13px;font-size:24px}
+html[data-shatra-ui] .market-drawer-panel nav button{display:flex;align-items:center;gap:12px;text-align:right;border:0;border-radius:13px;padding:13px;background:transparent;color:var(--ink)}
+html[data-shatra-ui] .market-drawer-panel nav button:hover{background:var(--surface-2)}
+html[data-shatra-ui] .has-page-back #marketMenuToggle{visibility:hidden}
+html[data-shatra-ui] .topline .header-page-back{right:4vw!important}
+html[data-shatra-ui] :is(.account-popover,.sheet,.auth-sheet,.ac-panel,.buyer-checkout-card,.profile-card){background:var(--surface)!important;color:var(--ink)!important;border-color:var(--line)!important;box-shadow:var(--shadow)}
+html[data-shatra-ui] :is(.buy,.primary,.profile-action,.sw-primary){background:var(--action-bg)!important;color:white!important;border-radius:13px}
+html[data-shatra-ui] #sheet:has(.product-detail){width:100%;max-width:none;height:100dvh;max-height:100dvh;border-radius:0;padding:20px max(4vw,16px);overflow:auto}
+html[data-shatra-ui] #shade:has(.product-detail){align-items:stretch;padding:0}
+html[data-shatra-ui] .product-detail{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr);gap:20px 40px;max-width:1200px;margin:24px auto;min-width:0;padding:0!important}
+html[data-shatra-ui] .product-detail>#productPhoto{grid-column:1;grid-row:1 / span 12;position:sticky;top:0;align-self:start;min-height:600px;height:600px;aspect-ratio:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:24px;overflow:hidden;margin:0}
+html[data-shatra-ui] #productPhoto .tile{width:100%;height:100%;aspect-ratio:auto;margin:0;border:0;border-radius:0}
+html[data-shatra-ui] #productPhoto img{width:100%;height:100%;object-fit:contain}
+html[data-shatra-ui] .product-detail>:not(#productPhoto){grid-column:2;min-width:0;margin:0}
+html[data-shatra-ui] .product-detail h1{font-size:clamp(32px,4vw,54px);line-height:1.2;color:var(--ink)}
+html[data-shatra-ui] #productPrice .mp-price strong{font-size:30px}
+html[data-shatra-ui] .product-detail .va-choice{border-top:1px solid var(--line);padding-top:20px;border-radius:0;background:transparent}
+html[data-shatra-ui] .product-seller-card{display:flex!important;gap:16px;padding:16px;border:1px solid var(--line);border-radius:20px;background:var(--surface-2)!important;color:var(--ink)!important}
+html[data-shatra-ui] .product-seller-card .mp-store-avatar{width:54px!important;height:54px!important}
+html[data-shatra-ui] .product-description{color:var(--ink-soft);line-height:1.9}
+html[data-shatra-ui] .buyer-checkout-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;padding:0!important;margin:24px 0!important}
+html[data-shatra-ui] .buyer-checkout-card{border:1px solid var(--line);border-radius:24px;padding:24px!important;margin:0!important;min-width:0}
+html[data-shatra-ui] .buyer-cart-heading{padding:0!important;margin:32px 0 20px!important}
+html[data-shatra-ui] .figma-cart-item{display:grid;grid-template-columns:100px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 0;flex-wrap:wrap}
+html[data-shatra-ui] .figma-cart-image .tile{width:100px;height:100px;aspect-ratio:auto;border-radius:16px;overflow:hidden;margin:0}
+html[data-shatra-ui] .figma-cart-image img{width:100%;height:100%;object-fit:contain}
+html[data-shatra-ui] .profile-page{background:transparent!important;padding:0!important;max-width:1100px;margin:0 auto}
+html[data-shatra-ui] .profile-hero{background:var(--surface)!important;color:var(--ink)!important;border:1px solid var(--line);border-radius:24px;padding:32px}
+html[data-shatra-ui] :is(.profile-card,.profile-pair .profile-card){border:1px solid var(--line);border-radius:24px;padding:24px}
+html[data-shatra-ui] .profile-page .profile-detail .picon{color:var(--icon-ink);background:var(--surface-2)}
+html[data-shatra-ui] .profile-page .profile-link{color:var(--ink)}
+html[data-shatra-ui] .sw-shell,html[data-shatra-ui] .dw-shell{max-width:1320px;padding:0;margin:0 auto;color:var(--ink)}
+html[data-shatra-ui] body:is(.seller-workspace,.seller-storefront){--sw-card:var(--surface);--sw-bg:var(--paper);--sw-ink:var(--ink);--sw-muted:var(--ink-soft);--sw-line:var(--line);--seller-accent:var(--indigo)!important;--seller-soft:var(--surface-2)!important}
+html[data-shatra-ui] .seller-workspace .app>.tabs,html[data-shatra-ui] .seller-storefront .app>.tabs{display:none!important}
+html[data-shatra-ui] :is(.sw-card,.sw-order,.sw-product,.sw-widget,.dw-card,.dw-metrics article){border:1px solid var(--line)!important;border-radius:24px!important;background:var(--surface)!important;color:var(--ink)!important;box-shadow:none!important}
+html[data-shatra-ui] :is(.sw-header,.dw-header){background:transparent!important;border:0;padding:32px 0;color:var(--ink)}
+html[data-shatra-ui] :is(.sw-header h1,.dw-header h1){font-size:clamp(28px,4vw,48px);line-height:1.3}
+html[data-shatra-ui] .sw-sitebar{background:var(--surface)!important;border:1px solid var(--line);border-radius:18px;margin:0;padding:16px;box-shadow:none}
+html[data-shatra-ui] .sw-sales{background:var(--surface)!important;color:var(--ink)!important}
+html[data-shatra-ui] .sw-sales strong{color:var(--ink);font-size:30px}
+html[data-shatra-ui] .sw-nav{background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:22px 22px 0 0;max-width:740px;color:var(--ink)}
+html[data-shatra-ui] .dw-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+html[data-shatra-ui] .dw-metrics article{padding:20px;min-width:0;min-height:135px}
+html[data-shatra-ui] :is(.dw-order,.dw-card){margin-top:16px}
+html[data-shatra-ui] .sw-week .sw-bar{background:linear-gradient(var(--cyan),var(--indigo))}
+html[data-shatra-ui] :is(.sw-public-header,.boutique-store-hero){border-radius:24px!important}
+html[data-shatra-ui] #toast{background:var(--surface)!important;color:var(--ink)!important;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:14px}
+html[data-shatra-ui] :is(button,a,[role=button]):focus-visible{outline:2px solid var(--icon-ink);outline-offset:3px}
+@media(hover:hover){html[data-shatra-ui] .figma-product-card:hover .figma-product-media img{transform:scale(1.035)}}
+@media(max-width:900px){
+ html[data-shatra-ui] .figma-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html[data-shatra-ui] .figma-store-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html[data-shatra-ui] .buyer-checkout-layout{grid-template-columns:1fr}
+ html[data-shatra-ui] .dw-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ html[data-shatra-ui] .product-detail{display:block}
+ html[data-shatra-ui] .product-detail>#productPhoto{position:relative;height:440px;min-height:0;margin-bottom:24px}
+ html[data-shatra-ui] .product-detail>:not(#productPhoto){margin-bottom:20px}
+}
+@media(max-width:640px){
+ html[data-shatra-ui] .figma-ribbon{display:none}
+ html[data-shatra-ui] .topline{height:66px;padding:0 16px!important;gap:6px}
+ html[data-shatra-ui] .figma-header-brand{gap:8px}
+ html[data-shatra-ui] .figma-header-actions{gap:4px}
+ html[data-shatra-ui] .topline .header-brand{gap:6px!important}
+ html[data-shatra-ui] .header-logo{width:44px!important;height:38px!important}
+ html[data-shatra-ui] .header-brand-name{font-size:14px!important}
+ html[data-shatra-ui] .header-brand-name small{display:none!important}
+ html[data-shatra-ui] :is(.header-icon,.topline #themeToggle){width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;padding:7px!important;border-radius:11px!important}
+ html[data-shatra-ui] .header-icon svg{width:19px;height:19px}
+ html[data-shatra-ui] .desktop-search-row{padding:0 16px 10px!important}
+ html[data-shatra-ui] .desktop-search input{font-size:16px!important;min-height:36px}
+ html[data-shatra-ui] #view{padding:0 16px;margin-top:16px!important}
+ html[data-shatra-ui] .figma-hero{min-height:420px;border-radius:22px}
+ html[data-shatra-ui] .figma-hero-copy{position:absolute;bottom:0;padding:32px 22px}
+ html[data-shatra-ui] .figma-hero h1{font-size:34px}
+ html[data-shatra-ui] .figma-hero-note{display:none}
+ html[data-shatra-ui] .figma-trust{gap:8px;justify-content:space-between;margin-bottom:32px}
+ html[data-shatra-ui] .figma-trust span{font-size:11px}
+ html[data-shatra-ui] .figma-trust svg{display:none}
+ html[data-shatra-ui] :is(.figma-section,.market-materials,.market-stores){margin-top:40px}
+ html[data-shatra-ui] .section-title{align-items:center;margin-bottom:16px!important}
+ html[data-shatra-ui] .section-title p{font-size:13px}
+ html[data-shatra-ui] .section-title button{font-size:12px;padding:6px}
+ html[data-shatra-ui] .category-cards{grid-template-columns:repeat(9,94px);gap:12px!important;padding-bottom:8px!important}
+ html[data-shatra-ui] .category-card{min-height:82px!important;font-size:12px!important}
+ html[data-shatra-ui] .figma-product-grid{gap:10px!important}
+ html[data-shatra-ui] .figma-product-media{height:180px}
+ html[data-shatra-ui] .figma-product-info{padding:12px}
+ html[data-shatra-ui] .figma-product-name{font-size:14px}
+ html[data-shatra-ui] .figma-product-row .mp-price strong{font-size:13px}
+ html[data-shatra-ui] .figma-store-grid{grid-template-columns:1fr!important}
+ html[data-shatra-ui] .tabs{bottom:calc(10px + env(safe-area-inset-bottom,0px))!important}
+ html[data-shatra-ui] .tabs [data-v=market][aria-current=page]{width:56px!important;height:56px;min-height:56px!important}
+ html[data-shatra-ui] .topline .header-page-back{right:16px!important}
+ html[data-shatra-ui] .product-detail>#productPhoto{height:390px}
+ html[data-shatra-ui] .product-detail h1{font-size:32px}
+ html[data-shatra-ui] .figma-cart-item{grid-template-columns:78px minmax(0,1fr)}
+ html[data-shatra-ui] .figma-cart-item .qty{grid-column:1/-1;justify-self:end}
+ html[data-shatra-ui] .figma-cart-image .tile{width:78px;height:82px}
+ html[data-shatra-ui] .profile-pair{grid-template-columns:1fr}
+ html[data-shatra-ui] :is(.buyer-checkout-card,.profile-card){padding:20px!important}
+}
+@media(max-width:359px){html[data-shatra-ui] .header-brand-name{font-size:12px!important}html[data-shatra-ui] .header-logo{width:34px!important}.figma-header-brand{gap:4px!important}html[data-shatra-ui] .topline{padding-inline:10px!important}}
+@media(prefers-reduced-motion:reduce){html[data-shatra-ui] *,html[data-shatra-ui] *::before,html[data-shatra-ui] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* Physical centering must be declared after logical offsets in RTL. */
+html[data-shatra-ui] .tabs{inset-inline:auto!important;left:50%!important;right:auto!important}
+html[data-shatra-ui] .topline .header-brand{flex-direction:row!important}
+html[data-shatra-ui] .header-brand-name{font-family:'Tajawal',sans-serif!important}
+html[data-shatra-ui] .app{font-family:'Tajawal',sans-serif!important}
+html[data-shatra-ui] .app:has(.dw-shell)>.tabs,html[data-shatra-ui] .app:has(.dw-shell) .desktop-search-row{display:none!important}
+html[data-shatra-ui] .figma-logo-frame{display:block;width:62px;height:44px;overflow:hidden;flex:none;border-radius:8px}
+html[data-shatra-ui] .figma-logo-frame .header-logo{display:block!important;width:62px!important;height:62px!important;transform:translateY(-9px)!important;object-fit:contain}
+@media(max-width:640px){html[data-shatra-ui] .figma-logo-frame{width:52px;height:38px}html[data-shatra-ui] .figma-logo-frame .header-logo{width:52px!important;height:52px!important;transform:translateY(-7px)!important}}
+@media(max-width:359px){html[data-shatra-ui] .figma-logo-frame{width:34px;height:30px}html[data-shatra-ui] .figma-logo-frame .header-logo{width:34px!important;height:34px!important;transform:translateY(-5px)!important}}

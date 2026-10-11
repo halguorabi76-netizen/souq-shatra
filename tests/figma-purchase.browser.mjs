@@ -1,0 +1,31 @@
+import {createRequire} from 'node:module';
+import {readFileSync,existsSync} from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {previewFixture} from '../preview-lab.js';
+const require=createRequire(import.meta.url),{chromium}=require('playwright');
+const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
+const fixture=previewFixture(),product=fixture.products[0];
+Object.assign(product,{price:1000,stock:21,has_variants:true,compare_at_price:null,attributes:{_manual_variants:true,_selling:{unit:'قطعة'}}});
+fixture.product_variants=[['أسود','L',10,1000],['أسود','XL',4,1700],['أبيض','L',7,1000]].map(([color,size,stock,price],i)=>({id:'a4000000-0000-4000-8000-00000000000'+(i+1),product_id:product.id,attributes:{color,size},stock,price,available:true,archived:false,version:1,image_path:null}));
+const browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROME,args:['--no-sandbox','--disable-gpu']});
+try{
+ const page=await browser.newPage({viewport:{width:390,height:844},serviceWorkers:'block'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(data=>localStorage.setItem('souq-shatra-interface-preview-v1',JSON.stringify(data)),fixture);
+ await page.route('**/*',async r=>{const u=new URL(r.request().url());if(u.origin!=='https://souq.test')return r.abort();if(u.pathname==='/harness.html')return r.fulfill({contentType:'text/html',body:'<meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}iframe{width:100vw;height:100vh;border:0}</style><iframe src="/preview.html"></iframe>'});let file=path.join(root,u.pathname);if(file.endsWith('/'))file+='index.html';if(!existsSync(file))return r.abort();const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.png':'image/png','.jpeg':'image/jpeg'};return r.fulfill({body:readFileSync(file),contentType:mime[path.extname(file)]||'application/octet-stream'});});
+ await page.goto('https://souq.test/harness.html');const f=page.frames().find(x=>x.url().includes('preview.html'));
+ await f.locator('[data-preview="role"][data-v="buyer"]').first().click();await f.locator('.figma-product-card').first().waitFor();
+ const heart=f.locator(`[data-a="cardFavorite"][data-v="${product.id}"]`);await heart.click();await f.waitForFunction(id=>document.querySelector(`[data-a="cardFavorite"][data-v="${id}"]`)?.getAttribute('aria-pressed')==='true',product.id);
+ const snapshot=()=>f.evaluate(()=>JSON.parse(localStorage.getItem('souq-shatra-interface-preview-v1')));
+ assert.ok((await snapshot()).product_interactions.some(r=>r.product_id===product.id&&r.kind==='favorite'));
+ await f.locator(`.figma-product-media[data-v="${product.id}"]`).click();
+ await f.locator('[data-axis="color"][data-option="أسود"]').click();await f.locator('[data-axis="size"][data-option="XL"]').click();
+ assert.equal(await f.locator('[data-axis="color"][data-option="أبيض"]').isEnabled(),false);assert.match(await f.locator('#productPrice').innerText(),/1,700/);
+ await f.locator('[data-a="pq"][data-v="1"]').click();await f.locator('[data-a="add"]').click();
+ const cart=await f.evaluate(()=>JSON.parse(localStorage.getItem('souq-preview-cart-v1')).cart);assert.equal(cart.length,1);assert.equal(cart[0].vid,fixture.product_variants[1].id);assert.equal(cart[0].q,2);assert.equal(cart[0].price,1700);
+ await f.locator('.tabs [data-v="myMarket"]').click();await f.locator('.figma-cart-image').waitFor();
+ assert.match(await f.locator('.buyer-total').innerText(),/5,900/);
+ await f.locator('#cn').fill('زبون اختبار');await f.locator('#cp').fill('07700000000');await f.locator('#ca').fill('عنوان اختبار محلي');await f.locator('[data-a="order"]').click();await f.locator('.buyer-checkout-card.done').waitFor();
+ const after=await snapshot();assert.equal(after.orders.length,1);assert.equal(after.order_items[0].variant_id,fixture.product_variants[1].id);assert.equal(after.order_items[0].quantity,2);assert.deepEqual(after.product_variants.map(v=>v.stock),[10,2,7]);
+ assert.deepEqual(errors,[]);console.log('PASS isolated favorite save, actual variant combinations, selected price/cart, checkout and precise variant stock deduction. No production requests.');
+}finally{await browser.close();}
