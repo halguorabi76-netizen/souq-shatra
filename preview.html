@@ -557,7 +557,7 @@ async function refreshDriver(id,nextUser,nextProfile,storesResult){
  }).catch(()=>{if(id===refreshId)window.SouqLoading?.recovered?.();});
 }
 async function refresh(){
-  const id=++refreshId;
+  const id=++refreshId;D.accountError=null;
   // Keep the storefront visible while session and product requests finish.
   try{
   const sessionResult=await withTimeout(db.auth.getSession());
@@ -670,7 +670,7 @@ async function refresh(){
   dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();resumePurchaseAfterLogin();
   finishAccountEntry();
-  }catch(e){if(id===refreshId&&viewMode==='driver'){D.driverError='تعذّر تحميل حساب التوصيل. أعد المحاولة.';render();}throw e;}finally{if(id===refreshId)$('#loading').hidden=true}
+  }catch(e){if(id===refreshId){if(viewMode==='driver')D.driverError='تعذّر تحميل حساب التوصيل. أعد المحاولة.';if(!dataReady)D.accountError='تعذّر التحقق من الحساب. أعد المحاولة.';render();}throw e;}finally{if(id===refreshId)$('#loading').hidden=true}
 }
 async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
 const $=s=>document.querySelector(s),fmt=n=>(+n||0).toLocaleString('en-US')+' د.ع';
@@ -886,6 +886,11 @@ function sellerResume(){
 }
 
 function render(){
+  if(D.accountError&&!dataReady&&!db.preview&&!ADMIN_PORTAL){
+   delete document.documentElement.dataset.accountBoot;delete document.documentElement.dataset.sellerResume;delete document.documentElement.dataset.accountResume;
+   document.body.classList.remove('seller-workspace');$('.tabs').hidden=true;
+   $('#view').innerHTML='<div class="empty" data-driver-recovery role="alert"><h1>فتح حسابك</h1><p>'+esc(D.accountError)+'</p><button class="buy" data-a="refreshAccount">إعادة المحاولة</button></div>';return;
+  }
   if(!initialAccountResolved&&!db.preview&&!ADMIN_PORTAL){
    document.documentElement.dataset.accountBoot='true';
    if(sellerEntryPending||viewMode==='seller'){sellerResume();return}

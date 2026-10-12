@@ -19,3 +19,5 @@ test('approved driver overrides stale seller hints and opens without waiting for
 test('driver data failure replaces seller boot state with a recoverable driver error',async()=>{
  const x=setup(true);await assert.rejects(x.c.refresh(),/driver data unavailable/);assert.equal(x.c.viewMode,'driver');assert.equal(x.c.sellerEntryPending,false);assert.equal(x.c.dataReady,false);assert.match(x.c.D.driverError,/أعد المحاولة/);assert.equal(x.renders.at(-1).mode,'driver');
 });
+
+test('failed session verification shows account recovery even with a stale seller hint',async()=>{const x=setup();x.c.db.auth.getSession=async()=>{throw Error('session timeout')};await assert.rejects(x.c.refresh(),/session timeout/);assert.match(x.c.D.accountError,/أعد المحاولة/);assert.equal(x.c.dataReady,false)});
