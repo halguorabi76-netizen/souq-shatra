@@ -419,7 +419,7 @@ body.starting{background:#000!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=148">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=149">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/shatra-smile-display-v139.png" alt="" fetchpriority="high"></div>
@@ -450,7 +450,7 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=148"></script>
+<script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=149"></script>
 <script src="demo-lab.js?v=51"></script>
 <script src="vendor/supabase/supabase-2.57.0.js"></script>
 <script type="module">
@@ -904,7 +904,7 @@ function settings(){
 }
 function supportSheet(){sheet(head('تواصل مع الدعم')+`<p>مصمم ومبرمج تقني لتطبيق سوق الشطرة.</p><p><a href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">واتساب: 07837271707</a></p><p><a href="https://www.instagram.com/haider.alguorabi?stkn=Nzd2eTluem9oNnNr" target="_blank" rel="noopener noreferrer">حساب إنستغرام</a></p>`)}
 
-function bannerHtml(){const [src,caption]=BANNERS[bannerIndex];const figma=window.SouqFigmaUI;return `<div class="banner-wrap"><div class="banner ${figma?'figma-hero':''}" aria-label="صور الشطرة؛ اسحب للتنقل بين الصور"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async" draggable="false">${figma?`<div class="figma-hero-copy"><span class="figma-eyebrow">من الشطرة وإليها</span><h1>اكتشف محلات مدينتك<br>من مكانك</h1><p>منتجات محلية، وتسوق أسهل كل يوم.</p><button class="figma-button" data-a="marketSection" data-v="materials">ابدأ التسوق ${figma.icon('arrow')}</button></div><div class="figma-hero-note"><small>أسواق مدينتك</small><strong class="banner-caption">${esc(caption)}</strong></div>`:`<span class="banner-caption">${caption}</span>`}</div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
+function bannerHtml(){const figma=window.SouqFigmaUI;if(figma?.featuredBanner)return figma.featuredBanner(D.p.filter(p=>mok(p.mid)),{esc,fmt,mname,fallback:BANNERS[0]});const [src,caption]=BANNERS[bannerIndex];return `<div class="banner-wrap"><div class="banner ${figma?'figma-hero':''}" aria-label="صور الشطرة؛ اسحب للتنقل بين الصور"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async" draggable="false">${figma?`<div class="figma-hero-copy"><span class="figma-eyebrow">من الشطرة وإليها</span><h1>اكتشف محلات مدينتك<br>من مكانك</h1><p>منتجات محلية، وتسوق أسهل كل يوم.</p><button class="figma-button" data-a="marketSection" data-v="materials">ابدأ التسوق ${figma.icon('arrow')}</button></div><div class="figma-hero-note"><small>أسواق مدينتك</small><strong class="banner-caption">${esc(caption)}</strong></div>`:`<span class="banner-caption">${caption}</span>`}</div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
 function categories(){
   $('#view').innerHTML=`<div class="section-title"><h2>الأقسام</h2></div><div class="category-cards" style="flex-wrap:wrap;justify-content:center">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div>`;
 }
@@ -1455,7 +1455,7 @@ document.addEventListener('keydown',e=>{if(e.target.id==='q'&&e.key==='Escape')$
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='market';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
-function updateBanner(){const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
+function updateBanner(){if(window.SouqFigmaUI?.featuredBanner)return;const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
 let bannerTouch=null,lastBannerInteraction=0;
 $('#view').addEventListener('touchstart',e=>{
   bannerTouch=e.touches.length===1&&e.target.closest('.banner')?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;
@@ -1469,7 +1469,7 @@ $('#view').addEventListener('touchend',e=>{
   lastBannerInteraction=Date.now();updateBanner();
 },{passive:true});
 $('#view').addEventListener('touchcancel',()=>{bannerTouch=null},{passive:true});
-if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(['market','welcome'].includes(tab)&&!document.hidden&&Date.now()-lastBannerInteraction>5500){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
+if(!window.SouqFigmaUI?.featuredBanner&&!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(['market','welcome'].includes(tab)&&!document.hidden&&Date.now()-lastBannerInteraction>5500){bannerIndex=(bannerIndex+1)%BANNERS.length;updateBanner()}},5500);
 db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(recoverySheet,0)});
 if(!ADMIN_PORTAL)window.SouqDemo?.init(render);
 window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':params.get('view')==='materials'||location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});

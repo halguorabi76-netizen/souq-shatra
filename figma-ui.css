@@ -248,3 +248,12 @@ html[data-shatra-ui] .header-cart svg{width:22px;height:22px;stroke:currentColor
 @media(max-width:640px){html[data-shatra-ui] .topline :is(#marketMenuToggle,#accountTrigger,#themeToggle,.ac-inline,.header-cart){width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;padding:7px!important}}
 @media(max-width:420px){html[data-shatra-ui] .topline{gap:8px!important;padding-inline:10px!important}html[data-shatra-ui] .figma-header-brand{gap:4px!important}html[data-shatra-ui] .topline .header-brand{gap:4px!important}html[data-shatra-ui] .header-brand-name{font-size:12px!important}html[data-shatra-ui] .header-brand-name small{display:none!important}html[data-shatra-ui] .figma-logo-frame{width:34px;height:30px}html[data-shatra-ui] .figma-logo-frame .header-logo{width:34px!important;height:34px!important;transform:translateY(-5px)!important}html[data-shatra-ui] .topline :is(#marketMenuToggle,#accountTrigger,#themeToggle,.ac-inline,.header-cart){width:32px!important;min-width:32px!important;height:32px!important;min-height:32px!important;padding:6px!important}}
 @media(prefers-reduced-motion:reduce){html[data-shatra-ui] .topline :is(#marketMenuToggle,#accountTrigger,#themeToggle,.ac-inline,.header-cart){transition:none}}
+
+html[data-shatra-ui] .figma-product-hero>img{inset:24px auto 24px 24px;width:45%;height:calc(100% - 48px);object-fit:contain;border-radius:18px;background:#fff}
+html[data-shatra-ui] .figma-product-hero::after{display:none}
+html[data-shatra-ui] .figma-product-hero .figma-hero-copy{width:50%;max-width:none;padding:48px 40px}
+html[data-shatra-ui] .figma-product-hero .figma-hero-note{display:none}
+html[data-shatra-ui] .figma-hero-price{margin:0 0 24px;font-size:24px;font-weight:800}
+@media(max-width:640px){html[data-shatra-ui] .figma-product-hero{min-height:0;padding-top:250px}html[data-shatra-ui] .figma-product-hero>img{inset:16px 16px auto;width:calc(100% - 32px);height:230px}html[data-shatra-ui] .figma-product-hero .figma-hero-copy{position:relative;bottom:auto;width:100%;padding:24px}html[data-shatra-ui] .figma-product-hero h1{font-size:32px}}
+html[data-shatra-ui] .figma-hero-price .mp-price strong{color:#fff;font-size:26px}
+html[data-shatra-ui] .figma-hero-price .mp-price del{color:#dce6f3}

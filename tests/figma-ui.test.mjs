@@ -14,10 +14,17 @@ test('Figma cards use real IDs, stored favorites and variant-aware sale prices',
 });
 test('public layer has no React replacement, demo account switcher or data writes',()=>{
  const code=read('figma-ui.js');assert.doesNotMatch(code,/createClient|\.rpc\(|localStorage|setRole|RoleSwitcher|Dashboard|\badmin\b|react-dom/);
- assert.match(read('index.html'),/data-shatra-ui=/);assert.match(read('sw.js'),/figma-ui\.css\?v=148/);assert.match(read('scripts/build.mjs'),/\['figma-ui.css','figma-ui.js'\]/);
+ assert.match(read('index.html'),/data-shatra-ui=/);assert.match(read('sw.js'),/figma-ui\.css\?v=149/);assert.match(read('scripts/build.mjs'),/\['figma-ui.css','figma-ui.js'\]/);
  assert.match(read('figma-ui.css'),/#3547a5/);assert.match(read('figma-ui.css'),/#080d1a/);assert.match(read('figma-ui.css'),/prefers-reduced-motion/);
 });
 test('administration and the business/authorization modules remain byte-for-byte unchanged',()=>{
  for(const file of ['admin.html','admin-app.js','admin-hub.js','admin-workspace.js','admin-portal.css','marketplace.js','seller-workspace.js','delivery-workspace.js','activity-center.js','product-editor.js','product-variants.js','config.js'])assert.equal(read(file),execFileSync('git',['show','HEAD:'+file],{encoding:'utf8'}),file+' must stay unchanged');
  assert.doesNotMatch(read('admin.html'),/figma-ui/);assert.doesNotMatch(read('admin-app.js'),/figma-ui/);
+});
+test('featured watch uses the current product image and falls back to one city image after removal',()=>{
+ const design=ui(),options={esc,fmt:v=>v+' د.ع',mname:()=> 'ساعات الشطرة',fallback:['icons/shatra-river.jpeg','الشطرة']};
+ const watch={id:'d622e57b-ef25-4d91-a3fa-33a98a39659d',mid:'actual-store',name:'ساعة',desc:'ساعة حقيقية',img:'https://example.test/watch.jpg',active:true,blocked:false,stock:1,price:35000};
+ const html=design.featuredBanner([watch],options);assert.match(html,/watch.jpg/);assert.match(html,/data-a="prod" data-v="d622e57b/);assert.match(html,/35000/);assert.doesNotMatch(html,/shatra-river|banner-dots/);
+ for(const products of [[],[{...watch,active:false}],[{...watch,blocked:true}],[{...watch,img:''}]]){const fallback=design.featuredBanner(products,options);assert.match(fallback,/shatra-river.jpeg/);assert.equal((fallback.match(/<img /g)||[]).length,1);assert.doesNotMatch(fallback,/watch.jpg|banner-dots|data-a="prod"/);}
+ assert.doesNotMatch(read('figma-ui.js'),/className='figma-ribbon'/);
 });

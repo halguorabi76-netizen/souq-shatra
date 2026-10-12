@@ -27,7 +27,13 @@
  }
  // Search, stock/variant eligibility and discount math stay owned by the app.
  const storeMatches=(rows,options)=>rows.map(({store:m,products})=>`<section class="mp-search-store"><div class="section-title"><a class="figma-store-link" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${options.esc(m.id)}"><h2>${options.esc(m.name)}</h2></a><small>${products.length} مادة مطابقة</small></div>${products.length?productCards(products,options):'<p class="note">لا توجد مواد متوفرة حاليًا.</p>'}</section>`).join('');
- window.SouqFigmaUI={...base,icon,productCards,storeCards,storeMatches};
+ const featuredProductId='d622e57b-ef25-4d91-a3fa-33a98a39659d';
+ function featuredBanner(products,{esc,fmt,mname,fallback}){
+  const product=products.find(p=>p.id===featuredProductId&&p.active&&!p.blocked&&p.img);
+  const image=product?product.img:fallback[0],caption=product?product.name:fallback[1];
+  return `<div class="banner-wrap"><div class="banner figma-hero ${product?'figma-product-hero':''}" aria-label="${product?'منتج من سوق الشطرة':'مشهد من مدينة الشطرة'}"><img src="${esc(image)}" alt="${esc(product?product.name:'مشهد من مدينة الشطرة')}" decoding="async" draggable="false"><div class="figma-hero-copy"><span class="figma-eyebrow">${product?esc(mname(product.mid)):'من الشطرة وإليها'}</span><h1>${product?esc(product.name):'اكتشف محلات مدينتك<br>من مكانك'}</h1><p>${product?esc((product.desc||'').slice(0,160)):'منتجات محلية، وتسوق أسهل كل يوم.'}</p>${product?`<div class="figma-hero-price">${base.price(product,fmt)}</div>`:''}<button class="figma-button" data-a="${product?'prod':'marketSection'}" data-v="${product?esc(product.id):'materials'}">${product?'عرض المنتج':'ابدأ التسوق'} ${icon('arrow')}</button></div><div class="figma-hero-note"><small>${product?'من متاجر الشطرة':'أسواق مدينتك'}</small><strong class="banner-caption">${esc(caption)}</strong></div></div></div>`;
+ }
+ window.SouqFigmaUI={...base,icon,productCards,storeCards,storeMatches,featuredBanner};
  const line=document.querySelector('.app>.top .topline');
  if(line){
   const group=document.createElement('div'),actions=document.createElement('div');group.className='figma-header-brand';actions.className='figma-header-actions';
@@ -37,7 +43,6 @@
   for(const el of [notice,theme,account,line.querySelector('.header-cart')])if(el)actions.append(el);
   line.prepend(group,actions);
  }
- const app=document.querySelector('.app');if(app){const ribbon=document.createElement('div');ribbon.className='figma-ribbon';ribbon.innerHTML='<span>توصيل داخل الشطرة</span><span>الدفع عند الاستلام</span>';app.prepend(ribbon);}
  function decorateDrawer(){
   const panel=document.querySelector('#marketDrawer .market-drawer-panel');
   if(panel&&!panel.dataset.figmaDecorated){
