@@ -17,7 +17,7 @@ const preview=portalMain
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
  .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=63">')
  .replace('<script src="demo-lab.js?v=51"></script>','')
- .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient} from "./preview-lab.js?v=160";')
+ .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient} from "./preview-lab.js?v=161";')
  .replace('import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";','')
  .replace('const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:accountSession?.storage},global:{fetch:apiFetch}});','const db=createPreviewClient();')
  .replace("const response=await apiFetch(SUPABASE_URL+'/auth/v1/settings',{headers:{apikey:SUPABASE_ANON_KEY}});","throw new Error('المعاينة تعمل بلا تسجيل دخول.');\n const response=null;")

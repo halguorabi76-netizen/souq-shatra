@@ -21,7 +21,7 @@
  }
  async function show({value,sheet,head,onConfirm,title='اختيار موقع التوصيل',purpose='التوصيل'}){
   close();const returnFocus=document.activeElement;
-  sheet(head(title)+`<div class="location-picker"><p>اضغط على الخريطة لاختيار مكان ${purpose}، أو حرّك علامة الموقع.</p><div id="deliveryMap" class="delivery-map" aria-label="خريطة اختيار موقع ${purpose}"></div><p id="mapStatus" class="note" role="status" aria-live="polite">جارٍ فتح الخريطة…</p><div class="location-picker-actions"><button id="mapLocate" class="alt" type="button">تحديد موقعي الآن</button><button id="mapRetry" class="alt" type="button" hidden>إعادة تحميل الخريطة</button><a id="mapExternal" class="alt" target="_blank" rel="noopener noreferrer" hidden>فتح الموقع في تطبيق الخرائط</a><button id="mapConfirm" class="buy" type="button" disabled>موافق، اعتماد هذا الموقع</button></div></div>`);
+  sheet(head(title)+`<div class="location-picker"><p>اضغط على الخريطة لاختيار مكان ${purpose}، أو حرّك علامة الموقع.</p><div id="deliveryMap" class="delivery-map" aria-label="خريطة اختيار موقع ${purpose}"></div><p id="mapStatus" class="note" role="status" aria-live="polite">جارٍ فتح الخريطة…</p><div class="location-picker-actions"><button id="mapLocate" class="alt" type="button">موقعك الحالي</button><button id="mapRetry" class="alt" type="button" hidden>إعادة تحميل الخريطة</button><a id="mapExternal" class="alt" target="_blank" rel="noopener noreferrer" hidden>فتح الموقع في تطبيق الخرائط</a><button id="mapConfirm" class="buy" type="button" disabled>تأكيد الموقع</button></div></div>`);
   const session={draft:point(value),map:null,revision:0,request:0,returnFocus};active=session;
   const container=document.getElementById('deliveryMap'),status=document.getElementById('mapStatus'),confirm=document.getElementById('mapConfirm'),locate=document.getElementById('mapLocate'),retry=document.getElementById('mapRetry');
   const current=()=>active===session&&container.isConnected;
@@ -56,7 +56,7 @@
    tiles.on('tileerror',()=>{if(current()){status.textContent='تعذّر تحميل جزء من الخريطة. تحقق من الإنترنت ثم أعد المحاولة.';retry.hidden=false}});tiles.addTo(session.map);
    session.map.on('click',event=>select({lat:event.latlng.lat,lon:event.latlng.lng}));
    locate.addEventListener('click',locateNow);session.map.invalidateSize();
-   if(session.draft)select(session.draft,false);else {status.textContent='اختر مكان '+purpose+' على الخريطة.';locateNow();}
+   if(session.draft)select(session.draft,false);else {status.textContent='اختر مكان '+purpose+' على الخريطة، أو اضغط موقعك الحالي.';}
   }catch{if(current()){locate.disabled=true;status.textContent='تعذّر فتح الخريطة. تحقق من الإنترنت وأعد المحاولة.';retry.hidden=false;}}
  }
  window.SouqLocationPicker={show,close,point,url};

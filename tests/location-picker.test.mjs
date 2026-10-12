@@ -15,12 +15,12 @@ function setup(){
 }
 test('map remains selectable when GPS is denied and confirms only the chosen point',async()=>{
  const x=setup();await x.show();assert.equal(x.confirmed.length,0);assert.equal(x.nodes.get('mapConfirm').disabled,true);
- x.geo[0].failure({code:1});assert.match(x.nodes.get('mapStatus').textContent,/اختيار المكان على الخريطة/);
+ assert.equal(x.geo.length,0);x.nodes.get('mapLocate').events.click();x.geo[0].failure({code:1});assert.match(x.nodes.get('mapStatus').textContent,/اختيار المكان على الخريطة/);
  x.maps[0].events.click({latlng:{lat:31.4112346,lng:46.1712346}});assert.equal(x.nodes.get('mapConfirm').disabled,false);assert.equal(x.confirmed.length,0);
  x.nodes.get('mapConfirm').events.click();assert.equal(x.confirmed[0].lat,31.411235);assert.equal(x.confirmed[0].lon,46.171235);assert.equal(x.maps[0].removed,true);
 });
 test('manual adjustment wins over a late automatic location response',async()=>{
- const x=setup();await x.show();x.maps[0].events.click({latlng:{lat:31.4,lng:46.2}});
+ const x=setup();await x.show();x.nodes.get('mapLocate').events.click();x.maps[0].events.click({latlng:{lat:31.4,lng:46.2}});
  x.geo[0].success({coords:{latitude:30,longitude:45}});x.nodes.get('mapConfirm').events.click();assert.equal(x.confirmed[0].lat,31.4);assert.equal(x.confirmed[0].lon,46.2);
 });
 test('editing and cancelling do not replace an already confirmed location; closed GPS callbacks are ignored',async()=>{

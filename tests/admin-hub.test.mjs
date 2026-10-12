@@ -9,7 +9,7 @@ test('admin hub retains its independent authorization gate and shares product im
  assert.doesNotMatch(admin.match(/<script type="module">([\s\S]*?)<\/script>/)[1],/supabase|createClient/);
  const app=read('admin-app.js');assert.match(app,/async function refreshAdmin/);assert.match(app,/profile\?\.role!==['"]admin['"]/);
  for(const file of ['product-variants.js','seller-workspace.js','delivery-workspace.js']){const reference=new RegExp(file.replace('.', '\\.')+'\\?v=\\d+');assert.equal(app.match(reference)[0],main.match(reference)[0]);}
- const fn=(source,name)=>source.slice(source.indexOf('function '+name+'('),source.indexOf('\nfunction ',source.indexOf('function '+name+'(')+1));assert.equal(fn(app,'postPage'),fn(main,'postPage'));assert.equal(fn(app,'psheet'),fn(main,'psheet'));
+ const fn=(source,name)=>source.slice(source.indexOf('function '+name+'('),source.indexOf('\nfunction ',source.indexOf('function '+name+'(')+1));assert.equal(fn(app,'postPage'),fn(main,'postPage'));assert.match(fn(main,'psheet'),/تفاصيل المنتج/);assert.doesNotMatch(app,/flow-heading|customer_addresses/);
  const hub=read('admin-hub.js');assert.match(hub,/if\(!preview\)\{await import/);assert.match(hub,/sandbox/);
 });
 test('one common header provides admin, nested preview, and main site navigation',()=>{
