@@ -34,7 +34,7 @@
   const menu=document.getElementById('marketMenuToggle'),brand=line.querySelector('.header-brand');
   if(menu)group.append(menu);if(brand){const image=brand.querySelector('.header-logo');if(image){const frame=document.createElement('span');frame.className='figma-logo-frame';image.src='icons/figma-shatra-logo-transparent-v146.png';image.replaceWith(frame);frame.append(image);}const tagline=brand.querySelector('.header-brand-name small');if(tagline){tagline.textContent='كل المدينة في مكان واحد';tagline.removeAttribute('lang');tagline.removeAttribute('dir');}group.append(brand);}
   const notice=line.querySelector('[data-a="notifications"]'),theme=document.getElementById('themeToggle'),account=document.getElementById('accountTrigger');
-  for(const el of [notice,theme,account])if(el)actions.append(el);
+  for(const el of [notice,theme,account,line.querySelector('.header-cart')])if(el)actions.append(el);
   line.prepend(group,actions);
  }
  const app=document.querySelector('.app');if(app){const ribbon=document.createElement('div');ribbon.className='figma-ribbon';ribbon.innerHTML='<span>توصيل داخل الشطرة</span><span>الدفع عند الاستلام</span>';app.prepend(ribbon);}

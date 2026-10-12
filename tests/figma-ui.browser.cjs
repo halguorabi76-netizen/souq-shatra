@@ -42,6 +42,10 @@ const root=path.resolve(__dirname,'..');
    await frame.locator('.figma-product-card').first().waitFor();
    await frame.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().endTime!==Infinity).map(a=>a.finished.catch(()=>{}))));
    assert.equal(await frame.locator('.tabs [data-v="market"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(16, 31, 72)');
+   const controls=await frame.evaluate(()=>[...document.querySelectorAll('.topline #marketMenuToggle,.topline #accountTrigger,.topline #themeToggle,.topline .ac-inline,.topline .header-cart')].map(e=>{const s=getComputedStyle(e);return [s.backgroundColor,s.borderRadius,s.boxShadow,e.getBoundingClientRect().width]}));
+   assert.equal(controls.length,5);assert.ok(controls.every(c=>JSON.stringify(c)===JSON.stringify(controls[0])));assert.equal(controls[0][0],'rgb(255, 255, 255)');
+   await frame.locator('.figma-header-actions .header-cart').click();await frame.locator('.buyer-cart-heading').waitFor();
+   await frame.locator('.tabs [data-v="market"]').click();
    if(process.env.SOUQ_CAPTURE){fs.mkdirSync(process.env.SOUQ_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-home-${width}.png`)});}
    assert.deepEqual(errors,[]);console.log(`PASS public ${width}px: navigation, drawer, product, store, cart, theme`);
    assert.equal(await frame.locator('.tabs [data-v="chats"] .navicon svg').count(),1);
