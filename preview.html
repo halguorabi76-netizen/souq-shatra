@@ -455,7 +455,7 @@ body.starting{background:#000!important}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=76"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=102"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=155"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=102"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
@@ -524,6 +524,38 @@ async function clearUnavailableAccount(){
  D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
  deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
 }
+async function refreshDriver(id,nextUser,nextProfile,storesResult){
+ profile=nextProfile;user=nextUser;ownStore=null;sellerEntryPending=false;accountResolving=false;initialAccountResolved=true;
+ rememberMode('driver');
+ try{localStorage.setItem('souq-shatra-account-layout-'+nextUser.id,'driver');for(const key of ['souq-role-login','souq-role-request','souq-preview-pending-role'])sessionStorage.removeItem(key)}catch{}
+ if(!dataReady||!['market','catalog','stores','settings','profilePage','chats','account'].includes(tab))tab='account';
+ D.driverError=null;render();
+ const rows=await withTimeout(Promise.all([
+  db.from('delivery_workers').select('*').eq('user_id',nextUser.id).maybeSingle(),
+  db.from('driver_profiles').select('*').eq('user_id',nextUser.id).maybeSingle(),
+  db.from('delivery_settings').select('*').limit(1).maybeSingle(),
+  db.from('orders').select('*,order_items(*)').eq('driver_id',nextUser.id).order('created_at',{ascending:false}),
+  db.from('delivery_payments').select('*').eq('driver_id',nextUser.id).order('created_at',{ascending:false}),
+  db.rpc('assigned_delivery_contacts')
+ ]));
+ if(id!==refreshId)return;
+ const [worker,details,settings,orders,payments,contacts]=rows.map(check);
+ driverAccount=worker;driverProfile=details;deliverySettings=settings||{platform_fee:0,delivery_fee:0,qi_number:''};deliveryPayments=payments||[];D.driverContacts=contacts||[];
+ D.o=(orders||[]).map(o=>({...fromOrder(o),buyer_id:o.buyer_id,driver_id:o.driver_id,platform_fee:o.platform_fee||0,delivery_fee:o.delivery_fee||0}));
+ dataReady=true;render();window.SouqLoading?.recovered?.();finishAccountEntry();
+ // Offers and market browsing must never hold the driver's own account hostage.
+ const offers=worker?.approved&&worker.amount_due<worker.debt_limit?withTimeout(db.rpc('delivery_offer_details')):Promise.resolve({data:[]});
+ offers.then(result=>{if(id!==refreshId)return;deliveryOffers=check(result)||[];if(['account','chats'].includes(tab))render();}).catch(e=>{if(id===refreshId){D.driverError='تعذّر تحميل الطلبات المتاحة. أعد المحاولة.';render();window.SouqLoading?.recovered?.();}});
+ Promise.all([storesResult,db.from('products').select('*').order('created_at',{ascending:false}),db.from('catalog_categories').select('*').order('position'),db.from('product_variants').select('*')]).then(results=>{
+  if(id!==refreshId)return;
+  const [stores,products,catalog,variants]=results.map(check);D.catalog=catalog||[];D.variants=variants||[];
+  const image=path=>path?db.storage.from('products').getPublicUrl(path).data.publicUrl:'';
+  D.m=(stores||[]).map(m=>({...m,ok:m.approved,image_url:image(m.image_path)}));
+  D.p=(products||[]).map(p=>({...p,mid:p.store_id,desc:p.description,cat:p.category,img:image(p.image_path),variants:(variants||[]).filter(v=>v.product_id===p.id).map(v=>({...v,img:image(v.image_path)}))}));
+  for(const c of D.catalog.filter(c=>!c.parent_id&&c.active))if(!CATS.includes(c.name))CATS.push(c.name);
+  if(['market','catalog','stores'].includes(tab))render();
+ }).catch(()=>{if(id===refreshId)window.SouqLoading?.recovered?.();});
+}
 async function refresh(){
   const id=++refreshId;
   // Keep the storefront visible while session and product requests finish.
@@ -557,15 +589,14 @@ async function refresh(){
     render();
   }
   if(user&&!dataReady&&!ADMIN_PORTAL&&!db.preview)render();
-  const [pr,ms]=await withTimeout(Promise.all([
-    nextUser?db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle():Promise.resolve({data:null,error:null}),
-    db.from('stores').select('*')
-  ]));
+  const storesResult=Promise.resolve(withTimeout(db.from('stores').select('*')));storesResult.catch(()=>{});
+  const pr=await withTimeout(nextUser?db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle():Promise.resolve({data:null,error:null}));
   if(id!==refreshId)return;
   const nextProfile=check(pr);
   // A removed account can still have an unexpired token saved on this device.
   if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
-  const stores=check(ms);
+  if(nextUser&&nextProfile?.role==='driver'&&!nextProfile.disabled)return await refreshDriver(id,nextUser,nextProfile,storesResult);
+  const stores=check(await storesResult);
   const approvedStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&m.approved&&!m.removed):null;
   const sellerOnly=!!approvedStore&&nextProfile?.role!=='admin'&&!ADMIN_PORTAL;
   initialAccountResolved=true;
@@ -639,7 +670,7 @@ async function refresh(){
   dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();resumePurchaseAfterLogin();
   finishAccountEntry();
-  }finally{if(id===refreshId)$('#loading').hidden=true}
+  }catch(e){if(id===refreshId&&viewMode==='driver'){D.driverError='تعذّر تحميل حساب التوصيل. أعد المحاولة.';render();}throw e;}finally{if(id===refreshId)$('#loading').hidden=true}
 }
 async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
 const $=s=>document.querySelector(s),fmt=n=>(+n||0).toLocaleString('en-US')+' د.ع';
@@ -874,6 +905,7 @@ function render(){
   // Private actions still use the existing account checks and database policies.
   if(!dataReady&&viewMode==='seller'&&!db.preview){sellerResume();return}
   if(accountResolving&&!dataReady&&!db.preview){document.documentElement.dataset.accountResume='true';$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ فتح حسابك…</div>';return}
+  if(viewMode==='driver'&&!dataReady){document.body.classList.remove('seller-workspace');$('.tabs').hidden=false;driverPage();return;}
   if(sellerAccount())viewMode='seller';
   if(dataReady&&viewMode==='seller'&&!canSell())viewMode='buyer';
   if(canSell()&&viewMode==='seller'&&ownStore){if(publicStoreId&&publicStoreId!==ownStore.id)publicStoreId=null;if(!['account','market','listings','myMarket','chats','settings','profilePage','postPage','orders'].includes(tab))tab='account';}
@@ -1026,7 +1058,11 @@ function chats(){
   if(user&&viewMode==='seller'&&ownStore){const incoming=D.o.filter(o=>o.mid===ownStore.id);$('#view').innerHTML='<div class="section-title"><h2>طلبات منتجاتي</h2></div>'+(incoming.length?incoming.map(o=>ordCard(o,true)).join(''):'<div class="empty">لا توجد طلبات لمنتجاتك بعد.</div>');return}
   $('#view').innerHTML='<div class="section-title"><h2>طلباتي وإشعاراتي</h2></div><div class="box"><button class="buy" data-a="tab" data-v="orders">متابعة مشترياتي</button></div>';
 }
-function driverPage(){driverWorkspace.render();}
+function driverPage(){
+ if(!dataReady){$('#view').innerHTML='<div class="dw-shell" '+(D.driverError?'data-driver-recovery':'')+'><h1>مساحة سائق التوصيل</h1><p role="status">'+esc(D.driverError||'جارٍ تحميل حساب التوصيل…')+'</p>'+(D.driverError?'<button class="buy" data-a="refreshAccount">إعادة المحاولة</button>':'')+'</div>';return;}
+ driverWorkspace.render();
+ if(D.driverError)$('#view').insertAdjacentHTML('afterbegin','<aside class="dw-card" data-driver-recovery role="alert"><p>'+esc(D.driverError)+'</p><button class="buy" data-a="refreshAccount">إعادة المحاولة</button></aside>');
+}
 
 function listings(){
   if(!canSell()){$('#view').innerHTML='<div class="box"><h2>البيع يحتاج موافقة الإدارة</h2><p>تواصل معنا لاعتماد حسابك. منتجاتك وطلباتك السابقة محفوظة.</p><button class="buy" data-a="sellerRequest">طلب الانضمام كبائع</button></div>';return}
@@ -1239,6 +1275,7 @@ const A={
   chooseSellerLocation,
   submitSellerJoin:()=>act(submitSellerApplication),
   buyerAccountLogin,
+  refreshAccount:()=>act(refresh),
   loginBuyerAccount:()=>act(async()=>{check(await db.auth.signOut());user=null;profile=null;ownStore=null;dataReady=false;publicStoreId=null;D.p=[];D.o=[];D.cart=[];save();rememberMode('buyer');tab='market';A.close();await refresh();buyerEntry()}),
   sellerRequest,
   activateSeller:v=>{if(profile?.role!=='admin')return;const p=D.people.find(p=>p.id===v);if(!p||p.disabled)return;const m=D.m.find(m=>m.owner_id===v);sheet(head('تفعيل حساب تاجر')+`<p>بعد التحقق من التاجر، أدخل بيانات متجره لتفعيل البيع.</p><p>${esc(p.full_name||'الحساب')} · <span dir="ltr">${esc(v)}</span></p><label for="sellerName">اسم المتجر</label><input id="sellerName" value="${esc(m?.name||'')}"><label for="sellerPhone">رقم الهاتف</label><input id="sellerPhone" type="tel" value="${esc(m?.phone||p.phone||'')}"><label for="sellerAddress">عنوان المتجر</label><input id="sellerAddress" value="${esc(m?.address||'')}"><button class="buy" data-a="saveSellerActivation" data-v="${esc(v)}">اعتماد التاجر وتفعيل البيع</button>`)},

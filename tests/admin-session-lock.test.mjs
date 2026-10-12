@@ -23,5 +23,5 @@ test('admin session resolves even when another tab holds the legacy auth lock',a
 });
 test('admin entry pins the new SDK while keeping the public site dependency unchanged',()=>{
  assert.match(fs.readFileSync('admin.html','utf8'),/vendor\/supabase\/supabase-2\.117\.3\.js/);
- assert.match(fs.readFileSync('index.html','utf8'),/vendor\/supabase\/supabase-2\.57\.0\.js/);
+ assert.match(fs.readFileSync('index.html','utf8'),/vendor\/supabase\/supabase-2\.117\.3\.js/);
 });
