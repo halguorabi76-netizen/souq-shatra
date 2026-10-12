@@ -14,7 +14,7 @@ test('Figma cards use real IDs, stored favorites and variant-aware sale prices',
 });
 test('public layer has no React replacement, demo account switcher or data writes',()=>{
  const code=read('figma-ui.js');assert.doesNotMatch(code,/createClient|\.rpc\(|localStorage|setRole|RoleSwitcher|Dashboard|\badmin\b|react-dom/);
- assert.match(read('index.html'),/data-shatra-ui=/);assert.match(read('sw.js'),/figma-ui\.css\?v=147/);assert.match(read('scripts/build.mjs'),/\['figma-ui.css','figma-ui.js'\]/);
+ assert.match(read('index.html'),/data-shatra-ui=/);assert.match(read('sw.js'),/figma-ui\.css\?v=148/);assert.match(read('scripts/build.mjs'),/\['figma-ui.css','figma-ui.js'\]/);
  assert.match(read('figma-ui.css'),/#3547a5/);assert.match(read('figma-ui.css'),/#080d1a/);assert.match(read('figma-ui.css'),/prefers-reduced-motion/);
 });
 test('administration and the business/authorization modules remain byte-for-byte unchanged',()=>{
