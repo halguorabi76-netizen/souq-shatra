@@ -23,6 +23,9 @@ const root=path.resolve(__dirname,'..');
    assert.deepEqual(geometry.nav.map(b=>b.key),['myMarket','stores','market','materials','chats']);
    assert.ok(Math.abs(geometry.nav[2].x+geometry.nav[2].w/2-(geometry.navBox.x+geometry.navBox.width/2))<2,'home must be physically centered in the five-item bar');
    assert.ok(geometry.menu.x>=geometry.theme.x+geometry.theme.width-1,'menu and theme must not overlap');
+   const menuStyle=await frame.locator('#marketMenuToggle').evaluate(e=>({lines:[...e.children].filter(s=>getComputedStyle(s).display!=='none').map(s=>s.getBoundingClientRect().width),shadow:getComputedStyle(e).boxShadow}));
+   assert.equal(menuStyle.lines.length,2);assert.ok(menuStyle.lines[0]>menuStyle.lines[1]);assert.notEqual(menuStyle.shadow,'none');
+   assert.equal(await frame.locator('.header-brand img').getAttribute('src'),'icons/figma-shatra-logo-transparent-v146.png');
    await frame.locator('#marketMenuToggle').click();await frame.locator('#marketDrawer.open').waitFor();
    await frame.locator('.market-drawer-panel [data-v="settings"]').click();assert.equal(await frame.locator('#marketMenuToggle').getAttribute('aria-expanded'),'false');
    await frame.locator('.tabs [data-v="market"]').click();await frame.locator('.figma-product-card').first().waitFor();
@@ -55,11 +58,12 @@ const root=path.resolve(__dirname,'..');
     const w=await frame.evaluate(()=>document.documentElement.scrollWidth);assert.ok(w<=width+1,`${role} overflow at ${width}: ${w}`);
     if(role==='seller'){
      await frame.locator('[data-s="openMenu"]').click();await frame.locator('#swDrawer').waitFor();
-     await frame.waitForFunction(()=>document.querySelector('#swDrawer .sw-market-logo img')?.getAttribute('src')==='icons/figma-shatra-logo-v143.png');
+     await frame.waitForFunction(()=>document.querySelector('#swDrawer .sw-market-logo img')?.getAttribute('src')==='icons/figma-shatra-logo-transparent-v146.png');
      await frame.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().endTime!==Infinity).map(a=>a.finished.catch(()=>{}))));
      const bounds=await frame.locator('.sw-seller-drawer').boundingBox();assert.ok(bounds.x>=-1&&bounds.x+bounds.width<=width+1);
      await frame.locator('[data-s="menuStock"]').click();await frame.locator('.sw-product-tabs [data-v="stock"].selected').waitFor();
      assert.equal(await frame.locator('#swDrawer').count(),0);
+     await frame.locator('.sw-drawer-leaving').waitFor({state:'detached'});
     }
     if(process.env.SOUQ_CAPTURE)await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-${role}-${width}.png`)});
    }

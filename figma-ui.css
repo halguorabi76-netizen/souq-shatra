@@ -225,3 +225,16 @@ html[data-shatra-ui] .sw-seller-drawer{background:var(--surface)!important;color
 html[data-shatra-ui] .sw-seller-drawer :is(nav button,.sw-drawer-close){background:var(--surface-2)!important;color:var(--ink)!important;border-color:var(--line)!important}
 html[data-shatra-ui] .sw-market-logo{background:white!important;overflow:hidden}
 html[data-shatra-ui] .sw-market-logo img{width:100%;height:100%;object-fit:cover;object-position:center}
+
+/* A tangible two-line menu button, with a short lower stroke. */
+html[data-shatra-ui] .topline #marketMenuToggle,
+html[data-shatra-ui] .sw-sitebar .menu-lines{align-items:center;justify-content:center;gap:5px;border-radius:11px!important;box-shadow:0 3px 8px #0d183426,0 1px 2px #0d183420!important;transition:transform 130ms ease,box-shadow 180ms ease}
+html[data-shatra-ui] .menu-lines span{flex:none;height:2px;border-radius:2px;width:20px;opacity:1!important;transform:none}
+html[data-shatra-ui] .menu-lines span:nth-child(2){width:12px;align-self:center;margin-inline-start:8px}
+html[data-shatra-ui] .menu-lines span:nth-child(3){display:none!important}
+html[data-shatra-ui] .menu-lines[aria-expanded=true] span:first-child{transform:translateY(3.5px) rotate(45deg)}
+html[data-shatra-ui] .menu-lines[aria-expanded=true] span:nth-child(2){width:20px;margin-inline-start:0;transform:translateY(-3.5px) rotate(-45deg)}
+html[data-shatra-ui] .topline #marketMenuToggle:active{transform:scale(.96)!important;box-shadow:0 1px 3px #0d18342b!important}
+html[data-shatra-ui] .topline #marketMenuToggle:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+html[data-shatra-ui] :is(.figma-logo-frame,.sw-market-logo){background:transparent!important;box-shadow:none!important}
+@media(prefers-reduced-motion:reduce){html[data-shatra-ui] .topline #marketMenuToggle{transition:none}}

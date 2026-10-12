@@ -32,7 +32,7 @@
  if(line){
   const group=document.createElement('div'),actions=document.createElement('div');group.className='figma-header-brand';actions.className='figma-header-actions';
   const menu=document.getElementById('marketMenuToggle'),brand=line.querySelector('.header-brand');
-  if(menu)group.append(menu);if(brand){const image=brand.querySelector('.header-logo');if(image){const frame=document.createElement('span');frame.className='figma-logo-frame';image.src='icons/figma-shatra-logo-v143.png';image.replaceWith(frame);frame.append(image);}const tagline=brand.querySelector('.header-brand-name small');if(tagline){tagline.textContent='كل المدينة في مكان واحد';tagline.removeAttribute('lang');tagline.removeAttribute('dir');}group.append(brand);}
+  if(menu)group.append(menu);if(brand){const image=brand.querySelector('.header-logo');if(image){const frame=document.createElement('span');frame.className='figma-logo-frame';image.src='icons/figma-shatra-logo-transparent-v146.png';image.replaceWith(frame);frame.append(image);}const tagline=brand.querySelector('.header-brand-name small');if(tagline){tagline.textContent='كل المدينة في مكان واحد';tagline.removeAttribute('lang');tagline.removeAttribute('dir');}group.append(brand);}
   const notice=line.querySelector('[data-a="notifications"]'),theme=document.getElementById('themeToggle'),account=document.getElementById('accountTrigger');
   for(const el of [notice,theme,account])if(el)actions.append(el);
   line.prepend(group,actions);
@@ -43,11 +43,11 @@
   if(panel&&!panel.dataset.figmaDecorated){
    panel.dataset.figmaDecorated='true';
    const image=panel.querySelector('.market-drawer-brand img');
-   if(image){const frame=document.createElement('span');frame.className='figma-logo-frame';image.className='header-logo';image.src='icons/figma-shatra-logo-v143.png';image.replaceWith(frame);frame.append(image);}
+   if(image){const frame=document.createElement('span');frame.className='figma-logo-frame';image.className='header-logo';image.src='icons/figma-shatra-logo-transparent-v146.png';image.replaceWith(frame);frame.append(image);}
    for(const button of panel.querySelectorAll('nav button')){const name=button.dataset.a==='accountMenu'?'user':button.dataset.v==='stores'?'store':button.dataset.v==='myMarket'?'cart':button.dataset.v==='chats'?'orders':'grid';button.insertAdjacentHTML('afterbegin',icon(name));}
   }
   const sellerLogo=document.querySelector('#swDrawer .sw-market-logo img');
-  if(sellerLogo)sellerLogo.src='icons/figma-shatra-logo-v143.png';
+  if(sellerLogo)sellerLogo.src='icons/figma-shatra-logo-transparent-v146.png';
  }
  const drawerObserver=new MutationObserver(decorateDrawer);drawerObserver.observe(document.body,{childList:true});
  const nav=document.querySelector('.app>.tabs');
