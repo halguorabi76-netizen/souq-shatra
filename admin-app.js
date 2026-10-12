@@ -6,7 +6,7 @@ import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,
 import {createSellerWorkspace} from "./seller-workspace.js?v=156";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=156";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=130";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=157";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -587,10 +587,22 @@ async function syncNotifiedOrders(ids){
  if(user?.id!==identity)return;
  const updated=new Map((rows||[]).map(row=>[row.id,{...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0}]));
  for(const [id,row] of updated){const i=D.o.findIndex(o=>o.id===id);if(i<0)D.o.push(row);else D.o[i]=row;}
+ const card=$('#sheet .ord[data-order-id]'),current=updated.get(card?.dataset?.orderId);if(current)card.outerHTML=ordCard(current,ownStore?.id===current.mid);
  if(['chats','account','orders'].includes(tab)&&$('#shade').hidden)render();
 }
+function orderProgress(o){
+ if(o.st===4)return '<section class="order-progress cancelled"><p>تم إلغاء الطلب</p></section>';
+ const seller=o.st>0,driver=!!o.driver_id,both=seller&&driver,done=o.st===3;
+ const mark=(ok,active=false)=>'<span class="progress-mark" aria-hidden="true">'+(ok?'✓':active?'●':'○')+'</span>';
+ return `<section class="order-progress" aria-label="متابعة طلبك"><ol>
+ <li class="complete" data-stage="sent">${mark(true)}<b>تم إرسال الطلب</b></li>
+ <li class="approval-stage"><div class="order-approvals"><div class="${seller?'approved':'pending'}" data-approval="seller"><span>موافقة البائع</span><strong>${seller?'✓ تمت الموافقة':'بانتظار الموافقة'}</strong></div><div class="${driver?'approved':'pending'}" data-approval="driver"><span>موافقة السائق</span><strong>${driver?'✓ تمت الموافقة':'بانتظار الموافقة'}</strong></div></div></li>
+ <li class="${done?'complete':both?'active':'pending'}" data-stage="processing">${mark(done,both&&!done)}<b>جارٍ تجهيز وتوصيل طلبك</b></li>
+ <li class="${done?'complete':'pending'}" data-stage="delivered">${mark(done)}<b>تم التسليم</b></li>
+ </ol></section>`;
+}
 function ordCard(o,m){
-  return `<div class="ord"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>
+  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
@@ -833,7 +845,7 @@ const A={
   claimOrder:v=>act(async()=>{check(await db.rpc('claim_delivery',{p_order:v}));A.close();await refresh();driverWorkspace.assigned(1);toast('أُسند إليك الطلب')}),
   ignoreOffer:v=>act(async()=>{check(await db.rpc('decline_delivery',{p_order:v}));deliveryOffers=deliveryOffers.filter(o=>o.order_id!==v);driverPage();toast('لن يظهر لك هذا الطلب مرة أخرى')}),
   driverStepAsk:v=>{const [id,status]=v.split('|');ask(status==='delivered'?'هل سلّمت المنتج وقبضت المبلغ كاملًا؟':'هل دفعت ثمن المنتج واستلمته من البائع؟','driverStep',v)},
-  driverStep:v=>act(async()=>{const [id,status]=v.split('|');check(await db.rpc('delivery_step',{p_order:id,p_status:status}));A.close();await refresh();driverWorkspace.assigned(status==='delivered'?3:2);toast('تم تحديث الطلب')}),
+  driverStep:(v,button)=>act(async()=>{const [id,status]=v.split('|');if(button?.disabled)return;if(button)button.disabled=true;try{check(await withTimeout(db.rpc('delivery_step',{p_order:id,p_status:status})));D.o=D.o.map(o=>o.id===id?{...o,st:status==='delivered'?3:2}:o);A.close();driverWorkspace.assigned(status==='delivered'?3:2);toast(status==='delivered'?'تم تأكيد تسليم الطلب وإبلاغ الزبون':'تم تحديث الطلب');refresh().catch(error);}finally{if(button?.isConnected)button.disabled=false;}}),
   paySheet:()=>sheet(head('إثبات تحويل المستحقات')+`<p>حوّل إلى رقم Qi: <b dir="ltr">${esc(deliverySettings.qi_number||'لم يُحدد بعد')}</b></p><label for="payAmount">المبلغ المحوّل بالدينار</label><input id="payAmount" type="number" min="1" value="${driverAccount?.amount_due||''}"><label for="payRef">رقم العملية أو تفاصيل الوصل</label><input id="payRef" maxlength="400"><p class="note">لا يُخصم المبلغ حتى يتحقق المدير من وصوله ويؤكد الاستلام.</p><button class="buy" data-a="sendPayment">إرسال طلب التأكيد</button>`),
   sendPayment:()=>act(async()=>{const amount=+val('payAmount'),receipt=val('payRef');if(!Number.isInteger(amount)||amount<1||receipt.length<3){toast('أدخل المبلغ ورقم العملية');return}check(await db.rpc('submit_delivery_payment',{p_amount:amount,p_receipt:receipt}));A.close();await refresh();toast('أُرسل طلب المراجعة إلى المدير')}),
   approveDriver:v=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));A.close();await refresh();toast('تم تحديث عامل التوصيل')}),

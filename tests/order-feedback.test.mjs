@@ -20,3 +20,7 @@ test('notification-driven order synchronization updates buyer status from server
  const source=fs.readFileSync('index.html','utf8'),start=source.indexOf('async function syncNotifiedOrders('),end=source.indexOf('function ordCard(',start);let renders=0;
  const q={select:()=>q,in:async()=>({data:[{id:'order',status:'accepted',driver_id:null}]})},c={user:{id:'buyer'},D:{o:[{id:'order',st:0}]},db:{from:()=>q},withTimeout:p=>p,check:r=>r.data,fromOrder:r=>({id:r.id,st:r.status==='accepted'?1:0}),tab:'chats',$:()=>({hidden:true}),render:()=>renders++};vm.createContext(c);vm.runInContext(source.slice(start,end),c);await c.syncNotifiedOrders(['order']);assert.equal(c.D.o[0].st,1);assert.equal(renders,1);
 });
+test('open order tracking details update in place without closing the customer dialog',async()=>{
+ const source=fs.readFileSync('index.html','utf8'),start=source.indexOf('async function syncNotifiedOrders('),end=source.indexOf('function ordCard(',start),card={dataset:{orderId:'order'},outerHTML:'old'};
+ const q={select:()=>q,in:async()=>({data:[{id:'order',status:'accepted',driver_id:'driver'}]})},c={user:{id:'buyer'},ownStore:null,D:{o:[{id:'order',st:0}]},db:{from:()=>q},withTimeout:p=>p,check:r=>r.data,fromOrder:r=>({id:r.id,st:1}),tab:'chats',$:s=>s.includes('.ord')?card:{hidden:false},ordCard:r=>'updated:'+r.st+':'+r.driver_id,render(){throw Error('dialog must remain open')}};vm.createContext(c);vm.runInContext(source.slice(start,end),c);await c.syncNotifiedOrders(['order']);assert.equal(card.outerHTML,'updated:1:driver');
+});
