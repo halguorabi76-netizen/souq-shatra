@@ -1,6 +1,7 @@
 
 const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
+import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=139";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=139";
@@ -17,12 +18,15 @@ async function apiFetch(resource,init={}){
   finally{clearTimeout(timer);source?.removeEventListener('abort',abort);window.SouqLoading?.end(token)}
 }
 const accountSession=window.SouqAccountAccess?.createStorage(localStorage,sessionStorage,'sb-'+new URL(SUPABASE_URL).hostname.split('.')[0]+'-auth-token');
-const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:accountSession?.storage},global:{fetch:apiFetch}});
+accountSession?.choose("device");
+const adminSession=createAdminSession({url:SUPABASE_URL,key:SUPABASE_ANON_KEY,storage:accountSession?.storage||localStorage,location,history,fetchImpl:apiFetch});
+const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{accessToken:adminSession.accessToken,global:{fetch:apiFetch}});
+db.auth=adminSession.auth;
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
-let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false,adminAccessReady=false,adminLoadError=null;
+let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false,adminAccessReady=false,adminLoadError=null,adminPhase='قراءة جلسة الهاتف';
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
@@ -59,7 +63,7 @@ async function refreshAdmin(id,nextUser){
   adminAccessReady=false;dataReady=false;profile=null;ownStore=null;
   D.m=[];D.p=[];D.o=[];D.people=[];D.drivers=[];D.driverProfiles=[];D.pickups=[];D.stockMovements=[];D.variants=[];D.catalog=[];deliveryPayments=[];
  }
- user=nextUser;
+ user=nextUser;adminPhase='التحقق من صلاحية الإدارة';
  const result=nextUser?await withTimeout(db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle(),25000):{data:null};
  if(id!==refreshId)return;
  const nextProfile=check(result);
@@ -69,6 +73,7 @@ async function refreshAdmin(id,nextUser){
  viewMode='buyer';D.me='owner';D.loading=!dataReady;
  // Show the authorized workspace now; independent datasets load together.
  render();
+ adminPhase='تحميل بيانات الإدارة';
  const results=await withTimeout(Promise.all([
   db.from('stores').select('*'),
   db.from('products').select('*').order('created_at',{ascending:false}),
@@ -97,7 +102,7 @@ async function refreshAdmin(id,nextUser){
 }
 async function refresh(){
   const id=++refreshId;
-  if(ADMIN_PORTAL){adminLoadError=null;render();}
+  if(ADMIN_PORTAL){adminLoadError=null;adminPhase='قراءة جلسة الهاتف';render();}
   // Keep the storefront visible while session and product requests finish.
   try{
   const sessionResult=await withTimeout(db.auth.getSession(),ADMIN_PORTAL?25000:12000);
@@ -495,8 +500,8 @@ function renderAdminPortal(){
  }
  $('#adminTop [data-a="out"]').hidden=!user;
  window.SouqTheme.set(window.SouqTheme.get(),false);
- if(adminLoadError){$('#view').innerHTML='<div class="admin-gate" data-admin-recovery role="alert"><h1>تعذّر فتح لوحة الإدارة</h1><p>لم يكتمل الاتصال للتحقق من الحساب أو تحميل بيانات الإدارة. هذا لا يعني أن حسابك بلا صلاحية.</p><button class="buy" data-a="adminRetry">إعادة المحاولة</button>'+(user?'<button class="alt" data-a="out">تبديل الحساب</button>':'<button class="alt" data-a="login" data-v="m">تسجيل الدخول</button>')+'<a href="index.html">العودة إلى السوق</a></div>';return;}
- if(!adminAccessReady||(user&&!profile)){ $('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p></div>';return}
+ if(adminLoadError){$('#view').innerHTML='<div class="admin-gate" data-admin-recovery role="alert"><h1>تعذّر فتح لوحة الإدارة</h1><p>لم يكتمل الاتصال للتحقق من الحساب أو تحميل بيانات الإدارة. هذا لا يعني أن حسابك بلا صلاحية.</p><small>الإصدار 154 — '+esc(typeof adminPhase==='string'?adminPhase:'التحقق من الحساب')+'</small><button class="buy" data-a="adminRetry">إعادة المحاولة</button>'+(user?'<button class="alt" data-a="out">تبديل الحساب</button>':'<button class="alt" data-a="login" data-v="m">تسجيل الدخول</button>')+'<a href="index.html">العودة إلى السوق</a></div>';return;}
+ if(!adminAccessReady||(user&&!profile)){ $('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p><small>الإصدار 154 — '+esc(typeof adminPhase==='string'?adminPhase:'قراءة جلسة الهاتف')+'</small></div>';return}
  if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>الدخول مخصص لحساب المالك المعتمد. تسجيل الدخول بحساب آخر لا يمنحه صلاحية الإدارة.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
  if(profile?.role!=='admin'||profile?.disabled){$('#view').innerHTML='<div class="admin-gate"><h1>هذا الحساب لا يملك صلاحية الإدارة</h1><p>الحساب المسجّل حاليًا: <b dir="ltr>'+esc(user.email||'')+'</b></p><p>استخدم حساب المدير المعتمد.</p><button class="buy" data-a="out">تبديل الحساب</button><a href="index.html">العودة إلى السوق</a></div>';return}
  tab='admin';admin();
@@ -679,10 +684,12 @@ function authField(id,label,type,icon,attrs=''){
  return `<label for="${id}">${label}</label><div class="auth-field"><span class="auth-field-icon">${authIcon(icon)}</span><input id="${id}" type="${type}" ${attrs}>${type==='password'?`<button class="auth-eye" type="button" data-a="showPassword" data-v="${id}" aria-label="إظهار كلمة المرور${id==='lkConfirm'?' المؤكدة':''}" aria-pressed="false">${authIcon('eyeOff')}</button>`:''}</div>`;
 }
 function lsheet(m){
+ if(ADMIN_PORTAL&&m==='r')m='m';
  if(m==='store'){sellerRequest();return}
- const signup=m==='r',professional=['seller','driver'].includes(viewMode),role=viewMode==='seller'?'بائع':viewMode==='driver'?'عامل توصيل':'زبون';
+ const signup=m==='r',professional=['seller','driver'].includes(viewMode),role=ADMIN_PORTAL?'المالك':viewMode==='seller'?'بائع':viewMode==='driver'?'عامل توصيل':'زبون';
  const phone=signup?authField('lphone','رقم هاتفك <small>(اختياري للتواصل)</small>','tel','phone','dir="ltr" inputmode="tel" autocomplete="tel" placeholder="07xxxxxxxxx"'):'';
  sheet(`<div class="auth-handle" aria-hidden="true"></div><div class="auth-top"><strong>سوق الشطرة<small>SOUQ AL-SHATRA</small></strong><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="الرجوع إلى الواجهة السابقة">${ADMIN_PORTAL?'✕':backIcon}</button></div><h2 class="auth-title">${signup?'إنشاء حساب':'تسجيل الدخول'} ${role}</h2><p class="auth-subtitle">${professional?(signup?'أنشئ حساب الدخول أولًا، ثم أكمل طلب الانضمام.':'استخدم البريد أو حساب Google نفسه الذي ربطت به حسابك القديم.'):signup?'أهلاً بك في سوق الشطرة.':'أهلًا بعودتك إلى سوق الشطرة.'}</p><div id="authProviders" class="auth-providers" hidden></div><form id="authForm" data-mode="${m}">${signup?authField('ln','الاسم الكامل <span class="auth-required">*</span>','text','person','required autocomplete="name" placeholder="اكتب اسمك"')+phone:''}${authField('lp','البريد الإلكتروني <span class="auth-required">*</span>','email','mail','required dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"')}${authField('lk','كلمة المرور <span class="auth-required">*</span>','password','lock',`required minlength="6" autocomplete="${signup?'new-password':'current-password'}" placeholder="اكتب كلمة المرور"`)}${signup?authField('lkConfirm','تأكيد كلمة المرور <span class="auth-required">*</span>','password','lock','required minlength="6" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور"')+'<p class="note">استخدم 6 أحرف على الأقل.</p>':'<button class="auth-forgot" type="button" data-a="forgotPassword">نسيت كلمة المرور؟</button>'}<button class="buy auth-submit" type="submit" data-a="dologin" data-v="${m}">${signup?'إنشاء حساب':'تسجيل الدخول'}</button></form><p class="auth-switch">${signup?'لديك حساب بالفعل؟':'ليس لديك حساب؟'} <button data-a="${professional?signup?'roleExisting':'roleRequest':'login'}" data-v="${professional?viewMode:signup?'m':'r'}">${signup?'تسجيل الدخول':professional?viewMode==='seller'?'اطلب الانضمام كتاجر':'اطلب الانضمام كسائق توصيل':'إنشاء حساب'}</button></p><a class="auth-support" href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">${authIcon('support')}خدمة العملاء</a>`);
+ if(ADMIN_PORTAL){$('#sheet .auth-switch')?.remove();$('#sheet .auth-subtitle').textContent='ادخل بحساب المالك مرة واحدة. سيُحفظ الدخول على هذا الهاتف.';}
  $('#shade').classList.add('auth-open');$('#sheet').classList.add('auth-sheet');
  loadAuthProviders();
 }
@@ -754,7 +761,7 @@ const A={
     if(!settings.external?.[provider]){toast('الدخول باستخدام '+provider+' لم يُفعّل بعد من إدارة التطبيق. يمكنك استخدام البريد مؤقتًا.');return}
     rememberMode(['seller','driver'].includes(viewMode)?viewMode:'buyer');
     if(ADMIN_PORTAL)sessionStorage.setItem('souq-admin-return','1');
-    check(await withTimeout(db.auth.signInWithOAuth({provider,options:{redirectTo:ADMIN_PORTAL?new URL('./',location.href).href:location.origin+location.pathname,...(provider==='google'?{queryParams:{prompt:'select_account'}}:{})}})));
+    check(await withTimeout(db.auth.signInWithOAuth({provider,options:{redirectTo:ADMIN_PORTAL?new URL('admin.html?v=154',location.href).href:location.origin+location.pathname,...(provider==='google'?{queryParams:{prompt:'select_account'}}:{})}})));
   }),
   forgotPassword:()=>act(async()=>{
     const email=val('lp');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('اكتب بريدك الإلكتروني أولًا');$('#lp')?.focus();return}
