@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 function gate(file,profile){
  const source=fs.readFileSync(file,'utf8'),view={innerHTML:''};
- const c={user:{email:'owner@example.test'},profile,dataReady:true,adminAccessReady:true,tab:'market',opened:false,document:{body:{classList:{add(){},remove(){}}},getElementById:()=>({remove(){}})},window:{SouqTheme:{get(){},set(){}}},$:s=>s==='#view'?view:{hidden:false},esc:s=>s,admin:()=>{c.opened=true}};
+ const c={user:{email:'owner@example.test'},profile,adminLoadError:null,dataReady:true,adminAccessReady:true,tab:'market',opened:false,document:{body:{classList:{add(){},remove(){}}},getElementById:()=>({remove(){}})},window:{SouqTheme:{get(){},set(){}}},$:s=>s==='#view'?view:{hidden:false},esc:s=>s,admin:()=>{c.opened=true}};
  vm.createContext(c);vm.runInContext(source.slice(source.indexOf('function renderAdminPortal(){'),source.indexOf('\nfunction admin(){')),c);c.renderAdminPortal();return {c,html:view.innerHTML};
 }
 test('login transition waits for a trusted profile instead of denying the administrator',()=>{

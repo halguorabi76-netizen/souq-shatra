@@ -3,7 +3,7 @@
  let failed=navigator.onLine===false,successful=false;
  const update=()=>{
   const panel=document.getElementById('auroraLoading');if(!panel)return;
-  const offline=navigator.onLine===false;panel.hidden=!failed&&!offline;
+  const offline=navigator.onLine===false;panel.hidden=!!document.querySelector('[data-admin-recovery]')||(!failed&&!offline);
   panel.dataset.offline=String(offline);panel.dataset.kind='network';
   panel.querySelector('span').textContent='جار التحميل';
  };

@@ -22,7 +22,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
-let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false,adminAccessReady=false;
+let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false,adminAccessReady=false,adminLoadError=null;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
@@ -60,7 +60,7 @@ async function refreshAdmin(id,nextUser){
   D.m=[];D.p=[];D.o=[];D.people=[];D.drivers=[];D.driverProfiles=[];D.pickups=[];D.stockMovements=[];D.variants=[];D.catalog=[];deliveryPayments=[];
  }
  user=nextUser;
- const result=nextUser?await withTimeout(db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle()):{data:null};
+ const result=nextUser?await withTimeout(db.from('profiles').select('*').eq('id',nextUser.id).maybeSingle(),25000):{data:null};
  if(id!==refreshId)return;
  const nextProfile=check(result);
  if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
@@ -82,7 +82,7 @@ async function refreshAdmin(id,nextUser){
   db.from('delivery_payments').select('*').order('created_at',{ascending:false}),
   db.from('delivery_settings').select('*').limit(1).maybeSingle(),
   db.from('store_pickups').select('*')
- ]));
+ ]),25000);
  if(id!==refreshId)return;
  const [stores,products,orders,people,catalog,variants,movements,drivers,driverProfiles,payments,settings,pickups]=results.map(check);
  D.catalog=catalog||[];D.variants=variants||[];D.stockMovements=movements||[];D.drivers=drivers||[];D.driverProfiles=driverProfiles||[];D.pickups=pickups||[];D.publicCategories=[];
@@ -97,9 +97,10 @@ async function refreshAdmin(id,nextUser){
 }
 async function refresh(){
   const id=++refreshId;
+  if(ADMIN_PORTAL){adminLoadError=null;render();}
   // Keep the storefront visible while session and product requests finish.
   try{
-  const sessionResult=await withTimeout(db.auth.getSession());
+  const sessionResult=await withTimeout(db.auth.getSession(),ADMIN_PORTAL?25000:12000);
   if(id!==refreshId)return;
   if(unavailableSession(sessionResult.error)){await clearUnavailableAccount();return refresh()}
   const session=check(sessionResult);
@@ -189,6 +190,9 @@ async function refresh(){
   dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();resumePurchaseAfterLogin();
   finishAccountEntry();window.SouqLoading?.recovered?.();
+  }catch(e){
+    if(ADMIN_PORTAL&&id===refreshId){adminLoadError=e;D.loading=false;render();}
+    throw e;
   }finally{if(id===refreshId)$('#loading').hidden=true}
 }
 async function act(f){const token=window.SouqLoading?.begin();try{await f();window.SouqLoading?.recovered?.()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
@@ -491,6 +495,7 @@ function renderAdminPortal(){
  }
  $('#adminTop [data-a="out"]').hidden=!user;
  window.SouqTheme.set(window.SouqTheme.get(),false);
+ if(adminLoadError){$('#view').innerHTML='<div class="admin-gate" data-admin-recovery role="alert"><h1>تعذّر فتح لوحة الإدارة</h1><p>لم يكتمل الاتصال للتحقق من الحساب أو تحميل بيانات الإدارة. هذا لا يعني أن حسابك بلا صلاحية.</p><button class="buy" data-a="adminRetry">إعادة المحاولة</button>'+(user?'<button class="alt" data-a="out">تبديل الحساب</button>':'<button class="alt" data-a="login" data-v="m">تسجيل الدخول</button>')+'<a href="index.html">العودة إلى السوق</a></div>';return;}
  if(!adminAccessReady||(user&&!profile)){ $('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p></div>';return}
  if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>الدخول مخصص لحساب المالك المعتمد. تسجيل الدخول بحساب آخر لا يمنحه صلاحية الإدارة.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
  if(profile?.role!=='admin'||profile?.disabled){$('#view').innerHTML='<div class="admin-gate"><h1>هذا الحساب لا يملك صلاحية الإدارة</h1><p>الحساب المسجّل حاليًا: <b dir="ltr>'+esc(user.email||'')+'</b></p><p>استخدم حساب المدير المعتمد.</p><button class="buy" data-a="out">تبديل الحساب</button><a href="index.html">العودة إلى السوق</a></div>';return}
@@ -875,6 +880,7 @@ const A={
 
     tab='cartPage';render();scrollTo(0,0);
   }),
+  adminRetry:()=>act(refresh),
   login:v=>lsheet(v),
   dologin:m=>act(async()=>{
     const email=val('lp'),password=val('lk');if(!email.includes('@')||password.length<6){toast('اكتب البريد وكلمة مرور من 6 أحرف على الأقل');return}
