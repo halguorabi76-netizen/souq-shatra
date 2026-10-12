@@ -461,7 +461,7 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="delivery-zones.js?v=161"></script><script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=161"></script>
+<script src="delivery-zones.js?v=164"></script><script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=161"></script>
 <script src="demo-lab.js?v=51"></script>
 <script src="vendor/supabase/supabase-2.117.3.js"></script>
 <script type="module">
@@ -488,7 +488,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
-let D={m:[],p:[],o:[],people:[],cartPane:'orders',deliveryChoice:local.deliveryChoice||{area:'',outside:'',city:''},orderFilter:'all',cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
+let D={m:[],p:[],o:[],people:[],cartPane:'orders',deliveryChoice:{outside:'',city:'',...local.deliveryChoice,area:local.deliveryChoice?.area||'shatra'},orderFilter:'all',cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
@@ -1506,7 +1506,7 @@ const A={
   productPhoto:v=>{const photos=[...new Set([cur.p.img,...(cur.p.variants||[]).filter(v=>!v.archived).map(v=>v.img)].filter(Boolean))];cur.photo=photos[Number(v)];updateProductDetail()},
   cartEdit:v=>{const c=D.cart.find(c=>cartKey(c)===v);if(!c)return;A.prod(c.pid);cur.vid=c.vid;cur.n=c.q;cur.options={...c.attributes};cur.editKey=v;updateProductDetail()},
   checkoutAddresses:()=>act(openAddresses),
-  addressNew:()=>{addressDraft={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',phone2:'',label:'',addr:'',choice:{area:'',outside:'',city:''},point:null};pickAddressLocation()},
+  addressNew:()=>{addressDraft={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',phone2:'',label:'',addr:'',choice:{area:'shatra',outside:'',city:''},point:null};pickAddressLocation()},
   addressMap:()=>{captureAddress();pickAddressLocation()},
   addressChoose:v=>{const a=customerAddresses.find(a=>a.id===v);if(!a)return;useAddress(a);checkoutStage='review';csheet();scrollTo(0,0)},
   addressSave:(_,b)=>act(()=>saveAddress(b)),
