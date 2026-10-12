@@ -3,7 +3,7 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
-import {createSellerWorkspace} from "./seller-workspace.js?v=156";
+import {createSellerWorkspace} from "./seller-workspace.js?v=158";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=156";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=157";
@@ -46,7 +46,7 @@ function withTimeout(promise,ms=12000){
 }
 function error(e){if(e?.name==='TimeoutError'||e?.name==='TypeError')window.SouqLoading?.failed?.();if(e?.message?.includes('username:')){toast('اسم المستخدم من ٣ إلى ٣٠ حرفًا إنجليزيًا أو رقمًا أو شرطة سفلية، يبدأ بحرف');return;}if(e?.code==='23505'){toast('اسم المستخدم أو رمز النسخة مستخدم بالفعل؛ اختر اسمًا آخر');return;}if(e?.message?.includes('inventory changed')){toast('تغيّر مخزون هذا المنتج أثناء التعديل. أعد فتح المنتج لتحميل الكميات الجديدة ثم احفظ.');return;}if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
-const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
+const fromOrder=o=>({id:o.id,mid:o.store_id,customer_action:Array.isArray(o.order_customer_actions)?o.order_customer_actions[0]:o.order_customer_actions,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 function unavailableSession(e){
  return ['refresh_token_not_found','refresh_token_already_used','session_not_found','user_not_found'].includes(e?.code);
 }
@@ -77,7 +77,7 @@ async function refreshAdmin(id,nextUser){
  const results=await withTimeout(Promise.all([
   db.from('stores').select('*'),
   db.from('products').select('*').order('created_at',{ascending:false}),
-  db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}),
+  db.from('orders').select('*,order_items(*),order_customer_actions(*)').order('created_at',{ascending:false}),
   db.rpc('admin_account_profiles'),
   db.from('catalog_categories').select('*').order('position'),
   db.from('product_variants').select('*'),
@@ -143,7 +143,7 @@ async function refresh(){
   const approvedStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&m.approved&&!m.removed):null;
   const sellerOnly=!!approvedStore&&nextProfile?.role!=='admin'&&!ADMIN_PORTAL;
   let productQuery=db.from('products').select('*').order('created_at',{ascending:false});
-  let orderQuery=nextUser?db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null});
+  let orderQuery=nextUser?db.from('orders').select('*,order_items(*),order_customer_actions(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null});
   let categoryQuery=db.from('seller_categories').select('store_id,name').eq('active',true).is('deleted_at',null);
   if(sellerOnly){productQuery=productQuery.eq('store_id',approvedStore.id);orderQuery=orderQuery.eq('store_id',approvedStore.id);categoryQuery=categoryQuery.eq('store_id',approvedStore.id);}
   const [ps,rs,cs]=await withTimeout(Promise.all([productQuery,orderQuery,categoryQuery]));
@@ -574,7 +574,7 @@ async function acceptSellerOrder(id,button){
   // RPC success confirms acceptance; do not wait for unrelated market requests.
   D.o=D.o.map(o=>o.id===id?{...o,st:1}:o);A.close();render();toast('تم قبول الطلب وإبلاغ الزبون');
   activity.poll().catch(()=>{});
-  withTimeout(db.from('orders').select('*,order_items(*)').eq('id',id).single()).then(result=>{
+  withTimeout(db.from('orders').select('*,order_items(*),order_customer_actions(*)').eq('id',id).single()).then(result=>{
    if(user?.id!==identity)return;const row=check(result);
    const updated={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
    D.o=D.o.map(o=>o.id===id?updated:o);render();
@@ -583,7 +583,7 @@ async function acceptSellerOrder(id,button){
 }
 async function syncNotifiedOrders(ids){
  if(!user||!ids.length)return;const identity=user.id;
- const rows=check(await withTimeout(db.from('orders').select('*,order_items(*)').in('id',ids)));
+ const rows=check(await withTimeout(db.from('orders').select('*,order_items(*),order_customer_actions(*)').in('id',ids)));
  if(user?.id!==identity)return;
  const updated=new Map((rows||[]).map(row=>[row.id,{...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0}]));
  for(const [id,row] of updated){const i=D.o.findIndex(o=>o.id===id);if(i<0)D.o.push(row);else D.o[i]=row;}
@@ -602,7 +602,7 @@ function orderProgress(o){
  </ol></section>`;
 }
 function ordCard(o,m){
-  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}
+  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}${o.customer_action?.request_kind?'<p class="note">↩ '+(o.customer_action.request_kind==='return'?'طلب إرجاع من الزبون':'طلب إلغاء من الزبون')+' · '+esc(o.customer_action.reason||'بدون سبب')+'</p>':''}
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
@@ -979,7 +979,7 @@ const activity=createActivityCenter({db,esc,fmt,when,check,error,ordersChanged:s
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
 db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
 async function showOrderNotice(id){
- const row=check(await db.from('orders').select('*,order_items(*)').eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
+ const row=check(await db.from('orders').select('*,order_items(*),order_customer_actions(*)').eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
  const contacts=check(await db.rpc('assigned_delivery_contacts'))||[];D.driverContacts=contacts;
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));

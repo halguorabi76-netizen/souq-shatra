@@ -43,7 +43,7 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8').match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;$/gm,'');vm.runInContext(source,context,{filename:'preview.html'});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();assert.match(nodes.get('#view').innerHTML,/أي واجهة تريد تجربتها/);
  vm.runInContext("db.preview.selectRole('buyer')",context);await settle();assert.match(nodes.get('#view').innerHTML,/المواد المعروضة|قميص تجريبي/);
- vm.runInContext("A.quickAdd(D.p[0].id);if(!cur.quickAdd||!cur.added||$('#shade').hidden)throw Error('quick add must keep product open');A.cart()",context);
+ vm.runInContext("A.quickAdd(D.p[0].id);if(!cur.quickAdd||!cur.added||$('#shade').hidden)throw Error('quick add must keep product open');A.cartPane('items')",context);
  assert.match(nodes.get('#view').innerHTML,/buyer-checkout-layout/);assert.match(nodes.get('#view').innerHTML,/المبلغ النهائي المطلوب/);assert.doesNotMatch(nodes.get('#view').innerHTML,/حصة التطبيق|لكل بائع/);assert.equal(nodes.get('#shade').hidden,true);
  document.querySelector('#accountMenu').hidden=true;
  vm.runInContext("A.accountMenu()",context);assert.equal(nodes.get('#accountMenu').hidden,true);assert.match(nodes.get('#view').innerHTML,/data-a="editCustomerPhone"/);assert.doesNotMatch(nodes.get('#view').innerHTML,/اختر نوع الحساب/);

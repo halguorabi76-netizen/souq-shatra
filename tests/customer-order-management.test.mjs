@@ -1,0 +1,28 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {createPreviewModel} from '../preview-lab.js';
+const html=fs.readFileSync('index.html','utf8');
+function context(){const view={innerHTML:''},c={D:{o:[],orderFilter:'all'},user:{id:'buyer',email:'buyer@example.invalid'},profile:{},esc:s=>String(s),ordCard:o=>`<article>${o.id}</article>`,$:()=>view};vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function customerOrderControls('),html.indexOf('async function loadCustomerOrders(')),c);return c;}
+test('customer controls distinguish unassigned cancellation, assigned request, delivered return and hidden restoration',()=>{
+ const c=context(),control=(st,driver_id=null,customer_action=null)=>c.customerOrderControls({id:'order',st,driver_id,customer_action});
+ assert.match(control(0),/>✕ إلغاء الطلب</);assert.match(control(1,'driver'),/>✕ طلب إلغاء</);assert.match(control(3),/طلب إرجاع/);assert.doesNotMatch(control(4),/\|cancel|\|return/);assert.match(control(3,null,{hidden_at:'now'}),/\|restore/);assert.doesNotMatch(control(3,null,{request_kind:'return'}),/data-v="order\|return"/);
+});
+test('history contains completed and cancelled orders by default, is account-specific and hidden orders remain restorable',()=>{
+ const c=context();c.D.o=[{id:'active',buyer_id:'buyer',st:0},{id:'done',buyer_id:'buyer',st:3},{id:'cancelled',buyer_id:'buyer',st:4},{id:'hidden',buyer_id:'buyer',st:3,customer_action:{hidden_at:'now'}},{id:'other-account',buyer_id:'other',st:3}];
+ const render=()=>c.customerOrderHub();assert.match(render(),/<article>done/);assert.match(render(),/<article>cancelled/);assert.doesNotMatch(render(),/<article>hidden|other-account/);
+ c.D.orderFilter='previous';assert.match(render(),/<article>done/);assert.doesNotMatch(render(),/<article>active/);c.D.orderFilter='hidden';assert.match(render(),/<article>hidden/);assert.doesNotMatch(render(),/<article>done/);
+});
+test('cart defaults to order history, checkout is explicitly selected and opening history fetches own saved orders',()=>{
+ assert.match(html,/cartPane:'orders'/);assert.match(html,/data-cart-pane="items"/);assert.match(html,/if\(D.cartPane==='orders'&&!cartReceipt\)/);assert.match(html,/eq\('buyer_id',identity\)/);assert.match(html,/customerOrdersError/);
+});
+test('preview cancellation restores stock once and hiding never deletes the underlying order',async()=>{
+ const storage=new Map();globalThis.localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
+ const model=createPreviewModel(globalThis.localStorage,()=>crypto.randomUUID());const client=model;model.setRole('buyer');const data=model.snapshot(),product=data.products[0];
+ const result=await client.rpc('place_order',{p_store:data.stores[0].id,p_lines:[{id:product.id,quantity:1}],p_name:'QA',p_phone:'00000000000',p_address:'test'});assert.equal(result.error,null);const id=result.data;
+ for(let i=0;i<2;i++)assert.equal((await client.rpc('customer_order_action',{p_order:id,p_action:'cancel'})).data,'cancelled');
+ assert.equal(model.snapshot().products[0].stock,product.stock);
+ await client.rpc('customer_order_action',{p_order:id,p_action:'hide'});assert.equal(model.snapshot().orders.length,1);assert.ok(model.snapshot().order_customer_actions[0].hidden_at);
+ await client.rpc('customer_order_action',{p_order:id,p_action:'restore'});assert.equal(model.snapshot().order_customer_actions[0].hidden_at,null);
+});

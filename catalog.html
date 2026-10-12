@@ -409,7 +409,7 @@ body.starting{background:#000!important}
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=81">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=157">
+<link rel="stylesheet" href="operations.css?v=158">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=140">
 <style>
 .seller-preflight{display:none}
@@ -469,7 +469,7 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {signInProfessional} from "./professional-login.js?v=138";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
-import {createSellerWorkspace} from "./seller-workspace.js?v=156";
+import {createSellerWorkspace} from "./seller-workspace.js?v=158";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=156";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=157";
@@ -488,7 +488,7 @@ const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
-let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
+let D={m:[],p:[],o:[],people:[],cartPane:'orders',orderFilter:'all',cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
@@ -512,7 +512,7 @@ function withTimeout(promise,ms=12000){
 }
 function error(e){if(e?.name==='TimeoutError'||e?.name==='TypeError')window.SouqLoading?.failed?.();if(e?.message?.includes('username:')){toast('اسم المستخدم من ٣ إلى ٣٠ حرفًا إنجليزيًا أو رقمًا أو شرطة سفلية، يبدأ بحرف');return;}if(e?.code==='23505'){toast('اسم المستخدم أو رمز النسخة مستخدم بالفعل؛ اختر اسمًا آخر');return;}if(e?.message?.includes('inventory changed')){toast('تغيّر مخزون هذا المنتج أثناء التعديل. أعد فتح المنتج لتحميل الكميات الجديدة ثم احفظ.');return;}if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
-const fromOrder=o=>({id:o.id,mid:o.store_id,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
+const fromOrder=o=>({id:o.id,mid:o.store_id,customer_action:Array.isArray(o.order_customer_actions)?o.order_customer_actions[0]:o.order_customer_actions,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone,addr:o.address,note:o.note}});
 function unavailableSession(e){
  return ['refresh_token_not_found','refresh_token_already_used','session_not_found','user_not_found'].includes(e?.code);
 }
@@ -534,7 +534,7 @@ async function refreshDriver(id,nextUser,nextProfile,storesResult){
   db.from('delivery_workers').select('*').eq('user_id',nextUser.id).maybeSingle(),
   db.from('driver_profiles').select('*').eq('user_id',nextUser.id).maybeSingle(),
   db.from('delivery_settings').select('*').limit(1).maybeSingle(),
-  db.from('orders').select('*,order_items(*)').eq('driver_id',nextUser.id).order('created_at',{ascending:false}),
+  db.from('orders').select('*,order_items(*),order_customer_actions(*)').eq('driver_id',nextUser.id).order('created_at',{ascending:false}),
   db.from('delivery_payments').select('*').eq('driver_id',nextUser.id).order('created_at',{ascending:false}),
   db.rpc('assigned_delivery_contacts')
  ]));
@@ -605,7 +605,7 @@ async function refresh(){
   if(nextUser&&!ADMIN_PORTAL)try{localStorage.setItem('souq-shatra-account-layout-'+nextUser.id,sellerOnly?'seller':'buyer')}catch{}
   if(sellerOnly&&!dataReady){rememberMode('seller');publicStoreId=null;tab='account';render();}
   let productQuery=db.from('products').select('*').order('created_at',{ascending:false});
-  let orderQuery=nextUser?db.from('orders').select('*,order_items(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null});
+  let orderQuery=nextUser?db.from('orders').select('*,order_items(*),order_customer_actions(*)').order('created_at',{ascending:false}):Promise.resolve({data:[],error:null});
   let categoryQuery=db.from('seller_categories').select('store_id,name').eq('active',true).is('deleted_at',null);
   if(sellerOnly){productQuery=productQuery.eq('store_id',approvedStore.id);orderQuery=orderQuery.eq('store_id',approvedStore.id);categoryQuery=categoryQuery.eq('store_id',approvedStore.id);}
   const settingsStore=nextUser&&!nextProfile?.disabled?stores.find(m=>m.owner_id===nextUser.id&&(nextProfile?.role==='admin'||m.approved&&!m.removed)):null;
@@ -1061,7 +1061,7 @@ function marketSection(section){
 function chats(){
   if(viewMode==='driver'){driverPage();return}
   if(user&&viewMode==='seller'&&ownStore){const incoming=D.o.filter(o=>o.mid===ownStore.id);$('#view').innerHTML='<div class="section-title"><h2>طلبات منتجاتي</h2></div>'+(incoming.length?incoming.map(o=>ordCard(o,true)).join(''):'<div class="empty">لا توجد طلبات لمنتجاتك بعد.</div>');return}
-  $('#view').innerHTML='<div class="section-title"><h2>طلباتي وإشعاراتي</h2></div><div class="box"><button class="buy" data-a="tab" data-v="orders">متابعة مشترياتي</button></div>';
+  orders();
 }
 function driverPage(){
  if(!dataReady){$('#view').innerHTML='<div class="dw-shell" '+(D.driverError?'data-driver-recovery':'')+'><h1>مساحة سائق التوصيل</h1><p role="status">'+esc(D.driverError||'جارٍ تحميل حساب التوصيل…')+'</p>'+(D.driverError?'<button class="buy" data-a="refreshAccount">إعادة المحاولة</button>':'')+'</div>';return;}
@@ -1088,7 +1088,7 @@ async function acceptSellerOrder(id,button){
   // RPC success confirms acceptance; do not wait for unrelated market requests.
   D.o=D.o.map(o=>o.id===id?{...o,st:1}:o);A.close();render();toast('تم قبول الطلب وإبلاغ الزبون');
   activity.poll().catch(()=>{});
-  withTimeout(db.from('orders').select('*,order_items(*)').eq('id',id).single()).then(result=>{
+  withTimeout(db.from('orders').select('*,order_items(*),order_customer_actions(*)').eq('id',id).single()).then(result=>{
    if(user?.id!==identity)return;const row=check(result);
    const updated={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
    D.o=D.o.map(o=>o.id===id?updated:o);render();
@@ -1097,12 +1097,12 @@ async function acceptSellerOrder(id,button){
 }
 async function syncNotifiedOrders(ids){
  if(!user||!ids.length)return;const identity=user.id;
- const rows=check(await withTimeout(db.from('orders').select('*,order_items(*)').in('id',ids)));
+ const rows=check(await withTimeout(db.from('orders').select('*,order_items(*),order_customer_actions(*)').in('id',ids)));
  if(user?.id!==identity)return;
  const updated=new Map((rows||[]).map(row=>[row.id,{...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0}]));
  for(const [id,row] of updated){const i=D.o.findIndex(o=>o.id===id);if(i<0)D.o.push(row);else D.o[i]=row;}
  const card=$('#sheet .ord[data-order-id]'),current=updated.get(card?.dataset?.orderId);if(current)card.outerHTML=ordCard(current,ownStore?.id===current.mid);
- if(['chats','account','orders'].includes(tab)&&$('#shade').hidden)render();
+ if(['chats','account','orders','cartPage'].includes(tab)&&$('#shade').hidden)render();
 }
 function orderProgress(o){
  if(o.st===4)return '<section class="order-progress cancelled"><p>تم إلغاء الطلب</p></section>';
@@ -1116,15 +1116,46 @@ function orderProgress(o){
  </ol></section>`;
 }
 function ordCard(o,m){
-  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}
+  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}${o.customer_action?.request_kind?'<p class="note">↩ '+(o.customer_action.request_kind==='return'?'أُرسل طلب إرجاع للمراجعة':'أُرسل طلب إلغاء للمراجعة')+(o.customer_action.reason?' · '+esc(o.customer_action.reason):'')+'</p>':''}
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
-  ${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
+  ${!m&&user?.id===o.buyer_id?customerOrderControls(o):''}${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
 }
-function orders(){
-  const l=D.o.filter(o=>user&&o.buyer_id===user.id);
-  $('#view').innerHTML='<div class="dh"><h2 style="margin:0">طلباتي</h2></div>'+(l.length?l.map(o=>ordCard(o,false)).join(''):'<div class="empty">ما عندك طلبات بعد.<br>اختر منتجاً من السوق وأرسل طلبك.</div>');
+function customerOrderControls(o){
+ const hidden=!!o.customer_action?.hidden_at;
+ if(hidden)return `<div class="acts"><button data-a="customerAction" data-v="${o.id}|restore">↶ إعادة إلى قائمتي</button></div>`;
+ const kind=o.st===3?'return':o.st<3?'cancel':null,requested=o.customer_action?.request_kind===kind;
+ return `<div class="acts customer-order-controls">${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':o.driver_id?'✕ طلب إلغاء':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
+}
+function customerOrderHub(){
+ const mine=D.o.filter(o=>user&&o.buyer_id===user.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts)),filter=D.orderFilter||'all';
+ const matches=(o,f)=>f==='hidden'?!!o.customer_action?.hidden_at:!o.customer_action?.hidden_at&&(f==='all'||(f==='current'?o.st<3:o.st>=3));
+ const list=mine.filter(o=>matches(o,filter));
+ const chips=[['all','كل الطلبات'],['current','الحالية'],['previous','السابقة'],['hidden','المزالة']].map(([f,label])=>`<button class="chip" data-a="customerFilter" data-v="${f}" aria-pressed="${f===filter}">${label} (${mine.filter(o=>matches(o,f)).length})</button>`).join('');
+ return `<section class="customer-orders"><div class="dh"><h2>طلباتي</h2><button class="link" data-a="customerReload">↻ تحديث</button></div>${!user?'<div class="box"><p>ادخل بحساب الزبون الذي أرسل الطلب لعرض طلباته.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button></div>':`<small class="note">طلبات حساب ${esc(user.email||profile?.full_name||'الزبون')}</small><div class="chips">${chips}</div>${D.customerOrdersLoading?'<p class="note" role="status">جارٍ تحديث طلباتك…</p>':''}${D.customerOrdersError?'<p class="note" role="alert">تعذّر تحديث الطلبات. اضغط تحديث للمحاولة مجددًا؛ طلباتك محفوظة.</p>':''}${list.length?list.map(o=>ordCard(o,false)).join(''):'<div class="empty">لا توجد طلبات في هذا القسم.</div>'}`}</section>`;
+}
+async function loadCustomerOrders(){
+ if(!user)return;const identity=user.id;if(D.customerOrdersLoading===identity)return;
+ D.customerOrdersLoading=identity;D.customerOrdersError=false;if(['orders','cartPage','chats'].includes(tab))render();
+ try{
+  const rows=check(await withTimeout(db.from('orders').select('*,order_items(*),order_customer_actions(*)').eq('buyer_id',identity).order('created_at',{ascending:false})));
+  if(user?.id!==identity)return;
+  D.o=[...D.o.filter(o=>o.buyer_id!==identity),...(rows||[]).map(o=>({...fromOrder(o),buyer_id:o.buyer_id,driver_id:o.driver_id,platform_fee:o.platform_fee||0,delivery_fee:o.delivery_fee||0}))];
+ }catch(e){if(user?.id===identity)D.customerOrdersError=true;}
+ finally{if(D.customerOrdersLoading===identity)D.customerOrdersLoading=null;if(user?.id===identity&&['orders','cartPage','chats'].includes(tab))render();}
+}
+function orders(){ $('#view').innerHTML=customerOrderHub(); }
+function customerActionAsk(value){
+ const [id,kind]=value.split('|'),o=D.o.find(o=>o.id===id&&o.buyer_id===user?.id);if(!o)return;
+ const title=kind==='hide'?'إزالة من قائمتي':kind==='return'?'طلب إرجاع':o.driver_id?'طلب إلغاء':'إلغاء الطلب';
+ const message=kind==='hide'?'سيُخفى الطلب من قائمتك فقط، ويمكن استعادته من قسم «المزالة». هذا لا يلغي الطلب ولا يوقف توصيله.':kind==='return'?'سيُرسل طلب الإرجاع إلى البائع والإدارة للمراجعة والتواصل معك.':o.driver_id?'وافق سائق على الطلب؛ سيُرسل طلب الإلغاء للمراجعة. سيبقى الطلب فعالًا حتى تأكيد الإلغاء.':'سيُلغى الطلب وتُعاد كميته إلى المخزون.';
+ sheet(head(title)+`<p>${message}</p>${kind!=='hide'?'<label for="customerActionReason">السبب (اختياري)</label><textarea id="customerActionReason" maxlength="500"></textarea>':''}<button class="buy" data-a="customerAction" data-v="${esc(value)}">تأكيد ${title}</button><button class="alt" data-a="close">رجوع</button>`);
+}
+async function performCustomerAction(value,button){
+ if(button?.disabled)return;const identity=user?.id;if(!identity)return;const [id,kind]=value.split('|');if(button)button.disabled=true;
+ try{const result=check(await withTimeout(db.rpc('customer_order_action',{p_order:id,p_action:kind,p_reason:val('customerActionReason')})));if(user?.id!==identity)return;A.close();toast(result==='cancelled'?'تم إلغاء الطلب':result==='requested'?'أُرسل الطلب للمراجعة':kind==='hide'?'أُزيل من قائمتك ويمكن استعادته':'أُعيد إلى قائمتك');await loadCustomerOrders();activity.poll().catch(()=>{});}
+ finally{if(button?.isConnected)button.disabled=false;}
 }
 function account(){
   if(!user){$('#view').innerHTML=`<div class="box"><h2>حساب سوق الشطرة</h2><p>يمكنك التصفح دون حساب. سجّل الدخول لإرسال طلب أو عرض منتجاتك.</p><button class="buy" data-a="enter" data-v="buyer">الدخول كزبون</button><button class="alt" data-a="enter" data-v="seller">بائع</button><button class="alt" data-a="enter" data-v="driver">الدخول كعامل توصيل</button><button class="alt" data-a="info">عن التطبيق</button></div>`;return}
@@ -1186,7 +1217,7 @@ function productDetailBody(){
  const defs=[...categoryDefinitions(D.catalog||[],p.catalog_category_id),...(p.attributes?._custom_options||[])],vs=(p.variants||[]).filter(v=>!v.archived),axes=[...new Set(vs.flatMap(v=>Object.keys(v.attributes)))];
  const selected=cur.options||{},unit=p.attributes?._selling?.unit||p.attributes?.sale_unit||'قطعة';
  return `<div class="product-detail"><div class="tile big" id="productPhoto">${thumb(display)}</div><h1>${esc(p.name)}</h1><div id="productPrice">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${p.has_variants?`<section class="va-choice" aria-label="خيارات المنتج">${variantChoices(p,defs,selected)}<p role="status">${chosen?esc(chosen.selectedVariant.label):'اختر خصائص النسخة المطلوبة؛ الخيارات غير المتوفرة معطلة.'}</p></section>`:''}
- ${owner?`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="row"><span>الكمية</span><div class="qty"><button type="button" data-a="pq" data-v="-1" aria-label="تقليل الكمية">−</button><b id="productQuantity">${n}</b><button type="button" data-a="pq" data-v="1" aria-label="زيادة الكمية">+</button></div></div><button type="button" class="buy" data-a="${cur.quickAdd&&cur.added?'cart':'add'}" ${!chosen||chosen.stock<1?'disabled':''}>${cur.quickAdd&&cur.added?'✓ أُضيف للسلة · إكمال الطلب':!chosen?'اختر النسخة أولًا':chosen.stock<1?'غير متوفرة حاليًا':'أضف للسلة · '+fmt(chosen.price*n)}</button>`}
+ ${owner?`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="row"><span>الكمية</span><div class="qty"><button type="button" data-a="pq" data-v="-1" aria-label="تقليل الكمية">−</button><b id="productQuantity">${n}</b><button type="button" data-a="pq" data-v="1" aria-label="زيادة الكمية">+</button></div></div><button type="button" class="buy" data-cart-pane="items" data-a="${cur.quickAdd&&cur.added?'cart':'add'}" ${!chosen||chosen.stock<1?'disabled':''}>${cur.quickAdd&&cur.added?'✓ أُضيف للسلة · إكمال الطلب':!chosen?'اختر النسخة أولًا':chosen.stock<1?'غير متوفرة حاليًا':'أضف للسلة · '+fmt(chosen.price*n)}</button>`}
  ${p.desc?`<section><h2>معلومات المنتج</h2><p class="product-description">${esc(p.desc)}</p></section>`:''}${specifications(p,D.catalog||[])?`<details><summary>مواصفات المنتج</summary>${specifications(p,D.catalog||[])}</details>`:''}${m?`<a class="product-seller-card" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">${window.SouqMarketplace.avatar(m,esc)}<div><b>${esc(m.name)}</b>${m.username?`<small dir="ltr">@${esc(m.username)}</small>`:''}<small>${esc(m.description||m.address||'عرض معلومات المتجر ومنتجاته')}</small>${m.verified?'<small class="seller-verified">✓ بائع موثّق</small>':''}</div><span>←</span></a>`:''}</div>`;
 }
 function psheet(){if(cur?.vid&&!cur.options)cur.options={...(cur.p.variants||[]).find(v=>v.id===cur.vid)?.attributes};if(!cur?.p){toast('المنتج غير متاح');return;}sheet(head(esc(cur.p.name))+'<div id="productDetailBody">'+productDetailBody()+'</div>');}
@@ -1202,8 +1233,10 @@ function chooseCheckoutLocation(value=geoPoint){
  captureCheckout();
  window.SouqLocationPicker.show({value,sheet,head,onConfirm:point=>{geoPoint=point;A.close();csheet();toast('تم اعتماد موقع التوصيل')}});
 }
+function cartNavigation(){return `<div class="buyer-cart-heading"><h1>سلتي وطلباتي</h1><button data-a="tab" data-v="market">السوق ‹</button></div><div class="chips"><button class="chip" data-a="cartPane" data-v="orders" aria-pressed="${D.cartPane==='orders'}">▣ الطلبات والمتابعة</button><button class="chip" data-a="cartPane" data-v="items" aria-pressed="${D.cartPane==='items'}">🛒 مواد بانتظار الإرسال (${D.cart.reduce((n,c)=>n+c.q,0)})</button></div>`;}
 function csheet(){
- const heading='<div class="buyer-cart-heading"><h1>سلة التسوق</h1><button data-a="tab" data-v="market">العودة إلى السوق ‹</button></div>';
+ if(D.cartPane==='orders'&&!cartReceipt){$('#view').innerHTML=cartNavigation()+customerOrderHub();return;}
+ const heading=cartNavigation()+'<div class="buyer-cart-heading"><h1>سلة التسوق</h1><button data-a="tab" data-v="market">العودة إلى السوق ‹</button></div>';
  if(cartReceipt){$('#view').innerHTML=heading+`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">✓</div><h2>وصل طلبك</h2><p>رقم الطلب ${cartReceipt.map(esc).join('، ')}</p><p class="note">المنتج بانتظار موافقة البائع وموافقة سائق التوصيل. الدفع عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button></section>`;return;}
   const it=cartRows(),tot=it.reduce((s,x)=>s+(x.p?.price||0)*x.c.q,0);
   if(!it.length){$('#view').innerHTML=heading+'<section class="buyer-checkout-card empty"><h2>سلتك فارغة</h2><p>اختر مشترياتك من السوق لتظهر هنا.</p><button class="buy" data-a="tab" data-v="market">تصفح المنتجات</button></section>';return}
@@ -1397,7 +1430,7 @@ const A={
   roleRequest:v=>act(()=>requestRole(v)),
   enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v==='buyer'){buyerAccountLogin();return}if(v==='buyer'){act(buyerEntry);return}if(['seller','driver'].includes(v)){roleAccess(v);return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0)}},
   switchrole:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
-  tab:v=>{closeAccountMenu();captureCheckout();if(v==='myMarket'&&viewMode!=='seller'&&!ADMIN_PORTAL){A.cart();return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0)},
+  tab:v=>{closeAccountMenu();captureCheckout();if(v==='myMarket'&&viewMode!=='seller'&&!ADMIN_PORTAL){A.cart();return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0);if(v==='orders'||(v==='chats'&&viewMode==='buyer'))loadCustomerOrders();},
   allocateReserve:v=>{const [pid,vid]=v.split('|'),p=prod(pid);if(!p||(p.mid!==ownStore?.id&&profile?.role!=='admin')||!p.legacy_stock_reserve)return;sheet(head('توزيع مرتجع قديم')+`<p>الكمية التي لم تحدد نسختها: ${p.legacy_stock_reserve}</p><label for="reserveQty">الكمية التي تخص هذه النسخة</label><input id="reserveQty" type="number" min="1" max="${p.legacy_stock_reserve}" value="1"><button class="buy" data-a="saveReserve" data-v="${v}">تأكيد توزيع الكمية</button>`);},
   saveReserve:v=>act(async()=>{const [pid,vid]=v.split('|'),qty=Number(val('reserveQty'));check(await db.rpc('allocate_legacy_variant_stock',{p_product:pid,p_variant:vid,p_quantity:qty}));await refresh();A.close();render();toast('تم توزيع المرتجع على النسخة المحددة');}),
   catalogEdit:v=>catalogManager.show(v),
@@ -1443,7 +1476,12 @@ const A={
   pq:v=>{if(!cur?.p)return;const d=Number(v),chosen=selectedProduct(cur.p,cur.vid);if(!chosen){toast('اختر النسخة أولًا');return;}if(![1,-1].includes(d))return;const n=Math.max(1,Number(cur.n)+d);if(n>Math.min(100,chosen.stock)){toast('الكمية المطلوبة غير متوفرة');return;}cur.n=n;updateProductQuantity()},
   add:()=>{const button=$('#sheet [data-a="add"]');if(button?.disabled||!cur?.p||cur.added)return;if(sellerAccount()){buyerAccountLogin();return;}const {p}=cur,n=Number(cur.n),chosen=selectedProduct(p,cur.vid);if(!chosen||!Number.isInteger(n)||n<1){toast('اختر النسخة والكمية');return;}const key=cartKey({pid:p.id,vid:cur.vid}),c=D.cart.find(x=>cartKey(x)===key),quantity=(Number(c?.q)||0)+n;if(quantity>100||!p.active||p.blocked||quantity>chosen.stock){toast('الكمية المطلوبة غير متوفرة');return;}if(requirePurchaseLogin())return;cur.added=true;if(button)button.disabled=true;if(c)c.q=quantity;else D.cart.push({pid:p.id,vid:cur.vid||null,q:n,attributes:chosen.selectedVariant?.attributes||{},price:chosen.price});save();if(cur.quickAdd){updateProductDetail();toast('أُضيف للسلة');return}A.close();render();toast('أُضيف للسلة')},
   archiveProduct:v=>act(async()=>{const p=prod(v);if(!canSell()||p?.mid!==ownStore?.id)return;check(await db.from('products').update({active:!p.active}).eq('id',v).eq('store_id',ownStore.id).select('id').single());await refresh();cur={p:prod(v),n:1,options:{}};updateProductDetail();toast(p.active?'تمت الأرشفة دون حذف البيانات':'تم نشر المنتج')}),
-  cart:()=>{if(sellerAccount()){buyerAccountLogin();return}A.close();cartReceipt=null;tab='cartPage';render();scrollTo(0,0)},
+  cart:(_,button)=>{D.cartPane=button?.dataset?.cartPane==='items'?'items':'orders';if(sellerAccount()){buyerAccountLogin();return}A.close();cartReceipt=null;tab='cartPage';render();scrollTo(0,0);loadCustomerOrders();},
+  cartPane:v=>{captureCheckout();A.close();D.cartPane=v==='items'?'items':'orders';cartReceipt=null;tab='cartPage';render();if(D.cartPane==='orders')loadCustomerOrders();},
+  customerFilter:v=>{D.orderFilter=['all','current','previous','hidden'].includes(v)?v:'all';render()},
+  customerReload:()=>loadCustomerOrders(),
+  customerAsk:customerActionAsk,
+  customerAction:(v,b)=>act(()=>performCustomerAction(v,b)),
   cartRemove:v=>{captureCheckout();D.cart=D.cart.filter(c=>cartKey(c)!==v);save();render()},
   cq:v=>{captureCheckout();const [id,d]=v.split('|'),c=D.cart.find(x=>cartKey(x)===id),p=c?selectedProduct(prod(c.pid),c.vid):null;if(!c)return;const quantity=c.q+ +d;if(+d>0&&(!p||quantity>p.stock||quantity>100)){toast('الكمية المطلوبة غير متوفرة لهذا الطلب');return}if(quantity<1)D.cart=D.cart.filter(x=>x!==c);else c.q=quantity;save();render()},
   order:()=>act(async()=>{
@@ -1521,7 +1559,7 @@ const activity=createActivityCenter({db,esc,fmt,when,check,error,ordersChanged:s
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
 db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
 async function showOrderNotice(id){
- const row=check(await db.from('orders').select('*,order_items(*)').eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
+ const row=check(await db.from('orders').select('*,order_items(*),order_customer_actions(*)').eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
  const contacts=check(await db.rpc('assigned_delivery_contacts'))||[];D.driverContacts=contacts;
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
