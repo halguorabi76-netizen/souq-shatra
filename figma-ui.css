@@ -298,3 +298,6 @@ html[data-shatra-ui] .product-detail .product-purchase{position:fixed;bottom:0;l
 html[data-shatra-ui] body.customer-flow #activityBell{display:none!important}
 html[data-shatra-ui] #sheet .product-purchase .buy.added{background:#168457!important;color:#fff!important}
 html[data-shatra-ui] #sheet .address-map-preview button{width:auto!important;max-width:calc(100% - 20px);margin:0;padding:8px 12px}
+
+html[data-shatra-ui] .product-detail>#productPhoto{width:100%;max-width:none}
+.detail-cart i:empty{display:none}
