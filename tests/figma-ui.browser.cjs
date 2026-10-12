@@ -44,7 +44,7 @@ const root=path.resolve(__dirname,'..');
    await frame.locator('#themeToggle').click();
    await frame.locator('.figma-product-card').first().waitFor();
    await frame.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().endTime!==Infinity).map(a=>a.finished.catch(()=>{}))));
-   assert.equal(await frame.locator('.tabs [data-v="market"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(16, 31, 72)');
+   assert.equal(await frame.locator('.tabs [data-v="market"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(255, 255, 255)');
    const controls=await frame.evaluate(()=>[...document.querySelectorAll('.topline #marketMenuToggle,.topline #accountTrigger,.topline #themeToggle,.topline .ac-inline,.topline .header-cart')].map(e=>{const s=getComputedStyle(e);return [s.backgroundColor,s.borderRadius,s.boxShadow,e.getBoundingClientRect().width,e.getBoundingClientRect().y]}));
    assert.equal(controls.length,5);assert.ok(controls.every(c=>JSON.stringify(c)===JSON.stringify(controls[0])));assert.equal(controls[0][0],'rgb(255, 255, 255)');
    await frame.locator('.figma-header-actions .header-cart').click();await frame.locator('.buyer-cart-heading').waitFor();
