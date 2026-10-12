@@ -469,8 +469,8 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {signInProfessional} from "./professional-login.js?v=138";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
-import {createSellerWorkspace} from "./seller-workspace.js?v=139";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=139";
+import {createSellerWorkspace} from "./seller-workspace.js?v=156";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=156";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=130";
 async function apiFetch(resource,init={}){
@@ -1076,12 +1076,39 @@ function listings(){
   const mine=D.p.filter(p=>p.mid===ownStore.id);
   $('#view').innerHTML=`<div class="section-title"><h2>إعلاناتي</h2><button data-a="pform" data-v="">إضافة منتج ＋</button></div><div class="chips"><span class="chip">الكل ${mine.length}</span></div>`+(mine.length?mine.map(p=>`<div class="item"><div class="tile">${thumb(p)}</div><div><b>${esc(p.name)}</b><small>${fmt(p.price)} · المتوفر ${p.stock}</small><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="pdel" data-v="${p.id}">حذف</button></div></div></div>`).join(''):'<div class="empty">لا توجد إعلانات بعد.</div>');
 }
+async function acceptSellerOrder(id,button){
+ const order=D.o.find(o=>o.id===id);if(!order||!user)return;
+ const identity=user.id,busy=acceptSellerOrder.busy||(acceptSellerOrder.busy=new Set());
+ if(busy.has(id))return;
+ if(order.st!==0){A.close();render();toast('تم قبول الطلب بالفعل');return;}
+ busy.add(id);if(button){button.disabled=true;button.textContent='جارٍ قبول الطلب…';}
+ try{
+  check(await withTimeout(db.rpc('set_order_status',{p_order:id,p_status:'accepted'})));
+  if(user?.id!==identity)return;
+  // RPC success confirms acceptance; do not wait for unrelated market requests.
+  D.o=D.o.map(o=>o.id===id?{...o,st:1}:o);A.close();render();toast('تم قبول الطلب وإبلاغ الزبون');
+  activity.poll().catch(()=>{});
+  withTimeout(db.from('orders').select('*,order_items(*)').eq('id',id).single()).then(result=>{
+   if(user?.id!==identity)return;const row=check(result);
+   const updated={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
+   D.o=D.o.map(o=>o.id===id?updated:o);render();
+  }).catch(()=>{window.SouqLoading?.recovered?.();});
+ }finally{busy.delete(id);if(button?.isConnected){button.disabled=false;button.textContent='قبول الطلب';}}
+}
+async function syncNotifiedOrders(ids){
+ if(!user||!ids.length)return;const identity=user.id;
+ const rows=check(await withTimeout(db.from('orders').select('*,order_items(*)').in('id',ids)));
+ if(user?.id!==identity)return;
+ const updated=new Map((rows||[]).map(row=>[row.id,{...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0}]));
+ for(const [id,row] of updated){const i=D.o.findIndex(o=>o.id===id);if(i<0)D.o.push(row);else D.o[i]=row;}
+ if(['chats','account','orders'].includes(tab)&&$('#shade').hidden)render();
+}
 function ordCard(o,m){
-  return `<div class="ord"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div><small>${when(o.ts)}</small>${!m&&o.st!==4?`<div class="approval-track"><span class="${o.st>0?'approved':''}">${o.st>0?'✓ تمت الموافقة من قبل البائع':'◷ بانتظار موافقة البائع'}</span><span class="${o.driver_id?'approved':''}">${o.driver_id?'✓ تمت الموافقة من قبل التوصيل':'◷ بانتظار موافقة التوصيل'}</span></div>`:''}
+  return `<div class="ord"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m&&o.st!==4?`<div class="approval-track"><span class="${o.st>0?'approved':''}">${o.st>0?'✓ تمت الموافقة من قبل البائع':'◷ بانتظار موافقة البائع'}</span><span class="${o.driver_id?'approved':''}">${o.driver_id?'✓ تمت الموافقة من قبل التوصيل':'◷ بانتظار موافقة التوصيل'}</span></div>`:''}
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
-  ${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st<3?`<button class="go" data-a="st" data-v="${o.id}">${['قبول الطلب','خرج للتوصيل','تم التسليم'][o.st]}</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
+  ${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
 }
 function orders(){
   const l=D.o.filter(o=>user&&o.buyer_id===user.id);
@@ -1458,7 +1485,7 @@ const A={
   pdel:(v,source)=>confirmProductDelete(v,source),
   cancelProductDelete:()=>{const panel=document.querySelector('.product-delete-confirm'),card=panel?.closest('.sw-product,.item');panel?.remove();card?.querySelector('[data-a="pdel"]')?.focus();},
   pdel2:v=>act(async()=>{if(!canSell()||!ownStore||!D.p.some(p=>p.id===v&&p.mid===ownStore.id))return;check(await db.rpc('delete_product_safely',{p_product:v}));await refresh();A.close();render()}),
-  st:v=>act(async()=>{const o=D.o.find(x=>x.id===v);if(!o)return;check(await db.rpc('set_order_status',{p_order:v,p_status:STCODE[Math.min(3,o.st+1)]}));await refresh()}),
+  st:(v,button)=>act(()=>acceptSellerOrder(v,button)),
   cancel:v=>ask('إلغاء هذا الطلب؟','cancel2',v),
   cancel2:v=>act(async()=>{check(await db.rpc('set_order_status',{p_order:v,p_status:'cancelled'}));await refresh();A.close();render()}),
   mok:v=>act(async()=>{const m=mrec(v);check(await db.rpc('approve_store',{p_store:v,p_approved:!m.ok}));await refresh()}),
@@ -1478,7 +1505,7 @@ const A={
 const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0,compare_at_price:$('#baseDiscount')?.checked?Number(val('fcompare')):null}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
 const workspace=createSellerWorkspace({db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('./',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
-const activity=createActivityCenter({db,esc,fmt,when,check,error,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
+const activity=createActivityCenter({db,esc,fmt,when,check,error,ordersChanged:syncNotifiedOrders,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments})});
 db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
 async function showOrderNotice(id){
