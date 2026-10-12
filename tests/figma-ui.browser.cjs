@@ -41,12 +41,27 @@ const root=path.resolve(__dirname,'..');
    assert.equal(await frame.locator('.tabs [data-v="market"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(16, 31, 72)');
    if(process.env.SOUQ_CAPTURE){fs.mkdirSync(process.env.SOUQ_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-home-${width}.png`)});}
    assert.deepEqual(errors,[]);console.log(`PASS public ${width}px: navigation, drawer, product, store, cart, theme`);
+   assert.equal(await frame.locator('.tabs [data-v="chats"] .navicon svg').count(),1);
+   await frame.locator('#accountTrigger').click();await frame.locator('.profile-page').waitFor();
+   assert.ok(await frame.locator('.profile-detail').count());
+   assert.ok(await frame.evaluate(()=>document.documentElement.scrollWidth)<=width+1,`profile overflow at ${width}`);
+   assert.equal(await frame.locator('.profile-hero .portrait').evaluate(e=>getComputedStyle(e).color),'rgb(53, 71, 165)');
+   if(process.env.SOUQ_CAPTURE)await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-profile-${width}.png`)});
    // Real role gates/data still own the seller/driver views.
    for(const role of ['seller','driver']){
     await frame.locator(`[data-preview="role"][data-v="${role}"]`).first().click();
     await frame.locator(role==='seller'?'.sw-shell':'.dw-shell').first().waitFor();
     assert.equal(await frame.locator('.app>.tabs').isVisible(),false);
     const w=await frame.evaluate(()=>document.documentElement.scrollWidth);assert.ok(w<=width+1,`${role} overflow at ${width}: ${w}`);
+    if(role==='seller'){
+     await frame.locator('[data-s="openMenu"]').click();await frame.locator('#swDrawer').waitFor();
+     await frame.waitForFunction(()=>document.querySelector('#swDrawer .sw-market-logo img')?.getAttribute('src')==='icons/figma-shatra-logo-v143.png');
+     await frame.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().endTime!==Infinity).map(a=>a.finished.catch(()=>{}))));
+     const bounds=await frame.locator('.sw-seller-drawer').boundingBox();assert.ok(bounds.x>=-1&&bounds.x+bounds.width<=width+1);
+     await frame.locator('[data-s="menuStock"]').click();await frame.locator('.sw-product-tabs [data-v="stock"].selected').waitFor();
+     assert.equal(await frame.locator('#swDrawer').count(),0);
+    }
+    if(process.env.SOUQ_CAPTURE)await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-${role}-${width}.png`)});
    }
    await page.close();
   }

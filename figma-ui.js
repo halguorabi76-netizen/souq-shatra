@@ -38,7 +38,18 @@
   line.prepend(group,actions);
  }
  const app=document.querySelector('.app');if(app){const ribbon=document.createElement('div');ribbon.className='figma-ribbon';ribbon.innerHTML='<span>توصيل داخل الشطرة</span><span>الدفع عند الاستلام</span>';app.prepend(ribbon);}
- const drawerObserver=new MutationObserver(()=>{const panel=document.querySelector('#marketDrawer .market-drawer-panel');if(!panel)return;const brand=panel.querySelector('.market-drawer-brand'),image=brand?.querySelector('img');if(image){const frame=document.createElement('span');frame.className='figma-logo-frame';image.className='header-logo';image.src='icons/figma-shatra-logo-v143.png';image.replaceWith(frame);frame.append(image);}for(const button of panel.querySelectorAll('nav button')){const name=button.dataset.a==='accountMenu'?'user':button.dataset.v==='stores'?'store':button.dataset.v==='myMarket'?'cart':button.dataset.v==='chats'?'orders':'grid';button.insertAdjacentHTML('afterbegin',icon(name));}drawerObserver.disconnect();});drawerObserver.observe(document.body,{childList:true});
+ function decorateDrawer(){
+  const panel=document.querySelector('#marketDrawer .market-drawer-panel');
+  if(panel&&!panel.dataset.figmaDecorated){
+   panel.dataset.figmaDecorated='true';
+   const image=panel.querySelector('.market-drawer-brand img');
+   if(image){const frame=document.createElement('span');frame.className='figma-logo-frame';image.className='header-logo';image.src='icons/figma-shatra-logo-v143.png';image.replaceWith(frame);frame.append(image);}
+   for(const button of panel.querySelectorAll('nav button')){const name=button.dataset.a==='accountMenu'?'user':button.dataset.v==='stores'?'store':button.dataset.v==='myMarket'?'cart':button.dataset.v==='chats'?'orders':'grid';button.insertAdjacentHTML('afterbegin',icon(name));}
+  }
+  const sellerLogo=document.querySelector('#swDrawer .sw-market-logo img');
+  if(sellerLogo)sellerLogo.src='icons/figma-shatra-logo-v143.png';
+ }
+ const drawerObserver=new MutationObserver(decorateDrawer);drawerObserver.observe(document.body,{childList:true});
  const nav=document.querySelector('.app>.tabs');
  for(const [value,name] of [['stores','store'],['market','home'],['materials','grid'],['chats','orders']]){const mark=nav?.querySelector(`[data-v="${value}"] .navicon`);if(mark)mark.innerHTML=icon(name);}
  // The existing render() replaces cart/order labels. Styling remains on their
