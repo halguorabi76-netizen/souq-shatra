@@ -23,7 +23,7 @@ const root=path.resolve(__dirname,'..');
    const geometry=await frame.evaluate(()=>({viewport:innerWidth,width:document.documentElement.scrollWidth,navBox:document.querySelector('.tabs').getBoundingClientRect().toJSON(),nav:[...document.querySelectorAll('.tabs button')].map(e=>({key:e.dataset.v,x:e.getBoundingClientRect().x,w:e.getBoundingClientRect().width,display:getComputedStyle(e).display})),menu:document.getElementById('marketMenuToggle').getBoundingClientRect().toJSON(),theme:document.getElementById('themeToggle').getBoundingClientRect().toJSON()}));
    assert.ok(geometry.width<=width+1,`horizontal overflow at ${width}: ${geometry.width}`);
    assert.equal(geometry.nav.length,5);assert.ok(geometry.nav.every(b=>b.w>0&&b.display!=='none'));
-   assert.deepEqual(geometry.nav.map(b=>b.key),['myMarket','stores','market','materials','chats']);
+   assert.deepEqual(geometry.nav.map(b=>b.key),['myMarket','stores','market','materials','profilePage']);
    assert.ok(Math.abs(geometry.nav[2].x+geometry.nav[2].w/2-(geometry.navBox.x+geometry.navBox.width/2))<2,'home must be physically centered in the five-item bar');
    assert.ok(geometry.menu.x>=geometry.theme.x+geometry.theme.width-1,'menu and theme must not overlap');
    const menuStyle=await frame.locator('#marketMenuToggle').evaluate(e=>({lines:[...e.children].filter(s=>getComputedStyle(s).display!=='none').map(s=>s.getBoundingClientRect().width),shadow:getComputedStyle(e).boxShadow}));
@@ -51,7 +51,7 @@ const root=path.resolve(__dirname,'..');
    await frame.locator('.tabs [data-v="market"]').click();
    if(process.env.SOUQ_CAPTURE){fs.mkdirSync(process.env.SOUQ_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-home-${width}.png`)});}
    assert.deepEqual(errors,[]);console.log(`PASS public ${width}px: navigation, drawer, product, store, cart, theme`);
-   assert.equal(await frame.locator('.tabs [data-v="chats"] .navicon svg').count(),1);
+   assert.equal(await frame.locator('.tabs [data-v="profilePage"] .navicon svg').count(),1);
    await frame.locator('#accountTrigger').click();await frame.locator('.profile-page').waitFor();
    assert.ok(await frame.locator('.profile-detail').count());
    assert.ok(await frame.evaluate(()=>document.documentElement.scrollWidth)<=width+1,`profile overflow at ${width}`);

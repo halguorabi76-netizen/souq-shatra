@@ -430,7 +430,7 @@ body.starting{background:#000!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=151">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=160">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/shatra-smile-display-v139.png" alt="" fetchpriority="high"></div>
@@ -451,7 +451,7 @@ body.starting{background:#000!important}
     <button data-a="marketSection" data-v="stores"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18l-2-7H5ZM4 10v11h16V10M9 21v-7h6v7"/></svg></span>المتاجر</button>
     <button data-a="tab" data-v="market"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/></svg></span>الرئيسية</button>
     <button data-a="marketSection" data-v="materials"><span class="navicon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-4 9 4v10l-9 4-9-4ZM3 7l9 4 9-4M12 11v10" stroke-linecap="round" stroke-linejoin="round"/></svg></span>المواد</button>
-    <button data-a="tab" data-v="chats"><span class="navicon">▣</span>الطلبات</button>
+    <button data-a="tab" data-v="profilePage"><span class="navicon">♙</span>حسابي</button>
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
@@ -461,7 +461,7 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=151"></script>
+<script src="delivery-zones.js?v=152"></script><script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=160"></script>
 <script src="demo-lab.js?v=51"></script>
 <script src="vendor/supabase/supabase-2.117.3.js"></script>
 <script type="module">
@@ -488,11 +488,11 @@ const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
-let D={m:[],p:[],o:[],people:[],cartPane:'orders',orderFilter:'all',cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
+let D={m:[],p:[],o:[],people:[],cartPane:'orders',deliveryChoice:local.deliveryChoice||{area:'',outside:'',city:''},orderFilter:'all',cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'',phone:'',addr:''}};
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
-let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
+let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[],deliveryZones=[];
 function savedSellerView(storage,sessionKey,modeStorage=storage){
  try{const session=JSON.parse(storage.getItem(sessionKey)||'null'),id=session?.user?.id;if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;return (modeStorage.getItem('souq-shatra-mode-'+id)||storage.getItem('souq-shatra-mode-'+id))==='seller';}catch{return false;}
 }
@@ -504,7 +504,7 @@ let accountResolving=document.documentElement.dataset.accountResume==='true';
 let sellerEntryPending=sellerResumeHint;
 let initialAccountResolved=false;
 const rememberMode=mode=>{viewMode=mode;try{if(user&&mode!=='guest')localStorage.setItem('souq-shatra-mode-'+user.id,mode);else if(!user&&mode!=='guest')sessionStorage.setItem('souq-shatra-pending-role',mode)}catch{}};
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify({cart:D.cart,cust:D.cust,deliveryChoice:D.deliveryChoice}))}catch{toast('تعذّر حفظ السلة على هذا الجهاز')}};
 const check=r=>{if(r.error)throw r.error;return r.data};
 function withTimeout(promise,ms=12000){
   let timer;
@@ -622,7 +622,8 @@ async function refresh(){
     nextUser?db.from('driver_profiles').select('*').eq('user_id',nextUser.id).maybeSingle():Promise.resolve({data:null}),
     nextUser?db.rpc('assigned_delivery_contacts'):Promise.resolve({data:[]}),
     nextProfile?.role==='admin'&&!nextProfile.disabled?db.from('driver_profiles').select('*'):Promise.resolve({data:[]}),
-    nextUser?db.from('store_pickups').select('*'):Promise.resolve({data:[]})
+    nextUser?db.from('store_pickups').select('*'):Promise.resolve({data:[]}),
+    db.from('delivery_zones').select('*').order('name')
   ])
   ]));
   auxiliaryResults.catch(()=>{}); // awaited below; attach a handler while product IDs arrive.
@@ -639,7 +640,7 @@ async function refresh(){
 
   // An older deployment can load the rest of the market before the migration is installed.
   if(id!==refreshId)return;
-  deliverySettings=dl[0].data||{platform_fee:0,delivery_fee:0,qi_number:''};
+  deliveryZones=dl[8].data||[];deliverySettings=dl[0].data||{platform_fee:0,delivery_fee:0,qi_number:''};
   driverAccount=dl[1].data||null;deliveryPayments=check(dl[2])||[];D.drivers=check(dl[3])||[];
   driverProfile=check(dl[4]);D.driverContacts=check(dl[5])||[];D.driverProfiles=check(dl[6])||[];D.pickups=check(dl[7])||[];
   if(nextUser&&driverAccount?.approved&&driverAccount.amount_due<driverAccount.debt_limit){
@@ -928,9 +929,9 @@ function render(){
   $('.tabs').hidden=tab==='welcome';
   const sellerView=canSell()&&viewMode==='seller';
   const marketButton=$('.tabs [data-v="myMarket"]');marketButton.innerHTML=`<span class="navicon">${sellerView?'▤':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>' }</span>${sellerView?'إعلاناتي':'السلة'}<i id="cc" hidden></i>`;
-  const roleNav=$('.tabs [data-v="chats"]');roleNav.innerHTML=`<span class="navicon">${window.SouqFigmaUI?.icon(viewMode==='driver'?'truck':'orders')||'▣'}</span>${viewMode==='driver'?'التوصيل':'الطلبات'}`;
+  const roleNav=$('.tabs [data-v="profilePage"]');roleNav.innerHTML=`<span class="navicon">${window.SouqFigmaUI?.icon('user')||'♙'}</span>حسابي`;
   const badge=$('#cc');badge.textContent=n;badge.hidden=!n;
-  document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'settings':tab==='cartPage'?'myMarket':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  document.querySelectorAll('.tabs button').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'profilePage':['cartPage','orders','chats'].includes(tab)?'myMarket':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
   activity.sync();pageBackbar();
@@ -1224,6 +1225,7 @@ function psheet(){if(cur?.vid&&!cur.options)cur.options={...(cur.p.variants||[])
 function updateProductDetail(){const el=$('#productDetailBody');if(el)el.innerHTML=productDetailBody();}
 function updateProductQuantity(){const chosen=selectedProduct(cur.p,cur.vid),el=$('#productQuantity'),add=$('#sheet [data-a="add"]');if(el)el.textContent=cur.n;if(add&&chosen)add.textContent='أضف للسلة · '+fmt(chosen.price*cur.n);}
 function cartRows(){return D.cart.map(c=>({c,p:selectedProduct(prod(c.pid),c.vid)}));}
+function checkoutQuote(){const rows=cartRows(),subtotal=rows.reduce((n,x)=>n+(x.p?.price||0)*x.c.q,0),count=new Set(rows.map(x=>x.p?.mid).filter(Boolean)).size;return window.SouqDeliveryZones.quote(deliveryZones,D.deliveryChoice,subtotal,deliverySettings.platform_fee,count);}
 function captureCheckout(){if(tab!=='cartPage'||!$('#cn'))return;D.cust={name:val('cn'),phone:val('cp'),addr:val('ca')};checkoutNote=val('cno');save()}
 function checkoutLocationCard(){
  if(!geoPoint)return '';
@@ -1233,21 +1235,24 @@ function chooseCheckoutLocation(value=geoPoint){
  captureCheckout();
  window.SouqLocationPicker.show({value,sheet,head,onConfirm:point=>{geoPoint=point;A.close();csheet();toast('تم اعتماد موقع التوصيل')}});
 }
-function cartNavigation(){return `<div class="buyer-cart-heading"><h1>سلتي وطلباتي</h1><button data-a="tab" data-v="market">السوق ‹</button></div><div class="chips"><button class="chip" data-a="cartPane" data-v="orders" aria-pressed="${D.cartPane==='orders'}">▣ الطلبات والمتابعة</button><button class="chip" data-a="cartPane" data-v="items" aria-pressed="${D.cartPane==='items'}">🛒 مواد بانتظار الإرسال (${D.cart.reduce((n,c)=>n+c.q,0)})</button></div>`;}
+function cartNavigation(){return `<div class="buyer-cart-heading"><h1>السلة</h1><button data-a="tab" data-v="market">السوق ‹</button></div><div class="chips"><button class="chip" data-a="cartPane" data-v="orders" aria-pressed="${D.cartPane==='orders'}">▣ الطلبات والمتابعة</button><button class="chip" data-a="cartPane" data-v="items" aria-pressed="${D.cartPane==='items'}">🛒 مواد بانتظار الإرسال (${D.cart.reduce((n,c)=>n+c.q,0)})</button></div>`;}
 function csheet(){
  if(D.cartPane==='orders'&&!cartReceipt){$('#view').innerHTML=cartNavigation()+customerOrderHub();return;}
  const heading=cartNavigation()+'<div class="buyer-cart-heading"><h1>سلة التسوق</h1><button data-a="tab" data-v="market">العودة إلى السوق ‹</button></div>';
  if(cartReceipt){$('#view').innerHTML=heading+`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">✓</div><h2>وصل طلبك</h2><p>رقم الطلب ${cartReceipt.map(esc).join('، ')}</p><p class="note">المنتج بانتظار موافقة البائع وموافقة سائق التوصيل. الدفع عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button></section>`;return;}
   const it=cartRows(),tot=it.reduce((s,x)=>s+(x.p?.price||0)*x.c.q,0);
   if(!it.length){$('#view').innerHTML=heading+'<section class="buyer-checkout-card empty"><h2>سلتك فارغة</h2><p>اختر مشترياتك من السوق لتظهر هنا.</p><button class="buy" data-a="tab" data-v="market">تصفح المنتجات</button></section>';return}
-  const u={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',addr:D.cust.addr||''},fees=(deliverySettings.platform_fee||0)+(deliverySettings.delivery_fee||0),orderCount=new Set(it.map(x=>x.p?.mid).filter(Boolean)).size;
-  $('#view').innerHTML=heading+'<div class="buyer-checkout-layout"><section class="buyer-checkout-card"><h2>مشترياتك</h2>'+it.map(x=>`<div class="row figma-cart-item"><div class="figma-cart-image">${x.p?thumb(x.p):''}</div><div><b>${esc(x.p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small class="note" style="display:block;margin:0">${esc(x.p?.selectedVariant?.label||x.p?.variant||'')} · ${x.p?esc(mname(x.p.mid))+' · '+fmt(x.p.price):'هذه النسخة غير متاحة؛ أزلها من السلة'}</small>${x.p&&(!x.p.active||x.p.blocked||x.p.stock<x.c.q)?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><div class="qty"><button data-a="cq" data-v="${cartKey(x.c)}|-1" aria-label="أقل">−</button><b>${x.c.q}</b><button data-a="cq" data-v="${cartKey(x.c)}|1" aria-label="أكثر">+</button><button data-a="cartRemove" data-v="${cartKey(x.c)}" aria-label="إزالة">×</button></div></div>`).join('')+
-  `<div class="row"><span>المنتجات</span><b>${fmt(tot)}</b></div><div class="row buyer-total"><b>المبلغ النهائي المطلوب</b><b>${fmt(tot+fees*orderCount)}</b></div>
+  const quote=checkoutQuote();
+  const u={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',addr:D.cust.addr||''},orderCount=new Set(it.map(x=>x.p?.mid).filter(Boolean)).size;
+  $('#view').innerHTML=heading+'<div class="buyer-checkout-layout"><section class="buyer-checkout-card"><h2>مشترياتك</h2>'+it.map(x=>`<div class="row figma-cart-item"><div class="figma-cart-image">${x.p?thumb(x.p):''}</div><div><b>${esc(x.p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small class="note" style="display:block;margin:0">${esc(x.p?.selectedVariant?.label||x.p?.variant||'')} · ${x.p?esc(mname(x.p.mid))+' · '+fmt(x.p.price):'هذه النسخة غير متاحة؛ أزلها من السلة'}</small>${x.p?`<small class="checkout-discount">${x.p.compare_at_price>x.p.price?'قبل التخفيض '+fmt(x.p.compare_at_price)+' · التخفيض '+fmt(x.p.compare_at_price-x.p.price):'لا يوجد تخفيض'}</small>`:''}${x.p&&(!x.p.active||x.p.blocked||x.p.stock<x.c.q)?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><div class="qty"><button data-a="cq" data-v="${cartKey(x.c)}|-1" aria-label="أقل">−</button><b>${x.c.q}</b><button data-a="cq" data-v="${cartKey(x.c)}|1" aria-label="أكثر">+</button><button data-a="cartRemove" data-v="${cartKey(x.c)}" aria-label="إزالة">×</button></div></div>`).join('')+
+  `
   </section><section class="buyer-checkout-card"><h2>بيانات استلام الطلب</h2><label for="cn">الاسم</label><input id="cn" value="${esc(u.name)}" autocomplete="name">
   <label for="cp">رقم الهاتف</label><input id="cp" type="tel" inputmode="numeric" value="${esc(u.phone)}" placeholder="07xxxxxxxxx" autocomplete="tel">
+  ${window.SouqDeliveryZones.selection(deliveryZones,D.deliveryChoice,esc)}
   <label for="ca">عنوان التوصيل</label><input id="ca" value="${esc(u.addr)}" placeholder="المنطقة، الحي، أقرب نقطة دالة"><div class="checkout-location"><button class="alt" data-a="geolocate" type="button">📍 ${geoPoint?'تعديل الموقع على الخريطة':'اختيار الموقع على الخريطة'}</button>${user?'<button class="alt" data-a="useProfileLocation" type="button">📍 استخدام الموقع المحفوظ</button>':''}</div>${checkoutLocationCard()}<small id="geoStatus" class="note">${geoPoint?'تم اعتماد الموقع وسيُرفق بالطلب.':'اختر موقع التوصيل ثم اضغط موافق، واكتب العنوان ورقم الهاتف أيضًا.'}</small>
   <label for="cno">ملاحظات (اختياري)</label><input id="cno" value="${esc(checkoutNote)}">
-  <button class="buy" data-a="order">إرسال الطلب · الدفع عند الاستلام</button></section></div>`;
+  <section class="checkout-summary" aria-live="polite"><div class="row"><span>سعر المنتجات بعد التخفيضات</span><b>${fmt(tot)}</b></div><div class="row"><span>التوصيل ${quote.zone?'· '+esc(quote.zone.name):''}</span><b>${quote.ready?fmt(quote.delivery):'اختر منطقة بأجرة محددة'}</b></div>${quote.platform?`<div class="row"><span>حصة التطبيق</span><b>${fmt(quote.platform)}</b></div>`:''}${orderCount>1?`<p class="note">المشتريات من ${orderCount} متاجر؛ أجرة التوصيل تُحتسب لكل متجر.</p>`:''}<div class="row buyer-total"><b>المبلغ الإجمالي</b><b>${quote.ready?fmt(quote.total):'—'}</b></div></section>
+  <button class="buy" data-a="order" ${quote.ready?'':'disabled'}>تأكيد الطلب · الدفع عند الاستلام</button></section></div>`;
 }
 function isInvalidPasswordLogin(error){
  return error?.code==='invalid_credentials'||(!error?.code&&/invalid login credentials|invalid credentials/i.test(error?.message||''));
@@ -1419,7 +1424,9 @@ const A={
   paySheet:()=>sheet(head('إثبات تحويل المستحقات')+`<p>حوّل إلى رقم Qi: <b dir="ltr">${esc(deliverySettings.qi_number||'لم يُحدد بعد')}</b></p><label for="payAmount">المبلغ المحوّل بالدينار</label><input id="payAmount" type="number" min="1" value="${driverAccount?.amount_due||''}"><label for="payRef">رقم العملية أو تفاصيل الوصل</label><input id="payRef" maxlength="400"><p class="note">لا يُخصم المبلغ حتى يتحقق المدير من وصوله ويؤكد الاستلام.</p><button class="buy" data-a="sendPayment">إرسال طلب التأكيد</button>`),
   sendPayment:()=>act(async()=>{const amount=+val('payAmount'),receipt=val('payRef');if(!Number.isInteger(amount)||amount<1||receipt.length<3){toast('أدخل المبلغ ورقم العملية');return}check(await db.rpc('submit_delivery_payment',{p_amount:amount,p_receipt:receipt}));A.close();await refresh();toast('أُرسل طلب المراجعة إلى المدير')}),
   approveDriver:v=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));A.close();await refresh();toast('تم تحديث عامل التوصيل')}),
-  deliveryConfig:()=>sheet(head('إعداد التوصيل')+`<label>حصة التطبيق لكل طلب (د.ع)</label><input id="cfgFee" type="number" min="0" value="${deliverySettings.platform_fee}"><label>أجرة عامل التوصيل لكل طلب (د.ع)</label><input id="cfgDelivery" type="number" min="0" value="${deliverySettings.delivery_fee}"><label>رقم Qi المخصص للتطبيق</label><input id="cfgQi" value="${esc(deliverySettings.qi_number)}"><button class="buy" data-a="saveDeliveryConfig">حفظ</button>`),
+  deliveryConfig:()=>sheet(head('إعداد التوصيل')+`<h3>أجور المناطق والمدن</h3>${deliveryZones.map(z=>`<div class="row"><span>${esc(z.name)} · ${fmt(z.fee)} ${z.enabled?'':'(غير متاحة)'}</span><button class="alt" data-a="deliveryZoneEdit" data-v="${esc(z.id)}">تعديل</button></div>`).join('')}<button class="alt" data-a="deliveryZoneEdit" data-v="">إضافة مدينة وأجرة توصيلها</button><hr><label>حصة التطبيق لكل طلب (د.ع)</label><input id="cfgFee" type="number" min="0" value="${deliverySettings.platform_fee}"><input id="cfgDelivery" type="hidden" min="0" value="${deliverySettings.delivery_fee}"><label>رقم Qi المخصص للتطبيق</label><input id="cfgQi" value="${esc(deliverySettings.qi_number)}"><button class="buy" data-a="saveDeliveryConfig">حفظ</button>`),
+  deliveryZoneEdit:v=>{if(profile?.role!=='admin'||profile.disabled)return;const z=deliveryZones.find(z=>z.id===v);sheet(head(z?'تعديل أجرة المنطقة':'إضافة مدينة أخرى')+`<label for="zoneName">اسم المدينة / المنطقة</label><input id="zoneName" maxlength="80" value="${esc(z?.name||'')}"><label for="zoneFee">أجرة التوصيل لكل متجر (د.ع)</label><input id="zoneFee" type="number" min="0" max="100000" value="${z?.fee??''}"><label><input id="zoneEnabled" type="checkbox" ${z?.enabled!==false?'checked':''}> التوصيل متاح لهذه المنطقة</label><button class="buy" data-a="saveDeliveryZone" data-v="${esc(v)}">حفظ</button>`);},
+  saveDeliveryZone:v=>act(async()=>{if(profile?.role!=='admin'||profile.disabled)return;const name=val('zoneName'),feeText=val('zoneFee'),fee=Number(feeText);if(name.length<2||!feeText||!Number.isInteger(fee)||fee<0||fee>100000){toast('أدخل اسم المدينة وأجرة صحيحة');return}check(await db.rpc('admin_set_delivery_zone',{p_id:v,p_name:name,p_fee:fee,p_enabled:$('#zoneEnabled').checked}));A.close();await refresh();A.deliveryConfig();toast('تم حفظ أجرة المدينة للطلبات الجديدة');}),
   saveDeliveryConfig:()=>act(async()=>{const fee=+val('cfgFee'),delivery=+val('cfgDelivery');if(!Number.isInteger(fee)||!Number.isInteger(delivery)||fee<0||delivery<0){toast('أدخل مبالغ صحيحة');return}check(await db.rpc('admin_set_delivery_settings',{p_platform_fee:fee,p_delivery_fee:delivery,p_qi_number:val('cfgQi')}));A.close();await refresh();toast('تم حفظ الأسعار للطلبات الجديدة')}),
   reviewPayment:v=>{const [id,yes]=v.split('|');ask(yes==='true'?'تأكدت من وصول المبلغ إلى بطاقتك؟ سيتم خصمه من مستحقات العامل.':'رفض طلب التحويل؟','confirmPayment',v)},
   confirmPayment:v=>act(async()=>{const [id,yes]=v.split('|');check(await db.rpc('admin_review_delivery_payment',{p_payment:id,p_approved:yes==='true'}));A.close();await refresh();toast('تمت مراجعة التحويل')}),
@@ -1430,7 +1437,7 @@ const A={
   roleRequest:v=>act(()=>requestRole(v)),
   enter:v=>{if(db.preview&&['buyer','seller','driver'].includes(v)){db.preview.selectRole(v);return}if(sellerAccount()&&v==='buyer'){buyerAccountLogin();return}if(v==='buyer'){act(buyerEntry);return}if(['seller','driver'].includes(v)){roleAccess(v);return}closeAccountMenu();if(v==='guest'){rememberMode('guest');tab='market';render();scrollTo(0,0)}},
   switchrole:v=>{if(db.preview){db.preview.selectRole(v);return}if(sellerAccount()&&v!=='seller'){buyerAccountLogin();return}if(v==='seller'&&!canSell()){sellerRequest();return}rememberMode(v);tab=['seller','driver'].includes(v)?'account':'market';render();scrollTo(0,0)},
-  tab:v=>{closeAccountMenu();captureCheckout();if(v==='myMarket'&&viewMode!=='seller'&&!ADMIN_PORTAL){A.cart();return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0);if(v==='orders'||(v==='chats'&&viewMode==='buyer'))loadCustomerOrders();},
+  tab:v=>{closeAccountMenu();captureCheckout();if((v==='myMarket'||v==='chats'||v==='orders')&&viewMode!=='driver'&&viewMode!=='seller'&&!ADMIN_PORTAL){if(v==='myMarket')A.cart();else A.cartPane('orders');return}if(['market','stores'].includes(v)&&viewMode!=='seller'&&!ADMIN_PORTAL){marketSection(v);return}if(viewMode==='buyer'&&['listings','postPage'].includes(v)){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(v==='market'){cat='all';q='';filt.min='';filt.max='';filt.sort='newest'}tab=v;render();scrollTo(0,0);if(v==='orders'||(v==='chats'&&viewMode==='buyer'))loadCustomerOrders();},
   allocateReserve:v=>{const [pid,vid]=v.split('|'),p=prod(pid);if(!p||(p.mid!==ownStore?.id&&profile?.role!=='admin')||!p.legacy_stock_reserve)return;sheet(head('توزيع مرتجع قديم')+`<p>الكمية التي لم تحدد نسختها: ${p.legacy_stock_reserve}</p><label for="reserveQty">الكمية التي تخص هذه النسخة</label><input id="reserveQty" type="number" min="1" max="${p.legacy_stock_reserve}" value="1"><button class="buy" data-a="saveReserve" data-v="${v}">تأكيد توزيع الكمية</button>`);},
   saveReserve:v=>act(async()=>{const [pid,vid]=v.split('|'),qty=Number(val('reserveQty'));check(await db.rpc('allocate_legacy_variant_stock',{p_product:pid,p_variant:vid,p_quantity:qty}));await refresh();A.close();render();toast('تم توزيع المرتجع على النسخة المحددة');}),
   catalogEdit:v=>catalogManager.show(v),
@@ -1476,7 +1483,7 @@ const A={
   pq:v=>{if(!cur?.p)return;const d=Number(v),chosen=selectedProduct(cur.p,cur.vid);if(!chosen){toast('اختر النسخة أولًا');return;}if(![1,-1].includes(d))return;const n=Math.max(1,Number(cur.n)+d);if(n>Math.min(100,chosen.stock)){toast('الكمية المطلوبة غير متوفرة');return;}cur.n=n;updateProductQuantity()},
   add:()=>{const button=$('#sheet [data-a="add"]');if(button?.disabled||!cur?.p||cur.added)return;if(sellerAccount()){buyerAccountLogin();return;}const {p}=cur,n=Number(cur.n),chosen=selectedProduct(p,cur.vid);if(!chosen||!Number.isInteger(n)||n<1){toast('اختر النسخة والكمية');return;}const key=cartKey({pid:p.id,vid:cur.vid}),c=D.cart.find(x=>cartKey(x)===key),quantity=(Number(c?.q)||0)+n;if(quantity>100||!p.active||p.blocked||quantity>chosen.stock){toast('الكمية المطلوبة غير متوفرة');return;}if(requirePurchaseLogin())return;cur.added=true;if(button)button.disabled=true;if(c)c.q=quantity;else D.cart.push({pid:p.id,vid:cur.vid||null,q:n,attributes:chosen.selectedVariant?.attributes||{},price:chosen.price});save();if(cur.quickAdd){updateProductDetail();toast('أُضيف للسلة');return}A.close();render();toast('أُضيف للسلة')},
   archiveProduct:v=>act(async()=>{const p=prod(v);if(!canSell()||p?.mid!==ownStore?.id)return;check(await db.from('products').update({active:!p.active}).eq('id',v).eq('store_id',ownStore.id).select('id').single());await refresh();cur={p:prod(v),n:1,options:{}};updateProductDetail();toast(p.active?'تمت الأرشفة دون حذف البيانات':'تم نشر المنتج')}),
-  cart:(_,button)=>{D.cartPane=button?.dataset?.cartPane==='items'?'items':'orders';if(sellerAccount()){buyerAccountLogin();return}A.close();cartReceipt=null;tab='cartPage';render();scrollTo(0,0);loadCustomerOrders();},
+  cart:(_,button)=>{D.cartPane=button?.dataset?.cartPane==='items'||(D.cart.length&&button?.dataset?.cartPane!=='orders')?'items':'orders';if(sellerAccount()){buyerAccountLogin();return}A.close();cartReceipt=null;tab='cartPage';render();scrollTo(0,0);loadCustomerOrders();},
   cartPane:v=>{captureCheckout();A.close();D.cartPane=v==='items'?'items':'orders';cartReceipt=null;tab='cartPage';render();if(D.cartPane==='orders')loadCustomerOrders();},
   customerFilter:v=>{D.orderFilter=['all','current','previous','hidden'].includes(v)?v:'all';render()},
   customerReload:()=>loadCustomerOrders(),
@@ -1492,12 +1499,16 @@ const A={
     const name=val('cn'),phone=val('cp').replace(/\D/g,''),addr=val('ca'),note=val('cno');
     const orderNote=[note,geoPoint?'موقع الزبون: https://www.google.com/maps?q='+geoPoint.lat+','+geoPoint.lon:''].filter(Boolean).join(' | ');
     if(name.length<2||addr.length<3||!/^\d{10,11}$/.test(phone)){toast('اكتب الاسم ورقم هاتف صحيح والعنوان');return}
+    const quote=checkoutQuote();if(!quote.ready){toast('اختر مدينة بأجرة توصيل محددة');return}
+    const latestZones=check(await withTimeout(db.from('delivery_zones').select('*').order('name')));
+    const latestZone=latestZones.find(z=>z.id===quote.zone.id&&z.enabled);
+    if(!latestZone||latestZone.fee!==quote.zone.fee){deliveryZones=latestZones;toast('تغيرت أجرة التوصيل. راجع الإجمالي ثم أكد من جديد');csheet();return}
     const latestFees=check(await withTimeout(db.from('delivery_settings').select('*').limit(1).single()));
-    if(latestFees.platform_fee!==deliverySettings.platform_fee||latestFees.delivery_fee!==deliverySettings.delivery_fee){deliverySettings=latestFees;toast('تغيرت أجور الطلب. راجع الإجمالي ثم أرسل من جديد');csheet();return}
+    if(latestFees.platform_fee!==deliverySettings.platform_fee){deliverySettings=latestFees;toast('تغيرت أجور الطلب. راجع الإجمالي ثم أرسل من جديد');csheet();return}
     if(!D.cart.length){toast('السلة فارغة');return}if(cartRows().some(x=>!x.p||!x.p.active||x.p.blocked||x.p.stock<x.c.q)){toast('راجع النسخ والكمية غير المتاحة في السلة');csheet();return}
     const groups=new Map();for(const c of D.cart){const p=prod(c.pid);if(!p)throw Error('product unavailable');if(!groups.has(p.mid))groups.set(p.mid,[]);groups.get(p.mid).push({id:p.id,variant_id:c.vid||null,quantity:c.q})}
     const ids=[];for(const [store,lines] of groups){
-      const id=check(await db.rpc('place_order',{p_store:store,p_lines:lines,p_name:name,p_phone:phone,p_address:addr,p_note:orderNote}));
+      const id=check(await db.rpc('place_order_with_delivery_zone',{p_store:store,p_lines:lines,p_name:name,p_phone:phone,p_address:addr,p_note:orderNote,p_zone:quote.zone.id,p_expected_fee:quote.zone.fee,p_expected_platform_fee:deliverySettings.platform_fee}));
       ids.push('#'+id.slice(-4).toUpperCase());D.cart=D.cart.filter(c=>!lines.some(l=>l.id===c.pid&&(l.variant_id||null)===(c.vid||null)));save();
     }
     D.cust={name,phone,addr};geoPoint=null;checkoutNote='';save();cartReceipt=ids;await refresh();
@@ -1582,6 +1593,7 @@ document.addEventListener('change',async e=>{
 document.addEventListener('focusin',e=>{if(e.target.id==='q')syncMarketSearch()});
 document.addEventListener('focusout',e=>{if(e.target.id==='q')setTimeout(()=>{if(!$('#buyerSearch')?.contains(document.activeElement))$('#marketSuggestions').hidden=true},100)});
 document.addEventListener('keydown',e=>{if(e.target.id==='q'&&e.key==='Escape')$('#marketSuggestions').hidden=true;if(e.target.id==='q'&&e.key==='ArrowDown'&&!$('#marketSuggestions').hidden){e.preventDefault();$('#marketSuggestions button')?.focus()}});
+document.addEventListener('change',e=>{if(!['checkoutArea','checkoutOutside','checkoutCity'].includes(e.target.id))return;captureCheckout();if(e.target.id==='checkoutArea'){D.deliveryChoice.area=e.target.value;D.deliveryChoice.outside='';D.deliveryChoice.city='';}else if(e.target.id==='checkoutOutside'){D.deliveryChoice.outside=e.target.value;D.deliveryChoice.city='';}else D.deliveryChoice.city=e.target.value;save();csheet();});
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='market';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
@@ -1619,5 +1631,3 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 <script src="interaction-motion.js?v=139"></script><script src="market-drawer.js?v=139"></script>
 </body>
 </html>
-
-

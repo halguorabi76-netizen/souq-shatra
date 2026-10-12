@@ -29,7 +29,7 @@ let D={m:[],p:[],o:[],people:[],cart:Array.isArray(local.cart)?local.cart:[],me:
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false,adminAccessReady=false,adminLoadError=null,adminPhase='قراءة جلسة الهاتف';
 let productSaveBusy=false,storeSaveBusy=false;
 let storeQuery='';
-let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[];
+let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[],deliveryZones=[];
 function savedSellerView(storage,sessionKey){
  try{const session=JSON.parse(storage.getItem(sessionKey)||'null'),id=session?.user?.id;if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;return storage.getItem('souq-shatra-mode-'+id)==='seller';}catch{return false;}
 }
@@ -161,11 +161,11 @@ async function refresh(){
     nextUser?db.from('driver_profiles').select('*').eq('user_id',nextUser.id).maybeSingle():Promise.resolve({data:null}),
     nextUser?db.rpc('assigned_delivery_contacts'):Promise.resolve({data:[]}),
     nextProfile?.role==='admin'&&!nextProfile.disabled?db.from('driver_profiles').select('*'):Promise.resolve({data:[]}),
-    nextUser?db.from('store_pickups').select('*'):Promise.resolve({data:[]})
+    nextUser?db.from('store_pickups').select('*'):Promise.resolve({data:[]}),db.from('delivery_zones').select('*').order('name')
   ]));
   // An older deployment can load the rest of the market before the migration is installed.
   if(id!==refreshId)return;
-  deliverySettings=dl[0].data||{platform_fee:0,delivery_fee:0,qi_number:''};
+  deliveryZones=dl[8].data||[];deliverySettings=dl[0].data||{platform_fee:0,delivery_fee:0,qi_number:''};
   driverAccount=dl[1].data||null;deliveryPayments=check(dl[2])||[];D.drivers=check(dl[3])||[];
   driverProfile=check(dl[4]);D.driverContacts=check(dl[5])||[];D.driverProfiles=check(dl[6])||[];D.pickups=check(dl[7])||[];
   if(nextUser&&driverAccount?.approved&&driverAccount.amount_due<driverAccount.debt_limit){
@@ -849,7 +849,9 @@ const A={
   paySheet:()=>sheet(head('إثبات تحويل المستحقات')+`<p>حوّل إلى رقم Qi: <b dir="ltr">${esc(deliverySettings.qi_number||'لم يُحدد بعد')}</b></p><label for="payAmount">المبلغ المحوّل بالدينار</label><input id="payAmount" type="number" min="1" value="${driverAccount?.amount_due||''}"><label for="payRef">رقم العملية أو تفاصيل الوصل</label><input id="payRef" maxlength="400"><p class="note">لا يُخصم المبلغ حتى يتحقق المدير من وصوله ويؤكد الاستلام.</p><button class="buy" data-a="sendPayment">إرسال طلب التأكيد</button>`),
   sendPayment:()=>act(async()=>{const amount=+val('payAmount'),receipt=val('payRef');if(!Number.isInteger(amount)||amount<1||receipt.length<3){toast('أدخل المبلغ ورقم العملية');return}check(await db.rpc('submit_delivery_payment',{p_amount:amount,p_receipt:receipt}));A.close();await refresh();toast('أُرسل طلب المراجعة إلى المدير')}),
   approveDriver:v=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));A.close();await refresh();toast('تم تحديث عامل التوصيل')}),
-  deliveryConfig:()=>sheet(head('إعداد التوصيل')+`<label>حصة التطبيق لكل طلب (د.ع)</label><input id="cfgFee" type="number" min="0" value="${deliverySettings.platform_fee}"><label>أجرة عامل التوصيل لكل طلب (د.ع)</label><input id="cfgDelivery" type="number" min="0" value="${deliverySettings.delivery_fee}"><label>رقم Qi المخصص للتطبيق</label><input id="cfgQi" value="${esc(deliverySettings.qi_number)}"><button class="buy" data-a="saveDeliveryConfig">حفظ</button>`),
+  deliveryConfig:()=>sheet(head('إعداد التوصيل')+`<h3>أجور المناطق والمدن</h3>${deliveryZones.map(z=>`<div class="row"><span>${esc(z.name)} · ${fmt(z.fee)} ${z.enabled?'':'(غير متاحة)'}</span><button class="alt" data-a="deliveryZoneEdit" data-v="${esc(z.id)}">تعديل</button></div>`).join('')}<button class="alt" data-a="deliveryZoneEdit" data-v="">إضافة مدينة وأجرة توصيلها</button><hr><label>حصة التطبيق لكل طلب (د.ع)</label><input id="cfgFee" type="number" min="0" value="${deliverySettings.platform_fee}"><input id="cfgDelivery" type="hidden" min="0" value="${deliverySettings.delivery_fee}"><label>رقم Qi المخصص للتطبيق</label><input id="cfgQi" value="${esc(deliverySettings.qi_number)}"><button class="buy" data-a="saveDeliveryConfig">حفظ</button>`),
+  deliveryZoneEdit:v=>{if(profile?.role!=='admin'||profile.disabled)return;const z=deliveryZones.find(z=>z.id===v);sheet(head(z?'تعديل أجرة المنطقة':'إضافة مدينة أخرى')+`<label for="zoneName">اسم المدينة / المنطقة</label><input id="zoneName" maxlength="80" value="${esc(z?.name||'')}"><label for="zoneFee">أجرة التوصيل لكل متجر (د.ع)</label><input id="zoneFee" type="number" min="0" max="100000" value="${z?.fee??''}"><label><input id="zoneEnabled" type="checkbox" ${z?.enabled!==false?'checked':''}> التوصيل متاح لهذه المنطقة</label><button class="buy" data-a="saveDeliveryZone" data-v="${esc(v)}">حفظ</button>`);},
+  saveDeliveryZone:v=>act(async()=>{if(profile?.role!=='admin'||profile.disabled)return;const name=val('zoneName'),feeText=val('zoneFee'),fee=Number(feeText);if(name.length<2||!feeText||!Number.isInteger(fee)||fee<0||fee>100000){toast('أدخل اسم المدينة وأجرة صحيحة');return}check(await db.rpc('admin_set_delivery_zone',{p_id:v,p_name:name,p_fee:fee,p_enabled:$('#zoneEnabled').checked}));A.close();await refresh();A.deliveryConfig();toast('تم حفظ أجرة المدينة للطلبات الجديدة');}),
   saveDeliveryConfig:()=>act(async()=>{const fee=+val('cfgFee'),delivery=+val('cfgDelivery');if(!Number.isInteger(fee)||!Number.isInteger(delivery)||fee<0||delivery<0){toast('أدخل مبالغ صحيحة');return}check(await db.rpc('admin_set_delivery_settings',{p_platform_fee:fee,p_delivery_fee:delivery,p_qi_number:val('cfgQi')}));A.close();await refresh();toast('تم حفظ الأسعار للطلبات الجديدة')}),
   reviewPayment:v=>{const [id,yes]=v.split('|');ask(yes==='true'?'تأكدت من وصول المبلغ إلى بطاقتك؟ سيتم خصمه من مستحقات العامل.':'رفض طلب التحويل؟','confirmPayment',v)},
   confirmPayment:v=>act(async()=>{const [id,yes]=v.split('|');check(await db.rpc('admin_review_delivery_payment',{p_payment:id,p_approved:yes==='true'}));A.close();await refresh();toast('تمت مراجعة التحويل')}),

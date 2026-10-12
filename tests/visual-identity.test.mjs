@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const read=f=>readFileSync(new URL('../'+f,import.meta.url),'utf8');
 test('customer navigation keeps exactly five working destinations in physical left-to-right order',()=>{
  const nav=read('index.html').match(/<nav class="tabs"[^]*?<\/nav>/)[0];
- assert.deepEqual([...nav.matchAll(/data-v="([^"]+)"/g)].map(m=>m[1]),['myMarket','stores','market','materials','chats']);
+ assert.deepEqual([...nav.matchAll(/data-v="([^"]+)"/g)].map(m=>m[1]),['myMarket','stores','market','materials','profilePage']);
  assert.match(read('visual-identity.css'),/direction:ltr/);assert.match(read('visual-identity.css'),/\.tabs\[hidden\]\{display:none!important/);
  assert.match(read('market-drawer.js'),/data-v="settings"/);
 });

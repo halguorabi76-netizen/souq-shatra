@@ -24,6 +24,13 @@ try{
  await f.locator('[data-a="pq"][data-v="1"]').click();await f.locator('[data-a="add"]').click();
  const cart=await f.evaluate(()=>JSON.parse(localStorage.getItem('souq-preview-cart-v1')).cart);assert.equal(cart.length,1);assert.equal(cart[0].vid,fixture.product_variants[1].id);assert.equal(cart[0].q,2);assert.equal(cart[0].price,1700);
  await f.locator('.tabs [data-v="myMarket"]').click();await f.locator('.figma-cart-image').waitFor();
+ assert.equal(await f.locator('[data-a="order"]').isEnabled(),false);
+ await f.locator('#cn').fill('زبون اختبار');await f.locator('#cp').fill('07700000000');await f.locator('#ca').fill('عنوان اختبار محلي');
+ await f.locator('#checkoutArea').selectOption('outside');await f.locator('#checkoutOutside').selectOption('nasr');
+ assert.match(await f.locator('.buyer-total').innerText(),/8,900/);assert.equal(await f.locator('[data-a="order"]').isEnabled(),true);
+ await f.locator('#checkoutOutside').selectOption('other');assert.equal(await f.locator('[data-a="order"]').isEnabled(),false);
+ await f.locator('#checkoutArea').selectOption('shatra');
+ assert.equal(await f.locator('#cn').inputValue(),'زبون اختبار');assert.equal(await f.locator('#cp').inputValue(),'07700000000');assert.equal(await f.locator('#ca').inputValue(),'عنوان اختبار محلي');
  assert.match(await f.locator('.buyer-total').innerText(),/5,900/);
  await f.locator('#cn').fill('زبون اختبار');await f.locator('#cp').fill('07700000000');await f.locator('#ca').fill('عنوان اختبار محلي');await f.locator('[data-a="order"]').click();await f.locator('.buyer-checkout-card.done').waitFor();
  const after=await snapshot();assert.equal(after.orders.length,1);assert.equal(after.order_items[0].variant_id,fixture.product_variants[1].id);assert.equal(after.order_items[0].quantity,2);assert.deepEqual(after.product_variants.map(v=>v.stock),[10,2,7]);

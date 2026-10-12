@@ -266,3 +266,7 @@ html[data-shatra-ui] .figma-product-hero .figma-hero-copy{position:relative;bott
 @media(max-width:640px){html[data-shatra-ui] .figma-product-hero{min-height:420px;padding-top:0}html[data-shatra-ui] .figma-product-hero .figma-hero-copy{width:100%;min-height:420px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;padding:32px 22px}html[data-shatra-ui] .figma-product-hero::after{background:linear-gradient(180deg,#080f2633,#080f26eb)}}
 
 html[data-shatra-ui][data-theme=light] .tabs button[aria-current=page]{background:#fff!important;color:var(--ink)!important}
+
+html[data-shatra-ui] .checkout-discount{display:block;color:var(--ink-soft);font-size:12px;margin-top:5px}
+html[data-shatra-ui] .checkout-summary{margin:20px 0;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+html[data-shatra-ui] .checkout-summary .row{align-items:center;gap:12px}

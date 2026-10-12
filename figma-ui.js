@@ -56,7 +56,7 @@
  }
  const drawerObserver=new MutationObserver(decorateDrawer);drawerObserver.observe(document.body,{childList:true});
  const nav=document.querySelector('.app>.tabs');
- for(const [value,name] of [['stores','store'],['market','home'],['materials','grid'],['chats','orders']]){const mark=nav?.querySelector(`[data-v="${value}"] .navicon`);if(mark)mark.innerHTML=icon(name);}
+ for(const [value,name] of [['stores','store'],['market','home'],['materials','grid'],['profilePage','user']]){const mark=nav?.querySelector(`[data-v="${value}"] .navicon`);if(mark)mark.innerHTML=icon(name);}
  // The existing render() replaces cart/order labels. Styling remains on their
  // existing actions, rather than creating a second set of navigation controls.
  const profile=document.getElementById('accountTrigger');if(profile)profile.classList.add('figma-profile-shortcut');
