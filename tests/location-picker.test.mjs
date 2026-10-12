@@ -7,7 +7,7 @@ function setup(){
  const nodes=new Map(),geo=[],maps=[],markers=[],confirmed=[];
  const node=id=>{const n={id,isConnected:true,disabled:false,hidden:false,textContent:'',events:{},focus(){},addEventListener(type,callback){this.events[type]=callback}};nodes.set(id,n);return n};
  node('shade');
- const L={map(){const map={events:{},setView(){return this},on(type,callback){this.events[type]=callback;return this},invalidateSize(){},remove(){this.removed=true}};maps.push(map);return map},tileLayer(){return {on(){return this},addTo(){return this}}},divIcon:x=>x,marker(coords){const marker={coords,events:{},addTo(){return this},on(type,callback){this.events[type]=callback;return this},setLatLng(coords){this.coords=coords},getLatLng(){return {lat:this.coords[0],lng:this.coords[1]}}};markers.push(marker);return marker}};
+ const L={map(){const map={events:{},setView(coords,zoom){this.coords=coords;this.zoom=zoom;return this},on(type,callback){this.events[type]=callback;return this},invalidateSize(){},remove(){this.removed=true}};maps.push(map);return map},tileLayer(){return {on(){return this},addTo(){return this}}},divIcon:x=>x,marker(coords){const marker={coords,events:{},addTo(){return this},on(type,callback){this.events[type]=callback;return this},setLatLng(coords){this.coords=coords},getLatLng(){return {lat:this.coords[0],lng:this.coords[1]}}};markers.push(marker);return marker}};
  const context={window:{L},navigator:{geolocation:{getCurrentPosition(success,failure){geo.push({success,failure})}}},document:{activeElement:{focus(){}},getElementById:id=>nodes.get(id)},MutationObserver:class{observe(){}disconnect(){}},setTimeout,clearTimeout};vm.createContext(context);vm.runInContext(code,context);
  const api=context.window.SouqLocationPicker;
  const show=value=>api.show({value,sheet(){for(const id of ['deliveryMap','mapStatus','mapConfirm','mapLocate','mapRetry','mapExternal'])node(id);nodes.get('mapConfirm').disabled=true},head:()=>'',onConfirm:p=>confirmed.push(p)});
@@ -34,4 +34,10 @@ test('marker dragging determines the final approved delivery coordinates',async(
 test('invalid or absent coordinates cannot produce a saved delivery link',()=>{
  const x=setup();for(const p of [null,{}, {lat:'',lon:''},{lat:91,lon:0},{lat:0,lon:181},{lat:'bad',lon:46}])assert.equal(x.api.point(p),null);
  assert.equal(x.api.url({lat:0,lon:0}),'https://www.google.com/maps?q=0,0');
+});
+
+test('current location button selects GPS coordinates and zooms without a manual map click',async()=>{
+ const x=setup();await x.show();assert.equal(x.geo.length,0);x.nodes.get('mapLocate').events.click();assert.equal(x.nodes.get('mapLocate').disabled,true);
+ x.geo[0].success({coords:{latitude:31.415678,longitude:46.173456}});assert.equal(x.nodes.get('mapLocate').disabled,false);assert.equal(x.maps[0].zoom,17);assert.equal(x.nodes.get('mapConfirm').disabled,false);assert.equal(x.confirmed.length,0);
+ x.nodes.get('mapConfirm').events.click();assert.equal(x.confirmed[0].lat,31.415678);assert.equal(x.confirmed[0].lon,46.173456);
 });

@@ -301,3 +301,5 @@ html[data-shatra-ui] #sheet .address-map-preview button{width:auto!important;max
 
 html[data-shatra-ui] .product-detail>#productPhoto{width:100%;max-width:none}
 .detail-cart i:empty{display:none}
+
+html[data-shatra-ui] .location-map-wrap{position:relative;isolation:isolate}html[data-shatra-ui] #sheet .map-locate-control{position:absolute;right:12px;bottom:28px;z-index:500;display:flex;align-items:center;gap:8px;width:auto;min-height:44px;margin:0;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 3px 14px #0a143329;font-size:15px;font-weight:700}html[data-shatra-ui] #sheet .map-locate-control:disabled{opacity:.7;cursor:wait}

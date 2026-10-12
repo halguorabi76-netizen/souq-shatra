@@ -21,9 +21,11 @@
  }
  async function show({value,sheet,head,onConfirm,title='اختيار موقع التوصيل',purpose='التوصيل'}){
   close();const returnFocus=document.activeElement;
-  sheet(head(title)+`<div class="location-picker"><p>اضغط على الخريطة لاختيار مكان ${purpose}، أو حرّك علامة الموقع.</p><div id="deliveryMap" class="delivery-map" aria-label="خريطة اختيار موقع ${purpose}"></div><p id="mapStatus" class="note" role="status" aria-live="polite">جارٍ فتح الخريطة…</p><div class="location-picker-actions"><button id="mapLocate" class="alt" type="button">موقعك الحالي</button><button id="mapRetry" class="alt" type="button" hidden>إعادة تحميل الخريطة</button><a id="mapExternal" class="alt" target="_blank" rel="noopener noreferrer" hidden>فتح الموقع في تطبيق الخرائط</a><button id="mapConfirm" class="buy" type="button" disabled>تأكيد الموقع</button></div></div>`);
+  sheet(head(title)+`<div class="location-picker"><p>اضغط «موقعك الحالي» لتحديد مكانك تلقائياً، ثم أكّد الموقع.</p><div class="location-map-wrap"><div id="deliveryMap" class="delivery-map" aria-label="خريطة اختيار موقع ${purpose}"></div><button id="mapLocate" class="map-locate-control" type="button" disabled><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/></svg><span id="mapLocateText">موقعك الحالي</span></button></div><p id="mapStatus" class="note" role="status" aria-live="polite">جارٍ فتح الخريطة…</p><div class="location-picker-actions"><button id="mapRetry" class="alt" type="button" hidden>إعادة تحميل الخريطة</button><a id="mapExternal" class="alt" target="_blank" rel="noopener noreferrer" hidden>فتح الموقع في تطبيق الخرائط</a><button id="mapConfirm" class="buy" type="button" disabled>تأكيد الموقع</button></div></div>`);
   const session={draft:point(value),map:null,revision:0,request:0,returnFocus};active=session;
   const container=document.getElementById('deliveryMap'),status=document.getElementById('mapStatus'),confirm=document.getElementById('mapConfirm'),locate=document.getElementById('mapLocate'),retry=document.getElementById('mapRetry');
+  const locateLabel=document.getElementById('mapLocateText');
+  const locating=busy=>{locate.disabled=busy;if(locateLabel)locateLabel.textContent=busy?'جارٍ تحديد موقعك…':'موقعك الحالي';};
   const current=()=>active===session&&container.isConnected;
   session.observer=new MutationObserver(()=>{if(active===session&&(!container.isConnected||document.getElementById('shade').hidden))close()});session.observer.observe(document.getElementById('shade'),{attributes:true,childList:true,subtree:true,attributeFilter:['hidden']});
   let marker=null;
@@ -36,14 +38,14 @@
   };
   const locateNow=()=>{
    if(!navigator.geolocation){status.textContent='تحديد الموقع التلقائي غير متاح. اختر مكانك بالضغط على الخريطة.';return;}
-   const request=++session.request,revision=session.revision;locate.disabled=true;status.textContent='اسمح بالوصول إلى الموقع لتحديد مكانك، أو اختره على الخريطة.';
+   const request=++session.request,revision=session.revision;locating(true);status.textContent='اسمح بالوصول إلى الموقع لتحديد مكانك، أو اختره على الخريطة.';
    navigator.geolocation.getCurrentPosition(position=>{
-    if(!current()||request!==session.request)return;locate.disabled=false;
+    if(!current()||request!==session.request)return;locating(false);
     if(revision!==session.revision)return;
     const p=point({lat:position.coords.latitude,lon:position.coords.longitude});if(!p){status.textContent='تعذّر تحديد مكانك. اختره على الخريطة.';return;}
-    session.map.setView([p.lat,p.lon],17);select(p,false);
+    session.map.setView([p.lat,p.lon],17);select(p,false);status.textContent='تم تحديد موقعك الحالي. اضغط «تأكيد الموقع» للمتابعة، أو حرّك العلامة لتعديله.';
    },error=>{
-    if(!current()||request!==session.request)return;locate.disabled=false;if(revision!==session.revision)return;
+    if(!current()||request!==session.request)return;locating(false);if(revision!==session.revision)return;
     status.textContent=error.code===1?'لم يُسمح بالوصول إلى الموقع. يمكنك السماح به من إعدادات الهاتف، أو اختيار المكان على الخريطة.':'تعذّر تحديد موقعك تلقائيًا. اختر المكان على الخريطة أو حاول مجددًا.';
    },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
   };
@@ -55,7 +57,7 @@
    const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'});
    tiles.on('tileerror',()=>{if(current()){status.textContent='تعذّر تحميل جزء من الخريطة. تحقق من الإنترنت ثم أعد المحاولة.';retry.hidden=false}});tiles.addTo(session.map);
    session.map.on('click',event=>select({lat:event.latlng.lat,lon:event.latlng.lng}));
-   locate.addEventListener('click',locateNow);session.map.invalidateSize();
+   locate.addEventListener('click',locateNow);locating(false);session.map.invalidateSize();
    if(session.draft)select(session.draft,false);else {status.textContent='اختر مكان '+purpose+' على الخريطة، أو اضغط موقعك الحالي.';}
   }catch{if(current()){locate.disabled=true;status.textContent='تعذّر فتح الخريطة. تحقق من الإنترنت وأعد المحاولة.';retry.hidden=false;}}
  }
