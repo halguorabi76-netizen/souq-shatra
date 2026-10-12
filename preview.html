@@ -461,7 +461,7 @@ body.starting{background:#000!important}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="delivery-zones.js?v=164"></script><script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=161"></script>
+<script src="delivery-zones.js?v=165"></script><script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=161"></script>
 
 
 <script type="module">
@@ -1255,6 +1255,7 @@ function useAddress(a){D.cust={name:a.recipient_name,phone:a.phone,phone2:a.phon
 async function saveAddress(button){captureAddress();if(button.disabled||!addressValid()||!user)return;const identity=user.id,a=addressDraft;button.disabled=true;button.textContent='جارٍ حفظ العنوان…';try{const row=check(await withTimeout(db.from('customer_addresses').insert({user_id:identity,label:a.label,recipient_name:a.name,phone:a.phone,phone_secondary:a.phone2||null,address:a.addr,zone_id:window.SouqDeliveryZones.zoneId(a.choice),latitude:a.point.lat,longitude:a.point.lon}).select('*').single()));if(user?.id!==identity)return;customerAddresses.unshift(row);useAddress(row);A.close();checkoutStage='review';csheet();scrollTo(0,0);}finally{if(button.isConnected){button.disabled=false;button.textContent='متابعة'}}}
 
 function cartNavigation(){return `<div class="buyer-cart-heading"><h1>السلة</h1><button data-a="tab" data-v="market">السوق ‹</button></div><div class="chips"><button class="chip" data-a="cartPane" data-v="orders" aria-pressed="${D.cartPane==='orders'}">▣ الطلبات والمتابعة</button><button class="chip" data-a="cartPane" data-v="items" aria-pressed="${D.cartPane==='items'}">🛒 مواد بانتظار الإرسال (${D.cart.reduce((n,c)=>n+c.q,0)})</button></div>`;}
+function checkoutSummary(quote,tot,orderCount){return `<div class="row"><span>سعر المنتجات بعد التخفيضات</span><b>${fmt(tot)}</b></div><div class="row"><span>التوصيل ${quote.zone?'· '+esc(quote.zone.name):''}</span><b>${quote.ready?fmt(quote.delivery):'اختر منطقة بأجرة محددة'}</b></div>${quote.platform?`<div class="row"><span>حصة التطبيق</span><b>${fmt(quote.platform)}</b></div>`:''}${orderCount>1?`<p class="note">المشتريات من ${orderCount} متاجر؛ أجرة التوصيل تُحتسب لكل متجر.</p>`:''}<div class="row buyer-total"><b>المبلغ الإجمالي</b><b>${quote.ready?fmt(quote.total):'—'}</b></div>`;}
 function csheet(){
  if(D.cartPane==='items'&&!cartReceipt&&checkoutStage!=='review'){renderCartStage();return;}
  if(D.cartPane==='orders'&&!cartReceipt){$('#view').innerHTML=cartNavigation()+customerOrderHub();return;}
@@ -1271,7 +1272,7 @@ function csheet(){
   ${window.SouqDeliveryZones.selection(deliveryZones,D.deliveryChoice,esc)}
   <label for="ca">عنوان التوصيل</label><input id="ca" value="${esc(u.addr)}" placeholder="المنطقة، الحي، أقرب نقطة دالة"><div class="checkout-location"><button class="alt" data-a="geolocate" type="button">📍 ${geoPoint?'تعديل الموقع على الخريطة':'اختيار الموقع على الخريطة'}</button>${user?'<button class="alt" data-a="useProfileLocation" type="button">📍 استخدام الموقع المحفوظ</button>':''}</div>${checkoutLocationCard()}<small id="geoStatus" class="note">${geoPoint?'تم اعتماد الموقع وسيُرفق بالطلب.':'اختر موقع التوصيل ثم اضغط موافق، واكتب العنوان ورقم الهاتف أيضًا.'}</small>
   <label for="cno">ملاحظات (اختياري)</label><input id="cno" value="${esc(checkoutNote)}">
-  <section class="checkout-summary" aria-live="polite"><div class="row"><span>سعر المنتجات بعد التخفيضات</span><b>${fmt(tot)}</b></div><div class="row"><span>التوصيل ${quote.zone?'· '+esc(quote.zone.name):''}</span><b>${quote.ready?fmt(quote.delivery):'اختر منطقة بأجرة محددة'}</b></div>${quote.platform?`<div class="row"><span>حصة التطبيق</span><b>${fmt(quote.platform)}</b></div>`:''}${orderCount>1?`<p class="note">المشتريات من ${orderCount} متاجر؛ أجرة التوصيل تُحتسب لكل متجر.</p>`:''}<div class="row buyer-total"><b>المبلغ الإجمالي</b><b>${quote.ready?fmt(quote.total):'—'}</b></div></section>
+  <section class="checkout-summary" aria-live="polite">${checkoutSummary(quote,tot,orderCount)}</section>
   <button class="buy" data-a="order" ${quote.ready?'':'disabled'}>تأكيد الطلب · الدفع عند الاستلام</button></section></div>`;
 }
 function isInvalidPasswordLogin(error){
@@ -1624,7 +1625,24 @@ document.addEventListener('change',async e=>{
 document.addEventListener('focusin',e=>{if(e.target.id==='q')syncMarketSearch()});
 document.addEventListener('focusout',e=>{if(e.target.id==='q')setTimeout(()=>{if(!$('#buyerSearch')?.contains(document.activeElement))$('#marketSuggestions').hidden=true},100)});
 document.addEventListener('keydown',e=>{if(e.target.id==='q'&&e.key==='Escape')$('#marketSuggestions').hidden=true;if(e.target.id==='q'&&e.key==='ArrowDown'&&!$('#marketSuggestions').hidden){e.preventDefault();$('#marketSuggestions button')?.focus()}});
-document.addEventListener('change',e=>{if(!['checkoutArea','checkoutOutside','checkoutCity'].includes(e.target.id))return;if($('#addressForm')){captureAddress();addressDetails();return}captureCheckout();if(e.target.id==='checkoutArea'){D.deliveryChoice.area=e.target.value;D.deliveryChoice.outside='';D.deliveryChoice.city='';}else if(e.target.id==='checkoutOutside'){D.deliveryChoice.outside=e.target.value;D.deliveryChoice.city='';}else D.deliveryChoice.city=e.target.value;save();csheet();});
+document.addEventListener('change',e=>{
+ if(!['checkoutArea','checkoutOutside','checkoutCity'].includes(e.target.id))return;
+ const field=e.target.id,inAddress=!!$('#addressForm');
+ if(inAddress)captureAddress();else captureCheckout();
+ const choice=inAddress?addressDraft.choice:D.deliveryChoice;
+ if(field==='checkoutArea'){choice.area=e.target.value;choice.outside='';choice.city='';}
+ else if(field==='checkoutOutside'){choice.outside=e.target.value;choice.city='';}
+ else choice.city=e.target.value;
+ // Update only dependent delivery controls; keep the form, map and scroll position intact.
+ if(field==='checkoutArea'){
+  const fields=$('#checkoutZoneFields');
+  if(fields){const template=document.createElement('template');template.innerHTML=window.SouqDeliveryZones.selection(deliveryZones,choice,esc);fields.replaceChildren(...template.content.firstElementChild.childNodes);$('#checkoutArea')?.focus({preventScroll:true});}
+ }
+ if(inAddress){$('#addressForm [data-a="addressSave"]').disabled=!addressValid();return;}
+ save();const quote=checkoutQuote(),rows=cartRows(),tot=rows.reduce((n,x)=>n+(x.p?.price||0)*x.c.q,0),orderCount=new Set(rows.map(x=>x.p?.mid).filter(Boolean)).size;
+ const summary=$('.checkout-summary');if(summary)summary.innerHTML=checkoutSummary(quote,tot,orderCount);
+ const confirm=$('[data-a="order"]');if(confirm)confirm.disabled=!quote.ready;
+});
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='market';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
