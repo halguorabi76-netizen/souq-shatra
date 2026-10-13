@@ -1127,8 +1127,8 @@ function ordCard(o,m){
 function customerOrderControls(o){
  const hidden=!!o.customer_action?.hidden_at;
  if(hidden)return `<div class="acts"><button data-a="customerAction" data-v="${o.id}|restore">↶ إعادة إلى قائمتي</button></div>`;
- const kind=o.st===3?'return':o.st<3?'cancel':null,requested=o.customer_action?.request_kind===kind;
- return `<div class="acts customer-order-controls">${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':o.driver_id?'✕ طلب إلغاء':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
+ const kind=o.st===3?'return':o.st<2&&!o.driver_id?'cancel':null,requested=o.customer_action?.request_kind===kind;
+ return `<div class="acts customer-order-controls">${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
 }
 function customerOrderHub(){
  const mine=D.o.filter(o=>user&&o.buyer_id===user.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts)),filter=D.orderFilter||'all';
@@ -1150,12 +1150,16 @@ async function loadCustomerOrders(){
 function orders(){ $('#view').innerHTML=customerOrderHub(); }
 function customerActionAsk(value){
  const [id,kind]=value.split('|'),o=D.o.find(o=>o.id===id&&o.buyer_id===user?.id);if(!o)return;
+ if(kind==='cancel'&&(o.driver_id||o.st>=2)){toast('لا يمكن إلغاء الطلب بعد قبول سائق التوصيل');return;}
  const title=kind==='hide'?'إزالة من قائمتي':kind==='return'?'طلب إرجاع':o.driver_id?'طلب إلغاء':'إلغاء الطلب';
  const message=kind==='hide'?'سيُخفى الطلب من قائمتك فقط، ويمكن استعادته من قسم «المزالة». هذا لا يلغي الطلب ولا يوقف توصيله.':kind==='return'?'سيُرسل طلب الإرجاع إلى البائع والإدارة للمراجعة والتواصل معك.':o.driver_id?'وافق سائق على الطلب؛ سيُرسل طلب الإلغاء للمراجعة. سيبقى الطلب فعالًا حتى تأكيد الإلغاء.':'سيُلغى الطلب وتُعاد كميته إلى المخزون.';
  sheet(head(title)+`<p>${message}</p>${kind!=='hide'?'<label for="customerActionReason">السبب (اختياري)</label><textarea id="customerActionReason" maxlength="500"></textarea>':''}<button class="buy" data-a="customerAction" data-v="${esc(value)}">تأكيد ${title}</button><button class="alt" data-a="close">رجوع</button>`);
 }
 async function performCustomerAction(value,button){
- if(button?.disabled)return;const identity=user?.id;if(!identity)return;const [id,kind]=value.split('|');if(button)button.disabled=true;
+ if(button?.disabled)return;const identity=user?.id;if(!identity)return;const [id,kind]=value.split('|');
+ const order=D.o.find(o=>o.id===id&&o.buyer_id===identity);if(!order)return;
+ if(kind==='cancel'&&(order.driver_id||order.st>=2)){A.close();toast('لا يمكن إلغاء الطلب بعد قبول سائق التوصيل');return;}
+ if(button)button.disabled=true;
  try{const result=check(await withTimeout(db.rpc('customer_order_action',{p_order:id,p_action:kind,p_reason:val('customerActionReason')})));if(user?.id!==identity)return;A.close();toast(result==='cancelled'?'تم إلغاء الطلب':result==='requested'?'أُرسل الطلب للمراجعة':kind==='hide'?'أُزيل من قائمتك ويمكن استعادته':'أُعيد إلى قائمتك');await loadCustomerOrders();activity.poll().catch(()=>{});}
  finally{if(button?.isConnected)button.disabled=false;}
 }

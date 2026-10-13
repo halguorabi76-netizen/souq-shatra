@@ -5,9 +5,9 @@ import vm from 'node:vm';
 import {createPreviewModel} from '../preview-lab.js';
 const html=fs.readFileSync('index.html','utf8');
 function context(){const view={innerHTML:''},c={D:{o:[],orderFilter:'all'},user:{id:'buyer',email:'buyer@example.invalid'},profile:{},esc:s=>String(s),ordCard:o=>`<article>${o.id}</article>`,$:()=>view};vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function customerOrderControls('),html.indexOf('async function loadCustomerOrders(')),c);return c;}
-test('customer controls distinguish unassigned cancellation, assigned request, delivered return and hidden restoration',()=>{
+test('customer controls distinguish unassigned cancellation, hidden assigned cancellation, delivered return and hidden restoration',()=>{
  const c=context(),control=(st,driver_id=null,customer_action=null)=>c.customerOrderControls({id:'order',st,driver_id,customer_action});
- assert.match(control(0),/>✕ إلغاء الطلب</);assert.match(control(1,'driver'),/>✕ طلب إلغاء</);assert.match(control(3),/طلب إرجاع/);assert.doesNotMatch(control(4),/\|cancel|\|return/);assert.match(control(3,null,{hidden_at:'now'}),/\|restore/);assert.doesNotMatch(control(3,null,{request_kind:'return'}),/data-v="order\|return"/);
+ assert.match(control(0),/>✕ إلغاء الطلب</);for(const st of [0,1,2])assert.doesNotMatch(control(st,'driver'),/\|cancel|طلب إلغاء|إلغاء الطلب/);assert.match(control(1),/>✕ إلغاء الطلب</);assert.doesNotMatch(control(2),/\|cancel/);assert.match(control(3),/طلب إرجاع/);assert.doesNotMatch(control(4),/\|cancel|\|return/);assert.match(control(3,null,{hidden_at:'now'}),/\|restore/);assert.doesNotMatch(control(3,null,{request_kind:'return'}),/data-v="order\|return"/);
 });
 test('history contains completed and cancelled orders by default, is account-specific and hidden orders remain restorable',()=>{
  const c=context();c.D.o=[{id:'active',buyer_id:'buyer',st:0},{id:'done',buyer_id:'buyer',st:3},{id:'cancelled',buyer_id:'buyer',st:4},{id:'hidden',buyer_id:'buyer',st:3,customer_action:{hidden_at:'now'}},{id:'other-account',buyer_id:'other',st:3}];
@@ -25,4 +25,11 @@ test('preview cancellation restores stock once and hiding never deletes the unde
  assert.equal(model.snapshot().products[0].stock,product.stock);
  await client.rpc('customer_order_action',{p_order:id,p_action:'hide'});assert.equal(model.snapshot().orders.length,1);assert.ok(model.snapshot().order_customer_actions[0].hidden_at);
  await client.rpc('customer_order_action',{p_order:id,p_action:'restore'});assert.equal(model.snapshot().order_customer_actions[0].hidden_at,null);
+});
+
+test('stale cancellation actions are blocked when driver assignment has already arrived',async()=>{
+ const calls=[],order={id:'order',buyer_id:'buyer',st:0,driver_id:'driver'};
+ const c={D:{o:[order]},user:{id:'buyer'},toast:msg=>calls.push(msg),A:{close:()=>calls.push('close')},db:{rpc:()=>{throw Error('Cancellation must not reach RPC')}},sheet:()=>{throw Error('Cancellation dialog must not open')}};
+ vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function customerActionAsk('),html.indexOf('function account(')),c);
+ c.customerActionAsk('order|cancel');await c.performCustomerAction('order|cancel');assert.equal(calls.filter(s=>s.includes('لا يمكن إلغاء')).length,2);
 });
