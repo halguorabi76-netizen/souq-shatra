@@ -303,18 +303,3 @@ html[data-shatra-ui] .product-detail>#productPhoto{width:100%;max-width:none}
 .detail-cart i:empty{display:none}
 
 html[data-shatra-ui] .location-map-wrap{position:relative;isolation:isolate}html[data-shatra-ui] #sheet .map-locate-control{position:absolute;right:12px;bottom:28px;z-index:500;display:flex;align-items:center;gap:8px;width:auto;min-height:44px;margin:0;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 3px 14px #0a143329;font-size:15px;font-weight:700}html[data-shatra-ui] #sheet .map-locate-control:disabled{opacity:.7;cursor:wait}
-
-/* Animated selection follows the existing five navigation actions. */
-html[data-shatra-ui] .app>.tabs{isolation:isolate;overflow:hidden;border-radius:30px!important;padding:8px 7px!important;min-height:80px}
-html[data-shatra-ui] .app>.tabs::after{content:"";position:absolute;left:10px;right:10px;bottom:8px;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),var(--indigo),var(--cyan),transparent);opacity:.45;z-index:0;pointer-events:none}
-html[data-shatra-ui] .app>.tabs::before{content:"";position:absolute;left:var(--nav-active-x,50%);bottom:6px;width:calc(var(--nav-item-width,20%) + 22px);height:72px;transform:translateX(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80' preserveAspectRatio='none'%3E%3Cpath d='M0 77 C24 77 15 7 60 7 S96 77 120 77' fill='%23ffffff' stroke='%233547a5' stroke-width='2.5'/%3E%3C/svg%3E") center/100% 100% no-repeat;z-index:1;pointer-events:none;opacity:0;transition:left .36s cubic-bezier(.22,.8,.25,1),width .36s ease,opacity .2s ease}
-html[data-shatra-ui][data-theme=dark] .app>.tabs::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80' preserveAspectRatio='none'%3E%3Cpath d='M0 77 C24 77 15 7 60 7 S96 77 120 77' fill='%23101827' stroke='%239cacfa' stroke-width='2.5'/%3E%3C/svg%3E")}
-html[data-shatra-ui] .app>.tabs.has-active-item::before{opacity:1}
-html[data-shatra-ui] .app>.tabs button{position:relative;z-index:2;height:62px!important;min-height:62px!important;gap:9px!important;transform:none!important;transition:color .25s ease!important;touch-action:manipulation}
-html[data-shatra-ui] .app>.tabs button[aria-current=page]{background:transparent!important;color:var(--icon-ink)!important;border:0!important;box-shadow:none!important;width:auto!important;border-radius:0!important;justify-self:stretch;font-weight:800}
-html[data-shatra-ui] .app>.tabs .navicon{transition:transform .3s cubic-bezier(.22,.8,.25,1),filter .3s ease!important}
-html[data-shatra-ui] .app>.tabs button[aria-current=page] .navicon{transform:translateY(-5px) scale(1.1);filter:drop-shadow(0 3px 5px #72c9d766)}
-html[data-shatra-ui] .app>.tabs button[aria-current=page]::after{content:"";display:block!important;position:absolute;left:50%;top:32px;width:5px;height:5px;border-radius:50%;transform:translateX(-50%);background:var(--icon-ink);box-shadow:0 0 8px #72c9d780}
-html[data-shatra-ui] .app>.tabs button:active .navicon{transform:scale(.9)}
-html[data-shatra-ui] .app>.tabs button:focus-visible{outline:2px solid var(--icon-ink);outline-offset:-3px}
-@media(prefers-reduced-motion:reduce){html[data-shatra-ui] .app>.tabs::before,html[data-shatra-ui] .app>.tabs .navicon{transition:none!important}}
