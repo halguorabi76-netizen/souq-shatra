@@ -33,3 +33,11 @@ test('stale cancellation actions are blocked when driver assignment has already 
  vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function customerActionAsk('),html.indexOf('function account(')),c);
  c.customerActionAsk('order|cancel');await c.performCustomerAction('order|cancel');assert.equal(calls.filter(s=>s.includes('لا يمكن إلغاء')).length,2);
 });
+
+test('help is available only on assigned active orders; returns open a dialog',()=>{
+ const c=context();assert.match(c.customerOrderControls({id:'order',st:1,driver_id:'driver'}),/data-op="help"/);
+ for(const st of [3,4])assert.doesNotMatch(c.customerOrderControls({id:'order',st,driver_id:'driver'}),/data-op="help"/);
+ const calls=[];Object.assign(c,{D:{o:[{id:'order',st:3,buyer_id:'buyer',driver_id:'driver'}]},orderDialog:(title,body)=>calls.push({title,body}),sheet:()=>{throw Error('full page must not open')}});
+ vm.runInContext(html.slice(html.indexOf('function customerActionAsk('),html.indexOf('async function performCustomerAction(')),c);
+ c.customerActionAsk('order|return');assert.equal(calls[0].title,'طلب إرجاع');assert.match(calls[0].body,/customerActionReason/);
+});

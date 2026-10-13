@@ -36,8 +36,8 @@ test('seller driver contact escapes names and exposes only supplied contact fiel
 test('driver customer location becomes a safe directions button while preserving notes',()=>{
  const c=load('delivery-workspace.js'),note='اتصل قبل الوصول | رقم هاتف بديل: 07800000000 | موقع الزبون: https://www.google.com/maps?q=31.405969,46.171945',location=c.driverCustomerLocation(note);
  assert.equal(location.href,'https://www.google.com/maps/dir/?api=1&destination=31.405969,46.171945');assert.equal(location.note,'اتصل قبل الوصول | رقم هاتف بديل: 07800000000');
- const order={id:'abcdef',mid:'store',st:1,ts:'now',items:[],cust:{name:'زبون',addr:'عنوان',phone:'07700000000',note},total:37000,platform_fee:0,delivery_fee:2000};
- const {w}=workspace({data:{m:[],driverContacts:[]}}),html=w.orderCard(order,{data:{m:[],driverContacts:[]}});
+ const order={id:'abcdef',mid:'store',driver_id:'driver',st:1,ts:'now',items:[],cust:{name:'زبون',addr:'عنوان',phone:'07700000000',note},total:37000,platform_fee:0,delivery_fee:2000};
+ const {w}=workspace({data:{m:[],driverContacts:[]}}),html=w.orderCard(order,{user:{id:'driver'},data:{m:[],driverContacts:[]}});
  assert.match(html,/class="dw-map-link"/);assert.match(html,/الاتجاهات إلى الزبون/);assert.match(html,/target="_blank" rel="noopener noreferrer"/);assert.doesNotMatch(html,/موقع الزبون:|maps\?q=/);assert.match(html,/اتصل قبل الوصول/);
  for(const value of ['', 'بدون موقع', 'موقع الزبون: javascript:alert(1)', 'موقع الزبون: https://www.google.com/maps?q=91,46', 'موقع الزبون: https://www.google.com/maps?q=31,181'])assert.equal(c.driverCustomerLocation(value).href,'');
 });

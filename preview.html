@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-account-boot="true" data-shatra-ui="figma-20261012">
 <head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>
-<link rel="stylesheet" href="delivery-operations.css?v=171">
+<link rel="stylesheet" href="delivery-operations.css?v=172">
 <script>
 // Route an administration OAuth return before the marketplace client starts.
 (()=>{try{
@@ -470,10 +470,10 @@ import {createPreviewClient} from "./preview-lab.js?v=161";
 
 import {signInProfessional} from "./professional-login.js?v=138";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
-import {createSellerWorkspace} from "./seller-workspace.js?v=169";
+import {createSellerWorkspace} from "./seller-workspace.js?v=172";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=170";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=171";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=171";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=172";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -512,7 +512,7 @@ function withTimeout(promise,ms=12000){
   return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.'),{name:'TimeoutError'})),ms)})]).finally(()=>clearTimeout(timer));
 }
 function error(e){if(e?.message?.includes('لا تكتب رقم هاتفك هنا')){toast('لا تكتب رقم هاتفك هنا');return;}if(e?.name==='TimeoutError'||e?.name==='TypeError')window.SouqLoading?.failed?.();if(e?.message?.includes('username:')){toast('اسم المستخدم من ٣ إلى ٣٠ حرفًا إنجليزيًا أو رقمًا أو شرطة سفلية، يبدأ بحرف');return;}if(e?.code==='23505'){toast('اسم المستخدم أو رمز النسخة مستخدم بالفعل؛ اختر اسمًا آخر');return;}if(e?.message?.includes('inventory changed')){toast('تغيّر مخزون هذا المنتج أثناء التعديل. أعد فتح المنتج لتحميل الكميات الجديدة ثم احفظ.');return;}if(e?.message?.includes('product unavailable')){toast('المنتج أو الكمية المطلوبة غير متوفرة حاليًا. عدّل الكمية وحاول مجددًا.');return;}if(e?.message?.includes('invalid quantity')){toast('اختر كمية صحيحة من ١ إلى ١٠٠ قطعة للطلب الواحد.');return;}if(e?.message?.includes('customer blocked by store')){toast('هذا الحساب محظور من الطلب في هذا المتجر. تواصل مع البائع.');return;}toast(e?.name==='AbortError'||e?.name==='TimeoutError'?'انتهت مهلة الاتصال. تحقق من الإنترنت وأعد المحاولة.':'تعذّر إكمال العملية: '+(e?.message||e))}
-import {readOrders,addressContainsPhone,STAGES,createDeliveryOperations} from './delivery-operations.js?v=171';
+import {readOrders,addressContainsPhone,STAGES,createDeliveryOperations,orderDialog,closeOrderDialog} from './delivery-operations.js?v=172';
 function orderRead(){return readOrders(db)}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
 const fromOrder=o=>({id:o.id,mid:o.store_id,tracking:o.tracking||{},can_report_late:!!o.can_report_late,delivery_batch_id:o.delivery_batch_id,route_km:o.route_km,customer_lat:o.customer_lat,customer_lng:o.customer_lng,internal:o.internal,customer_action:Array.isArray(o.order_customer_actions)?o.order_customer_actions[0]:o.order_customer_actions,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone||'',addr:o.address,note:o.note}});
@@ -765,6 +765,7 @@ function pageBackbar(){
  bar.prepend(button);
 }
 function closePage(){
+ if(closeOrderDialog())return;
  const cancelSellerEntry=sellerEntryPending&&!user;
  if(cancelSellerEntry){sellerEntryPending=false;viewMode='guest';try{sessionStorage.removeItem('souq-preview-pending-role');sessionStorage.removeItem('souq-role-login');sessionStorage.removeItem('souq-role-request')}catch{}}
  if($('#sheet').classList.contains('auth-sheet')&&pendingPurchase)clearPurchaseReturn();
@@ -773,6 +774,7 @@ function closePage(){
  if(cancelSellerEntry)render();
 }
 function goBack(){
+ if(closeOrderDialog())return;
  if(!$('#shade').hidden){
   window.SouqLocationPicker?.close();
   const previous=pageNav?.backSheet();
@@ -1124,14 +1126,14 @@ function ordCard(o,m){
   return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}${!m&&o.st<3?`<p class="delivery-queue-note">يصل اليوم · ${esc(STAGES[o.tracking?.stage]||ST[o.st])}${o.tracking?.queue_rank?' · ترتيب التوصيل: '+o.tracking.queue_rank:''}</p>`:''}${o.customer_action?.request_kind?'<p class="note">↩ '+(o.customer_action.request_kind==='return'?'أُرسل طلب إرجاع للمراجعة':'أُرسل طلب إلغاء للمراجعة')+(o.customer_action.reason?' · '+esc(o.customer_action.reason):'')+'</p>':''}
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
-  ${m&&o.cust.phone?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
+  ${m&&o.driver_id&&o.cust.phone?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
   ${m?`<small>📍 ${esc(o.cust.addr)}</small>${o.st===1&&!o.tracking?.ready_at?`<button class="alt" data-op="READY" data-id="${esc(o.id)}">الطلب جاهز للاستلام</button>`:''}`:''}${!m&&user?.id===o.buyer_id?customerOrderControls(o):''}${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
 }
 function customerOrderControls(o){
  const hidden=!!o.customer_action?.hidden_at;
  if(hidden)return `<div class="acts"><button data-a="customerAction" data-v="${o.id}|restore">↶ إعادة إلى قائمتي</button></div>`;
  const kind=o.st===3?'return':(o.st<2&&!o.driver_id)||(o.st<3&&o.tracking?.late_reported_at)?'cancel':null,requested=o.customer_action?.request_kind===kind;
- return `<div class="acts customer-order-controls">${o.driver_id&&o.st!==4?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
+ return `<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
 }
 function customerOrderHub(){
  const mine=D.o.filter(o=>user&&o.buyer_id===user.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts)),filter=D.orderFilter||'all';
@@ -1156,7 +1158,7 @@ function customerActionAsk(value){
  if(kind==='cancel'&&(o.driver_id||o.st>=2)&&!o.tracking?.late_reported_at){toast('لا يمكن إلغاء الطلب بعد قبول سائق التوصيل');return;}
  const title=kind==='hide'?'إزالة من قائمتي':kind==='return'?'طلب إرجاع':'إلغاء الطلب';
  const message=kind==='hide'?'سيُخفى الطلب من قائمتك فقط، ويمكن استعادته من قسم «المزالة». هذا لا يلغي الطلب ولا يوقف توصيله.':kind==='return'?'سيُرسل طلب الإرجاع إلى البائع والإدارة للمراجعة والتواصل معك.':'سيُلغى الطلب وتُعاد كميته إلى المخزون.';
- sheet(head(title)+`<p>${message}</p>${kind!=='hide'?'<label for="customerActionReason">السبب (اختياري)</label><textarea id="customerActionReason" maxlength="500"></textarea>':''}<button class="buy" data-a="customerAction" data-v="${esc(value)}">تأكيد ${title}</button><button class="alt" data-a="close">رجوع</button>`);
+ orderDialog(title,`<p>${message}</p>${kind!=='hide'?'<label for="customerActionReason">السبب (اختياري)</label><textarea id="customerActionReason" maxlength="500"></textarea>':''}<button class="buy" data-a="customerAction" data-v="${esc(value)}">تأكيد ${title}</button><button class="alt" data-a="close">رجوع</button>`);
 }
 async function performCustomerAction(value,button){
  if(button?.disabled)return;const identity=user?.id;if(!identity)return;const [id,kind]=value.split('|');

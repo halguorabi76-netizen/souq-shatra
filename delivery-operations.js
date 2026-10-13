@@ -9,6 +9,21 @@ export function readOrders(db){
  return db.rpc('participant_orders',params).then(r=>{if(r.error)return r;let data=r.data||[];for(const [k,values] of local)data=data.filter(o=>values.includes(o[k]));return {...r,data:one?data[0]||null:data,error:one&&!data.length?{message:'order not found'}:null};}).then(resolve,reject);}};return q;
 }
 export const CONFIG_LABELS={ROAD_FACTOR:'معامل مسافة الطريق',BASE_FEE:'الرسم الأساسي (دينار)',PER_KM_FEE:'الرسم لكل كيلومتر',EXTRA_STORE_FEE:'رسم كل متجر إضافي',MAX_ROUTE_KM:'مسافة تنبيه الرسم المرتفع',MAX_STORES:'عدد المتاجر قبل التنبيه',FEE_ROUNDING:'تقريب الرسم (دينار)',STALL_TOTAL_MIN:'دقائق قبول السائق دون بدء التوصيل',STALL_STATUS_MIN:'دقائق دون تغيير الحالة',MIN_PER_KM:'دقائق لكل كيلومتر (للإدارة)',BUFFER_MIN:'هامش الوقت (للإدارة)',EXTRA_STORE_MIN:'دقائق لكل متجر إضافي (للإدارة)'};
+export function prepMinutes(value,unit='minutes'){
+ if(String(value??'').trim()==='')return null;
+ const minutes=Number(value)*(unit==='hours'?60:1);
+ if(!Number.isFinite(minutes)||minutes<0||minutes>1440||Math.abs(minutes-Math.round(minutes))>1e-7)throw new Error('أدخل وقتًا صحيحًا حتى 24 ساعة، أو اتركه فارغًا');
+ return Math.round(minutes);
+}
+export function closeOrderDialog(){const dialog=document.getElementById('orderActionDialog');if(!dialog)return false;dialog.close();dialog.remove();return true;}
+export function orderDialog(title,body){
+ closeOrderDialog();const trigger=document.activeElement,dialog=document.createElement('dialog');dialog.id='orderActionDialog';dialog.className='order-action-dialog';dialog.dir='rtl';dialog.setAttribute('aria-labelledby','orderActionTitle');
+ dialog.innerHTML=`<div class="sh"><h2 id="orderActionTitle"></h2><button type="button" class="x" data-dialog-close aria-label="إغلاق">✕</button></div>${body}`;
+ dialog.querySelector('h2').textContent=title;
+ dialog.addEventListener('click',e=>{if(e.target.closest('[data-dialog-close]'))closeOrderDialog()});
+ dialog.addEventListener('close',()=>{dialog.remove();if(trigger?.isConnected)trigger.focus()},{once:true});
+ document.body.append(dialog);dialog.showModal();
+}
 export function createDeliveryOperations(ctx){
  const E=ctx.esc,F=ctx.fmt,db=ctx.db;let busy=false,storePoint=null;
  const button=(action,text,id='')=>`<button class="alt" data-op="${action}" data-id="${E(id)}">${text}</button>`;
@@ -24,15 +39,18 @@ export function createDeliveryOperations(ctx){
  }
  async function config(){const g=ctx.get();if(g.profile?.role!=='admin'||g.profile.disabled)return;const rows=ctx.check(await db.from('delivery_config').select('*'))||[];ctx.sheet(ctx.head('إعدادات المسار والتأخر')+`<form id="routeConfig" class="delivery-ops">${rows.map(r=>`<label>${E(CONFIG_LABELS[r.key]||r.key)}<input data-config="${E(r.key)}" type="number" min="${['ROAD_FACTOR','FEE_ROUNDING','STALL_TOTAL_MIN','STALL_STATUS_MIN','MAX_STORES'].includes(r.key)?r.key==='ROAD_FACTOR'?'.01':'1':'0'}" max="1000000" step="${r.key==='ROAD_FACTOR'?'.01':'1'}" required value="${E(r.value)}"><small dir="ltr">${E(r.key)}</small></label>`).join('')}<button class="buy" type="submit">حفظ للطلبات الجديدة</button></form>`);document.getElementById('routeConfig').addEventListener('submit',e=>{e.preventDefault();run(async()=>{const values=Object.fromEntries([...document.querySelectorAll('[data-config]')].map(i=>[i.dataset.config,Number(i.value)]));ctx.check(await db.rpc('admin_delivery_config',{p_values:values}));ctx.toast('تم حفظ الإعدادات؛ رسوم الطلبات المؤكدة ثابتة');await config();});});}
  async function store(){const g=ctx.get(),s=g.store;if(!s)return;const rows=ctx.check(await db.from('store_pickups').select('*').eq('store_id',s.id));const loc=rows?.[0];storePoint=loc?.latitude!=null?{lat:loc.latitude,lon:loc.longitude}:null;
-  function show(prep=s.prep_time_min??10){ctx.sheet(ctx.head('موقع الاستلام ووقت التجهيز')+`<div class="delivery-ops"><p>يُستخدم موقع الاستلام لحساب مسافة التوصيل. حدده مرة واحدة، وعدّله إذا انتقل المتجر.</p><button class="alt" id="storeRouteMap">📍 ${storePoint?'تعديل موقع الاستلام':'تحديد موقع الاستلام'}</button>${storePoint?`<p dir="ltr">${E(storePoint.lat)}, ${E(storePoint.lon)}</p>`:''}<label>وقت التجهيز بالدقائق<input id="storePrep" type="number" min="0" max="1440" value="${E(prep)}"></label><button class="buy" id="storeRouteSave" ${storePoint?'':'disabled'}>حفظ</button></div>`);
-  document.getElementById('storeRouteMap').onclick=()=>{const prep=document.getElementById('storePrep').value;window.SouqLocationPicker.show({value:storePoint,sheet:ctx.sheet,head:ctx.head,title:'موقع استلام البضاعة',onConfirm:p=>{storePoint=p;show(prep)}})};
-  document.getElementById('storeRouteSave').onclick=()=>run(async()=>{const prep=Number(document.getElementById('storePrep').value);if(!Number.isInteger(prep)||prep<0||prep>1440||!storePoint){ctx.toast('حدد الموقع ووقت تجهيز صحيح');return}ctx.check(await db.rpc('save_store_delivery',{p_store:s.id,p_lat:storePoint.lat,p_lng:storePoint.lon,p_prep:prep}));ctx.toast('حُفظ موقع الاستلام ووقت التجهيز');await ctx.refresh();show(prep);});}show();
+  function show(prep=s.prep_time_min??'',unit='minutes'){
+   if(unit==='minutes'&&prep!==''&&Number(prep)>=60&&Number(prep)%60===0){prep=Number(prep)/60;unit='hours'}
+   ctx.sheet(ctx.head('موقع الاستلام ووقت التجهيز')+`<div class="delivery-ops"><p>يُستخدم موقع الاستلام لحساب مسافة التوصيل.</p><button class="alt" id="storeRouteMap">📍 ${storePoint?'تعديل موقع الاستلام':'تحديد موقع الاستلام'}</button>${storePoint?`<p dir="ltr">${E(storePoint.lat)}, ${E(storePoint.lon)}</p>`:''}<label>وقت التجهيز (اختياري)<input id="storePrep" type="number" min="0" step="any" placeholder="غير محدد" value="${E(prep)}"></label><label>الوحدة<select id="storePrepUnit"><option value="minutes" ${unit==='minutes'?'selected':''}>دقائق</option><option value="hours" ${unit==='hours'?'selected':''}>ساعات</option></select></label><small>يمكن ترك الوقت فارغًا. هذا تقدير داخلي للمتابعة، ولا يُعرض كوعد للزبون.</small><button class="buy" id="storeRouteSave" ${storePoint?'':'disabled'}>حفظ</button></div>`);
+   document.getElementById('storeRouteMap').onclick=()=>{const prep=document.getElementById('storePrep').value,unit=document.getElementById('storePrepUnit').value;window.SouqLocationPicker.show({value:storePoint,sheet:ctx.sheet,head:ctx.head,title:'موقع استلام البضاعة',onConfirm:p=>{storePoint=p;show(prep,unit)}})};
+   document.getElementById('storeRouteSave').onclick=()=>run(async()=>{const prep=prepMinutes(document.getElementById('storePrep').value,document.getElementById('storePrepUnit').value);if(!storePoint){ctx.toast('حدد موقع الاستلام');return}ctx.check(await db.rpc('save_store_delivery',{p_store:s.id,p_lat:storePoint.lat,p_lng:storePoint.lon,p_prep:prep}));ctx.toast('حُفظت معلومات الاستلام');await ctx.refresh();show(prep??'');});
+  }show();
  }
  async function run(fn){if(busy)return;busy=true;try{await fn()}catch(e){ctx.error(e)}finally{busy=false}}
  document.addEventListener('click',e=>{const b=e.target.closest('[data-op]');if(!b)return;run(async()=>{const op=b.dataset.op,id=b.dataset.id,g=ctx.get();if(op==='admin')return adminPanel();if(op==='config')return config();if(op==='store')return store();
-  if(op==='help'){const r=ctx.check(await db.rpc('customer_delivery_action',{p_order:id,p_action:'help'}));ctx.sheet(ctx.head('أحتاج مساعدة')+`<p>تواصل مع سائق التوصيل لمعرفة حالة طلبك.</p>${r.phone?`<a class="buy" dir="ltr" href="tel:${E(r.phone)}">${E(r.phone)} · اتصال</a>`:'<p>رقم السائق غير متاح حاليًا</p>'}`);return;}
-  if(op==='lateAsk'){ctx.sheet(ctx.head('هل تأخر الطلب؟')+`<p>هل ما زال طلبك متأخرًا؟ سيُرسل بلاغ للإدارة وتصبح إمكانية الإلغاء متاحة.</p>${button('late','نعم تأخر',id)}`);return;}
-  if(op==='late'){ctx.check(await db.rpc('customer_delivery_action',{p_order:id,p_action:'late'}));ctx.toast('وصل البلاغ للإدارة وأصبح الإلغاء متاحًا');await ctx.reloadOrders();return;}
+  if(op==='help'){const r=ctx.check(await db.rpc('customer_delivery_action',{p_order:id,p_action:'help'}));orderDialog('أحتاج مساعدة',`<p>تواصل مع سائق التوصيل لمعرفة حالة طلبك.</p>${r.phone?`<a class="buy" dir="ltr" href="tel:${E(r.phone)}">${E(r.phone)} · اتصال</a>`:'<p>رقم السائق غير متاح حاليًا</p>'}`);return;}
+  if(op==='lateAsk'){orderDialog('هل تأخر الطلب؟',`<p>هل ما زال طلبك متأخرًا؟ سيُرسل بلاغ للإدارة وتصبح إمكانية الإلغاء متاحة.</p>${button('late','نعم تأخر',id)}`);return;}
+  if(op==='late'){ctx.check(await db.rpc('customer_delivery_action',{p_order:id,p_action:'late'}));closeOrderDialog();ctx.toast('وصل البلاغ للإدارة وأصبح الإلغاء متاحًا');await ctx.reloadOrders();return;}
   if(['READY','PICKED_UP','ON_THE_WAY'].includes(op)){ctx.check(await db.rpc('delivery_stage',{p_order:id,p_stage:op}));ctx.toast('تم تحديث حالة الطلب');await ctx.refresh();return;}
   if(op==='first'){const orders=g.data.o.filter(o=>o.driver_id===g.user?.id&&o.st<3).sort((a,b)=>(a.tracking?.queue_rank??1e9)-(b.tracking?.queue_rank??1e9));const ids=[id,...orders.filter(o=>o.id!==id).map(o=>o.id)];ctx.check(await db.rpc('reorder_delivery',{p_orders:ids}));ctx.toast('تم تقديم الطلب في ترتيب التوصيل');await ctx.refresh();}
  });});return {adminPanel,config,store};

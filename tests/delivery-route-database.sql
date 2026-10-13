@@ -5,6 +5,7 @@ begin
  insert into auth.users(id,email,raw_user_meta_data) values(seller,'qa-route-'||seller||'@example.invalid','{"full_name":"QA Seller"}'),(seller2,'qa-route-'||seller2||'@example.invalid','{"full_name":"QA Seller 2"}'),(buyer,'qa-route-'||buyer||'@example.invalid','{"full_name":"QA Buyer"}'),(driver,'qa-route-'||driver||'@example.invalid','{"full_name":"QA Driver"}'),(stranger,'qa-route-'||stranger||'@example.invalid','{}'),(admin_id,'qa-route-'||admin_id||'@example.invalid','{}');
  update public.profiles set role='admin' where id=admin_id;
  insert into public.stores(id,owner_id,name,phone,address,approved) values(store1,seller,'QA Route Store','07811111111','QA pickup',true),(store2,seller2,'QA Route Store 2','07811111111','QA pickup 2',true);
+ update public.stores set prep_time_min=10 where id in(store1,store2);
  insert into public.store_pickups(store_id,pickup_address,latitude,longitude) values(store1,'QA pickup',31.409,46.1727),(store2,'QA pickup 2',31.415918,46.1727);
  insert into public.products(id,store_id,name,price,stock) values(product1,store1,'QA Product',1000,10),(product2,store2,'QA Product 2',2000,10);
  perform set_config('request.jwt.claim.sub',buyer::text,true);
@@ -23,7 +24,12 @@ begin
  perform set_config('request.jwt.claim.sub',seller::text,true);
  r:=public.participant_orders(p_order=>o);
  if r->0->>'customer_phone' is not null or (r->0->>'note') like '%07844444444%' then raise exception 'seller contact leak';end if;
+ perform public.save_store_delivery(store1,31.409,46.1727,null);
+ if (select prep_time_min from public.stores where id=store1) is not null then raise exception 'optional prep missing';end if;
+ perform public.save_store_delivery(store1,31.409,46.1727,120);
+ if (select prep_time_min from public.stores where id=store1)<>120 then raise exception 'hours not persisted';end if;
  perform public.set_order_status(o,'accepted');perform public.delivery_stage(o,'READY');
+ if public.participant_orders(p_order=>o)->0->>'customer_phone' is not null then raise exception 'seller approval disclosed contact';end if;
  perform set_config('request.jwt.claim.sub',seller2::text,true);perform public.set_order_status(o2,'accepted');
  perform set_config('request.jwt.claim.sub',driver::text,true);
  perform public.request_driver_application('QA Driver','07822222222','qa-route-'||driver||'@example.invalid','QA address','QA motorcycle');update public.delivery_workers set approved=true where user_id=driver;
@@ -31,6 +37,11 @@ begin
  perform public.claim_route_delivery(o);
  if (select count(*) from public.orders where id in(o,o2) and driver_id=driver)<>2 then raise exception 'batch claim not atomic';end if;
  if public.participant_orders(p_order=>o)->0->>'customer_phone'<>'07833333333' then raise exception 'assigned driver missing contact';end if;
+ perform set_config('request.jwt.claim.sub',seller::text,true);
+ if public.participant_orders(p_order=>o)->0->>'customer_phone' is distinct from '07833333333' then raise exception 'seller missing accepted contact';end if;
+ perform set_config('request.jwt.claim.sub',stranger::text,true);
+ if public.participant_orders(p_order=>o)<>'[]' then raise exception 'unassigned user contact exposed';end if;
+ perform set_config('request.jwt.claim.sub',driver::text,true);
  perform public.reorder_delivery(array[o2,o]);if (select queue_rank from public.delivery_tracking where order_id=o2)<>1 then raise exception 'reorder failed';end if;
  perform set_config('request.jwt.claim.sub',buyer::text,true);
  begin perform public.customer_order_action(o,'cancel','');raise exception 'cancel before late permitted';exception when others then if sqlerrm='cancel before late permitted' then raise;end if;end;
@@ -53,6 +64,10 @@ begin
  if (select started_at is null or on_the_way_at is null or queue_rank<>1 from public.delivery_tracking where order_id=o2) then raise exception 'start delivery metadata missing';end if;
  perform public.delivery_step(o2,'delivered');select amount_due into n from public.delivery_workers where user_id=driver;perform public.delivery_step(o2,'delivered');
  if (select amount_due from public.delivery_workers where user_id=driver)<>n then raise exception 'completion charged twice';end if;
+ perform set_config('request.jwt.claim.sub',buyer::text,true);
+ select count(*) into n from public.delivery_events where order_id=o2 and kind='help';
+ begin perform public.customer_delivery_action(o2,'help');raise exception 'delivered help permitted';exception when others then if sqlerrm='delivered help permitted' then raise;end if;end;
+ if (select count(*) from public.delivery_events where order_id=o2 and kind='help')<>n then raise exception 'delivered help logged';end if;
  -- Three matching cancellations are informational only and alert administrators.
  for n in 1..2 loop
   perform set_config('request.jwt.claim.sub',buyer::text,true);
