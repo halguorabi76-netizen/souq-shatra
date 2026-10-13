@@ -63,5 +63,20 @@
  for(const [value,name] of [['stores','store'],['market','home'],['materials','grid'],['profilePage','user']]){const mark=nav?.querySelector(`[data-v="${value}"] .navicon`);if(mark)mark.innerHTML=icon(name);}
  // The existing render() replaces cart/order labels. Styling remains on their
  // existing actions, rather than creating a second set of navigation controls.
+ // Keep the curve on the existing navigation: render() may replace its buttons.
+ if(nav){
+  let frame=0;
+  const positionMarker=()=>{frame=0;const active=nav.querySelector('button[aria-current="page"]');
+   nav.classList.toggle('has-active-item',!!active);
+   if(!active||nav.hidden)return;
+   nav.style.setProperty('--nav-active-x',`${active.offsetLeft+active.offsetWidth/2}px`);
+   nav.style.setProperty('--nav-item-width',`${active.offsetWidth}px`);
+  };
+  const scheduleMarker=()=>{if(!frame)frame=requestAnimationFrame(positionMarker)};
+  new MutationObserver(scheduleMarker).observe(nav,{childList:true,subtree:true,attributes:true,attributeFilter:['aria-current','hidden']});
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(scheduleMarker).observe(nav);
+  window.addEventListener('resize',scheduleMarker,{passive:true});
+  document.fonts?.ready.then(scheduleMarker);scheduleMarker();
+ }
  const profile=document.getElementById('accountTrigger');if(profile)profile.classList.add('figma-profile-shortcut');
 })();
