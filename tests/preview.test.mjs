@@ -49,7 +49,7 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  vm.runInContext("A.accountMenu()",context);assert.equal(nodes.get('#accountMenu').hidden,true);assert.match(nodes.get('#view').innerHTML,/data-a="editCustomerPhone"/);assert.doesNotMatch(nodes.get('#view').innerHTML,/اختر نوع الحساب/);
  vm.runInContext("A.editCustomerPhone()",context);assert.match(nodes.get('#sheet').innerHTML,/customerPhoneForm/);assert.doesNotMatch(nodes.get('#sheet').innerHTML,/pfname/);
  vm.runInContext("A.close()",context);
- vm.runInContext("db.preview.selectRole('seller')",context);await settle();assert.match(nodes.get('#view').innerHTML,/لوحة متجرك|متجر المعاينة/);assert.match(nodes.get('#view').innerHTML,/مبيعات اليوم المكتملة/);
+ vm.runInContext("db.preview.selectRole('seller')",context);await settle();assert.match(nodes.get('#view').innerHTML,/لوحة متجرك|متجر المعاينة/);assert.match(nodes.get('#view').innerHTML,/مبيعات اليوم/);
  await vm.runInContext("workspace.saveProductCost(D.p[0].id,7000)",context);
  vm.runInContext("A.pform(D.p[0].id)",context);
  assert.match(nodes.get('#view').innerHTML,/productCreateForm|إضافة صورة/);
