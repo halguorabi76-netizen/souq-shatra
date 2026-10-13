@@ -12,13 +12,13 @@
   "theme_color": "#070f26",
   "icons": [
     {
-      "src": "icons/shatra-smile-192-v139.png",
+      "src": "icons/shatra-calligraphy-192-v174.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/shatra-smile-512-v139.png",
+      "src": "icons/shatra-calligraphy-512-v174.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
