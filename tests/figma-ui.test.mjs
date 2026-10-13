@@ -18,7 +18,7 @@ test('public layer has no React replacement, demo account switcher or data write
  assert.match(read('figma-ui.css'),/#3547a5/);assert.match(read('figma-ui.css'),/#080d1a/);assert.match(read('figma-ui.css'),/prefers-reduced-motion/);
 });
 test('administration styling and existing business/authorization modules remain unchanged',()=>{
- for(const file of ['admin-workspace.js','admin-portal.css','marketplace.js','activity-center.js','product-editor.js','product-variants.js','config.js'])assert.equal(read(file),execFileSync('git',['show','HEAD:'+file],{encoding:'utf8'}),file+' must stay unchanged');
+ for(const file of ['admin-workspace.js','admin-portal.css','marketplace.js','product-editor.js','product-variants.js','config.js'])assert.equal(read(file),execFileSync('git',['show','HEAD:'+file],{encoding:'utf8'}),file+' must stay unchanged');
  assert.doesNotMatch(read('admin.html'),/figma-ui/);assert.doesNotMatch(read('admin-app.js'),/figma-ui/);
 });
 test('featured watch uses the current product image and falls back to one city image after removal',()=>{

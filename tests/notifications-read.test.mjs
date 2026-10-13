@@ -6,7 +6,7 @@ import vm from 'node:vm';
 function fixture({driver=false}={}){
  const elements=new Map(),badge={hidden:true,textContent:''},storage=new Map(),updates=[];
  const state={user:{id:'account-one'},profile:{},mode:driver?'driver':'seller',driver:{approved:driver}};
- const notices=[{id:'first',recipient_id:'account-one',read_at:null,event_key:'order:first',title:'طلب',body:'جديد',created_at:'now'}];
+ const notices=[{id:'first',event_kind:'order',recipient_id:'account-one',read_at:null,event_key:'order:first',title:'طلب',body:'جديد',created_at:'now'}];
  const offers=driver?[{order_id:'delivery-one',store_name:'متجر',items:[]}]:[];
  let fail=false,hold=null;
  const document={hidden:false,body:{append:el=>elements.set(el.id,el)},getElementById:id=>elements.get(id),
@@ -18,7 +18,7 @@ function fixture({driver=false}={}){
   is(key,value){filters.push([key,value]);return q;},order(){return q;},limit(){return q;},
   async then(resolve,reject){try{
    if(table==='product_interactions')return resolve({data:[]});
-   if(action==='select'){if(hold)await hold;return resolve({data:notices.filter(n=>filters.every(([k,v])=>n[k]===v)).map(n=>({...n}))});}
+   if(action==='select'){if(hold)await hold;return resolve({data:notices.filter(n=>filters.every(([k,v])=>Array.isArray(v)?v.includes(n[k]):n[k]===v)).map(n=>({...n}))});}
    updates.push({payload,filters});if(fail)return resolve({error:new Error('network unavailable')});
    notices.filter(n=>filters.every(([k,v])=>Array.isArray(v)?v.includes(n[k]):n[k]===v)).forEach(n=>Object.assign(n,payload));
    return resolve({data:null});
@@ -56,15 +56,24 @@ test('failed persistence keeps unread badge and can be retried',async()=>{
 test('changing account during load does not mark prior-account notifications',async()=>{
  const f=fixture();let release;f.setHold(new Promise(r=>release=r));const pending=f.center.show();f.state.user={id:'account-two'};release();await pending;assert.equal(f.updates.length,0);assert.equal(f.notices[0].read_at,null);
 });
-test('social reactions are excluded from feed, unread badge and read updates; seller sign-in is excluded and operational notices remain',async()=>{
+test('social reactions are excluded from feed, unread badge and read updates; only orders, app updates and administration warnings remain',async()=>{
  const f=fixture();f.notices.splice(0);
  for(const kind of ['like','favorite','professional_login','professional_join','order','status','assigned','approval','inventory','payment','warning','site_update'])f.notices.push({id:kind,recipient_id:'account-one',event_kind:kind,event_key:kind+':test',title:kind,body:'',read_at:null});
- await f.center.poll();assert.equal(f.badge.textContent,8);await f.center.show();assert.equal(f.badge.hidden,true);
+ await f.center.poll();assert.equal(f.badge.textContent,5);await f.center.show();assert.equal(f.badge.hidden,true);
  assert.equal(f.notices.find(n=>n.id==='like').read_at,null);assert.equal(f.notices.find(n=>n.id==='favorite').read_at,null);
- assert.equal(f.notices.find(n=>n.id==='professional_login').read_at,null);assert.equal(f.updates[0].filters.find(([k])=>k==='id')[1].length,8);
+ assert.equal(f.notices.find(n=>n.id==='professional_login').read_at,null);assert.equal(f.updates[0].filters.find(([k])=>k==='id')[1].length,5);
 });
 
 
 test('switching to seller removes cached sign-in notifications before showing an unread badge',async()=>{
- const f=fixture({driver:true});f.notices.push({id:'login',recipient_id:'account-one',event_kind:'professional_login',event_key:'professional:seller:login:account-one',title:'دخول حساب بائع',read_at:null});await f.center.poll();assert.equal(f.badge.textContent,3);f.state.mode='seller';f.center.sync();assert.equal(f.badge.textContent,2);assert.equal(f.notices.find(n=>n.id==='login').read_at,null);
+ const f=fixture({driver:true});f.notices.push({id:'login',recipient_id:'account-one',event_kind:'professional_login',event_key:'professional:seller:login:account-one',title:'دخول حساب بائع',read_at:null});await f.center.poll();assert.equal(f.badge.textContent,2);f.state.mode='seller';f.center.sync();assert.equal(f.badge.textContent,2);assert.equal(f.notices.find(n=>n.id==='login').read_at,null);
+});
+
+test('all three public roles restrict notifications while admin keeps approval and login notices',()=>{
+ const f=fixture();for(const mode of ['buyer','seller','driver']){f.state.mode=mode;}
+ const sandbox={};vm.createContext(sandbox);vm.runInContext(readFileSync(new URL('../activity-center.js',import.meta.url),'utf8').replace(/export /g,''),sandbox);
+ const kinds=['order','status','assigned','delivery_offer','app_update','site_update','warning','inventory','payment','professional_login','professional_join','like'];
+ for(const mode of ['buyer','seller','driver'])assert.deepEqual(Array.from(sandbox.visibleNotices(kinds.map(event_kind=>({event_kind})),mode),n=>n.event_kind),kinds.slice(0,7));
+ assert.ok(sandbox.visibleNotices([{event_kind:'professional_join'}],'admin',true).length);
+ assert.equal(sandbox.noticeTone({title:'أُلغي الطلب'}),'error');assert.equal(sandbox.noticeTone({event_kind:'warning'}),'warning');
 });

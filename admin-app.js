@@ -4,7 +4,7 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=169";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=156";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=170";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=166";
 async function apiFetch(resource,init={}){

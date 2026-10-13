@@ -11,3 +11,26 @@
 .customer-orders{padding:0 16px 24px}.customer-orders .chips{display:flex;flex-wrap:wrap;gap:8px}.customer-order-controls{display:flex;flex-wrap:wrap;gap:8px}.customer-orders .ord{margin:16px 0}#customerActionReason{width:100%;min-height:80px;box-sizing:border-box}
 
 .dw-map-link{display:block;padding:14px 16px;margin:16px 0;border:1px solid var(--line);border-radius:14px;background:var(--tile);color:var(--navy);font-weight:700;text-align:center;text-decoration:none}
+
+/* Compact public notification center; the admin inbox keeps its existing layout. */
+:root:not([data-portal]) #activityPanel.ac-corner,:root:not([data-portal]) #activityToasts{position:fixed;inset:auto;top:calc(16px + env(safe-area-inset-top,0px));left:16px;right:auto;bottom:auto;width:min(410px,calc(100vw - 32px));max-width:410px;z-index:340;direction:rtl;box-sizing:border-box;color:var(--ink,#142d4d)}
+:root:not([data-portal]) #activityPanel.ac-corner{height:auto;max-height:min(620px,calc(100dvh - 100px));border-radius:22px!important;border:1px solid var(--line)!important;background:var(--surface,var(--card,#fff))!important;box-shadow:0 16px 55px #0d183429!important;overflow:hidden;padding:0}
+:root:not([data-portal]) #activityPanel.ac-corner header{padding:12px 14px;background:transparent;color:inherit;flex-shrink:0}
+:root:not([data-portal]) #activityPanel.ac-corner header b{font-size:17px}
+:root:not([data-portal]) #activityPanel.ac-corner header button{width:36px;height:36px;padding:0;font-size:25px;background:var(--surface-2,var(--tile));color:inherit}
+:root:not([data-portal]) #activityPanel.ac-corner .ac-panel-tools{padding:8px 12px;flex-shrink:0}
+:root:not([data-portal]) #activityPanel.ac-corner .ac-feed{padding:10px;min-height:0;overflow-y:auto}
+:root:not([data-portal]) :is(#activityPanel.ac-corner,#activityToasts) .ac-toast-card{--notice-color:#247bb9;--notice-wash:#72c9d71c;position:relative;display:flex;align-items:flex-start;gap:12px;min-width:0;margin:0 0 10px;padding:17px 14px;border:1px solid var(--line,#dce3ee);border-radius:17px;background:linear-gradient(270deg,var(--notice-wash),transparent 70%),var(--surface,var(--card,#fff));box-shadow:0 5px 16px #0d18340a;color:inherit}
+:root:not([data-portal]) :is(#activityPanel.ac-corner,#activityToasts) .ac-success{--notice-color:#21896f;--notice-wash:#4dc7a41c}
+:root:not([data-portal]) :is(#activityPanel.ac-corner,#activityToasts) .ac-warning{--notice-color:#b28a23;--notice-wash:#eed47726}
+:root:not([data-portal]) :is(#activityPanel.ac-corner,#activityToasts) .ac-error{--notice-color:#c45470;--notice-wash:#e98caa1c}
+.ac-toast-icon{display:grid;place-items:center;width:42px;height:42px;flex-shrink:0;border-radius:13px;color:var(--notice-color);background:var(--surface,var(--card,#fff));box-shadow:0 3px 10px #10243d0c}
+.ac-toast-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ac-toast-copy{display:block;flex:1;min-width:0;padding:0;border:0;background:transparent;color:inherit;text-align:right;font-family:inherit;cursor:pointer}
+.ac-toast-copy b{display:block;font-size:14px;line-height:1.7;margin-bottom:4px}
+.ac-toast-copy span{display:block;font-size:13px;line-height:1.8;white-space:pre-line;overflow-wrap:anywhere;color:var(--ink-soft,var(--mut))}
+.ac-toast-copy small{display:block;font-size:10px;line-height:1.5;margin-top:7px;color:var(--ink-soft,var(--mut))}
+.ac-toast-dismiss{width:28px;height:28px;flex-shrink:0;padding:0;border:0;background:transparent;color:var(--ink-soft,var(--mut));font:24px/1 sans-serif;cursor:pointer;border-radius:8px}
+.ac-toast-dismiss:focus-visible,.ac-toast-copy:focus-visible{outline:2px solid var(--notice-color);outline-offset:3px}
+#activityToasts{max-height:calc(100dvh - 110px);overflow:auto;overscroll-behavior:contain}
+@media(max-width:480px){:root:not([data-portal]) #activityPanel.ac-corner,:root:not([data-portal]) #activityToasts{top:calc(12px + env(safe-area-inset-top,0px));left:12px;width:calc(100vw - 24px);max-height:65dvh}.ac-toast-icon{width:36px;height:36px}.ac-toast-card{gap:9px}}
