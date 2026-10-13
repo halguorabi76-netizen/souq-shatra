@@ -2,8 +2,9 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import {STAGES} from '../delivery-operations.js';
 const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function load(file,extra={}){const context={...extra};vm.createContext(context);vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/export /g,''),context);return context;}
+function load(file,extra={}){const context={STAGES,...extra};vm.createContext(context);vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context);return context;}
 test('delivery metrics separate customer totals, earnings and cancelled work',()=>{
  const c=load('delivery-workspace.js'),orders=[{driver_id:'a',st:3,total:13000,delivery_fee:2000},{driver_id:'a',st:2,total:8000,delivery_fee:1500},{driver_id:'a',st:4,total:90000,delivery_fee:90000},{driver_id:'b',st:3,total:7000}];
  assert.deepEqual(JSON.parse(JSON.stringify(c.deliveryMetrics(orders,'a'))),{done:1,pending:1,completedTotal:13000,pendingTotal:8000,earnings:2000});

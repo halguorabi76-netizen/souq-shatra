@@ -10,7 +10,7 @@ async function scenario(failure,role='admin'){
  const query={then(resolve,reject){queries++; if((failure==='profile'&&table==='profiles')||(failure==='dataset'&&table==='orders'))return Promise.reject(new Error(table+' timeout')).then(resolve,reject);return Promise.resolve({data:table==='profiles'?{role,disabled:false}:table==='delivery_settings'?null:[]}).then(resolve,reject)}};
  for(const method of ['select','eq','order','limit','maybeSingle'])query[method]=()=>query;return query;},rpc:()=>Promise.resolve({data:[]})};
  const ctx={db,ADMIN_PORTAL:true,window:{SouqLoading:{recovered(){}}},$:()=>loading,withTimeout:p=>p,check:r=>{if(r.error)throw r.error;return r.data},unavailableSession:()=>false,render(){renders.push(vm.runInContext('({error:adminLoadError?.message,ready:adminAccessReady,loading:D.loading})',ctx))},clearUnavailableAccount:()=>{throw Error('unexpected signout')},fromOrder:()=>{},Map};
- vm.createContext(ctx);
+ ctx.orderRead=()=>ctx.db.from('orders').select('*,order_items(*),order_customer_actions(*)');vm.createContext(ctx);
  vm.runInContext('let refreshId=0,adminLoadError=null,user=null,profile=null,ownStore=null,adminAccessReady=false,dataReady=false,viewMode="guest",deliveryPayments=[],deliverySettings={};let D={};'+body+';globalThis.run=refresh;globalThis.state=()=>({error:adminLoadError,profile,adminAccessReady,dataReady,D});',ctx);
  if(failure)await assert.rejects(ctx.run(),/timeout/);else await ctx.run();
  assert.equal(loading.hidden,true);

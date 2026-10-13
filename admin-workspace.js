@@ -73,6 +73,7 @@ export function renderAdminWorkspace(ctx){
  }else{
   h+=section('موافقات التجار والسائقين',`<div class="admin-action-list">${pending.map(m=>btn('adminDetail','seller|'+m.id,E(m.name)+'<b>مراجعة المتجر ‹</b>')).join('')}${pendingDrivers.map(w=>btn('adminDetail','driver|'+w.user_id,E(w.details?.full_name||D.people.find(p=>p.id===w.user_id)?.full_name||'سائق')+'<b>مراجعة السائق ‹</b>')).join('')}</div>`+(!pending.length&&!pendingDrivers.length?empty('لا توجد حسابات بانتظار الموافقة.') :''));
   h+=section('التحويلات بانتظار التحقق',pendingPayments.length?pendingPayments.map(payment).join(''):empty('لا توجد تحويلات بانتظار التحقق.'));
+  h+=section('متابعة المسار والبلاغات','<button class="alt" data-op="admin">سجل التوصيل والإلغاءات والمساعدة</button><button class="alt" data-op="config">إعدادات المسار والتأخر</button>');
   h+=section('إعدادات التوصيل',`<p>حصة التطبيق: ${F(settings.platform_fee)} · أجرة التوصيل: ${F(settings.delivery_fee)}</p><p>رقم Qi: <b dir="ltr">${E(settings.qi_number||'غير محدد')}</b></p>${btn('deliveryConfig','','تعديل إعدادات التوصيل')}`);
  }
  return h+'</div></div>';
