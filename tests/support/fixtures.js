@@ -249,6 +249,47 @@
     set_professional_username: () => null,
     record_professional_entry: () => null,
   });
+
+  const ownStore = () => T.stores.find((s) => s.owner_id === me() && s.approved);
+  Object.assign(db.rpc, {
+    store_finance() {
+      const s = ownStore();
+      if (!s) return null;
+      const sub = T.store_subscriptions.find((x) => x.store_id === s.id && x.status === 'active');
+      const plan = T.seller_plans.find((p) => p.id === (sub?.plan_id || 'free'));
+      return { balance: T.ledger_entries.filter((e) => e.party_type === 'store' && e.party_id === s.id).reduce((n, e) => n + e.amount, 0), plan, commission_percent: plan.commission_percent ?? T.platform_settings[0].commission_percent, product_count: T.products.filter((p) => p.store_id === s.id && p.active).length, subscription: sub || null, entries: T.ledger_entries.filter((e) => e.party_id === s.id), requests: T.payment_requests.filter((r) => r.store_id === s.id), pending_subscriptions: T.store_subscriptions.filter((x) => x.store_id === s.id && x.status === 'pending'), promotions: T.promotions.filter((x) => x.store_id === s.id) };
+    },
+    request_subscription(a) {
+      const s = ownStore(), p = T.seller_plans.find((x) => x.id === a.p_plan);
+      const row = { id: crypto.randomUUID(), store_id: s.id, plan_id: p.id, months: a.p_months, amount: p.monthly_price * a.p_months, status: p.monthly_price ? 'pending' : 'active', starts_at: new Date().toISOString(), ends_at: new Date(Date.now() + a.p_months * 30 * 864e5).toISOString() };
+      T.store_subscriptions.push(row);
+      return row.id;
+    },
+    request_promotion(a) {
+      const s = ownStore(), pl = T.promotion_placements.find((x) => x.id === a.p_placement);
+      const row = { id: crypto.randomUUID(), store_id: s.id, product_id: a.p_product, placement: pl.id, days: a.p_days, amount: pl.daily_price * a.p_days, status: 'pending', source: 'paid', created_at: new Date().toISOString() };
+      T.promotions.push(row);
+      return row.id;
+    },
+    submit_payment_proof(a) {
+      const row = { id: crypto.randomUUID(), payer_id: me(), store_id: ownStore().id, purpose: a.p_purpose, ref_id: a.p_ref, amount: a.p_amount, method: a.p_method, reference: a.p_reference, status: 'pending', created_at: new Date().toISOString() };
+      T.payment_requests.push(row);
+      return row.id;
+    },
+    save_product_bundle(a) {
+      const id = a.p_id || crypto.randomUUID();
+      const prev = T.products.find((p) => p.id === id);
+      const row = { ...(prev || { created_at: new Date().toISOString(), blocked: false }), ...a.p_product, id, store_id: a.p_store, has_variants: a.p_variants.length > 0 };
+      delete row.expected_stock;
+      if (prev) Object.assign(prev, row); else T.products.push(row);
+      T.product_variants = T.product_variants.filter((v) => v.product_id !== id).concat(a.p_variants.map((v) => ({ ...v, product_id: id })));
+      return id;
+    },
+    delete_product_safely(a) { T.products = T.products.filter((p) => p.id !== a.p_product); },
+    save_store_location(a) { Object.assign(T.stores.find((s) => s.id === a.p_store), { store_kind: a.p_kind, address: a.p_address }); },
+    save_store_delivery(a) { const p = T.store_pickups.find((x) => x.store_id === a.p_store); Object.assign(p, { latitude: a.p_lat, longitude: a.p_lng }); T.stores.find((s) => s.id === a.p_store).prep_time_min = a.p_prep; },
+    driver_finance: () => ({ credit: 0, entries: [] }),
+  });
   db.functions['payments/init'] = async () => ({ data: { redirect_url: '#/order-placed?payment=success' }, error: null });
   db.policies = {
     customer_addresses: (r, u) => r.user_id === u?.id,
