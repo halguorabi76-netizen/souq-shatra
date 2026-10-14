@@ -8,8 +8,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#070f26",
+  "background_color": "#101f48",
+  "theme_color": "#101f48",
   "icons": [
     {
       "src": "icons/shatra-calligraphy-192-v174.png",

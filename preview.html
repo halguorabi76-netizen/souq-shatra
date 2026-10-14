@@ -34,13 +34,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="سوق الشطرة">
-<link rel="manifest" href="manifest.webmanifest?v=121">
+<link rel="manifest" href="manifest.webmanifest?v=176">
 <link rel="preload" as="image" href="icons/basket-mascot-v69.png">
 <link rel="icon" href="icons/shatra-calligraphy-32-v174.png" sizes="32x32">
 <link rel="apple-touch-icon" href="icons/shatra-calligraphy-180-v174.png" sizes="180x180">
 <title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="admin-portal.css?v=66">
-<style>html:has(body.starting),body.starting{background:#000!important}body.starting .app{visibility:hidden}
+<style>html:has(body.starting),body.starting{background:#101f48!important}body.starting .app{visibility:hidden}
 .auth-login-notice{width:min(380px,calc(100vw - 32px));max-height:calc(100dvh - 48px);box-sizing:border-box;padding:24px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 40px #101a3933;text-align:right;direction:rtl;overflow:auto}
 .auth-login-notice::backdrop{background:#101a3959}
 .auth-login-notice h2{font-size:19px;margin:0 0 12px}
@@ -328,7 +328,7 @@ body{background:#f5e4e5}.app{background:#fbf4f4}
 .tabs{background:#FFFFFF;border-color:#e8cfd1}
 .tabs button[aria-current="page"]{color:#6d3538}
 .demo-shell,.demo-preview{background:#f7e4e5;border-color:#deb3b6;color:#361e20}
-body.starting{background:#000!important}
+body.starting{background:#101f48!important}
 </style>
 <style>
 :root,:root[data-theme="dark"],:root:not([data-theme="light"]){--bg:#FFFAFA;--card:#FFFFFF;--ink:#352020;--mut:#795E5E;--line:#F0DADA;--navy:#B5222C;--gold:#C32632;--gi:#FFFFFF;--ok:#B5222C;--tile:#FBE8E9}
@@ -341,7 +341,7 @@ body{background:#FFF5F5}.app{background:#FFFAFA}
 .desktop-shortcut{background:#FFFFFF;color:#B5222C;border-color:#F0DADA}
 .tabs{background:#FFFFFF}.tabs button[aria-current="page"]{color:#B5222C}
 .demo-shell,.demo-preview{background:#FFF0F1;border-color:#F0DADA;color:#352020}
-body.starting{background:#000!important}
+body.starting{background:#101f48!important}
 </style>
 <style>
 :root[data-theme="light"]{color-scheme:light}
@@ -370,7 +370,7 @@ body.starting{background:#000!important}
 :root[data-theme="dark"] .welcome-mode .app{background:var(--bg)}
 :root[data-theme="dark"] .auth-open{background:var(--bg)}
 :root[data-theme="dark"] .profile-logout{background:#321D24;color:#FF9EA6;border-color:#6A323D}
-body.starting{background:#000!important}
+body.starting{background:#101f48!important}
 </style>
 <style>
 .theme-toggle{flex:none;width:36px;height:36px;padding:8px;display:grid;place-items:center;border:1px solid #FFFFFF45;border-radius:12px;background:#FFFFFF18;color:#FFFFFF;cursor:pointer;transition:background .15s}
@@ -1716,7 +1716,7 @@ refresh().catch(e=>{
 });
 setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['chats','account'].includes(tab))||(profile?.role==='admin'&&ADMIN_PORTAL)||(ownStore&&!ownStore.ok&&!ownStore.removed)))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=142',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=176',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
 </script>
 
