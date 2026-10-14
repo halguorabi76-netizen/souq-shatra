@@ -8,7 +8,7 @@ import { getCategories, searchProducts, getStores, interactions, toggleFavorite,
 import { toast, toastError } from '../core/ui.js';
 import { money } from '../core/format.js';
 
-export const LOGO = 'icons/shatra-calligraphy-192-v174.png';
+export const LOGO = 'icons/shatra-night-192-v200.png';
 let mounted = null;
 export const favorites = { ids: new Set(), loadedFor: null };
 

@@ -1,6 +1,6 @@
 // سوق الشطرة service worker: network-first pages, cache-first static assets, never caches API calls.
-const VERSION = 'souq-v2-4';
-const SHELL = ['./', './index.html', './admin.html', './manifest.webmanifest', './app/styles/app.css', './app/main.js', './vendor/supabase/supabase-2.117.3.js', './icons/shatra-calligraphy-192-v174.png', './icons/shatra-calligraphy-512-v174.png'];
+const VERSION = 'souq-v2-5';
+const SHELL = ['./', './index.html', './admin.html', './manifest.webmanifest', './app/styles/app.css', './app/main.js', './vendor/supabase/supabase-2.117.3.js', './icons/shatra-night-192-v200.png', './icons/shatra-night-512-v200.png'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())));
 // Removes the previous site's caches (souq-shatra-design-v*) as well.
 self.addEventListener('activate', (e) => e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim())));

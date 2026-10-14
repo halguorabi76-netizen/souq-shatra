@@ -1,13 +1,13 @@
 /* سوق الشطرة — design system.
    One brand colour family per palette; status colours (ok/warn/bad) are kept for order and money states only.
-   Default palette «نيلي الشطرة» comes from the calligraphy logo: royal blue → indigo with ivory. */
+   Default palette «ليل وذهب»: navy with gold, matching the gold-on-navy logo (icons/shatra-night-*). */
 :root {
-  --brand-base: #2a3bb0;
-  --brand-2-base: #46289a;
-  --grad-a: #1a2b8c; --grad-b: #2a3bb0; --grad-c: #46289a;
-  --accent-base: #f3e9d2;
-  --accent-ink: #1d2470;
-  --tone: #f5f5fb;
+  --brand-base: #1d2b55;
+  --brand-2-base: #2f4074;
+  --grad-a: #0f1836; --grad-b: #1d2b55; --grad-c: #2c3c6c;
+  --accent-base: #d8b460;
+  --accent-ink: #1d1606;
+  --tone: #f6f5f1;
   --brand: var(--brand-base);
   --brand-2: var(--brand-2-base);
   --brand-ink: #ffffff;
@@ -41,10 +41,10 @@
   color-scheme: light;
 }
 /* Alternative palettes, previewed with <html data-palette="…">. */
-:root[data-palette='night'] {
-  --brand-base: #1d2b55; --brand-2-base: #2f4074;
-  --grad-a: #0f1836; --grad-b: #1d2b55; --grad-c: #2c3c6c;
-  --accent-base: #c9a24b; --accent-ink: #1d1606; --tone: #f6f5f1;
+:root[data-palette='indigo'] {
+  --brand-base: #2a3bb0; --brand-2-base: #46289a;
+  --grad-a: #1a2b8c; --grad-b: #2a3bb0; --grad-c: #46289a;
+  --accent-base: #f3e9d2; --accent-ink: #1d2470; --tone: #f5f5fb;
 }
 :root[data-palette='maroon'] {
   --brand-base: #7a2a3a; --brand-2-base: #5c1d2b;
@@ -634,3 +634,9 @@ main#main { min-height: calc(100dvh - var(--header-h) - 200px); padding-block: 1
 .hero.has-banners > .slide:not(.banner) { padding-block: 14px; }
 .hero.has-banners > .slide:not(.banner) .slide-body h2 { font-size: clamp(1.1rem, 4.6vw, 2rem); }
 @media (min-width: 900px) { .hero.has-banners { aspect-ratio: 3 / 1; } }
+.off { background: var(--accent); color: var(--accent-ink); }
+.ad-flag, .plan.popular::before { background: var(--accent); color: var(--accent-ink); }
+.pcard.sponsored-card { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+@media (max-width: 860px) { .sticky-buy .btn .i { display: none; } .sticky-buy .btn { font-size: 0.92rem; overflow: hidden; text-overflow: ellipsis; } }
+/* Navy lightens to grey on dark backgrounds, so the default palette leads with its gold in dark mode. */
+:root[data-theme='dark']:not([data-palette]) { --brand: #d8b460; --brand-ink: #1d1606; --sale: #d8b460; }
