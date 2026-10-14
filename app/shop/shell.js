@@ -52,7 +52,7 @@ function footer(platform) {
         <p style="margin-top:12px">متاجر مدينتك في تطبيق واحد: تسوّق من محلات الشطرة، وادفع عند الاستلام أو إلكترونيًا، ويصلك طلبك مع سائق محلي.</p>
         <div class="pay-chips">${methods.cod ? html`<span>الدفع عند الاستلام</span>` : ''}${methods.zaincash ? html`<span>زين كاش</span>` : ''}${methods.card ? html`<span>كي كارد / ماستر كارد</span>` : ''}</div></div>
       <div><h4>تسوّق</h4><ul><li><a href="#/search">كل المنتجات</a></li><li><a href="#/search?sort=deals">العروض</a></li><li><a href="#/stores">المتاجر</a></li><li><a href="#/favorites">المفضلة</a></li></ul></div>
-      <div><h4>اعمل معنا</h4><ul><li><a href="#/sell">بِع في سوق الشطرة</a></li><li><a href="#/drive">انضم كسائق توصيل</a></li><li><a href="#/seller">مركز البائع</a></li><li><a href="#/driver">تطبيق السائق</a></li></ul></div>
+      <div><h4>اعمل معنا</h4><ul><li>${isSeller() ? html`<a href="#/seller">مركز البائع</a>` : html`<a href="#/sell">بِع في سوق الشطرة</a>`}</li><li>${isDriver() ? html`<a href="#/driver">تطبيق السائق</a>` : html`<a href="#/drive">انضم كسائق توصيل</a>`}</li></ul></div>
       <div><h4>المساعدة</h4><ul><li><a href="#/pages/faq">الأسئلة الشائعة</a></li><li><a href="#/pages/returns">الإرجاع والإلغاء</a></li><li><a href="#/pages/terms">الشروط والأحكام</a></li><li><a href="#/pages/privacy">سياسة الخصوصية</a></li><li><a href="https://wa.me/${platform?.support_phone || '9647837271707'}" target="_blank" rel="noopener" data-follow>تواصل عبر واتساب</a></li></ul></div>
     </div>
     <div class="footer-bottom"><span>© ${new Date().getFullYear()} سوق الشطرة. جميع الحقوق محفوظة.</span><button class="link-btn" style="color:#e4e8fb" data-action="toggleTheme">${icon('moon', 16)} تبديل المظهر</button></div>
