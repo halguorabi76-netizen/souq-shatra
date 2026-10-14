@@ -27,7 +27,7 @@ const root=path.resolve(__dirname,'..');
    assert.ok(Math.abs(geometry.nav[2].x+geometry.nav[2].w/2-(geometry.navBox.x+geometry.navBox.width/2))<2,'media placeholder must be physically centered in the five-item bar');
    assert.ok(geometry.menu.x>=geometry.theme.x+geometry.theme.width-1,'menu and theme must not overlap');
    const menuStyle=await frame.locator('#marketMenuToggle').evaluate(e=>({lines:[...e.children].filter(s=>getComputedStyle(s).display!=='none').map(s=>s.getBoundingClientRect().width),shadow:getComputedStyle(e).boxShadow}));
-   assert.equal(menuStyle.lines.length,2);assert.ok(menuStyle.lines[0]>menuStyle.lines[1]);assert.notEqual(menuStyle.shadow,'none');
+   assert.equal(menuStyle.lines.length,2);assert.ok(menuStyle.lines[0]>menuStyle.lines[1]);assert.equal(menuStyle.shadow,'none','monochrome header icons are flat');
    assert.equal(await frame.locator('.header-brand img').getAttribute('src'),'icons/figma-shatra-logo-transparent-v146.png');
    await frame.locator('#marketMenuToggle').click();await frame.locator('#marketDrawer.open').waitFor();
    await frame.locator('.market-drawer-panel [data-v="settings"]').click();assert.equal(await frame.locator('#marketMenuToggle').getAttribute('aria-expanded'),'false');
@@ -44,9 +44,9 @@ const root=path.resolve(__dirname,'..');
    await frame.locator('#themeToggle').click();
    await frame.locator('.figma-product-card').first().waitFor();
    await frame.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getComputedTiming().endTime!==Infinity).map(a=>a.finished.catch(()=>{}))));
-   assert.equal(await frame.locator('.tabs [data-v="market"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(255, 255, 255)');
+   assert.equal(await frame.locator('.tabs [data-v="market"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgba(0, 0, 0, 0)','active tab has no box in the monochrome bar');
    const controls=await frame.evaluate(()=>[...document.querySelectorAll('.topline #marketMenuToggle,.topline #accountTrigger,.topline #themeToggle,.topline .ac-inline,.topline .header-cart')].map(e=>{const s=getComputedStyle(e);return [s.backgroundColor,s.borderRadius,s.boxShadow,e.getBoundingClientRect().width,e.getBoundingClientRect().y]}));
-   assert.equal(controls.length,5);assert.ok(controls.every(c=>JSON.stringify(c)===JSON.stringify(controls[0])));assert.equal(controls[0][0],'rgb(255, 255, 255)');
+   assert.equal(controls.length,5);assert.ok(controls.every(c=>JSON.stringify(c)===JSON.stringify(controls[0])));assert.equal(controls[0][0],'rgba(0, 0, 0, 0)');
    await frame.locator('.figma-header-actions .header-cart').click();await frame.locator('#view .flow-heading').waitFor();
    await frame.locator('.tabs [data-v="market"]').click();
    if(process.env.SOUQ_CAPTURE){fs.mkdirSync(process.env.SOUQ_CAPTURE,{recursive:true});await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-home-${width}.png`)});}
@@ -55,7 +55,7 @@ const root=path.resolve(__dirname,'..');
    await frame.locator('#accountTrigger').click();await frame.locator('.profile-page').waitFor();
    assert.ok(await frame.locator('.profile-detail').count());
    assert.ok(await frame.evaluate(()=>document.documentElement.scrollWidth)<=width+1,`profile overflow at ${width}`);
-   assert.equal(await frame.locator('.profile-hero .portrait').evaluate(e=>getComputedStyle(e).color),'rgb(53, 71, 165)');
+   assert.equal(await frame.locator('.profile-hero .portrait').evaluate(e=>getComputedStyle(e).color),await frame.evaluate(()=>document.documentElement.dataset.theme==='dark'?'rgb(245, 244, 241)':'rgb(17, 17, 17)'),'portrait uses the monochrome ink of the active theme');
    if(process.env.SOUQ_CAPTURE)await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-profile-${width}.png`)});
    // Real role gates/data still own the seller/driver views.
    for(const role of ['seller','driver']){

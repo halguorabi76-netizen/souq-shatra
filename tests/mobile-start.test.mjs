@@ -27,13 +27,16 @@ test('pinned local browser SDK exposes the unchanged client/session/storage API 
 });
 
 
-test('startup artwork dismisses independently of network and on restored pages',async()=>{
+test('opening animation dismisses on its own, on tap and on restored pages, without waiting for the network',async()=>{
  const t=await readFile('index.html','utf8'),start=t.indexOf('<script>',t.indexOf('id="startupSplash"'))+8,source=t.slice(start,t.indexOf('</script>',start));
- for(const ready of [true,false]){
-  const timers=[],events={},imageEvents={},image={complete:ready,naturalWidth:ready?941:0,addEventListener:(k,f)=>imageEvents[k]=f},splash={hidden:true,querySelector:()=>image},classes=new Set();
+ assert.ok(t.includes('class="ss-logo"')&&t.includes('class="ss-name"'),'animated Shatra logo and name are in the splash');
+ const run=()=>{const timers=[],events={},splashEvents={},classes=new Set(),leaving=new Set();
+  const splash={hidden:true,classList:{add:k=>leaving.add(k)},addEventListener:(k,f)=>splashEvents[k]=f};
   const c={document:{getElementById:()=>splash,documentElement:{dataset:{}},body:{classList:{add:k=>classes.add(k),remove:k=>classes.delete(k)}}},window:{addEventListener:(k,f)=>events[k]=f},setTimeout:(fn,ms)=>timers.push({fn,ms})};
-  vm.runInNewContext(source,c);assert.equal(splash.hidden,false);
-  const timeout=timers.find(t=>t.ms===(ready?1400:3000));assert.ok(timeout);timeout.fn();assert.equal(splash.hidden,true);assert.equal(classes.has('starting'),false);
-  events.pageshow({persisted:true});assert.equal(splash.hidden,true);
- }
+  vm.runInNewContext(source,c);return {timers,events,splashEvents,classes,leaving,splash};};
+ let r=run();assert.equal(r.splash.hidden,false);assert.ok(r.classes.has('starting'));
+ const fade=r.timers.find(x=>x.ms===3400);assert.ok(fade);fade.fn();assert.ok(r.leaving.has('leaving'));
+ r.timers.find(x=>x.ms===350).fn();assert.equal(r.splash.hidden,true);assert.equal(r.classes.has('starting'),false);
+ r=run();r.splashEvents.click();assert.equal(r.splash.hidden,true);
+ r=run();r.events.pageshow({persisted:true});assert.equal(r.splash.hidden,true);assert.equal(r.classes.has('starting'),false);
 });
