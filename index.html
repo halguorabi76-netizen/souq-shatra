@@ -434,8 +434,10 @@ body.starting{background:#101f48!important}
 <link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163">
 <link rel="preload" as="image" href="icons/shatra-splash-v175.webp">
 <style>
-html #startupSplash{background:linear-gradient(135deg,#101f48,#3547a5 55%,#392b64)!important;gap:0;overflow:hidden}
-html #startupSplash img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;animation:none!important}
+html #startupSplash{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:linear-gradient(135deg,#101f48,#3547a5 55%,#392b64)!important;gap:0;overflow:hidden}
+html #startupSplash img{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center;animation:none!important}
+html:has(body.starting){padding:0!important;background:#101f48!important}
+html body.starting{margin:0!important;padding:0!important;background:#101f48!important}
 body.starting{overflow:hidden}
 </style>
 </head>
@@ -444,9 +446,12 @@ body.starting{overflow:hidden}
 <script>
 (()=>{
   const splash=document.getElementById('startupSplash'),image=splash.querySelector('img');
-  const finish=()=>{splash.hidden=true;document.body.classList.remove('starting')};
+  const themeMeta=document.querySelector?.('meta[name="theme-color"]');
+  const originalTheme=themeMeta?.content;
+  const finish=()=>{splash.hidden=true;document.body.classList.remove('starting');if(themeMeta)themeMeta.content=originalTheme};
   if(document.documentElement.dataset.embeddedPreview==='true')return;
   splash.hidden=false;document.body.classList.add('starting');
+  if(themeMeta)themeMeta.content='#101f48';
   // Bounded independently of authentication or network: never trap the user.
   let shown=false;
   const showBriefly=()=>{if(shown)return;shown=true;setTimeout(finish,1400)};
@@ -1715,7 +1720,7 @@ refresh().catch(e=>{
 });
 setInterval(()=>{if(!document.hidden&&user&&dataReady&&((viewMode==='driver'&&['chats','account'].includes(tab))||(profile?.role==='admin'&&ADMIN_PORTAL)||(ownStore&&!ownStore.ok&&!ownStore.removed)))refresh().catch(()=>{})},60000);
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=176',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=177',{updateViaCache:'none'}).then(reg=>reg.update()).catch(() => {}));
 }
 </script>
 
