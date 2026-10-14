@@ -392,7 +392,8 @@ begin
   transfer_accounts=case when jsonb_typeof(p_values->'transfer_accounts')='object' then jsonb_build_object(
    'zaincash',left(coalesce(p_values->'transfer_accounts'->>'zaincash',''),40),'qi',left(coalesce(p_values->'transfer_accounts'->>'qi',''),40)) else transfer_accounts end,
   support_phone=coalesce(nullif(p_values->>'support_phone',''),support_phone),
-  updated_at=now();
+  updated_at=now()
+ where id=true;
 end $$;
 revoke all on function public.admin_set_platform_settings(jsonb) from public,anon;
 grant execute on function public.admin_set_platform_settings(jsonb) to authenticated;
