@@ -149,3 +149,15 @@ html[data-shatra-ui][data-theme] body :is(.desktop-search,#buyerSearch){backgrou
 html[data-shatra-ui][data-theme] body .section-title :is(a,button,small,span){color:var(--warm-2)!important}
 /* "Added to cart" confirmation uses the warm tone too, a little lighter than the main action */
 html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added,html[data-shatra-ui][data-theme] body .product-purchase .added{background:linear-gradient(135deg,#a49389 0%,#6b6058 100%)!important;color:#fff!important}
+
+/* Stronger beige-grey and brown (requested): richer tiles, a beige page and browner actions. */
+html[data-shatra-ui][data-theme=light]{
+ --paper:#f3ece5;--bg:#f3ece5;--scene-bg:#f3ece5;--surface:#fbf7f3;--card:#fbf7f3;
+ --mono-soft:#e6d9cd;--line:#dccbbb;--ink-soft:#6e5a4b;--mut:#6e5a4b;--mono-quiet:#9a8270;--warm-2:#6b4f3c;
+ --warm-btn:linear-gradient(135deg,#8c6f5a 0%,#654b39 50%,#3b2a1f 100%);
+ --warm-tile:linear-gradient(160deg,#eadccf 0%,#d4bfad 100%)
+}
+html[data-shatra-ui][data-theme] body .figma-hero::after{background:linear-gradient(180deg,rgba(164,137,115,.5) 0%,rgba(107,79,60,.6) 45%,rgba(43,30,22,.9) 100%)!important}
+html[data-shatra-ui][data-theme] body .product-purchase .added,html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added{background:linear-gradient(135deg,#b39a86 0%,#7a5e49 100%)!important}
+html[data-shatra-ui][data-theme] body :is(.figma-store-card,.mp-store-card,.chip,.mp-switcher button,.qty,.alt,.desktop-shortcut){background:var(--surface)!important;border-color:var(--line)!important}
+html[data-shatra-ui][data-theme] body .tabs{background:var(--surface)!important}
