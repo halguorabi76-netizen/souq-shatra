@@ -1,0 +1,16 @@
+db/admin-only-seller-activation.sql
+db/market-storefront.sql
+db/notifications-delivery.sql
+db/seller-workspace.sql
+db/seller-records.sql
+db/category-variants.sql
+db/customer-order-actions.sql
+db/order-dual-approval.sql
+db/operational-notices.sql
+supabase/migrations/20261012152348_delivery_zone_checkout.sql
+supabase/migrations/20261012153557_sync_delivery_default.sql
+supabase/migrations/20261012165533_customer_addresses_and_local_zones.sql
+db/delivery-route.sql
+db/simple-delivery-completion.sql
+db/delivery-contact-dialog-fix.sql
+supabase/migrations/20261014090000_marketplace_revenue.sql

@@ -3,3 +3,7 @@ project_id = "nbktyynshqldyerqtjrd"
 # This pre-login endpoint verifies the submitted password with Supabase Auth.
 [functions.professional-login]
 verify_jwt = false
+
+# Online payments; the ZainCash redirect arrives without a Supabase JWT and is verified by signature.
+[functions.payments]
+verify_jwt = false
