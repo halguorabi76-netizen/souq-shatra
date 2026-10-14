@@ -202,6 +202,7 @@
         from: () => ({
           getPublicUrl: (p) => ({ data: { publicUrl: p.startsWith('data:') || p.startsWith('http') ? p : 'https://storage.invalid/' + p } }),
           upload: async (path) => ({ data: { path }, error: null }),
+          remove: async (paths) => ({ data: paths, error: null }),
         }),
       },
       functions: {

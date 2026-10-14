@@ -1,6 +1,6 @@
 import { theme } from '../core/state.js';
 import { route, start, setGuard, setNotFound, go, refresh, isCurrent, current } from '../core/router.js';
-import { load, session, onSession, isAdmin, signIn, signOut } from '../core/session.js';
+import { load, session, onSession, isAdmin, signIn, signOut, signInWithGoogle } from '../core/session.js';
 import { db, check, loading } from '../core/db.js';
 import { wireActions, pageActions, globalActions } from '../core/actions.js';
 import { html, render, formData } from '../core/dom.js';
@@ -45,6 +45,7 @@ function shell(counts = {}) {
       { href: '#/categories', label: 'الأقسام', icon: 'layers' },
       { sep: 'الإيرادات' },
       { href: '#/finance', label: 'المالية', icon: 'wallet', count: counts.payments },
+      { href: '#/banners', label: 'صور الواجهة', icon: 'image' },
       { href: '#/promotions', label: 'الإعلانات', icon: 'megaphone' },
       { href: '#/settings', label: 'الإعدادات والأسعار', icon: 'settings' },
       { href: 'index.html#/', label: 'فتح المتجر', icon: 'external' },
@@ -75,7 +76,7 @@ function gate() {
   render(
     '#app',
     html`<div class="auth-wrap" style="margin-top:8vh"><div class="card"><div class="auth-logo"><img src="${LOGO}" alt=""><h1 style="margin:0">لوحة إدارة سوق الشطرة</h1><p class="muted" style="margin:0">${session.user ? 'هذا الحساب لا يملك صلاحية الإدارة.' : 'سجّل الدخول بحساب المدير'}</p></div>
-    ${session.user ? html`<p class="ltr" style="text-align:center">${session.user.email}</p><button class="btn btn-primary btn-block" data-action="logout">تبديل الحساب</button>` : html`<form data-admin-login><label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" required class="ltr" autocomplete="username"></label><label class="field"><span>كلمة المرور</span><input name="password" type="password" required class="ltr" autocomplete="current-password"></label><button class="btn btn-primary btn-block btn-lg">دخول</button></form>`}
+    ${session.user ? html`<p class="ltr" style="text-align:center">${session.user.email}</p><button class="btn btn-primary btn-block" data-action="logout">تبديل الحساب</button>` : html`<button class="btn btn-outline btn-block btn-lg" data-action="google"><b style="color:#4285f4">G</b> الدخول باستخدام Google</button><div class="or">أو</div><form data-admin-login><label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" required class="ltr" autocomplete="username"></label><label class="field"><span>كلمة المرور</span><input name="password" type="password" required class="ltr" autocomplete="current-password"></label><button class="btn btn-primary btn-block btn-lg">دخول</button></form>`}
     <p style="text-align:center;margin-top:14px"><a href="index.html">العودة إلى السوق</a></p></div></div>`,
   );
   document.querySelector('[data-admin-login]')?.addEventListener('submit', (e) => {
@@ -86,9 +87,9 @@ function gate() {
       await load();
     });
   });
-  actions();
+  actions({ google: (b) => busy(b, () => signInWithGoogle()) });
 }
-const page = (title, fn) => async (ctx) => {
+const page =(title, fn) => async (ctx) => {
   if (!isAdmin()) return gate();
   const body = adminShell();
   wsTitle(title, html`<button class="btn btn-outline btn-sm" data-action="reload">${icon('refresh', 16)} تحديث</button>`);
@@ -145,8 +146,25 @@ async function overview(ctx, body) {
 }
 
 // ---------- approvals ----------
+// Store categories: the admin can set or change any store's category inline.
+export const storeCategories = async () => (await db.from('store_categories').select('*').order('position').order('name')).data || [];
+export const storeCategorySelect = (s, cats) =>
+  cats.length ? html`<select class="input input-sm" data-store-cat="${s.id}" aria-label="قسم المتجر"><option value="">بدون قسم</option>${cats.map((c) => html`<option value="${c.id}" ${s.store_category_id === c.id ? 'selected' : ''}>${c.name}${c.active === false ? ' (موقوف)' : ''}</option>`)}</select>` : '';
+export function wireStoreCategorySelects(body) {
+  body.querySelectorAll('[data-store-cat]').forEach((sel) =>
+    sel.addEventListener('change', async () => {
+      try {
+        check(await db.rpc('admin_set_store_category', { p_store: sel.dataset.storeCat, p_category: sel.value || null }));
+        clearData();
+        toast('حُفظ قسم المتجر', 'success');
+      } catch (e) {
+        toast(e.message, 'error');
+      }
+    }),
+  );
+}
 async function approvals(ctx, body) {
-  const [st, w, dprof, ppl] = await Promise.all([stores(true), workers(true), driverProfiles(true), people()]);
+  const [st, w, dprof, ppl, scats] = await Promise.all([stores(true), workers(true), driverProfiles(true), people(), storeCategories()]);
   if (!isCurrent(ctx.token)) return;
   const pendingStores = st.filter((s) => !s.approved && !s.removed);
   const pendingDrivers = w.filter((x) => !x.approved);
@@ -156,13 +174,15 @@ async function approvals(ctx, body) {
     body,
     html`<section class="card"><h2>${icon('store', 20)} متاجر بانتظار الموافقة (${pendingStores.length})</h2>
       ${pendingStores.length ? pendingStores.map((s) => html`<div class="card" style="box-shadow:none;margin-top:10px"><div class="card-head"><div><b>${s.name}</b> <span class="muted small">${ago(s.created_at)}</span><div class="small">${person(s.owner_id).full_name || ''} · <span class="ltr">${person(s.owner_id).email || ''}</span></div></div><div style="display:flex;gap:6px">${wa(s.phone)}</div></div>
-        <div class="small">${icon('phone', 14)} <span class="ltr">${s.phone}</span> · ${icon('pin', 14)} ${s.address || '—'} · ${s.store_kind === 'online' ? 'متجر إلكتروني' : 'محل'}</div>${s.description ? html`<p class="small muted">${s.description}</p>` : ''}
+        <div class="small">${icon('phone', 14)} <span class="ltr">${s.phone}</span> · ${icon('pin', 14)} ${s.address || '—'} · ${s.store_kind === 'online' ? 'يبيع من البيت' : 'محل'}</div>${s.description ? html`<p class="small muted">${s.description}</p>` : ''}
+        ${scats.length ? html`<label class="field" style="max-width:280px;margin-top:8px"><span>قسم المتجر</span>${storeCategorySelect(s, scats)}</label>` : ''}
         <div class="row-actions"><button class="btn btn-ok" data-action="approveStore" data-id="${s.id}">${icon('check', 18)} اعتماد المتجر</button><button class="btn btn-ghost" data-action="rejectStore" data-id="${s.id}">رفض</button></div></div>`) : html`<p class="muted">لا توجد طلبات.</p>`}</section>
     <section class="card"><h2>${icon('truck', 20)} سائقون بانتظار الموافقة (${pendingDrivers.length})</h2>
       ${pendingDrivers.length ? pendingDrivers.map((x) => { const d = dprof.find((p) => p.user_id === x.user_id) || {}; return html`<div class="card" style="box-shadow:none;margin-top:10px"><div class="card-head"><div><b>${d.full_name || person(x.user_id).full_name || 'بدون اسم'}</b> <span class="muted small">${ago(x.created_at)}</span></div>${wa(d.phone)}</div>
         <div class="small">${icon('phone', 14)} <span class="ltr">${d.phone || '—'}</span> · ${icon('pin', 14)} ${d.address || '—'} · ${d.vehicle || '—'}</div>
         <div class="row-actions">${d.user_id ? html`<button class="btn btn-ok" data-action="approveDriver" data-id="${x.user_id}">${icon('check', 18)} اعتماد السائق</button>` : html`<span class="muted small">لم يكمل بيانات التسجيل بعد.</span>`}</div></div>`; }) : html`<p class="muted">لا توجد طلبات.</p>`}</section>`,
   );
+  wireStoreCategorySelects(body);
   actions({
     approveStore: (b) => busy(b, async () => { check(await db.rpc('approve_store', { p_store: b.dataset.id, p_approved: true })); toast('اعتُمد المتجر', 'success'); clearData(); refresh(); }),
     rejectStore: async (b) => (await confirmDialog('رفض المتجر', 'سيُزال طلب المتجر من القائمة.', { ok: 'رفض', danger: true })) && busy(b, async () => { check(await db.rpc('admin_set_store_removed', { p_store: b.dataset.id, p_removed: true })); clearData(); refresh(); }),
@@ -209,6 +229,7 @@ route('/stores', lazy('المتاجر', './market.js', 'storesView'));
 route('/products', lazy('المنتجات', './market.js', 'productsView'));
 route('/drivers', lazy('السائقون', './market.js', 'driversView'));
 route('/categories', lazy('الأقسام والخصائص', './market.js', 'categoriesView'));
+route('/banners', lazy('صور الواجهة', './banners.js', 'bannersView'));
 route('/finance', lazy('المالية', './revenue.js', 'financeView'));
 route('/promotions', lazy('الإعلانات المميزة', './revenue.js', 'promotionsView'));
 route('/settings', lazy('الإعدادات والأسعار', './revenue.js', 'settingsView'));
@@ -222,6 +243,7 @@ let started = false;
 onSession(() => started && refresh());
 (async () => {
   await load().catch(console.error);
+  if (location.hash.startsWith('#access_token') || location.hash.startsWith('#error')) history.replaceState(null, '', location.pathname + '#/');
   await start();
   started = true;
 })();

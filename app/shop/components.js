@@ -2,14 +2,19 @@ import { html, safeUrl } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { money, percentOff } from '../core/format.js';
 import { href } from '../core/router.js';
+import { catIcon, categoryIconKey } from '../core/cat-icons.js';
 
-const EMOJI = {
-  'مواد غذائية': '🛒', 'خضار وفواكه': '🥬', تمور: '🌴', ملابس: '👕', أحذية: '👟', مشروبات: '🥤', 'عطور وتجميل': '💄', أجهزة: '📱',
-  'حاسبات وتابلت': '💻', 'أجهزة كهربائية': '🔌', تلفزيونات: '📺', أثاث: '🛋️', منزلية: '🏠', 'مجوهرات وإكسسوارات': '💍', ساعات: '⌚',
-  'ألعاب أطفال': '🧸', 'مستلزمات أطفال': '🍼', 'كتب وقرطاسية': '📚', 'قطع سيارات': '🔧', 'إطارات وبطاريات': '🛞', 'مواد بناء وأدوات': '🧱',
-  رياضة: '⚽', حقائب: '👜', نظارات: '👓', 'منتجات تنظيف': '🧴', 'مستلزمات حيوانات': '🐾', 'زراعة وحدائق': '🌱', أخرى: '📦',
-};
-export const catEmoji = (name) => EMOJI[name] || '🛍️';
+// Category art comes from the «خط الشطرة» icon family (core/cat-icons.js), one colour for all.
+export const catArt = (c, size = 34) => catIcon(categoryIconKey(c), size);
+export function catTile(c, { active = false } = {}) {
+  return html`<a class="cat-card ${active ? 'on' : ''}" href="${href('/products', { cat: c.name })}" aria-current="${active}"><span class="art">${catArt(c)}</span><b>${c.name}</b></a>`;
+}
+// Home sellers (no shop) are stored as store_kind = 'online'.
+export const isHomeSeller = (s) => s?.store_kind === 'online';
+export const kindBadge = (s) => (isHomeSeller(s) ? html`<span class="kind kind-home">${icon('home', 13)} من البيت</span>` : html`<span class="kind">${icon('store', 13)} محل</span>`);
+export function storeTile(s, { featured } = {}) {
+  return html`<a class="store-tile" href="${href('/s/' + s.id)}">${storeAvatar(s)}<b>${s.name}${s.verified ? html`<span class="verified">${icon('verified', 14)}</span>` : ''}</b>${kindBadge(s)}${featured ? html`<span class="ad-flag">مميز</span>` : ''}</a>`;
+}
 
 export function priceTag(p) {
   const price = p.display_price ?? p.price,
@@ -36,8 +41,8 @@ export function productCard(p, { store, fav = false, sponsored = false } = {}) {
 export function storeAvatar(s, size) {
   return html`<span class="avatar" style="${size ? `width:${size}px;height:${size}px` : ''}">${s.image_url ? html`<img src="${safeUrl(s.image_url)}" alt="" loading="lazy">` : (s.name || '؟').trim().slice(0, 1)}</span>`;
 }
-export function storeCard(s, { count, featured } = {}) {
-  return html`<a class="scard" href="${href('/s/' + s.id)}">${storeAvatar(s)}<div><h3>${s.name}${s.verified ? html`<span class="verified" title="متجر موثّق">${icon('verified', 16)}</span>` : ''}${featured ? html`<span class="ad-flag">مميز</span>` : ''}</h3><p>${s.description || s.address || 'متجر في سوق الشطرة'}</p>${count != null ? html`<small class="muted">${count} منتج</small>` : ''}</div></a>`;
+export function storeCard(s, { count, featured, category } = {}) {
+  return html`<a class="scard" href="${href('/s/' + s.id)}">${storeAvatar(s)}<div><h3>${s.name}${s.verified ? html`<span class="verified" title="متجر موثّق">${icon('verified', 16)}</span>` : ''}${featured ? html`<span class="ad-flag">مميز</span>` : ''}</h3><p>${s.description || (isHomeSeller(s) ? 'يبيع من البيت في الشطرة' : s.address) || 'متجر في سوق الشطرة'}</p><div class="meta">${kindBadge(s)}${category ? html`<span class="kind">${category}</span>` : ''}${count != null ? html`<small class="muted">${count} منتج</small>` : ''}</div></div></a>`;
 }
 export function sectionHead(title, sub, link, ic) {
   return html`<div class="section-head"><div><h2>${ic ? icon(ic, 22) : ''}${title}</h2>${sub ? html`<p>${sub}</p>` : ''}</div>${link ? html`<a href="${link}">عرض الكل ${icon('chevL', 16)}</a>` : ''}</div>`;

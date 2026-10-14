@@ -39,7 +39,7 @@ export async function loginPage(ctx) {
       </div></div>`,
     );
     authProviders().then((ext) => {
-      if (!ext.google || !main.querySelector('#providers')) return;
+      if ((ext && !ext.google) || !main.querySelector('#providers')) return;
       render(main.querySelector('#providers'), html`<button class="btn btn-outline btn-block" data-action="google"><b style="color:#4285f4">G</b> المتابعة باستخدام Google</button><div class="or">أو</div>`);
     });
     main.querySelector('[data-login]').addEventListener('submit', (e) => {

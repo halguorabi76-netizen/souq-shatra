@@ -24,7 +24,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => th
 const lazy = (path, name) => async (ctx) => (await import(path))[name](ctx);
 route('/', homePage);
 route('/search', searchPage);
-route('/c/:name', (ctx) => go('/search', { cat: ctx.params.name }, { replace: true }));
+route('/products', searchPage);
+route('/categories', () => go('/products', null, { replace: true }));
+route('/c/:name', (ctx) => go('/products', { cat: ctx.params.name }, { replace: true }));
 route('/stores', storesPage);
 route('/s/:id', storePage);
 route('/p/:id', productPage);

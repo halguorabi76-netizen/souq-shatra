@@ -19,9 +19,36 @@ async function step(name, fn) {
     await step('home shows sponsored hero, deals and stores', async () => {
       await goto('/');
       assert.match(await page.textContent('#hero'), /سماعات بلوتوث/);
+      assert.equal(await page.getAttribute('#hero .slide.banner', 'href'), '#/products?sort=deals');
+      assert.equal((await page.$$('#hero .slide')).length, 2, 'admin banner + paid ad, no stock slides');
       assert(await page.isVisible('text=عروض وتخفيضات'));
-      assert((await page.$$('.scard')).length >= 3);
+      assert.equal((await page.$$('.store-tile')).length, 3);
+      assert.match(await page.textContent('main'), /من بيوت الشطرة[\s\S]*بوتيك الأناقة/);
       await shot(page, 'home');
+    });
+    await step('products tab shows product categories and subcategories', async () => {
+      await goto('/products');
+      assert((await page.$$('.cat-rail.compact .cat-card')).length >= 5);
+      await page.click('.cat-rail.compact .cat-card:has-text("ملابس")');
+      await page.waitForURL(/cat=/);
+      await settle(page);
+      assert.match(await page.textContent('main'), /تيشيرت قطني رجالي/);
+      assert(!/رز بسمتي/.test(await page.textContent('.product-grid')));
+      await page.click('.pill:has-text("تيشيرتات")');
+      await settle(page);
+      assert.deepEqual(await page.$$eval('.pcard .name', (n) => n.map((x) => x.textContent)), ['تيشيرت قطني رجالي']);
+    });
+    await step('stores tab filters by store category and by shop or home', async () => {
+      await goto('/stores');
+      await page.click('.store-cats .pill:has-text("ملابس")');
+      await settle(page);
+      assert.deepEqual(await page.$$eval('.scard h3', (n) => n.map((x) => x.childNodes[0].textContent.trim())), ['بوتيك الأناقة']);
+      await goto('/stores?kind=home');
+      assert.deepEqual(await page.$$eval('.scard h3', (n) => n.map((x) => x.childNodes[0].textContent.trim())), ['بوتيك الأناقة']);
+      await goto('/stores?kind=shop');
+      assert.equal((await page.$$('.scard')).length, 2);
+      const tabs = await page.$$eval('.tabbar a span:first-of-type', (n) => n.map((x) => x.textContent));
+      assert.deepEqual(tabs, ['الرئيسية', 'المتاجر', 'المنتجات', 'السلة', 'حسابي']);
     });
     await step('search matches Arabic spelling variants and filters', async () => {
       await goto('/search?q=' + encodeURIComponent('قهوه شاي'));
@@ -118,7 +145,30 @@ async function step(name, fn) {
       await page.click('dialog [data-ok]');
       await page.waitForTimeout(400);
       assert.equal(await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.payment_requests[0].status), 'approved');
-      for (const h of ['/', '/orders?f=all', '/stores', '/products', '/drivers', '/users', '/categories', '/promotions', '/settings']) await goto(h, 'admin.html');
+      await goto('/categories?t=stores', 'admin.html');
+      await page.click('[data-action=editStoreCat]');
+      await page.fill('dialog [name=name]', 'مطاعم');
+      await page.click('dialog form button');
+      await page.waitForTimeout(400);
+      assert(await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.store_categories.some((c) => c.name === 'مطاعم')));
+      await goto('/stores', 'admin.html');
+      await page.selectOption('[data-store-cat] >> nth=0', { label: 'مطاعم' });
+      await page.waitForTimeout(400);
+      assert(await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.stores.some((s) => s.store_category_id === window.__SOUQ_TEST_CLIENT__._db.tables.store_categories.find((c) => c.name === 'مطاعم').id)));
+      await goto('/banners', 'admin.html');
+      await page.click('.toolbar [data-action=editBanner]');
+      await page.setInputFiles('#bnFile', { name: 'b.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR4nGNgYPj/n4GBgQEAEAQB/wR8T2MAAAAASUVORK5CYII=', 'base64') });
+      await page.waitForSelector('#bnPrev img');
+      await page.fill('dialog [name=title]', 'تخفيضات العيد');
+      await page.selectOption('dialog [name=type]', 'store');
+      await page.selectOption('dialog [name=value]', { label: 'أسواق النخيل' });
+      await page.click('dialog button.btn-primary');
+      await page.waitForTimeout(500);
+      const bn = await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.home_banners.at(-1));
+      assert.equal(bn.title, 'تخفيضات العيد');
+      assert.match(bn.link, /^#\/s\//);
+      assert.equal(bn.position, 1);
+      for (const h of ['/', '/orders?f=all', '/stores', '/products', '/drivers', '/users', '/categories', '/categories?t=stores', '/banners', '/promotions', '/settings']) await goto(h, 'admin.html');
     });
     await step('mobile layout keeps a side gutter and the tab bar', async () => {
       await page.setViewportSize({ width: 390, height: 844 });

@@ -30,7 +30,7 @@ export function pickLocation({ value, title = 'حدّد الموقع على ال
     const d = modal(
       title,
       html`<div class="map-box lg" id="pickerMap"><div class="map-pin-hint">${icon('info', 16)} ${hint}</div>
-        <div style="position:absolute;z-index:600;left:50%;top:50%;transform:translate(-50%,-100%);color:#e11d48;pointer-events:none">${icon('pin', 44)}</div>
+        <div style="position:absolute;z-index:600;left:50%;top:50%;transform:translate(-50%,-100%);color:var(--brand);pointer-events:none">${icon('pin', 44)}</div>
         <button type="button" class="btn btn-sm map-locate" style="background:var(--surface);box-shadow:var(--shadow)" data-locate>${icon('locate', 18)} موقعي الحالي</button></div>
         <div class="row-actions"><button class="btn btn-primary" data-ok>${icon('check', 18)} تأكيد هذا الموقع</button><button class="btn btn-ghost" data-close>إلغاء</button></div>`,
       { size: 'lg', onClose: () => !done && resolve(null) },

@@ -14,3 +14,5 @@ db/delivery-route.sql
 db/simple-delivery-completion.sql
 db/delivery-contact-dialog-fix.sql
 supabase/migrations/20261014090000_marketplace_revenue.sql
+supabase/migrations/20261014150000_store_categories.sql
+supabase/migrations/20261014170000_home_banners_category_icons.sql

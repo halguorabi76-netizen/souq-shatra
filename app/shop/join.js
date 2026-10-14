@@ -4,7 +4,7 @@ import { pageActions } from '../core/actions.js';
 import { href, go } from '../core/router.js';
 import { db, check } from '../core/db.js';
 import { session, isSeller, isDriver, load as reloadSession } from '../core/session.js';
-import { getPlatform } from '../core/api.js';
+import { getPlatform, getStoreCategories } from '../core/api.js';
 import { toast, busy } from '../core/ui.js';
 import { money, phoneDigits } from '../core/format.js';
 import { pickLocation, validPoint, mapPreview } from '../core/map.js';
@@ -16,7 +16,7 @@ export async function sellPage() {
   const main = await mountShop();
   setTitle('بِع في سوق الشطرة');
   if (isSeller()) return go('/seller', null, { replace: true });
-  const platform = await getPlatform().catch(() => ({ plans: [], support_phone: '9647837271707', settings: null }));
+  const [platform, storeCats] = await Promise.all([getPlatform().catch(() => ({ plans: [], support_phone: '9647837271707', settings: null })), getStoreCategories()]);
   const s = session.store;
   const pending = s && !s.approved && !s.removed;
   let point = null;
@@ -24,11 +24,11 @@ export async function sellPage() {
   const commission = platform.settings?.commission_percent;
   render(
     main,
-    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">افتح متجرك في سوق الشطرة</h1><p style="opacity:.9">اعرض منتجاتك لزبائن الشطرة وما حولها، واستقبل الطلبات على هاتفك، ونحن نوفر التوصيل.</p></div><div class="art" style="text-align:center;font-size:4.5rem">🏪</div></section>
+    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">اعرض بضاعتك في سوق الشطرة</h1><p style="opacity:.9">عندك محل، أو تبيع من بيتك بلا محل ولا بسطية؟ اعرض بضاعتك لأهل الشطرة واستقبل الطلبات على هاتفك، ونحن نوفر التوصيل.</p></div><div class="art">${icon('home', 88)}</div></section>
     <div class="trust">
       <div>${icon('store', 26)}<span><b>متجر باسمك</b><small>رابط خاص تشاركه</small></span></div>
       <div>${icon('package', 26)}<span><b>إدارة سهلة</b><small>منتجات ومخزون ونسخ</small></span></div>
-      <div>${icon('truck', 26)}<span><b>توصيل جاهز</b><small>سائق يستلم من محلك</small></span></div>
+      <div>${icon('truck', 26)}<span><b>توصيل جاهز</b><small>سائق يستلم من بابك</small></span></div>
       <div>${icon('chart', 26)}<span><b>تقارير أرباح</b><small>مبيعاتك يومًا بيوم</small></span></div>
     </div>
     ${plans.length ? html`<section class="section"><div class="section-head"><div><h2>الباقات</h2><p>${commission != null ? `عمولة السوق الافتراضية ${commission}% من قيمة المنتجات المسلّمة فقط.` : 'ابدأ مجانًا ورقِّ باقتك متى شئت.'}</p></div></div>
@@ -44,12 +44,16 @@ export async function sellPage() {
           : html`<h2>${pending ? 'طلبك قيد المراجعة' : 'بيانات المتجر'}</h2>${pending ? html`<div class="notice">${icon('clock', 18)}<p>وصل طلبك للإدارة وسنتواصل معك قريبًا. يمكنك تحديث البيانات أدناه.</p></div>` : html`<p class="muted">تراجع الإدارة الطلب وتتواصل معك قبل تفعيل البيع.</p>`}
           <form data-join novalidate>
             <div class="grid-2"><label class="field"><span>الاسم الأول *</span><input name="first" required value="${(session.profile?.full_name || '').split(' ')[0] || ''}"></label><label class="field"><span>اسم العائلة *</span><input name="last" required value="${(session.profile?.full_name || '').split(' ').slice(1).join(' ')}"></label></div>
-            <label class="field"><span>اسم المتجر *</span><input name="name" required maxlength="100" value="${s?.name || ''}"></label>
+            <div class="field"><span>كيف تبيع؟ *</span><div class="kind-choice">
+              <label class="choice"><input type="radio" name="kind" value="online" ${s?.store_kind !== 'physical' ? 'checked' : ''}><span>${icon('home', 22)}<b>أبيع من البيت</b><small>بلا محل: أكلات بيتية، خياطة، أشغال يدوية، أي بضاعة. عنوانك يراه السائق فقط.</small></span></label>
+              <label class="choice"><input type="radio" name="kind" value="physical" ${s?.store_kind === 'physical' ? 'checked' : ''}><span>${icon('store', 22)}<b>عندي محل أو بسطية</b><small>عنوان المحل يظهر للزبائن في صفحة متجرك.</small></span></label>
+            </div></div>
+            ${storeCats.length ? html`<label class="field"><span>قسم المتجر *</span><select name="category" required><option value="">اختر القسم</option>${storeCats.map((c) => html`<option value="${c.id}" ${s?.store_category_id === c.id ? 'selected' : ''}>${c.name}</option>`)}</select><small>تراجعه الإدارة عند الموافقة.</small></label>` : ''}
+            <label class="field"><span>اسم المتجر *</span><input name="name" required maxlength="100" value="${s?.name || ''}" placeholder="مثال: مطبخ أم علي، خياطة الشطرة"></label>
             <label class="field"><span>رقم التواصل (واتساب) *</span><input name="phone" required class="ltr" inputmode="tel" value="${s?.phone || session.profile?.phone || ''}" placeholder="07xxxxxxxxx"></label>
-            <label class="field"><span>نوع المتجر *</span><select name="kind" required><option value="physical" ${s?.store_kind !== 'online' ? 'selected' : ''}>محل في السوق</option><option value="online" ${s?.store_kind === 'online' ? 'selected' : ''}>متجر إلكتروني / من البيت</option></select></label>
-            <label class="field"><span>العنوان *</span><input name="address" required maxlength="500" value="${s?.address || ''}" placeholder="المنطقة، الشارع، أقرب نقطة دالة"></label>
+            <label class="field"><span>عنوان استلام البضاعة *</span><input name="address" required maxlength="500" value="${s?.address || ''}" placeholder="المنطقة، الشارع، أقرب نقطة دالة"></label>
             <div class="field"><span>موقع الاستلام على الخريطة *</span><div data-preview></div><button type="button" class="btn btn-outline" data-action="pickStore">${icon('pin', 18)} تحديد الموقع</button></div>
-            <label class="field"><span>نبذة عن المتجر</span><textarea name="description" maxlength="1000">${s?.description || ''}</textarea></label>
+            <label class="field"><span>ماذا تبيع؟</span><textarea name="description" maxlength="1000">${s?.description || ''}</textarea></label>
             <button class="btn btn-primary btn-lg btn-block">${pending ? 'تحديث الطلب' : 'إرسال طلب الانضمام'}</button>
           </form>`}
     </section>`,
@@ -67,9 +71,11 @@ export async function sellPage() {
     const v = formData(e.target),
       phone = phoneDigits(v.phone);
     if (!v.first || !v.last || v.name.length < 2 || phone.length < 10 || v.address.length < 3) return toast('أكمل الحقول المطلوبة', 'error');
+    if (storeCats.length && !v.category) return toast('اختر قسم المتجر', 'error');
     if (!validPoint(point)) return toast('حدّد موقع المتجر على الخريطة', 'error');
     busy(e.target.querySelector('button.btn-primary'), async () => {
       check(await db.rpc('request_seller_join_map', { p_first: v.first, p_last: v.last, p_name: v.name, p_phone: phone, p_address: v.address, p_description: v.description || '', p_kind: v.kind, p_lat: point.lat, p_lon: point.lon }));
+      if (v.category) check(await db.rpc('set_my_store_category', { p_category: v.category }));
       await reloadSession();
       toast('وصل طلبك للإدارة', 'success');
       render(
@@ -88,7 +94,7 @@ export async function drivePage() {
   const d = session.driverProfile || {};
   render(
     main,
-    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">اربح من التوصيل في مدينتك</h1><p style="opacity:.9">استقبل طلبات التوصيل القريبة منك، واعمل بالوقت الذي يناسبك، واستلم أجرتك عن كل طلب.</p></div><div class="art" style="text-align:center;font-size:4.5rem">🛵</div></section>
+    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">اربح من التوصيل في مدينتك</h1><p style="opacity:.9">استقبل طلبات التوصيل القريبة منك، واعمل بالوقت الذي يناسبك، واستلم أجرتك عن كل طلب.</p></div><div class="art">${icon('truck', 88)}</div></section>
     <section class="card" style="max-width:760px">
       ${!session.user
         ? html`<h2>ابدأ الآن</h2><p class="muted">أنشئ حسابًا أو سجّل الدخول، ثم أكمل طلب الانضمام.</p><div class="row-actions"><a class="btn btn-primary" href="${href('/register', { next: '/drive' })}">إنشاء حساب</a><a class="btn btn-outline" href="${href('/login', { next: '/drive' })}">لدي حساب</a></div>`

@@ -73,6 +73,19 @@ export const getCategories = () =>
     const rows = check(await db.from('catalog_categories').select('*').order('position')) || [];
     return rows.filter((c) => c.active !== false);
   });
+// Store categories (مطاعم، ماركت…) set by the admin. Missing table (before the migration) reads as none.
+export const getStoreCategories = () =>
+  cached('store-categories', 600000, async () => {
+    const res = await db.from('store_categories').select('*').order('position').order('name');
+    return res.error ? [] : (res.data || []).filter((c) => c.active !== false);
+  });
+// Home slider images set by the admin. Missing table (before the migration) reads as none.
+export const liveBanner = (b, now = Date.now()) => b.active !== false && (!b.starts_at || Date.parse(b.starts_at) <= now) && (!b.ends_at || Date.parse(b.ends_at) > now);
+export const getBanners = () =>
+  cached('banners', 60000, async () => {
+    const res = await db.from('home_banners').select('*').order('position').order('created_at');
+    return res.error ? [] : (res.data || []).filter((b) => liveBanner(b)).map((b) => ({ ...b, image_url: publicUrl(b.image_path, 'banners') }));
+  });
 export const getPlatform = () =>
   cached('platform', 120000, async () => {
     const [settings, delivery, zones, plans, placements] = await Promise.all([
@@ -117,7 +130,8 @@ export async function searchProducts({ q = '', category = '', store = '', min = 
   const groups = [];
   if (category) {
     const cats = await getCategories();
-    const root = cats.find((c) => c.name === category || c.id === category);
+    // Some names exist both as a main category and a subcategory; the main one wins.
+    const root = cats.find((c) => c.id === category) || cats.find((c) => !c.parent_id && c.name === category) || cats.find((c) => c.name === category);
     const catIds = root ? [root.id, ...cats.filter((c) => c.parent_id === root.id).map((c) => c.id)] : [];
     const name = root?.name || category;
     groups.push(`or(category.eq.${quote(name)}${catIds.length ? `,catalog_category_id.in.(${catIds.join(',')})` : ''})`);

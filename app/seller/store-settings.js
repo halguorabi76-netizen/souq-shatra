@@ -3,7 +3,7 @@ import { icon } from '../core/icons.js';
 import { isCurrent } from '../core/router.js';
 import { db, check, publicUrl } from '../core/db.js';
 import { session, load as reloadSession } from '../core/session.js';
-import { invalidate } from '../core/api.js';
+import { invalidate, getStoreCategories } from '../core/api.js';
 import { wsTitle, resetWorkspace } from '../core/workspace.js';
 import { toast, busy, prepareImage } from '../core/ui.js';
 import { phoneDigits } from '../core/format.js';
@@ -13,7 +13,7 @@ import { sellerActions, sellerShell } from './seller.js';
 export async function storeView(ctx, body) {
   wsTitle('إعدادات المتجر');
   const s = session.store;
-  const pickup = (await db.from('store_pickups').select('*').eq('store_id', s.id).maybeSingle()).data;
+  const [pickup, storeCats] = await Promise.all([db.from('store_pickups').select('*').eq('store_id', s.id).maybeSingle().then((r) => r.data), getStoreCategories()]);
   if (!isCurrent(ctx.token)) return;
   sellerShell();
   let point = pickup?.latitude != null ? { lat: +pickup.latitude, lon: +pickup.longitude } : null;
@@ -25,13 +25,14 @@ export async function storeView(ctx, body) {
     <form class="card" data-identity><h2>${icon('store', 20)} هوية المتجر</h2>
       <div class="image-drop"><div class="preview" id="storeImg">${img ? html`<img src="${safeUrl(img)}" alt="">` : icon('camera', 32)}</div><div><label class="btn btn-outline" for="storeFile">${icon('upload', 18)} صورة / شعار المتجر</label><input id="storeFile" type="file" accept="image/*" hidden><p class="muted small">تظهر في صفحة متجرك وقائمة المتاجر.</p></div></div>
       <label class="field"><span>اسم المتجر *</span><input name="name" required maxlength="100" value="${s.name}"></label>
+      ${storeCats.length ? html`<label class="field"><span>قسم المتجر</span><select name="category"><option value="">بدون قسم</option>${storeCats.map((c) => html`<option value="${c.id}" ${s.store_category_id === c.id ? 'selected' : ''}>${c.name}</option>`)}</select><small>يظهر متجرك في هذا القسم بصفحة المتاجر.</small></label>` : ''}
       <label class="field"><span>رابط مختصر (اسم مستخدم)</span><input name="username" class="ltr" maxlength="30" placeholder="my_store" value="${s.username || session.profile?.username || ''}"><small>أحرف إنجليزية وأرقام وشرطة سفلية. يُستخدم أيضًا لتسجيل الدخول.</small></label>
       <label class="field"><span>رقم التواصل *</span><input name="phone" required class="ltr" inputmode="tel" value="${s.phone || ''}"></label>
       <label class="field"><span>نبذة عن المتجر</span><textarea name="description" maxlength="1000" rows="3">${s.description || ''}</textarea></label>
       <button class="btn btn-primary">${icon('check', 18)} حفظ الهوية</button>
     </form>
     <form class="card" data-location><h2>${icon('pin', 20)} الموقع والتجهيز</h2>
-      <label class="field"><span>نوع المتجر</span><select name="kind"><option value="physical" ${s.store_kind !== 'online' ? 'selected' : ''}>محل في السوق (العنوان يظهر للزبائن)</option><option value="online" ${s.store_kind === 'online' ? 'selected' : ''}>متجر إلكتروني (العنوان للسائق فقط)</option></select></label>
+      <label class="field"><span>نوع المتجر</span><select name="kind"><option value="physical" ${s.store_kind !== 'online' ? 'selected' : ''}>محل أو بسطية (العنوان يظهر للزبائن)</option><option value="online" ${s.store_kind === 'online' ? 'selected' : ''}>أبيع من البيت (العنوان للسائق فقط)</option></select></label>
       <label class="field"><span>عنوان الاستلام *</span><input name="address" required maxlength="500" value="${pickup?.pickup_address || s.address || ''}"></label>
       <div class="field"><span>موقع استلام الطلبات على الخريطة *</span><div data-prev>${point ? mapPreview(point) : html`<div class="notice notice-warn">${icon('alert', 18)}<p>لم تحدد موقع الاستلام. لا يمكن حساب أجرة التوصيل لطلبات متجرك بدونه.</p></div>`}</div><button type="button" class="btn btn-outline" data-action="pick">${icon('pin', 18)} ${point ? 'تعديل الموقع' : 'تحديد الموقع'}</button></div>
       <label class="field"><span>وقت تجهيز الطلب (دقائق)</span><input name="prep" type="number" min="0" max="1440" step="1" value="${s.prep_time_min ?? 15}"><small>يظهر للزبون ويساعد السائق على الوصول في الوقت المناسب.</small></label>
@@ -67,6 +68,7 @@ export async function storeView(ctx, body) {
       const username = v.username.replace(/^@/, '').toLowerCase();
       if (username && username !== (s.username || session.profile?.username)) check(await db.rpc('set_professional_username', { p_username: username }));
       check(await db.from('stores').update({ name: v.name, phone, description: v.description, image_path }).eq('id', s.id).select('id').single());
+      if (storeCats.length && (v.category || null) !== (s.store_category_id || null)) check(await db.rpc('set_my_store_category', { p_category: v.category || null }));
       await done('حُفظت هوية المتجر');
     });
   });

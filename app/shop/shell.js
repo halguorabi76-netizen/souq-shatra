@@ -8,7 +8,7 @@ import { getCategories, searchProducts, getStores, interactions, toggleFavorite,
 import { toast, toastError } from '../core/ui.js';
 import { money } from '../core/format.js';
 
-export const LOGO = 'icons/shatra-calligraphy-192-v174.png';
+export const LOGO = 'icons/shatra-night-192-v200.png';
 let mounted = null;
 export const favorites = { ids: new Set(), loadedFor: null };
 
@@ -33,10 +33,10 @@ function header(cats) {
     </div>
     <div class="container mobile-search">${searchForm('q-mobile')}</div>
     <nav class="cat-strip" aria-label="الأقسام"><div class="container">
-      <a href="#/search">${icon('grid', 16)} كل الأقسام</a>
-      <a href="#/search?sort=deals">🔥 العروض</a>
-      <a href="#/stores">المتاجر</a>
-      ${cats.filter((c) => !c.parent_id).slice(0, 14).map((c) => html`<a href="${href('/search', { cat: c.name })}">${c.name}</a>`)}
+      <a href="#/stores">${icon('store', 16)} المتاجر</a>
+      <a href="#/products">${icon('box', 16)} المنتجات</a>
+      <a href="#/products?sort=deals">${icon('percent', 16)} العروض</a>
+      ${cats.filter((c) => !c.parent_id).slice(0, 14).map((c) => html`<a href="${href('/products', { cat: c.name })}">${c.name}</a>`)}
     </div></nav>
   </header>`;
 }
@@ -52,7 +52,7 @@ function footer(platform) {
         <p style="margin-top:12px">متاجر مدينتك في تطبيق واحد: تسوّق من محلات الشطرة، وادفع عند الاستلام أو إلكترونيًا، ويصلك طلبك مع سائق محلي.</p>
         <div class="pay-chips">${methods.cod ? html`<span>الدفع عند الاستلام</span>` : ''}${methods.zaincash ? html`<span>زين كاش</span>` : ''}${methods.card ? html`<span>كي كارد / ماستر كارد</span>` : ''}</div></div>
       <div><h4>تسوّق</h4><ul><li><a href="#/search">كل المنتجات</a></li><li><a href="#/search?sort=deals">العروض</a></li><li><a href="#/stores">المتاجر</a></li><li><a href="#/favorites">المفضلة</a></li></ul></div>
-      <div><h4>اعمل معنا</h4><ul><li><a href="#/sell">بِع في سوق الشطرة</a></li><li><a href="#/drive">انضم كسائق توصيل</a></li><li><a href="#/seller">مركز البائع</a></li><li><a href="#/driver">تطبيق السائق</a></li></ul></div>
+      <div><h4>اعمل معنا</h4><ul><li>${isSeller() ? html`<a href="#/seller">مركز البائع</a>` : html`<a href="#/sell">بِع في سوق الشطرة</a>`}</li><li>${isDriver() ? html`<a href="#/driver">تطبيق السائق</a>` : html`<a href="#/drive">انضم كسائق توصيل</a>`}</li></ul></div>
       <div><h4>المساعدة</h4><ul><li><a href="#/pages/faq">الأسئلة الشائعة</a></li><li><a href="#/pages/returns">الإرجاع والإلغاء</a></li><li><a href="#/pages/terms">الشروط والأحكام</a></li><li><a href="#/pages/privacy">سياسة الخصوصية</a></li><li><a href="https://wa.me/${platform?.support_phone || '9647837271707'}" target="_blank" rel="noopener" data-follow>تواصل عبر واتساب</a></li></ul></div>
     </div>
     <div class="footer-bottom"><span>© ${new Date().getFullYear()} سوق الشطرة. جميع الحقوق محفوظة.</span><button class="link-btn" style="color:#e4e8fb" data-action="toggleTheme">${icon('moon', 16)} تبديل المظهر</button></div>
@@ -61,7 +61,7 @@ function footer(platform) {
 function tabbar() {
   const p = current.path;
   const a = (to, ic, label, active, extra = '') => html`<a href="${to}" class="${active ? 'active' : ''}">${icon(ic, 22)}<span>${label}</span>${extra}</a>`;
-  return html`<nav class="tabbar" aria-label="التنقل">${a('#/', 'home', 'الرئيسية', p === '/')}${a('#/search', 'grid', 'الأقسام', p === '/search' || p === '/stores')}${a('#/cart', 'cart', 'السلة', p === '/cart' || p === '/checkout', html`<span class="count-dot" data-cart-count hidden></span>`)}${a('#/orders', 'package', 'طلباتي', p.startsWith('/orders'))}${a(session.user ? '#/account' : '#/login', 'user', 'حسابي', p.startsWith('/account') || p === '/login')}</nav>`;
+  return html`<nav class="tabbar" aria-label="التنقل">${a('#/', 'home', 'الرئيسية', p === '/')}${a('#/stores', 'store', 'المتاجر', p === '/stores' || p.startsWith('/s/'))}${a('#/products', 'box', 'المنتجات', p === '/products' || p === '/search')}${a('#/cart', 'cart', 'السلة', p === '/cart' || p === '/checkout', html`<span class="count-dot" data-cart-count hidden></span>`)}${a(session.user ? '#/account' : '#/login', 'user', 'حسابي', p.startsWith('/account') || p === '/login' || p.startsWith('/orders'))}</nav>`;
 }
 export async function mountShop() {
   document.body.classList.add('has-tabbar');
