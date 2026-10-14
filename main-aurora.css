@@ -1,0 +1,215 @@
+/* Reference palette: navy, indigo, blue, sky, teal, violet, lavender, mauve, rose. */
+:root,:root[data-theme=light],body:is(.seller-workspace,.seller-storefront){--bg:#edf1fa;--card:#f7f8fd;--ink:#172344;--mut:#536080;--line:#c6cde4;--navy:#30376a;--gold:#426ba5;--tile:#e0e5f5;--gi:#fff;--scene-bg:linear-gradient(125deg,#e6eaf7 0%,#dceaf5 24%,#ddf0ee 44%,#e6e1f2 65%,#efdfec 82%,#f5e6ed 100%);--panel-bg:linear-gradient(135deg,#f8f9fd,#e6eff8 35%,#eae5f5 70%,#f2e3ec);--icon-bg:linear-gradient(125deg,#a4c8e0,#a3ced0 28%,#aaa7d2 62%,#d5abc4);--icon-ink:#202e59;--action-bg:linear-gradient(115deg,#101a39,#30376a 20%,#426ba5 40%,#387c86 55%,#655287 73%,#835674 100%);--sw-bg:var(--bg);--sw-card:var(--card);--sw-ink:var(--ink);--sw-muted:var(--mut);--sw-line:var(--line);--sw-scene-bg:var(--scene-bg);--sw-icon-ink:var(--icon-ink);--sw-icon-bg:var(--icon-bg);--sw-panel-bg:var(--panel-bg);--sw-action-bg:var(--action-bg)}
+:root[data-theme=dark],body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--bg:#101a39;--card:#253153;--ink:#f2f3fc;--mut:#c3cce5;--line:#59658d;--navy:#a6c7ed;--gold:#c3b7df;--tile:#30376a;--scene-bg:linear-gradient(125deg,#0b1429 0%,#172544 20%,#20375b 37%,#24494f 51%,#30376a 66%,#473f67 82%,#60445c 100%);--panel-bg:linear-gradient(135deg,#253b59,#30376a 40%,#49456b 72%,#624b67);--icon-bg:linear-gradient(125deg,#72b5d1,#63b9ba 28%,#aca2c9 62%,#d5abc4);--icon-ink:#101a39;--action-bg:linear-gradient(115deg,#30376a,#426ba5 30%,#326e7b 52%,#806eac 76%,#925c7b);color-scheme:dark}
+:root[data-theme] body:not(.starting),:root[data-theme] .app,body:is(.seller-workspace,.seller-storefront),body:is(.seller-workspace,.seller-storefront) .app{background:var(--scene-bg)!important;color:var(--ink)}
+:root[data-theme] :is(.top,.nav,.sw-nav,.sw-sitebar,.admin-header){background:var(--scene-bg)!important;border-color:var(--line)!important;color:var(--ink)}
+:root[data-theme] :is(.card,.panel,.post-card,.post-intro,.sw-card,.sw-order,.sw-product,.sw-public-product,.sw-public-header,.admin-stat,.admin-panel,.admin-card,.category-card,.product-card,.sheet,.dialog,.sw-dialog,.sw-drawer){background:var(--panel-bg)!important;border-color:var(--line)!important;color:var(--ink)}
+:root[data-theme] :is(.header-icon,.theme-toggle,.sw-icon,.sw-monogram,.sw-arrange-toggle,.category-icon,.desktop-shortcut,.admin-tabs button,.sw-tag,.sw-status),body:is(.seller-workspace,.seller-storefront) :is(.sw-icon,.sw-monogram,.sw-arrange-toggle){background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--line)!important}
+:root[data-theme] :is(.buy,.primary,.sw-add,.sw-primary,.sw-sales,.account-head,.hero,.admin-banner,.btn-primary){background:var(--action-bg)!important;color:#fff!important;border-color:var(--line)}
+:root[data-theme] :is(input,textarea,select,.sw-search input,.desktop-search){background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
+:root[data-theme] :is(input,textarea)::placeholder{color:var(--mut)!important;opacity:1}
+:root[data-theme] :is(.nav button.active,.nav button[aria-current=page],.sw-nav button[aria-current=page],.sw-segment .selected,.sw-product-tabs .selected){background:var(--icon-bg)!important;color:var(--icon-ink)!important}
+:root[data-theme] :is(.header-logo,.sw-sitebrand img){filter:none!important;object-fit:contain;width:64px;height:48px}
+.sw-sitebrand{gap:10px!important}.header-brand{gap:10px!important}
+:root[data-theme] .header-brand-name{color:var(--ink)!important}
+:root[data-theme] .header-brand-name small{color:var(--mut)!important}
+:root[data-theme] :is(.tabs button,.sw-nav button){color:var(--ink)!important}
+:root[data-theme] .tabs .navicon{background:var(--icon-bg);color:var(--icon-ink);border-radius:12px;padding:6px;display:inline-grid;place-items:center}
+:root[data-theme] .tabs .navicon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8}
+:root[data-theme] #adminTop{background:var(--scene-bg)!important;color:var(--ink);border-color:var(--line)}
+:root[data-theme] :is(.sw-header small,.sw-menu-title,.sw-search input::placeholder){color:var(--mut)!important}
+#startupSplash{background:var(--scene-bg)!important;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px}
+#startupSplash[hidden],#auroraLoading[hidden]{display:none!important}
+#startupSplash img{width:150px;height:150px;object-fit:contain;animation:aurora-bob 1.2s ease-in-out infinite}
+#startupSplash .startup-brand{width:120px;height:88px;animation:none}
+#loading{display:none!important}/* Network status uses the shared non-blocking mascot. */
+#auroraLoading{position:fixed;z-index:300;bottom:105px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);padding:10px 20px;border:1px solid var(--line);border-radius:24px;background:var(--panel-bg);color:var(--ink);box-shadow:0 12px 32px #101a3933;pointer-events:none;direction:rtl;font-size:14px}
+#auroraLoading img{width:72px;height:72px;object-fit:contain;animation:aurora-bob 1s ease-in-out infinite}
+#auroraLoading[data-offline=true] img{animation:none}
+.loading-buddy{background:transparent!important;width:100px;height:100px;background-image:url('icons/basket-mascot-v69.png')!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important}
+.loading-buddy:before,.loading-buddy:after,.loading-buddy span{display:none!important}
+@keyframes aurora-bob{50%{transform:translateY(-5px) rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){#startupSplash img,#auroraLoading img,.loading-buddy{animation:none!important}}
+@media(max-width:600px){:root[data-theme] :is(.header-logo,.sw-sitebrand img){width:49px;height:38px}#auroraLoading{bottom:90px;padding:8px 14px;white-space:normal}}
+
+:root[data-theme]{--scene-gradient:var(--action-bg);--scene-surface:var(--panel-bg);--scene-sky:#72b5d1;--scene-sand:#bc7d9f}
+:root[data-theme] :is(.tabs,.setting-row,.market-section,.profile-card,.account-popover,.auth-sheet,.desktop-market-intro,.demo-product,.demo-card,.admin-menu button){background:var(--panel-bg)!important;color:var(--ink)}
+:root[data-theme] :is(.auth-submit,.go,.profile-action,.filter-actions button:first-child){background:var(--action-bg)!important;color:white!important}
+
+:root[data-theme] .account-shortcuts button{background:var(--panel-bg)!important;color:var(--ink)}
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:46px 1fr 46px 46px!important;background:transparent!important}
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-monogram{color:var(--icon-ink)!important}
+body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var(--bg);--sw-card:var(--card);--sw-ink:var(--ink);--sw-muted:var(--mut);--sw-line:var(--line);--sw-icon-ink:var(--icon-ink);--sw-icon-bg:var(--icon-bg);--sw-panel-bg:var(--panel-bg);--sw-action-bg:var(--action-bg)}
+@media(max-width:600px){:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:34px 1fr 34px 34px!important;gap:6px}.sw-sitebar .sw-icon{width:34px!important;height:34px!important}.sw-sitebrand b{font-size:14px!important}}
+/* Product, checkout, orders and notifications share the same surfaces. */
+:root[data-theme] :is(.mp-product,.mp-store-card,.mp-switcher button,.buyer-checkout-card,.p,.box,.ord,.ac-panel,.ac-notice,.dw-card,.dw-order,.dw-driver-contact){background:var(--panel-bg)!important;color:var(--ink)!important;border-color:var(--line)!important}
+:root[data-theme] :is(.ac-floating,.dw-bell,.qty button,.ac-reactions button,.mp-store-avatar,.sw-search button){background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--line)!important}
+:root[data-theme] .sw-search button{border-radius:50%;box-shadow:0 2px 8px #101a3918}
+:root[data-theme] .sw-search button svg{stroke:var(--icon-ink)!important}
+:root[data-theme] :is(.mp-store-search button){background:var(--action-bg);color:#fff}
+:root[data-theme] :is(.mp-product-store,.mp-store-card p,.mp-store-card div>span,.mp-switcher small,.buyer-checkout-card .note,.ac-notice small){color:var(--mut)}
+:root[data-theme] .ac-reactions button[aria-pressed=true]{background:var(--action-bg)!important;color:#fff!important}
+#auroraLoading span{line-height:1.6}
+
+:root[data-theme] .mp-switcher svg{color:var(--icon-ink);background:var(--icon-bg);padding:6px;border-radius:12px;box-sizing:border-box}
+
+/* Main marketplace only: the complete reference spectrum on every surface. */
+:root[data-theme=light]{--scene-bg:linear-gradient(125deg,#e2e7f5 0%,#d4e6f8 20%,#d4edf1 39%,#deddf4 60%,#e9daf0 80%,#f2dfea 100%);--panel-bg:linear-gradient(135deg,#f6f7fc 0%,#e5eefb 24%,#e3f1f3 43%,#e9e4f8 64%,#f3e3f0 83%,#faeaf0 100%);--icon-bg:linear-gradient(125deg,#a2bbdf 0%,#9ed3e4 26%,#a3cdd3 43%,#b5abdb 66%,#d2abd2 83%,#e0b2ca 100%);--action-bg:linear-gradient(115deg,#14234c 0%,#304c92 22%,#24657c 43%,#554788 64%,#754c86 82%,#874c73 100%)}
+:root[data-theme] :is(.welcome,.welcome-mode .app,.category-cards,.buyer-cart-page){background:var(--scene-bg)!important}
+:root[data-theme] :is(.welcome-roles .symbol,.category-card[aria-pressed=true],.filter-chips button,.avatar,.role-badge){background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--line)!important}
+:root[data-theme] .welcome-roles .symbol svg{stroke:var(--icon-ink)!important}
+:root[data-theme] :is(.welcome-roles strong,.welcome h1,.section-title h2,.p em){color:var(--ink)!important}
+:root[data-theme] :is(.welcome p,.welcome-guest,.setting-row small){color:var(--mut)!important}
+:root[data-theme] .tabs button[aria-current=page] .navicon{box-shadow:0 0 0 2px var(--icon-ink),0 4px 12px #17234425}
+:root[data-theme] .tabs .plus{background:var(--action-bg)!important;color:white!important}
+#auroraLoading{padding-inline:14px 20px;max-width:min(420px,calc(100vw - 24px));box-shadow:0 8px 32px #17234424,inset 0 1px 0 #ffffff55}
+#auroraLoading img{flex:none;filter:drop-shadow(0 5px 4px #17234428);animation:main-basket-walk .8s ease-in-out infinite}
+#auroraLoading[data-kind=navigation] img{animation-duration:.55s}
+#auroraLoading[data-offline=true] img{animation:main-basket-wait 2.4s ease-in-out infinite}
+@keyframes main-basket-walk{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+@keyframes main-basket-wait{50%{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){#auroraLoading img{animation:none!important}}
+
+/* Floating mascot, without a card or shadow. */
+#auroraLoading{flex-direction:column;gap:4px;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;text-align:center;width:max-content}
+#auroraLoading img{width:96px;height:96px;filter:none!important;box-shadow:none!important}
+#auroraLoading span{font-size:15px;font-weight:500;text-shadow:none}
+#auroraLoading span::after{content:"...";display:inline-block;width:1.2em;text-align:left;direction:ltr;clip-path:inset(0 100% 0 0);animation:main-loading-dots 1.2s steps(4,end) infinite}
+#auroraLoading[data-offline=true] span::after{content:none}
+@keyframes main-loading-dots{to{clip-path:inset(0 0 0 0)}}
+@media(prefers-reduced-motion:reduce){#auroraLoading span::after{animation:none;clip-path:none}}
+
+/* Internal screens occupy the viewport; the previous page is hidden. */
+:root:not([data-portal]) body:has(#shade:not([hidden]),#swDrawer){overflow:hidden}
+:root:not([data-portal]) body:has(#shade:not([hidden]),#swDrawer) .app{visibility:hidden}
+:root:not([data-portal]) #shade{background:var(--scene-bg)!important;align-items:stretch!important;padding:0!important;backdrop-filter:none!important;z-index:350}
+:root:not([data-portal]) #sheet{width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;animation:none!important;overflow-y:auto;overscroll-behavior:contain;padding:calc(18px + env(safe-area-inset-top,0px)) clamp(16px,4vw,64px) calc(24px + env(safe-area-inset-bottom,0px))!important}
+:root:not([data-portal]) #sheet>.sh{position:sticky;top:0;z-index:2;background:var(--panel-bg);flex-direction:row-reverse;margin-bottom:16px}
+:root:not([data-portal]) #swDrawer .sw-drawer{position:fixed!important;inset:0!important;width:100%!important;max-width:none!important;height:100dvh!important;max-height:none!important;border-radius:0!important;box-shadow:none!important;background:var(--panel-bg)!important;overflow:auto}
+:root:not([data-portal]) #swDrawer .sw-drawer-shade{display:none!important}
+
+:root:not([data-portal]) body:has(#shade:not([hidden]),#swDrawer) :is(#activityBell,#auroraLoading){visibility:hidden}
+
+
+
+/* Compact mobile navigation: icon above label, with independent touch targets. */
+@media(max-width:767px){
+  :root[data-theme] .tabs{
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:2px;
+    min-height:0;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+    border-radius:20px 20px 0 0;
+    border-top:1px solid var(--line);
+    box-shadow:0 -4px 18px #101a3914;
+  }
+  :root[data-theme] .tabs button{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    min-width:0;
+    min-height:62px;
+    padding:5px 2px;
+    font-size:.75rem;
+    line-height:1.5;
+    white-space:nowrap;
+    border:0;
+    border-radius:14px;
+    background:transparent;
+    box-shadow:none;
+  }
+  :root[data-theme] .tabs .navicon{
+    display:grid;
+    flex:none;
+    place-items:center;
+    width:34px;
+    height:30px;
+    padding:4px;
+    margin:0;
+    border-radius:10px;
+    font-size:21px;
+    line-height:1;
+    box-sizing:border-box;
+  }
+  :root[data-theme] .tabs .navicon svg{width:21px;height:21px}
+  :root[data-theme] .tabs button[aria-current=page]{
+    background:transparent;
+    box-shadow:none;
+    font-weight:700;
+  }
+  :root[data-theme] .tabs button[aria-current=page]::before{display:none}
+  :root[data-theme] .tabs button[aria-current=page] .navicon{
+    box-shadow:0 0 0 1px var(--line),0 2px 6px #101a391a;
+  }
+  :root[data-theme] .tabs #cc{
+    top:0;
+    inset-inline-start:calc(50% + 4px);
+    min-width:17px;
+    padding:3px 4px;
+    font-size:10px;
+    line-height:1;
+    border:2px solid var(--card);
+    z-index:1;
+  }
+}
+
+/* Navigation belongs to the top header, without a separate content row. */
+:root:not([data-portal]) .topline .header-page-back{display:grid!important;place-items:center;position:absolute!important;right:0!important;left:auto!important;top:50%!important;transform:translateY(-50%);width:44px!important;height:44px!important;padding:10px!important;border-radius:14px;background:var(--icon-bg)!important;color:var(--icon-ink)!important;z-index:2}
+:root:not([data-portal]) .header-page-back svg{width:24px;height:24px}
+:root:not([data-portal]) .has-page-back .topline>[data-a="searchfocus"],
+:root:not([data-portal]) .has-page-back .profile-back{display:none!important}
+:root:not([data-portal]) body.has-page-back:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:44px 44px minmax(0,1fr) 44px 44px!important}
+@media(max-width:600px){:root:not([data-portal]) body.has-page-back:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:34px 34px minmax(0,1fr) 34px 34px!important}}
+
+/* Product deletion is an inline confirmation, never a full-screen page. */
+:root:not([data-portal]) .product-delete-confirm{grid-column:1/-1;flex-basis:100%;width:100%;padding:14px;margin-top:12px;border:1px solid var(--line);border-radius:14px;background:var(--panel-bg);color:var(--ink);box-sizing:border-box}
+:root:not([data-portal]) :is(.sw-product,.item):has(>.product-delete-confirm){flex-wrap:wrap}
+:root:not([data-portal]) .product-delete-confirm p{margin:0 0 10px;font-weight:600}
+:root:not([data-portal]) .product-delete-confirm>div{display:flex;gap:10px}
+:root:not([data-portal]) .product-delete-confirm button{width:auto;min-height:44px;padding:8px 20px;border-radius:10px;border:1px solid var(--line);background:var(--icon-bg);color:var(--icon-ink)}
+:root:not([data-portal]) .product-delete-confirm [data-a=pdel2]{background:var(--action-bg);color:white}
+
+/* The home offers two destinations; each destination has its own content. */
+:root:not([data-portal]) .topline #themeToggle{position:absolute;right:0;left:auto;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:10px;z-index:2}
+:root:not([data-portal]) .has-page-back .topline #themeToggle{right:52px}
+:root:not([data-portal]) .market-stores{margin-top:28px;padding-top:10px;border-top:1px solid var(--line)}
+:root:not([data-portal]) .store-category-cards svg{width:30px;height:30px}
+:root:not([data-portal]) .store-category-cards [aria-pressed=true]{background:var(--icon-bg)!important;color:var(--icon-ink)!important;border-color:var(--icon-ink)}
+
+@media(min-width:768px){
+ :root:not([data-portal]) .topline .header-brand{position:absolute;left:50%;right:auto;transform:translateX(-50%);margin:0}
+}
+
+/* Settings and order screens have no marketplace search row. */
+:root:not([data-portal]) body:is([data-main-page="settings"],[data-main-page="chats"],[data-main-page="orders"]) .desktop-search-row{display:none!important}
+
+/* Account role choices follow the main site's active color palette. */
+:root:not([data-portal])[data-theme] .account-popover{border-color:var(--line)!important}
+:root:not([data-portal])[data-theme] .account-popover::before{background:var(--card)!important;border-color:var(--line)!important}
+:root:not([data-portal])[data-theme] .account-popover p{color:var(--mut)!important}
+:root:not([data-portal])[data-theme] .account-popover button{background:transparent!important;color:var(--ink)!important}
+:root:not([data-portal])[data-theme] .account-popover button:is(:hover,:focus-visible){background:var(--tile)!important;color:var(--ink)!important}
+:root:not([data-portal])[data-theme] .account-role-icon{background:var(--icon-bg)!important;color:var(--icon-ink)!important;border:1px solid var(--line)}
+:root:not([data-portal])[data-theme] .account-role-icon svg{color:var(--icon-ink)!important;stroke:currentColor!important}
+
+/* Tablet and desktop use the header cart instead of a second navigation entry. */
+@media(min-width:768px){
+ :root:not([data-portal]) .topline .header-cart{display:grid;place-items:center;position:absolute;left:52px;right:auto;top:50%;transform:translateY(-50%);width:44px;height:44px;padding:10px;border-radius:14px;z-index:2}
+ :root:not([data-portal]) .desktop-shortcut[data-v="myMarket"] svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+}
+
+
+/* Materials sit next to home, with six compact mobile destinations. */
+:root:not([data-portal]) body:not(.seller-workspace) .tabs{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media(max-width:767px){:root:not([data-portal]) body:not(.seller-workspace) .tabs button{font-size:.6875rem;gap:4px;min-height:60px}:root:not([data-portal]) body:not(.seller-workspace) .tabs .navicon{width:30px;height:28px}:root:not([data-portal]) body:not(.seller-workspace) .tabs .navicon svg{width:20px;height:20px}}
+@media(min-width:768px){:root:not([data-portal]) body:not(.seller-workspace) .tabs{grid-template-columns:repeat(5,minmax(0,1fr))}}
+:root:not([data-portal]) .account-popover{width:248px!important;aspect-ratio:1;max-width:calc(100vw - 32px);padding:14px!important;border-radius:14px!important;display:flex;flex-direction:column;justify-content:center;gap:12px}
+:root:not([data-portal]) .account-popover[hidden]{display:none!important}
+:root:not([data-portal]) .account-popover p{text-align:center}
+:root:not([data-portal]) .account-role-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+:root:not([data-portal]) .account-role-grid button{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:10px 3px;font-size:12px;text-align:center;min-height:88px}
+:root:not([data-portal]) .account-profile-link{margin-bottom:8px}
+.professional-contact{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.professional-contact a.buy{display:block;text-align:center;text-decoration:none;padding:14px;border-radius:14px}
