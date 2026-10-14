@@ -27,16 +27,19 @@ test('pinned local browser SDK exposes the unchanged client/session/storage API 
 });
 
 
-test('opening animation dismisses on its own, on tap and on restored pages, without waiting for the network',async()=>{
+test('opening animation starts once the page is loaded, replays on tap and always hands over to the site',async()=>{
  const t=await readFile('index.html','utf8'),start=t.indexOf('<script>',t.indexOf('id="startupSplash"'))+8,source=t.slice(start,t.indexOf('</script>',start));
  assert.ok(t.includes('class="ss-logo"')&&t.includes('class="ss-name"'),'animated Shatra logo and name are in the splash');
- const run=()=>{const timers=[],events={},splashEvents={},classes=new Set(),leaving=new Set();
-  const splash={hidden:true,classList:{add:k=>leaving.add(k)},addEventListener:(k,f)=>splashEvents[k]=f};
-  const c={document:{getElementById:()=>splash,documentElement:{dataset:{}},body:{classList:{add:k=>classes.add(k),remove:k=>classes.delete(k)}}},window:{addEventListener:(k,f)=>events[k]=f},setTimeout:(fn,ms)=>timers.push({fn,ms})};
-  vm.runInNewContext(source,c);return {timers,events,splashEvents,classes,leaving,splash};};
- let r=run();assert.equal(r.splash.hidden,false);assert.ok(r.classes.has('starting'));
- const fade=r.timers.find(x=>x.ms===3400);assert.ok(fade);fade.fn();assert.ok(r.leaving.has('leaving'));
- r.timers.find(x=>x.ms===350).fn();assert.equal(r.splash.hidden,true);assert.equal(r.classes.has('starting'),false);
- r=run();r.splashEvents.click();assert.equal(r.splash.hidden,true);
- r=run();r.events.pageshow({persisted:true});assert.equal(r.splash.hidden,true);assert.equal(r.classes.has('starting'),false);
+ assert.match(t,/#startupSplash\.play \.ss-river\{animation:ssFlow 1\.2s \.6s/);assert.match(t,/#startupSplash\.play \.ss-pin\{animation:ssDrop \.7s 1\.9s/);assert.match(t,/#startupSplash\.play \.ss-name\{animation:ssWrite 1\.4s 1\.9s/);
+ const run=()=>{const timers=[],events={},splashEvents={},classes=new Set(),cls=new Set();
+  const splash={hidden:true,offsetWidth:1,classList:{add:(...k)=>k.forEach(x=>cls.add(x)),remove:(...k)=>k.forEach(x=>cls.delete(x)),contains:k=>cls.has(k)},addEventListener:(k,f)=>splashEvents[k]=f};
+  const c={document:{getElementById:()=>splash,documentElement:{dataset:{}},visibilityState:'visible',addEventListener(){},body:{classList:{add:k=>classes.add(k),remove:k=>classes.delete(k)}}},window:{addEventListener:(k,f)=>events[k]=f},setTimeout:(fn,ms)=>timers.push({fn,ms}),clearTimeout(){}};
+  vm.runInNewContext(source,c);return {timers,events,splashEvents,classes,cls,splash};};
+ let r=run();assert.equal(r.splash.hidden,false);assert.ok(r.classes.has('starting'));assert.equal(r.cls.has('play'),false,'waits for the page before playing');
+ r.events.load();assert.ok(r.cls.has('play'));
+ r.splashEvents.click();assert.equal(r.timers.filter(x=>x.ms===4000).length,2,'tap replays and restarts the timer');
+ r.timers.filter(x=>x.ms===4000).at(-1).fn();assert.ok(r.cls.has('leaving'));r.timers.find(x=>x.ms===350).fn();assert.equal(r.splash.hidden,true);assert.equal(r.classes.has('starting'),false);
+ r=run();r.timers.find(x=>x.ms===2500).fn();assert.ok(r.cls.has('play'),'starts after 2.5s even if load is slow');
+ r=run();r.timers.find(x=>x.ms===15000).fn();assert.equal(r.splash.hidden,true,'never traps the user');
+ r=run();r.events.pageshow({persisted:true});assert.equal(r.splash.hidden,true);
 });
