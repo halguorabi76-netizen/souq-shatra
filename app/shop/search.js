@@ -5,7 +5,7 @@ import { href, go, isCurrent } from '../core/router.js';
 import { getCategories, searchProducts, getStores, getLivePromotions, getProductsByIds, getStoreCategories } from '../core/api.js';
 import { skeletonCards, errorBlock, emptyState, modal } from '../core/ui.js';
 import { number, normalizeArabic } from '../core/format.js';
-import { productCard, storeCard, breadcrumbs, isHomeSeller, catTile, catEmoji } from './components.js';
+import { productCard, storeCard, breadcrumbs, isHomeSeller, catTile } from './components.js';
 import { mountShop, favorites, loadFavorites, setTitle } from './shell.js';
 
 const SORTS = [
@@ -74,7 +74,7 @@ export async function searchPage(ctx) {
     const subs = activeRoot ? cats.filter((c) => c.parent_id === activeRoot.id) : [];
     const catNav =
       base === '/products' && roots.length
-        ? html`<div class="cat-rail compact"><a class="cat-card ${!activeRoot ? 'on' : ''}" href="${href(base, { sort: f.sort === 'newest' ? '' : f.sort })}"><span class="art">${catEmoji('')}</span><b>الكل</b></a>${roots.map((c) => catTile(c, { active: activeRoot?.id === c.id }))}</div>
+        ? html`<div class="cat-rail compact"><a class="cat-card ${!activeRoot ? 'on' : ''}" href="${href(base, { sort: f.sort === 'newest' ? '' : f.sort })}"><span class="art">${icon('grid', 30)}</span><b>الكل</b></a>${roots.map((c) => catTile(c, { active: activeRoot?.id === c.id }))}</div>
         ${subs.length ? html`<div class="chip-rail"><a class="pill ${selected === activeRoot ? 'on' : ''}" href="${href(base, { ...f, cat: activeRoot.name, page: '' })}">كل ${activeRoot.name}</a>${subs.map((c) => html`<a class="pill ${selected?.id === c.id ? 'on' : ''}" href="${href(base, { ...f, cat: c.name, page: '' })}">${c.name}</a>`)}</div>` : ''}`
         : '';
     const chips = [f.q && ['q', `«${f.q}»`], f.cat && ['cat', f.cat], f.min && ['min', `من ${f.min}`], f.max && ['max', `إلى ${f.max}`], f.cond && ['cond', f.cond === 'used' ? 'مستعمل' : 'جديد']].filter(Boolean);

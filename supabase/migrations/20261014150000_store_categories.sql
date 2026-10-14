@@ -5,6 +5,7 @@
 create table if not exists public.store_categories(
  id uuid primary key default gen_random_uuid(),
  name text not null check(length(trim(name)) between 2 and 60),
+ icon text check(icon is null or icon ~ '^[a-z0-9_]{1,30}$'),
  position integer not null default 0,
  active boolean not null default true,
  created_at timestamptz not null default now()
@@ -18,17 +19,17 @@ grant select on public.store_categories to anon,authenticated;
 alter table public.stores add column if not exists store_category_id uuid references public.store_categories(id) on delete set null;
 create index if not exists stores_store_category_idx on public.stores(store_category_id);
 
-create or replace function public.admin_save_store_category(p_id uuid,p_name text,p_position integer,p_active boolean) returns uuid language plpgsql security definer set search_path='' as $$
+create or replace function public.admin_save_store_category(p_id uuid,p_name text,p_position integer,p_active boolean,p_icon text default null) returns uuid language plpgsql security definer set search_path='' as $$
 declare v uuid:=coalesce(p_id,gen_random_uuid());
 begin
  perform private.require_admin();
  if length(trim(coalesce(p_name,''))) not between 2 and 60 then raise exception 'invalid name'; end if;
- insert into public.store_categories(id,name,position,active) values(v,trim(p_name),coalesce(p_position,0),coalesce(p_active,true))
- on conflict(id) do update set name=excluded.name,position=excluded.position,active=excluded.active;
+ insert into public.store_categories(id,name,icon,position,active) values(v,trim(p_name),nullif(p_icon,''),coalesce(p_position,0),coalesce(p_active,true))
+ on conflict(id) do update set name=excluded.name,icon=excluded.icon,position=excluded.position,active=excluded.active;
  return v;
 end $$;
-revoke all on function public.admin_save_store_category(uuid,text,integer,boolean) from public,anon;
-grant execute on function public.admin_save_store_category(uuid,text,integer,boolean) to authenticated;
+revoke all on function public.admin_save_store_category(uuid,text,integer,boolean,text) from public,anon;
+grant execute on function public.admin_save_store_category(uuid,text,integer,boolean,text) to authenticated;
 
 -- Stores in a deleted category simply become uncategorised (on delete set null).
 create or replace function public.admin_delete_store_category(p_id uuid) returns void language plpgsql security definer set search_path='' as $$

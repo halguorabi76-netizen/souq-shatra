@@ -24,7 +24,7 @@ export async function sellPage() {
   const commission = platform.settings?.commission_percent;
   render(
     main,
-    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">اعرض بضاعتك في سوق الشطرة</h1><p style="opacity:.9">عندك محل، أو تبيع من بيتك بلا محل ولا بسطية؟ اعرض بضاعتك لأهل الشطرة واستقبل الطلبات على هاتفك، ونحن نوفر التوصيل.</p></div><div class="art" style="text-align:center;font-size:4.5rem">🏠</div></section>
+    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">اعرض بضاعتك في سوق الشطرة</h1><p style="opacity:.9">عندك محل، أو تبيع من بيتك بلا محل ولا بسطية؟ اعرض بضاعتك لأهل الشطرة واستقبل الطلبات على هاتفك، ونحن نوفر التوصيل.</p></div><div class="art">${icon('home', 88)}</div></section>
     <div class="trust">
       <div>${icon('store', 26)}<span><b>متجر باسمك</b><small>رابط خاص تشاركه</small></span></div>
       <div>${icon('package', 26)}<span><b>إدارة سهلة</b><small>منتجات ومخزون ونسخ</small></span></div>
@@ -94,7 +94,7 @@ export async function drivePage() {
   const d = session.driverProfile || {};
   render(
     main,
-    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">اربح من التوصيل في مدينتك</h1><p style="opacity:.9">استقبل طلبات التوصيل القريبة منك، واعمل بالوقت الذي يناسبك، واستلم أجرتك عن كل طلب.</p></div><div class="art" style="text-align:center;font-size:4.5rem">🛵</div></section>
+    html`<section class="seller-cta" style="margin-bottom:20px"><div><h1 style="margin:0">اربح من التوصيل في مدينتك</h1><p style="opacity:.9">استقبل طلبات التوصيل القريبة منك، واعمل بالوقت الذي يناسبك، واستلم أجرتك عن كل طلب.</p></div><div class="art">${icon('truck', 88)}</div></section>
     <section class="card" style="max-width:760px">
       ${!session.user
         ? html`<h2>ابدأ الآن</h2><p class="muted">أنشئ حسابًا أو سجّل الدخول، ثم أكمل طلب الانضمام.</p><div class="row-actions"><a class="btn btn-primary" href="${href('/register', { next: '/drive' })}">إنشاء حساب</a><a class="btn btn-outline" href="${href('/login', { next: '/drive' })}">لدي حساب</a></div>`

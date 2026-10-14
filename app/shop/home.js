@@ -1,7 +1,7 @@
 import { html, render, safeUrl } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { href, isCurrent } from '../core/router.js';
-import { getCategories, searchProducts, getStores, getLivePromotions, getProductsByIds, getStoreCategories } from '../core/api.js';
+import { getCategories, searchProducts, getStores, getLivePromotions, getProductsByIds, getStoreCategories, getBanners } from '../core/api.js';
 import { recent } from '../core/state.js';
 import { skeletonCards, errorBlock } from '../core/ui.js';
 import { productCard, sectionHead, priceTag, catTile, storeTile, isHomeSeller } from './components.js';
@@ -18,7 +18,7 @@ export async function homePage(ctx) {
   setTitle('');
   render(main, html`<div class="hero">${SLIDES.map(slide)}</div>${skeletonCards(8)}`);
   try {
-    const [cats, stores, promos, latest, storeCats] = await Promise.all([getCategories(), getStores(), getLivePromotions(), searchProducts({ size: 48 }), getStoreCategories(), loadFavorites()]);
+    const [cats, stores, promos, latest, storeCats, banners] = await Promise.all([getCategories(), getStores(), getLivePromotions(), searchProducts({ size: 48 }), getStoreCategories(), getBanners(), loadFavorites()]);
     if (!isCurrent(ctx.token)) return;
     const byStore = new Map(stores.map((s) => [s.id, s]));
     const promoIds = (place) => promos.filter((p) => p.placement === place && p.product_id).map((p) => p.product_id);
@@ -26,6 +26,8 @@ export async function homePage(ctx) {
     if (!isCurrent(ctx.token)) return;
     const live = (ids) => ids.map((id) => promoted.find((p) => p.id === id)).filter((p) => p && p.active && !p.blocked && byStore.has(p.store_id));
     const heroAds = live(promoIds('home_hero')).slice(0, 5);
+    // Admin banners lead; paid hero ads follow; the stock Shatra slides only fill an empty slider.
+    const slides = [...banners.map(bannerSlide), ...heroAds.map(adSlide), ...(banners.length ? [] : SLIDES.map(slide))];
     const featured = live(promoIds('home_featured'));
     const deals = latest.items.filter((p) => p.display_compare > p.display_price && p.in_stock).slice(0, 12);
     const recentItems = live(recent.list()).slice(0, 12);
@@ -38,8 +40,8 @@ export async function homePage(ctx) {
     const storeRail = (list) => html`<div class="store-rail">${list.map((s) => storeTile(s, { featured: spotlight.has(s.id) }))}</div>`;
     render(
       main,
-      html`<div class="hero" id="hero">${heroAds.map(adSlide)}${SLIDES.map(slide)}</div>
-      <div class="hero-dots" id="heroDots">${[...heroAds, ...SLIDES].map((_, i) => html`<button aria-label="الشريحة ${i + 1}" aria-current="${i === 0}" data-slide="${i}"></button>`)}</div>
+      html`<div class="hero ${banners.length ? 'has-banners' : ''}" id="hero">${slides}</div>
+      <div class="hero-dots" id="heroDots">${slides.map((_, i) => html`<button aria-label="الشريحة ${i + 1}" aria-current="${i === 0}" data-slide="${i}"></button>`)}</div>
       ${roots.length ? html`<section class="section">${sectionHead('أقسام المنتجات', '', '#/products')}<div class="cat-rail">${roots.map((c) => catTile(c))}</div></section>` : ''}
       ${storeCats.length ? html`<section class="section">${sectionHead('أقسام المتاجر', '', '#/stores', 'store')}<div class="chip-rail">${storeCats.map((c) => html`<a class="pill" href="${href('/stores', { cat: c.id })}">${c.name}</a>`)}</div></section>` : ''}
       ${homeSellers.length ? html`<section class="section">${sectionHead('من بيوت الشطرة', 'أهل مدينتك يبيعون من بيوتهم', '#/stores?kind=home', 'home')}${storeRail(homeSellers)}</section>` : ''}
@@ -48,7 +50,7 @@ export async function homePage(ctx) {
       ${deals.length ? html`<section class="section deal-band">${sectionHead('عروض وتخفيضات', 'أسعار مخفضة لفترة محدودة', '#/products?sort=deals', 'flame')}<div class="scroller">${deals.map((p) => card(p))}</div></section>` : ''}
       <section class="section">${sectionHead('وصل حديثًا', '', '#/products', 'zap')}${latest.items.length ? html`<div class="product-grid">${latest.items.slice(0, 20).map((p) => card(p))}</div>` : html`<div class="card empty">${icon('store', 40)}<h3>المتاجر تجهّز منتجاتها</h3><p>عد قريبًا لتشاهد أحدث المنتجات.</p></div>`}</section>
       ${recentItems.length ? html`<section class="section">${sectionHead('شاهدتها مؤخرًا', '', '', 'clock')}<div class="scroller">${recentItems.map((p) => card(p))}</div></section>` : ''}
-      <section class="section seller-cta"><div><h2>عندك بضاعة؟ اعرضها في سوق الشطرة</h2><p style="opacity:.92;margin:6px 0 0">محل أو بسطية أو من بيتك. لا يلزمك محل لتبيع.</p><ul><li>متجر باسمك بعد موافقة الإدارة</li><li>تستلم الطلبات على هاتفك</li><li>سائق يستلم البضاعة من بابك</li></ul><div class="btns"><a class="btn btn-accent" href="#/sell">ابدأ البيع</a><a class="btn btn-outline" href="#/drive">انضم كسائق</a></div></div><div class="art" style="text-align:center;font-size:5rem">🏠</div></section>`,
+      <section class="section seller-cta"><div><h2>عندك بضاعة؟ اعرضها في سوق الشطرة</h2><p style="opacity:.92;margin:6px 0 0">محل أو بسطية أو من بيتك. لا يلزمك محل لتبيع.</p><ul><li>متجر باسمك بعد موافقة الإدارة</li><li>تستلم الطلبات على هاتفك</li><li>سائق يستلم البضاعة من بابك</li></ul><div class="btns"><a class="btn btn-accent" href="#/sell">ابدأ البيع</a><a class="btn btn-outline" href="#/drive">انضم كسائق</a></div></div><div class="art">${icon('home', 96)}</div></section>`,
     );
     wireHero();
   } catch (e) {
@@ -57,6 +59,13 @@ export async function homePage(ctx) {
 }
 function slide(s) {
   return html`<div class="slide"><img class="bg" src="${s.img}" alt=""><div class="slide-body"><h2>${s.title}</h2><p>${s.text}</p><a class="btn btn-accent" href="${s.to}">${s.cta} ${icon('arrowL', 18)}</a></div></div>`;
+}
+function bannerSlide(b) {
+  const text = b.title || b.subtitle;
+  const inner = html`<img class="banner-img" src="${safeUrl(b.image_url)}" alt="${b.title || 'سوق الشطرة'}">${text || (b.cta && b.link) ? html`<div class="slide-body">${b.title ? html`<h2>${b.title}</h2>` : ''}${b.subtitle ? html`<p>${b.subtitle}</p>` : ''}${b.cta && b.link ? html`<span class="btn btn-accent">${b.cta} ${icon('arrowL', 18)}</span>` : ''}</div>` : ''}`;
+  const cls = `slide banner ${text ? 'has-text' : ''}`;
+  if (!b.link) return html`<div class="${cls}">${inner}</div>`;
+  return b.link.startsWith('https://') ? html`<a class="${cls}" href="${safeUrl(b.link)}" target="_blank" rel="noopener" data-follow>${inner}</a>` : html`<a class="${cls}" href="${safeUrl(b.link)}">${inner}</a>`;
 }
 function adSlide(p) {
   return html`<div class="slide"><div class="slide-body"><span class="sponsored">إعلان مُموَّل</span><h2>${p.name}</h2>${priceTag(p)}<a class="btn btn-accent" href="${href('/p/' + p.id)}">تسوّق الآن ${icon('arrowL', 18)}</a></div>${p.img ? html`<div class="slide-product"><img src="${safeUrl(p.img)}" alt="${p.name}"></div>` : ''}</div>`;

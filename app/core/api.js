@@ -79,6 +79,13 @@ export const getStoreCategories = () =>
     const res = await db.from('store_categories').select('*').order('position').order('name');
     return res.error ? [] : (res.data || []).filter((c) => c.active !== false);
   });
+// Home slider images set by the admin. Missing table (before the migration) reads as none.
+export const liveBanner = (b, now = Date.now()) => b.active !== false && (!b.starts_at || Date.parse(b.starts_at) <= now) && (!b.ends_at || Date.parse(b.ends_at) > now);
+export const getBanners = () =>
+  cached('banners', 60000, async () => {
+    const res = await db.from('home_banners').select('*').order('position').order('created_at');
+    return res.error ? [] : (res.data || []).filter((b) => liveBanner(b)).map((b) => ({ ...b, image_url: publicUrl(b.image_path, 'banners') }));
+  });
 export const getPlatform = () =>
   cached('platform', 120000, async () => {
     const [settings, delivery, zones, plans, placements] = await Promise.all([

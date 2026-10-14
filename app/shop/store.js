@@ -34,7 +34,7 @@ export async function storePage(ctx) {
         main,
         html`${breadcrumbs([{ label: 'الرئيسية', href: '#/' }, { label: 'المتاجر', href: '#/stores' }, { label: store.name }])}
         <section class="account-hero" style="align-items:flex-start">${storeAvatar(store, 84)}<div style="flex:1">
-          <h1 style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${store.name}${store.verified ? html`<span class="badge" style="background:#fff;color:#1d9bf0">${icon('verified', 16)} موثّق</span>` : ''}${featured ? html`<span class="badge badge-accent">${icon('crown', 14)} متجر مميز</span>` : ''}</h1>
+          <h1 style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${store.name}${store.verified ? html`<span class="badge" style="background:#fff;color:var(--brand)">${icon('verified', 16)} موثّق</span>` : ''}${featured ? html`<span class="badge badge-accent">${icon('crown', 14)} متجر مميز</span>` : ''}</h1>
           ${store.username ? html`<div class="ltr" style="opacity:.8">@${store.username}</div>` : ''}
           ${store.description ? html`<p style="margin:8px 0 0;opacity:.92">${store.description}</p>` : ''}
           <div class="small" style="margin-top:8px;opacity:.85;display:flex;gap:14px;flex-wrap:wrap">${store.store_kind === 'physical' && store.address ? html`<span>${icon('pin', 15)} ${store.address}</span>` : ''}<span>${icon('box', 15)} ${number(items.length)} منتج</span>${store.created_at ? html`<span>${icon('clock', 15)} منذ ${date(store.created_at)}</span>` : ''}</div>

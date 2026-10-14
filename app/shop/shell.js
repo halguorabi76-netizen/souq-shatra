@@ -35,7 +35,7 @@ function header(cats) {
     <nav class="cat-strip" aria-label="الأقسام"><div class="container">
       <a href="#/stores">${icon('store', 16)} المتاجر</a>
       <a href="#/products">${icon('box', 16)} المنتجات</a>
-      <a href="#/products?sort=deals">🔥 العروض</a>
+      <a href="#/products?sort=deals">${icon('percent', 16)} العروض</a>
       ${cats.filter((c) => !c.parent_id).slice(0, 14).map((c) => html`<a href="${href('/products', { cat: c.name })}">${c.name}</a>`)}
     </div></nav>
   </header>`;

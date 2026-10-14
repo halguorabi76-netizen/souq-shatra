@@ -9,9 +9,9 @@ grant all on t_cat to authenticated;
 
 -- Only the admin manages the list.
 select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
-do $$begin perform public.admin_save_store_category(null,'مطاعم',0,true); raise exception 'seller saved category'; exception when others then if sqlerrm like 'seller saved%' then raise; end if; end$$;
+do $$begin perform public.admin_save_store_category(null,'مطاعم',0,true,'cloche'); raise exception 'seller saved category'; exception when others then if sqlerrm like 'seller saved%' then raise; end if; end$$;
 select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
-insert into t_cat values('food',public.admin_save_store_category(null,'مطاعم',0,true)),('home',public.admin_save_store_category(null,'أكلات بيتية',1,true)),('old',public.admin_save_store_category(null,'قديم',2,false));
+insert into t_cat values('food',public.admin_save_store_category(null,'مطاعم',0,true,'cloche')),('home',public.admin_save_store_category(null,'أكلات بيتية',1,true)),('old',public.admin_save_store_category(null,'قديم',2,false));
 select pg_temp.ok((select count(*) from public.store_categories)=3,'admin creates categories');
 
 -- Buyers see active categories only.
@@ -32,4 +32,17 @@ select public.admin_set_store_category('10000000-0000-0000-0000-000000000001',(s
 select pg_temp.ok((select store_category_id from public.stores where id='10000000-0000-0000-0000-000000000001')=(select id from t_cat where name='food'),'admin changes store category');
 select public.admin_delete_store_category((select id from t_cat where name='food'));
 select pg_temp.ok((select store_category_id from public.stores where id='10000000-0000-0000-0000-000000000001') is null,'deleted category detaches the store');
+select pg_temp.as_user(null);
+
+-- Home banners: admin-only writes; buyers see live banners only.
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000c');
+do $$begin insert into public.home_banners(image_path) values('x.jpg'); raise exception 'seller added banner'; exception when others then if sqlerrm like 'seller added%' then raise; end if; end$$;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+insert into public.home_banners(image_path,title,link,position) values('a.jpg','عرض','#/products',0);
+insert into public.home_banners(image_path,position,active) values('b.jpg',1,false);
+insert into public.home_banners(image_path,position,starts_at) values('c.jpg',2,now()+interval '1 day');
+do $$begin insert into public.home_banners(image_path,link) values('d.jpg','javascript:alert(1)'); raise exception 'bad link accepted'; exception when others then if sqlerrm like 'bad link%' then raise; end if; end$$;
+select pg_temp.ok((select count(*) from public.home_banners)=3,'admin sees all banners');
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select pg_temp.ok((select count(*) from public.home_banners)=1,'buyer sees only live banners');
 select pg_temp.as_user(null);

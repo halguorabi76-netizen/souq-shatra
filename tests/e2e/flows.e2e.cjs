@@ -19,6 +19,8 @@ async function step(name, fn) {
     await step('home shows sponsored hero, deals and stores', async () => {
       await goto('/');
       assert.match(await page.textContent('#hero'), /سماعات بلوتوث/);
+      assert.equal(await page.getAttribute('#hero .slide.banner', 'href'), '#/products?sort=deals');
+      assert.equal((await page.$$('#hero .slide')).length, 2, 'admin banner + paid ad, no stock slides');
       assert(await page.isVisible('text=عروض وتخفيضات'));
       assert.equal((await page.$$('.store-tile')).length, 3);
       assert.match(await page.textContent('main'), /من بيوت الشطرة[\s\S]*بوتيك الأناقة/);
@@ -153,7 +155,20 @@ async function step(name, fn) {
       await page.selectOption('[data-store-cat] >> nth=0', { label: 'مطاعم' });
       await page.waitForTimeout(400);
       assert(await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.stores.some((s) => s.store_category_id === window.__SOUQ_TEST_CLIENT__._db.tables.store_categories.find((c) => c.name === 'مطاعم').id)));
-      for (const h of ['/', '/orders?f=all', '/stores', '/products', '/drivers', '/users', '/categories', '/promotions', '/settings']) await goto(h, 'admin.html');
+      await goto('/banners', 'admin.html');
+      await page.click('.toolbar [data-action=editBanner]');
+      await page.setInputFiles('#bnFile', { name: 'b.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR4nGNgYPj/n4GBgQEAEAQB/wR8T2MAAAAASUVORK5CYII=', 'base64') });
+      await page.waitForSelector('#bnPrev img');
+      await page.fill('dialog [name=title]', 'تخفيضات العيد');
+      await page.selectOption('dialog [name=type]', 'store');
+      await page.selectOption('dialog [name=value]', { label: 'أسواق النخيل' });
+      await page.click('dialog button.btn-primary');
+      await page.waitForTimeout(500);
+      const bn = await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.home_banners.at(-1));
+      assert.equal(bn.title, 'تخفيضات العيد');
+      assert.match(bn.link, /^#\/s\//);
+      assert.equal(bn.position, 1);
+      for (const h of ['/', '/orders?f=all', '/stores', '/products', '/drivers', '/users', '/categories', '/categories?t=stores', '/banners', '/promotions', '/settings']) await goto(h, 'admin.html');
     });
     await step('mobile layout keeps a side gutter and the tab bar', async () => {
       await page.setViewportSize({ width: 390, height: 844 });

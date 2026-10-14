@@ -31,10 +31,10 @@ export function check(result) {
   if (result?.error) throw result.error;
   return result?.data;
 }
-export function publicUrl(path) {
+export function publicUrl(path, bucket = 'products') {
   if (!path) return '';
   if (/^https?:\/\//.test(path)) return path;
-  return db.storage.from('products').getPublicUrl(path).data.publicUrl;
+  return db.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
 // Translate database/network errors to messages a shopper understands.
 const KNOWN = [

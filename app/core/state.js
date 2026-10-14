@@ -74,7 +74,7 @@ export const theme = {
   apply(mode = theme.get()) {
     const dark = mode === 'dark' || (mode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    document.querySelector('meta[name=theme-color]')?.setAttribute('content', dark ? '#0b1020' : '#1d3aa6');
+    document.querySelector('meta[name=theme-color]')?.setAttribute('content', dark ? '#0a0d1c' : getComputedStyle(document.documentElement).getPropertyValue('--grad-a').trim() || '#1a2b8c');
   },
   set(mode) {
     write(THEME, mode);

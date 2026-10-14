@@ -6,6 +6,7 @@ import { invalidate, STATUS } from '../core/api.js';
 import { emptyState, toast, busy, confirmDialog, modal, badge } from '../core/ui.js';
 import { money, shortId, dateTime, ago, normalizeArabic } from '../core/format.js';
 import { mapsLink } from '../core/map.js';
+import { CAT_ICONS, catIcon, categoryIconKey } from '../core/cat-icons.js';
 import { statusBadge, timeline, payLabel } from '../shop/orders.js';
 import { orders, stores, people, workers, driverProfiles, deliveryPayments, actions, clearData, storeCategories, storeCategorySelect, wireStoreCategorySelects } from './main.js';
 
@@ -93,7 +94,7 @@ export async function storesView(ctx, body) {
         s.name,
         html`<div class="row-actions" style="margin-top:0">
           ${!s.approved ? html`<button class="btn btn-ok" data-x="approve">اعتماد</button>` : ''}
-          <button class="btn btn-outline" data-x="verify">${s.verified ? 'إلغاء التوثيق' : 'توثيق المتجر ✓'}</button>
+          <button class="btn btn-outline" data-x="verify">${s.verified ? 'إلغاء التوثيق' : 'توثيق المتجر'}</button>
           <button class="btn ${s.removed ? 'btn-outline' : 'btn-danger'}" data-x="remove">${s.removed ? 'إعادة المتجر' : 'إيقاف المتجر'}</button></div>
         ${!plans.error ? html`<hr class="divider"><h3>منح باقة</h3><form data-grant class="grid-2"><label class="field"><span>الباقة</span><select name="plan">${(plans.data || []).map((p) => html`<option value="${p.id}">${p.name}</option>`)}</select></label><label class="field"><span>الأشهر</span><input name="months" type="number" min="1" max="12" value="1"></label><button class="btn btn-outline">منح مجانًا</button></form>
         <hr class="divider"><h3>حركة مالية</h3><p class="muted small">الرصيد الحالي: ${bl ? money(bl.balance) + (bl.balance > 0 ? ' (عليه)' : bl.balance < 0 ? ' (له)' : '') : '—'}</p>
@@ -173,6 +174,9 @@ export async function driversView(ctx, body) {
 
 // ---------- categories ----------
 const TYPES = [['text', 'نص'], ['number', 'رقم'], ['date', 'تاريخ'], ['select', 'قائمة']];
+// Icon picker from the site's own icon family; «تلقائي» picks one from the name.
+const iconPicker = (c) => html`<fieldset class="icon-pick"><legend>الأيقونة</legend><label title="تلقائي حسب الاسم"><input type="radio" name="icon" value="" ${!c.icon ? 'checked' : ''}><span class="auto">تلقائي</span></label>${Object.entries(CAT_ICONS).map(([k, [l]]) => html`<label title="${l}"><input type="radio" name="icon" value="${k}" ${c.icon === k ? 'checked' : ''} aria-label="${l}">${catIcon(k, 24)}</label>`)}</fieldset>`;
+const pickedIcon = (form) => form.querySelector('[name=icon]:checked')?.value || '';
 const catTabs = (t) => html`<div class="tabs"><a class="tab ${t === 'products' ? 'active' : ''}" href="#/categories">${icon('box', 16)} أقسام المنتجات</a><a class="tab ${t === 'stores' ? 'active' : ''}" href="#/categories?t=stores">${icon('store', 16)} أقسام المتاجر</a></div>`;
 export async function categoriesView(ctx, body) {
   if (ctx.query.get('t') === 'stores') return storeCategoriesView(ctx, body);
@@ -183,7 +187,7 @@ export async function categoriesView(ctx, body) {
     body,
     html`${catTabs('products')}<div class="toolbar"><button class="btn btn-primary" data-action="edit">${icon('plus', 18)} قسم جديد</button><span class="muted">يختار البائع قسم المنتج من هذه القائمة. الفئات الفرعية ترث خصائص القسم.</span></div>
     ${roots.length ? '' : emptyState('box', 'لا توجد أقسام منتجات', 'أضف أول قسم، مثل: أكلات بيتية، ملابس، مواد غذائية.')}
-    ${roots.map((r) => html`<section class="card"><div class="card-head"><h3>${r.name} ${r.active === false ? badge('موقوف') : ''}</h3><span><button class="btn btn-sm btn-outline" data-action="edit" data-id="${r.id}">تعديل</button> <button class="btn btn-sm btn-ghost" data-action="edit" data-parent="${r.id}">${icon('plus', 14)} فئة فرعية</button> <button class="btn btn-sm btn-ghost" data-action="del" data-id="${r.id}" aria-label="حذف ${r.name}">${icon('trash', 14)}</button></span></div>
+    ${roots.map((r) => html`<section class="card"><div class="card-head"><h3 class="cat-title"><span class="cat-ic">${catIcon(categoryIconKey(r), 22)}</span>${r.name} ${r.active === false ? badge('موقوف') : ''}</h3><span><button class="btn btn-sm btn-outline" data-action="edit" data-id="${r.id}">تعديل</button> <button class="btn btn-sm btn-ghost" data-action="edit" data-parent="${r.id}">${icon('plus', 14)} فئة فرعية</button> <button class="btn btn-sm btn-ghost" data-action="del" data-id="${r.id}" aria-label="حذف ${r.name}">${icon('trash', 14)}</button></span></div>
       <div class="muted small">${(r.attributes || []).length} خاصية</div><div class="chips" style="margin-top:8px">${cats.filter((c) => c.parent_id === r.id).map((c) => html`<button class="chip" data-action="edit" data-id="${c.id}">${c.name}${c.active === false ? ' (موقوف)' : ''}</button>`)}</div></section>`)}`,
   );
   actions({
@@ -197,7 +201,7 @@ export async function categoriesView(ctx, body) {
       const c = cats.find((x) => x.id === b.dataset.id) || { id: null, name: '', parent_id: b.dataset.parent || null, active: true, attributes: [] };
       const attrs = structuredClone(c.attributes || []);
       const row = (a, i) => html`<fieldset style="border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px"><div class="grid-2"><label class="field"><span>المفتاح (إنجليزي ثابت)</span><input class="ltr" name="key${i}" value="${a.key}"></label><label class="field"><span>الاسم المعروض</span><input name="label${i}" value="${a.label}"></label><label class="field"><span>النوع</span><select name="type${i}">${TYPES.map(([v, l]) => html`<option value="${v}" ${a.type === v ? 'selected' : ''}>${l}</option>`)}</select></label><label class="field"><span>الخيارات (مفصولة بفاصلة)</span><input name="options${i}" value="${(a.options || []).join('، ')}"></label></div><label class="check"><input type="checkbox" name="variant${i}" ${a.variant ? 'checked' : ''}> تُستخدم للنسخ (لون، مقاس…)</label><label class="check"><input type="checkbox" name="required${i}" ${a.required ? 'checked' : ''}> مطلوبة</label><button type="button" class="btn btn-ghost btn-sm" data-remove="${i}">حذف الخاصية</button></fieldset>`;
-      const m = modal(c.id ? 'تعديل ' + c.name : 'قسم جديد', html`<form><label class="field"><span>الاسم</span><input name="name" required value="${c.name}"></label><label class="field"><span>القسم الأب</span><select name="parent"><option value="">قسم رئيسي</option>${roots.filter((r) => r.id !== c.id).map((r) => html`<option value="${r.id}" ${c.parent_id === r.id ? 'selected' : ''}>${r.name}</option>`)}</select></label><label class="check"><input type="checkbox" name="active" ${c.active !== false ? 'checked' : ''}> فعّال</label><h3>الخصائص</h3><div data-attrs>${attrs.map(row)}</div><button type="button" class="btn btn-outline btn-sm" data-add>${icon('plus', 14)} خاصية</button><button class="btn btn-primary btn-block" style="margin-top:12px">حفظ</button></form>`, { size: 'lg' });
+      const m = modal(c.id ? 'تعديل ' + c.name : 'قسم جديد', html`<form><label class="field"><span>الاسم</span><input name="name" required value="${c.name}"></label>${iconPicker(c)}<label class="field"><span>القسم الأب</span><select name="parent"><option value="">قسم رئيسي</option>${roots.filter((r) => r.id !== c.id).map((r) => html`<option value="${r.id}" ${c.parent_id === r.id ? 'selected' : ''}>${r.name}</option>`)}</select></label><label class="check"><input type="checkbox" name="active" ${c.active !== false ? 'checked' : ''}> فعّال</label><h3>الخصائص</h3><div data-attrs>${attrs.map(row)}</div><button type="button" class="btn btn-outline btn-sm" data-add>${icon('plus', 14)} خاصية</button><button class="btn btn-primary btn-block" style="margin-top:12px">حفظ</button></form>`, { size: 'lg' });
       const form = m.querySelector('form');
       const read = () => attrs.forEach((a, i) => Object.assign(a, { key: form['key' + i].value.trim(), label: form['label' + i].value.trim(), type: form['type' + i].value, options: form['options' + i].value.split(/[,،]/).map((x) => x.trim()).filter(Boolean), variant: form['variant' + i].checked, required: form['required' + i].checked }));
       const repaint = () => render(form.querySelector('[data-attrs]'), html`${attrs.map(row)}`);
@@ -207,7 +211,12 @@ export async function categoriesView(ctx, body) {
         e.preventDefault();
         read();
         if (attrs.some((a) => !/^[a-z][a-z0-9_]{1,40}$/.test(a.key) || !a.label)) return toast('المفتاح بأحرف إنجليزية صغيرة ويبدأ بحرف، والاسم مطلوب', 'error');
-        busy(form.querySelector('button.btn-primary'), async () => { check(await db.rpc('save_catalog_category', { p_id: c.id, p_parent: form.parent.value || null, p_name: form.name.value.trim(), p_attributes: attrs, p_active: form.active.checked })); invalidate('categories'); m.close(); refresh(); });
+        busy(form.querySelector('button.btn-primary'), async () => {
+          const id = check(await db.rpc('save_catalog_category', { p_id: c.id, p_parent: form.parent.value || null, p_name: form.name.value.trim(), p_attributes: attrs, p_active: form.active.checked })) || c.id;
+          const ic = pickedIcon(form);
+          if (ic !== (c.icon || '')) check(await db.rpc('admin_set_category_icon', { p_id: id, p_icon: ic }));
+          invalidate('categories'); m.close(); refresh();
+        });
       });
     },
   });
@@ -219,17 +228,17 @@ async function storeCategoriesView(ctx, body) {
   render(
     body,
     html`${catTabs('stores')}<div class="toolbar"><button class="btn btn-primary" data-action="editStoreCat">${icon('plus', 18)} قسم متاجر جديد</button><span class="muted">يختار البائع قسم متجره عند الانضمام، وتستطيع تغييره من «الموافقات» أو «المتاجر».</span></div>
-    ${cats.length ? html`<div class="table-wrap"><table class="table"><thead><tr><th>القسم</th><th>الترتيب</th><th>المتاجر</th><th>الحالة</th><th></th></tr></thead><tbody>${cats.map((c) => html`<tr><td><b>${c.name}</b></td><td>${c.position}</td><td>${used(c.id)}</td><td>${c.active === false ? badge('موقوف') : badge('فعّال', 'ok')}</td><td style="white-space:nowrap"><button class="btn btn-sm btn-outline" data-action="editStoreCat" data-id="${c.id}">تعديل</button> <button class="btn btn-sm btn-ghost" data-action="delStoreCat" data-id="${c.id}" aria-label="حذف ${c.name}">${icon('trash', 14)}</button></td></tr>`)}</tbody></table></div>` : emptyState('store', 'لا توجد أقسام متاجر', 'أضف أقسامًا مثل: مطاعم، ماركت، أكلات بيتية، خياطة.')}`,
+    ${cats.length ? html`<div class="table-wrap"><table class="table"><thead><tr><th>القسم</th><th>الترتيب</th><th>المتاجر</th><th>الحالة</th><th></th></tr></thead><tbody>${cats.map((c) => html`<tr><td><b class="cat-title"><span class="cat-ic">${catIcon(categoryIconKey(c), 20)}</span>${c.name}</b></td><td>${c.position}</td><td>${used(c.id)}</td><td>${c.active === false ? badge('موقوف') : badge('فعّال', 'ok')}</td><td style="white-space:nowrap"><button class="btn btn-sm btn-outline" data-action="editStoreCat" data-id="${c.id}">تعديل</button> <button class="btn btn-sm btn-ghost" data-action="delStoreCat" data-id="${c.id}" aria-label="حذف ${c.name}">${icon('trash', 14)}</button></td></tr>`)}</tbody></table></div>` : emptyState('store', 'لا توجد أقسام متاجر', 'أضف أقسامًا مثل: مطاعم، ماركت، أكلات بيتية، خياطة.')}`,
   );
   actions({
     editStoreCat: (b) => {
       const c = cats.find((x) => x.id === b.dataset.id) || { id: null, name: '', position: cats.length, active: true };
-      const m = modal(c.id ? 'تعديل ' + c.name : 'قسم متاجر جديد', html`<form><label class="field"><span>الاسم</span><input name="name" required minlength="2" maxlength="60" value="${c.name}" placeholder="مثال: أكلات بيتية"></label><label class="field"><span>الترتيب</span><input name="position" type="number" min="0" step="1" value="${c.position}"><small>الأصغر يظهر أولًا.</small></label><label class="check"><input type="checkbox" name="active" ${c.active !== false ? 'checked' : ''}> فعّال (يظهر للزبائن والبائعين)</label><button class="btn btn-primary btn-block" style="margin-top:12px">حفظ</button></form>`);
+      const m = modal(c.id ? 'تعديل ' + c.name : 'قسم متاجر جديد', html`<form><label class="field"><span>الاسم</span><input name="name" required minlength="2" maxlength="60" value="${c.name}" placeholder="مثال: أكلات بيتية"></label>${iconPicker(c)}<label class="field"><span>الترتيب</span><input name="position" type="number" min="0" step="1" value="${c.position}"><small>الأصغر يظهر أولًا.</small></label><label class="check"><input type="checkbox" name="active" ${c.active !== false ? 'checked' : ''}> فعّال (يظهر للزبائن والبائعين)</label><button class="btn btn-primary btn-block" style="margin-top:12px">حفظ</button></form>`);
       const form = m.querySelector('form');
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (form.name.value.trim().length < 2) return toast('اكتب اسم القسم', 'error');
-        busy(form.querySelector('button'), async () => { check(await db.rpc('admin_save_store_category', { p_id: c.id, p_name: form.name.value.trim(), p_position: Number(form.position.value) || 0, p_active: form.active.checked })); invalidate('store-categories'); m.close(); refresh(); });
+        busy(form.querySelector('button'), async () => { check(await db.rpc('admin_save_store_category', { p_id: c.id, p_name: form.name.value.trim(), p_position: Number(form.position.value) || 0, p_active: form.active.checked, p_icon: pickedIcon(form) })); invalidate('store-categories'); m.close(); refresh(); });
       });
     },
     delStoreCat: async (b) => {

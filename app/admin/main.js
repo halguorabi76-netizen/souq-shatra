@@ -45,6 +45,7 @@ function shell(counts = {}) {
       { href: '#/categories', label: 'الأقسام', icon: 'layers' },
       { sep: 'الإيرادات' },
       { href: '#/finance', label: 'المالية', icon: 'wallet', count: counts.payments },
+      { href: '#/banners', label: 'صور الواجهة', icon: 'image' },
       { href: '#/promotions', label: 'الإعلانات', icon: 'megaphone' },
       { href: '#/settings', label: 'الإعدادات والأسعار', icon: 'settings' },
       { href: 'index.html#/', label: 'فتح المتجر', icon: 'external' },
@@ -228,6 +229,7 @@ route('/stores', lazy('المتاجر', './market.js', 'storesView'));
 route('/products', lazy('المنتجات', './market.js', 'productsView'));
 route('/drivers', lazy('السائقون', './market.js', 'driversView'));
 route('/categories', lazy('الأقسام والخصائص', './market.js', 'categoriesView'));
+route('/banners', lazy('صور الواجهة', './banners.js', 'bannersView'));
 route('/finance', lazy('المالية', './revenue.js', 'financeView'));
 route('/promotions', lazy('الإعلانات المميزة', './revenue.js', 'promotionsView'));
 route('/settings', lazy('الإعدادات والأسعار', './revenue.js', 'settingsView'));

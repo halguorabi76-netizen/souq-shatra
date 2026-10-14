@@ -2,19 +2,12 @@ import { html, safeUrl } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { money, percentOff } from '../core/format.js';
 import { href } from '../core/router.js';
+import { catIcon, categoryIconKey } from '../core/cat-icons.js';
 
-const EMOJI = {
-  'مواد غذائية': '🛒', 'خضار وفواكه': '🥬', تمور: '🌴', ملابس: '👕', أحذية: '👟', مشروبات: '🥤', 'عطور وتجميل': '💄', أجهزة: '📱',
-  'حاسبات وتابلت': '💻', 'أجهزة كهربائية': '🔌', تلفزيونات: '📺', أثاث: '🛋️', منزلية: '🏠', 'مجوهرات وإكسسوارات': '💍', ساعات: '⌚',
-  'ألعاب أطفال': '🧸', 'مستلزمات أطفال': '🍼', 'كتب وقرطاسية': '📚', 'قطع سيارات': '🔧', 'إطارات وبطاريات': '🛞', 'مواد بناء وأدوات': '🧱',
-  رياضة: '⚽', حقائب: '👜', نظارات: '👓', 'منتجات تنظيف': '🧴', 'مستلزمات حيوانات': '🐾', 'زراعة وحدائق': '🌱', أخرى: '📦',
-};
-export const catEmoji = (name) => EMOJI[name] || '🛍️';
-// Soft tile tints, picked by the category name so each category keeps its colour.
-const TINTS = ['#e7f6ee', '#fff3dc', '#e9edfc', '#fde9ef', '#e6f4f8', '#f1ebfb', '#fbefe4', '#eef5e1'];
-const tint = (name) => TINTS[[...(name || '')].reduce((n, ch) => n + ch.codePointAt(0), 0) % TINTS.length];
+// Category art comes from the «خط الشطرة» icon family (core/cat-icons.js), one colour for all.
+export const catArt = (c, size = 34) => catIcon(categoryIconKey(c), size);
 export function catTile(c, { active = false } = {}) {
-  return html`<a class="cat-card ${active ? 'on' : ''}" href="${href('/products', { cat: c.name })}" aria-current="${active}"><span class="art" style="--tint:${tint(c.name)}">${catEmoji(c.name)}</span><b>${c.name}</b></a>`;
+  return html`<a class="cat-card ${active ? 'on' : ''}" href="${href('/products', { cat: c.name })}" aria-current="${active}"><span class="art">${catArt(c)}</span><b>${c.name}</b></a>`;
 }
 // Home sellers (no shop) are stored as store_kind = 'online'.
 export const isHomeSeller = (s) => s?.store_kind === 'online';
