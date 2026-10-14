@@ -8,20 +8,26 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#101f48",
-  "theme_color": "#101f48",
+  "background_color": "#3a332c",
+  "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "icons/shatra-calligraphy-192-v174.png",
+      "src": "icons/shatra-map-192-v201.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/shatra-calligraphy-512-v174.png",
+      "src": "icons/shatra-map-512-v201.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "icons/shatra-map-512-v201.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

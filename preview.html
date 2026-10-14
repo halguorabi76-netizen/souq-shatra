@@ -34,10 +34,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="سوق الشطرة">
-<link rel="manifest" href="manifest.webmanifest?v=176">
+<link rel="manifest" href="manifest.webmanifest?v=177">
 <link rel="preload" as="image" href="icons/basket-mascot-v69.png">
-<link rel="icon" href="icons/shatra-calligraphy-32-v174.png" sizes="32x32">
-<link rel="apple-touch-icon" href="icons/shatra-calligraphy-180-v174.png" sizes="180x180">
+<link rel="icon" href="icons/shatra-map-192-v201.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/shatra-map-192-v201.png" sizes="192x192">
 <title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="admin-portal.css?v=66">
 <style>html:has(body.starting),body.starting{background:#101f48!important}body.starting .app{visibility:hidden}
@@ -437,12 +437,18 @@ body.starting{background:#101f48!important}
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#a49389 0%,#6b6058 35%,#1d1a15 75%,#030200 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
 html #startupSplash.leaving{opacity:0}
-html #startupSplash .ss-logo{width:min(46vw,230px);height:auto;overflow:visible;animation:ssPop .7s cubic-bezier(.2,.9,.3,1.3) both!important}
+html #startupSplash .ss-logo{width:min(46vw,230px);height:auto;overflow:visible}
+html #startupSplash:not(.play) :is(.ss-logo,.ss-name){opacity:0}
+html #startupSplash.play .ss-logo{animation:ssPop .7s cubic-bezier(.2,.9,.3,1.3) both!important}
 html #startupSplash .ss-city{fill:#fdfbfc}
-html #startupSplash .ss-river{fill:none;stroke:#000;stroke-width:22;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1200;stroke-dashoffset:1200;animation:ssFlow 1s .5s ease-out forwards!important}
-html #startupSplash .ss-pin{transform-box:fill-box;transform-origin:50% 100%;animation:ssDrop .6s 1.3s cubic-bezier(.3,1.5,.5,1) both!important}
-html #startupSplash .ss-shadow{transform-box:fill-box;transform-origin:center;animation:ssShadow .6s 1.3s ease-out both!important}
-html #startupSplash .ss-name{color:#fdfbfc;font-family:'Aref Ruqaa',serif;font-weight:700;font-size:min(13vw,60px);margin-top:18px;line-height:1.4;clip-path:inset(0 0 0 100%);animation:ssWrite 1.4s 1.9s ease-in-out forwards!important}
+html #startupSplash .ss-river{fill:none;stroke:#000;stroke-width:22;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1200;stroke-dashoffset:1200}
+html #startupSplash.play .ss-river{animation:ssFlow 1.2s .6s ease-in-out forwards!important}
+html #startupSplash .ss-pin{transform-box:fill-box;transform-origin:50% 100%;opacity:0}
+html #startupSplash.play .ss-pin{animation:ssDrop .7s 1.9s cubic-bezier(.3,1.5,.5,1) both!important}
+html #startupSplash .ss-shadow{transform-box:fill-box;transform-origin:center;opacity:0}
+html #startupSplash.play .ss-shadow{animation:ssShadow .7s 1.9s ease-out both!important}
+html #startupSplash .ss-name{color:#fdfbfc;font-family:'Aref Ruqaa',serif;font-weight:700;font-size:min(13vw,60px);margin-top:18px;line-height:1.4;clip-path:inset(0 0 0 100%)}
+html #startupSplash.play .ss-name{animation:ssWrite 1.4s 1.9s ease-in-out forwards!important}
 @keyframes ssPop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes ssFlow{to{stroke-dashoffset:0}}
 @keyframes ssDrop{from{transform:translateY(-260px);opacity:0}40%{opacity:1}to{transform:translateY(0);opacity:1}}
@@ -461,14 +467,23 @@ body.starting{overflow:hidden}
   const splash=document.getElementById('startupSplash');
   const themeMeta=document.querySelector?.('meta[name="theme-color"]');
   const originalTheme=themeMeta?.content;
-  let done=false;
+  let done=false,playing=false,timer=0;
   const finish=()=>{if(done)return;done=true;splash.hidden=true;document.body.classList.remove('starting');if(themeMeta)themeMeta.content=originalTheme};
   if(document.documentElement.dataset.embeddedPreview==='true')return;
   splash.hidden=false;document.body.classList.add('starting');
-  if(themeMeta)themeMeta.content='#030200';
-  // The opening animation runs about 3.3s, then the splash fades into the page. It never waits for the network; a tap skips it.
-  setTimeout(()=>{splash.classList?.add('leaving');setTimeout(finish,350)},3400);
-  splash.addEventListener?.('click',finish);
+  if(themeMeta)themeMeta.content='#3a332c';
+  // River 0.6–1.8s, then the name is written while the pin drops (1.9–3.3s); the page follows at 4s.
+  const play=()=>{
+    splash.classList.remove('play','leaving');void splash.offsetWidth;splash.classList.add('play');playing=true;
+    clearTimeout(timer);timer=setTimeout(()=>{splash.classList.add('leaving');setTimeout(finish,350)},4000);
+  };
+  // Start only once the page has loaded and is on screen, so the phone's own launch screen never hides the animation.
+  const start=()=>{if(playing||done)return;if(document.visibilityState==='hidden'){document.addEventListener('visibilitychange',start,{once:true});return}play()};
+  window.addEventListener('load',start,{once:true});
+  setTimeout(start,2500);
+  // A tap replays the animation, like the original splash.html.
+  splash.addEventListener('click',()=>{if(playing&&!done)play()});
+  setTimeout(finish,15000);
   window.addEventListener('pageshow',event=>{if(event.persisted)finish()});
 })();
 </script>
