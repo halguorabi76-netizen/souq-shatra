@@ -1,7 +1,7 @@
 import { html, render, safeUrl } from '../core/dom.js';
 import { icon } from '../core/icons.js';
 import { href, isCurrent } from '../core/router.js';
-import { getCategories, searchProducts, getStores, getLivePromotions, getProductsByIds } from '../core/api.js';
+import { getCategories, searchProducts, getStores, getLivePromotions, getProductsByIds, getStoreCategories } from '../core/api.js';
 import { recent } from '../core/state.js';
 import { skeletonCards, errorBlock } from '../core/ui.js';
 import { productCard, sectionHead, priceTag, catTile, storeTile, isHomeSeller } from './components.js';
@@ -18,7 +18,7 @@ export async function homePage(ctx) {
   setTitle('');
   render(main, html`<div class="hero">${SLIDES.map(slide)}</div>${skeletonCards(8)}`);
   try {
-    const [cats, stores, promos, latest] = await Promise.all([getCategories(), getStores(), getLivePromotions(), searchProducts({ size: 48 }), loadFavorites()]);
+    const [cats, stores, promos, latest, storeCats] = await Promise.all([getCategories(), getStores(), getLivePromotions(), searchProducts({ size: 48 }), getStoreCategories(), loadFavorites()]);
     if (!isCurrent(ctx.token)) return;
     const byStore = new Map(stores.map((s) => [s.id, s]));
     const promoIds = (place) => promos.filter((p) => p.placement === place && p.product_id).map((p) => p.product_id);
@@ -40,7 +40,8 @@ export async function homePage(ctx) {
       main,
       html`<div class="hero" id="hero">${heroAds.map(adSlide)}${SLIDES.map(slide)}</div>
       <div class="hero-dots" id="heroDots">${[...heroAds, ...SLIDES].map((_, i) => html`<button aria-label="الشريحة ${i + 1}" aria-current="${i === 0}" data-slide="${i}"></button>`)}</div>
-      ${roots.length ? html`<section class="section">${sectionHead('الأقسام', '', '#/categories')}<div class="cat-rail">${roots.map((c) => catTile(c))}</div></section>` : ''}
+      ${roots.length ? html`<section class="section">${sectionHead('أقسام المنتجات', '', '#/products')}<div class="cat-rail">${roots.map((c) => catTile(c))}</div></section>` : ''}
+      ${storeCats.length ? html`<section class="section">${sectionHead('أقسام المتاجر', '', '#/stores', 'store')}<div class="chip-rail">${storeCats.map((c) => html`<a class="pill" href="${href('/stores', { cat: c.id })}">${c.name}</a>`)}</div></section>` : ''}
       ${homeSellers.length ? html`<section class="section">${sectionHead('من بيوت الشطرة', 'أهل مدينتك يبيعون من بيوتهم', '#/stores?kind=home', 'home')}${storeRail(homeSellers)}</section>` : ''}
       ${shops.length ? html`<section class="section">${sectionHead('محلات الشطرة', '', '#/stores?kind=shop', 'store')}${storeRail(shops)}</section>` : ''}
       ${featured.length ? html`<section class="section">${sectionHead('منتجات مميزة', 'اختيارات متاجرنا لك اليوم', '', 'sparkles')}<div class="scroller">${featured.map((p) => card(p, true))}</div></section>` : ''}

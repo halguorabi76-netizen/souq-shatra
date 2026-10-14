@@ -73,6 +73,12 @@ export const getCategories = () =>
     const rows = check(await db.from('catalog_categories').select('*').order('position')) || [];
     return rows.filter((c) => c.active !== false);
   });
+// Store categories (مطاعم، ماركت…) set by the admin. Missing table (before the migration) reads as none.
+export const getStoreCategories = () =>
+  cached('store-categories', 600000, async () => {
+    const res = await db.from('store_categories').select('*').order('position').order('name');
+    return res.error ? [] : (res.data || []).filter((c) => c.active !== false);
+  });
 export const getPlatform = () =>
   cached('platform', 120000, async () => {
     const [settings, delivery, zones, plans, placements] = await Promise.all([

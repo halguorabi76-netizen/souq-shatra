@@ -4,7 +4,7 @@ import { pageActions } from '../core/actions.js';
 import { href, go } from '../core/router.js';
 import { db, check } from '../core/db.js';
 import { session, isSeller, isDriver, load as reloadSession } from '../core/session.js';
-import { getPlatform } from '../core/api.js';
+import { getPlatform, getStoreCategories } from '../core/api.js';
 import { toast, busy } from '../core/ui.js';
 import { money, phoneDigits } from '../core/format.js';
 import { pickLocation, validPoint, mapPreview } from '../core/map.js';
@@ -16,7 +16,7 @@ export async function sellPage() {
   const main = await mountShop();
   setTitle('بِع في سوق الشطرة');
   if (isSeller()) return go('/seller', null, { replace: true });
-  const platform = await getPlatform().catch(() => ({ plans: [], support_phone: '9647837271707', settings: null }));
+  const [platform, storeCats] = await Promise.all([getPlatform().catch(() => ({ plans: [], support_phone: '9647837271707', settings: null })), getStoreCategories()]);
   const s = session.store;
   const pending = s && !s.approved && !s.removed;
   let point = null;
@@ -48,6 +48,7 @@ export async function sellPage() {
               <label class="choice"><input type="radio" name="kind" value="online" ${s?.store_kind !== 'physical' ? 'checked' : ''}><span>${icon('home', 22)}<b>أبيع من البيت</b><small>بلا محل: أكلات بيتية، خياطة، أشغال يدوية، أي بضاعة. عنوانك يراه السائق فقط.</small></span></label>
               <label class="choice"><input type="radio" name="kind" value="physical" ${s?.store_kind === 'physical' ? 'checked' : ''}><span>${icon('store', 22)}<b>عندي محل أو بسطية</b><small>عنوان المحل يظهر للزبائن في صفحة متجرك.</small></span></label>
             </div></div>
+            ${storeCats.length ? html`<label class="field"><span>قسم المتجر *</span><select name="category" required><option value="">اختر القسم</option>${storeCats.map((c) => html`<option value="${c.id}" ${s?.store_category_id === c.id ? 'selected' : ''}>${c.name}</option>`)}</select><small>تراجعه الإدارة عند الموافقة.</small></label>` : ''}
             <label class="field"><span>اسم المتجر *</span><input name="name" required maxlength="100" value="${s?.name || ''}" placeholder="مثال: مطبخ أم علي، خياطة الشطرة"></label>
             <label class="field"><span>رقم التواصل (واتساب) *</span><input name="phone" required class="ltr" inputmode="tel" value="${s?.phone || session.profile?.phone || ''}" placeholder="07xxxxxxxxx"></label>
             <label class="field"><span>عنوان استلام البضاعة *</span><input name="address" required maxlength="500" value="${s?.address || ''}" placeholder="المنطقة، الشارع، أقرب نقطة دالة"></label>
@@ -70,9 +71,11 @@ export async function sellPage() {
     const v = formData(e.target),
       phone = phoneDigits(v.phone);
     if (!v.first || !v.last || v.name.length < 2 || phone.length < 10 || v.address.length < 3) return toast('أكمل الحقول المطلوبة', 'error');
+    if (storeCats.length && !v.category) return toast('اختر قسم المتجر', 'error');
     if (!validPoint(point)) return toast('حدّد موقع المتجر على الخريطة', 'error');
     busy(e.target.querySelector('button.btn-primary'), async () => {
       check(await db.rpc('request_seller_join_map', { p_first: v.first, p_last: v.last, p_name: v.name, p_phone: phone, p_address: v.address, p_description: v.description || '', p_kind: v.kind, p_lat: point.lat, p_lon: point.lon }));
+      if (v.category) check(await db.rpc('set_my_store_category', { p_category: v.category }));
       await reloadSession();
       toast('وصل طلبك للإدارة', 'success');
       render(

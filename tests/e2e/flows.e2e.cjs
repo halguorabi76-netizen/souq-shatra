@@ -24,29 +24,29 @@ async function step(name, fn) {
       assert.match(await page.textContent('main'), /من بيوت الشطرة[\s\S]*بوتيك الأناقة/);
       await shot(page, 'home');
     });
-    await step('categories tab opens a category with products and its stores', async () => {
-      await goto('/categories');
-      assert((await page.$$('.cat-grid .cat-card')).length >= 5);
-      await page.click('.cat-card:has-text("ملابس")');
-      await page.waitForURL(/#\/c\//);
+    await step('products tab shows product categories and subcategories', async () => {
+      await goto('/products');
+      assert((await page.$$('.cat-rail.compact .cat-card')).length >= 5);
+      await page.click('.cat-rail.compact .cat-card:has-text("ملابس")');
+      await page.waitForURL(/cat=/);
       await settle(page);
       assert.match(await page.textContent('main'), /تيشيرت قطني رجالي/);
-      await page.click('.seg a:has-text("المتاجر")');
-      await settle(page);
-      assert.deepEqual(await page.$$eval('.scard h3', (n) => n.map((x) => x.childNodes[0].textContent.trim())), ['بوتيك الأناقة']);
-      await page.click('.seg a:has-text("المنتجات")');
-      await settle(page);
+      assert(!/رز بسمتي/.test(await page.textContent('.product-grid')));
       await page.click('.pill:has-text("تيشيرتات")');
       await settle(page);
-      assert.match(await page.textContent('main'), /تيشيرت قطني رجالي/);
+      assert.deepEqual(await page.$$eval('.pcard .name', (n) => n.map((x) => x.textContent)), ['تيشيرت قطني رجالي']);
     });
-    await step('stores tab filters shops and home sellers', async () => {
+    await step('stores tab filters by store category and by shop or home', async () => {
+      await goto('/stores');
+      await page.click('.store-cats .pill:has-text("ملابس")');
+      await settle(page);
+      assert.deepEqual(await page.$$eval('.scard h3', (n) => n.map((x) => x.childNodes[0].textContent.trim())), ['بوتيك الأناقة']);
       await goto('/stores?kind=home');
       assert.deepEqual(await page.$$eval('.scard h3', (n) => n.map((x) => x.childNodes[0].textContent.trim())), ['بوتيك الأناقة']);
       await goto('/stores?kind=shop');
       assert.equal((await page.$$('.scard')).length, 2);
-      await goto('/products');
-      assert(await page.isVisible('.tabbar a.active:has-text("المنتجات")') || (await page.$$('.pcard')).length > 0);
+      const tabs = await page.$$eval('.tabbar a span:first-of-type', (n) => n.map((x) => x.textContent));
+      assert.deepEqual(tabs, ['الرئيسية', 'المتاجر', 'المنتجات', 'السلة', 'حسابي']);
     });
     await step('search matches Arabic spelling variants and filters', async () => {
       await goto('/search?q=' + encodeURIComponent('قهوه شاي'));
@@ -143,6 +143,16 @@ async function step(name, fn) {
       await page.click('dialog [data-ok]');
       await page.waitForTimeout(400);
       assert.equal(await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.payment_requests[0].status), 'approved');
+      await goto('/categories?t=stores', 'admin.html');
+      await page.click('[data-action=editStoreCat]');
+      await page.fill('dialog [name=name]', 'مطاعم');
+      await page.click('dialog form button');
+      await page.waitForTimeout(400);
+      assert(await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.store_categories.some((c) => c.name === 'مطاعم')));
+      await goto('/stores', 'admin.html');
+      await page.selectOption('[data-store-cat] >> nth=0', { label: 'مطاعم' });
+      await page.waitForTimeout(400);
+      assert(await T(() => window.__SOUQ_TEST_CLIENT__._db.tables.stores.some((s) => s.store_category_id === window.__SOUQ_TEST_CLIENT__._db.tables.store_categories.find((c) => c.name === 'مطاعم').id)));
       for (const h of ['/', '/orders?f=all', '/stores', '/products', '/drivers', '/users', '/categories', '/promotions', '/settings']) await goto(h, 'admin.html');
     });
     await step('mobile layout keeps a side gutter and the tab bar', async () => {

@@ -41,10 +41,11 @@
       { id: U.admin, full_name: 'مدير السوق', phone: '07700000000', role: 'admin', disabled: false, created_at: iso(10000) },
     ],
     stores: [
-      { id: S.a, owner_id: U.seller, name: 'أسواق النخيل', phone: '07801234567', address: 'شارع السوق الكبير', description: 'مواد غذائية وتمور بأسعار الجملة', approved: true, removed: false, verified: true, store_kind: 'physical', prep_time_min: 15, created_at: iso(9000), username: 'nakheel', image_path: img(120, 'النخيل') },
-      { id: S.b, owner_id: U.seller2, name: 'بوتيك الأناقة', phone: '07811111111', address: 'حي الشهداء', description: 'ملابس وأحذية رجالية ونسائية', approved: true, removed: false, verified: false, store_kind: 'online', prep_time_min: 20, created_at: iso(7000) },
+      { id: S.a, owner_id: U.seller, name: 'أسواق النخيل', phone: '07801234567', address: 'شارع السوق الكبير', description: 'مواد غذائية وتمور بأسعار الجملة', approved: true, removed: false, verified: true, store_kind: 'physical', store_category_id: 'sc-1', prep_time_min: 15, created_at: iso(9000), username: 'nakheel', image_path: img(120, 'النخيل') },
+      { id: S.b, owner_id: U.seller2, name: 'بوتيك الأناقة', phone: '07811111111', address: 'حي الشهداء', description: 'ملابس وأحذية رجالية ونسائية', approved: true, removed: false, verified: false, store_kind: 'online', store_category_id: 'sc-3', prep_time_min: 20, created_at: iso(7000) },
       { id: S.c, owner_id: 'u-other', name: 'عالم الإلكترونيات', phone: '07722222222', address: 'شارع المحافظة', description: 'هواتف وإكسسوارات وأجهزة منزلية', approved: true, removed: false, verified: true, store_kind: 'physical', prep_time_min: 10, created_at: iso(6000) },
     ],
+    store_categories: [{ id: 'sc-1', name: 'ماركت', position: 0, active: true }, { id: 'sc-2', name: 'أكلات بيتية', position: 1, active: true }, { id: 'sc-3', name: 'ملابس', position: 2, active: true }],
     store_pickups: [S.a, S.b, S.c].map((id, i) => ({ store_id: id, pickup_address: 'الشطرة', latitude: 31.41 + i * 0.002, longitude: 46.17 + i * 0.002 })),
     products,
     product_variants: variants,
@@ -313,6 +314,11 @@
     admin_ledger_entry: () => null,
     admin_mark_refunded: () => null,
     save_catalog_category: () => null,
+    admin_delete_catalog_category: (a) => { T.catalog_categories = T.catalog_categories.filter((c) => c.id !== a.p_id && c.parent_id !== a.p_id); },
+    admin_save_store_category: (a) => { const c = T.store_categories.find((x) => x.id === a.p_id); if (c) Object.assign(c, { name: a.p_name, position: a.p_position, active: a.p_active }); else T.store_categories.push({ id: 'sc-' + (T.store_categories.length + 1), name: a.p_name, position: a.p_position, active: a.p_active }); },
+    admin_delete_store_category: (a) => { T.store_categories = T.store_categories.filter((c) => c.id !== a.p_id); T.stores.forEach((s) => s.store_category_id === a.p_id && (s.store_category_id = null)); },
+    admin_set_store_category: (a) => { T.stores.find((s) => s.id === a.p_store).store_category_id = a.p_category; },
+    set_my_store_category: (a) => { T.stores.find((s) => s.owner_id === db.user?.id).store_category_id = a.p_category; },
   });
   T.stores.push({ id: '5d000000-0000-4000-8000-000000000004', owner_id: U.buyer, name: 'محل الوفاء الجديد', phone: '07733333333', address: 'حي العسكري', description: 'عطور ومستحضرات', approved: false, removed: false, store_kind: 'physical', created_at: iso(20) });
   T.payment_requests.push({ id: 'req-1', payer_id: U.seller, store_id: S.a, purpose: 'subscription', ref_id: null, amount: 15000, method: 'zaincash', reference: 'ZC-998877', status: 'pending', created_at: iso(10) });

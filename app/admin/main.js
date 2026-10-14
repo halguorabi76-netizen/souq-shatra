@@ -145,8 +145,25 @@ async function overview(ctx, body) {
 }
 
 // ---------- approvals ----------
+// Store categories: the admin can set or change any store's category inline.
+export const storeCategories = async () => (await db.from('store_categories').select('*').order('position').order('name')).data || [];
+export const storeCategorySelect = (s, cats) =>
+  cats.length ? html`<select class="input input-sm" data-store-cat="${s.id}" aria-label="قسم المتجر"><option value="">بدون قسم</option>${cats.map((c) => html`<option value="${c.id}" ${s.store_category_id === c.id ? 'selected' : ''}>${c.name}${c.active === false ? ' (موقوف)' : ''}</option>`)}</select>` : '';
+export function wireStoreCategorySelects(body) {
+  body.querySelectorAll('[data-store-cat]').forEach((sel) =>
+    sel.addEventListener('change', async () => {
+      try {
+        check(await db.rpc('admin_set_store_category', { p_store: sel.dataset.storeCat, p_category: sel.value || null }));
+        clearData();
+        toast('حُفظ قسم المتجر', 'success');
+      } catch (e) {
+        toast(e.message, 'error');
+      }
+    }),
+  );
+}
 async function approvals(ctx, body) {
-  const [st, w, dprof, ppl] = await Promise.all([stores(true), workers(true), driverProfiles(true), people()]);
+  const [st, w, dprof, ppl, scats] = await Promise.all([stores(true), workers(true), driverProfiles(true), people(), storeCategories()]);
   if (!isCurrent(ctx.token)) return;
   const pendingStores = st.filter((s) => !s.approved && !s.removed);
   const pendingDrivers = w.filter((x) => !x.approved);
@@ -157,12 +174,14 @@ async function approvals(ctx, body) {
     html`<section class="card"><h2>${icon('store', 20)} متاجر بانتظار الموافقة (${pendingStores.length})</h2>
       ${pendingStores.length ? pendingStores.map((s) => html`<div class="card" style="box-shadow:none;margin-top:10px"><div class="card-head"><div><b>${s.name}</b> <span class="muted small">${ago(s.created_at)}</span><div class="small">${person(s.owner_id).full_name || ''} · <span class="ltr">${person(s.owner_id).email || ''}</span></div></div><div style="display:flex;gap:6px">${wa(s.phone)}</div></div>
         <div class="small">${icon('phone', 14)} <span class="ltr">${s.phone}</span> · ${icon('pin', 14)} ${s.address || '—'} · ${s.store_kind === 'online' ? 'يبيع من البيت' : 'محل'}</div>${s.description ? html`<p class="small muted">${s.description}</p>` : ''}
+        ${scats.length ? html`<label class="field" style="max-width:280px;margin-top:8px"><span>قسم المتجر</span>${storeCategorySelect(s, scats)}</label>` : ''}
         <div class="row-actions"><button class="btn btn-ok" data-action="approveStore" data-id="${s.id}">${icon('check', 18)} اعتماد المتجر</button><button class="btn btn-ghost" data-action="rejectStore" data-id="${s.id}">رفض</button></div></div>`) : html`<p class="muted">لا توجد طلبات.</p>`}</section>
     <section class="card"><h2>${icon('truck', 20)} سائقون بانتظار الموافقة (${pendingDrivers.length})</h2>
       ${pendingDrivers.length ? pendingDrivers.map((x) => { const d = dprof.find((p) => p.user_id === x.user_id) || {}; return html`<div class="card" style="box-shadow:none;margin-top:10px"><div class="card-head"><div><b>${d.full_name || person(x.user_id).full_name || 'بدون اسم'}</b> <span class="muted small">${ago(x.created_at)}</span></div>${wa(d.phone)}</div>
         <div class="small">${icon('phone', 14)} <span class="ltr">${d.phone || '—'}</span> · ${icon('pin', 14)} ${d.address || '—'} · ${d.vehicle || '—'}</div>
         <div class="row-actions">${d.user_id ? html`<button class="btn btn-ok" data-action="approveDriver" data-id="${x.user_id}">${icon('check', 18)} اعتماد السائق</button>` : html`<span class="muted small">لم يكمل بيانات التسجيل بعد.</span>`}</div></div>`; }) : html`<p class="muted">لا توجد طلبات.</p>`}</section>`,
   );
+  wireStoreCategorySelects(body);
   actions({
     approveStore: (b) => busy(b, async () => { check(await db.rpc('approve_store', { p_store: b.dataset.id, p_approved: true })); toast('اعتُمد المتجر', 'success'); clearData(); refresh(); }),
     rejectStore: async (b) => (await confirmDialog('رفض المتجر', 'سيُزال طلب المتجر من القائمة.', { ok: 'رفض', danger: true })) && busy(b, async () => { check(await db.rpc('admin_set_store_removed', { p_store: b.dataset.id, p_removed: true })); clearData(); refresh(); }),

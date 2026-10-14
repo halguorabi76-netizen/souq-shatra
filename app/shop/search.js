@@ -2,10 +2,10 @@ import { html, render, formData } from '../core/dom.js';
 import { pageActions } from '../core/actions.js';
 import { icon } from '../core/icons.js';
 import { href, go, isCurrent } from '../core/router.js';
-import { getCategories, searchProducts, getStores, getLivePromotions, getProductsByIds } from '../core/api.js';
+import { getCategories, searchProducts, getStores, getLivePromotions, getProductsByIds, getStoreCategories } from '../core/api.js';
 import { skeletonCards, errorBlock, emptyState, modal } from '../core/ui.js';
 import { number, normalizeArabic } from '../core/format.js';
-import { productCard, storeCard, breadcrumbs, isHomeSeller } from './components.js';
+import { productCard, storeCard, breadcrumbs, isHomeSeller, catTile, catEmoji } from './components.js';
 import { mountShop, favorites, loadFavorites, setTitle } from './shell.js';
 
 const SORTS = [
@@ -67,10 +67,21 @@ export async function searchPage(ctx) {
     const matchedStores = f.q && f.page === 0 ? stores.filter((s) => normalizeArabic(s.name).includes(normalizeArabic(f.q))).slice(0, 4) : [];
     const pages = Math.ceil(total / PAGE);
     const card = (p, ad) => productCard(p, { store: byStore.get(p.store_id), fav: favorites.ids.has(p.id), sponsored: ad });
+    // «المنتجات» tab: product categories on top, subcategories once one is chosen.
+    const roots = cats.filter((c) => !c.parent_id);
+    const selected = cats.find((c) => !c.parent_id && c.name === f.cat) || cats.find((c) => c.name === f.cat);
+    const activeRoot = selected?.parent_id ? cats.find((c) => c.id === selected.parent_id) : selected;
+    const subs = activeRoot ? cats.filter((c) => c.parent_id === activeRoot.id) : [];
+    const catNav =
+      base === '/products' && roots.length
+        ? html`<div class="cat-rail compact"><a class="cat-card ${!activeRoot ? 'on' : ''}" href="${href(base, { sort: f.sort === 'newest' ? '' : f.sort })}"><span class="art">${catEmoji('')}</span><b>الكل</b></a>${roots.map((c) => catTile(c, { active: activeRoot?.id === c.id }))}</div>
+        ${subs.length ? html`<div class="chip-rail"><a class="pill ${selected === activeRoot ? 'on' : ''}" href="${href(base, { ...f, cat: activeRoot.name, page: '' })}">كل ${activeRoot.name}</a>${subs.map((c) => html`<a class="pill ${selected?.id === c.id ? 'on' : ''}" href="${href(base, { ...f, cat: c.name, page: '' })}">${c.name}</a>`)}</div>` : ''}`
+        : '';
     const chips = [f.q && ['q', `«${f.q}»`], f.cat && ['cat', f.cat], f.min && ['min', `من ${f.min}`], f.max && ['max', `إلى ${f.max}`], f.cond && ['cond', f.cond === 'used' ? 'مستعمل' : 'جديد']].filter(Boolean);
     render(
       main,
       html`${breadcrumbs([{ label: 'الرئيسية', href: '#/' }, { label: title }])}
+      ${catNav}
       <div class="listing">
         <aside class="filters" aria-label="تصفية النتائج">${filtersForm(f, cats)}</aside>
         <section>
@@ -114,26 +125,31 @@ export async function storesPage(ctx) {
   setTitle('المتاجر');
   render(main, skeletonCards(6));
   try {
-    const [stores, promos] = await Promise.all([getStores(), getLivePromotions()]);
+    const [stores, promos, storeCats] = await Promise.all([getStores(), getLivePromotions(), getStoreCategories()]);
     if (!isCurrent(ctx.token)) return;
     const spot = new Set(promos.filter((p) => p.placement === 'store_spotlight').map((p) => p.store_id));
     const q = normalizeArabic(ctx.query.get('q') || '');
     const kind = ['shop', 'home'].includes(ctx.query.get('kind')) ? ctx.query.get('kind') : '';
+    const cat = storeCats.find((c) => c.id === ctx.query.get('cat'));
+    const catName = new Map(storeCats.map((c) => [c.id, c.name]));
     const matchKind = (s) => !kind || (kind === 'home') === isHomeSeller(s);
-    const list = stores.filter((s) => matchKind(s) && (!q || normalizeArabic(s.name + ' ' + (s.description || '')).includes(q))).sort((a, b) => Number(spot.has(b.id)) - Number(spot.has(a.id)) || a.name.localeCompare(b.name, 'ar'));
-    const tab = (v, label, ic) => html`<a class="pill ${kind === v ? 'on' : ''}" href="${href('/stores', { q: ctx.query.get('q') || '', kind: v })}">${ic ? icon(ic, 15) : ''}${label}</a>`;
+    const list = stores.filter((s) => matchKind(s) && (!cat || s.store_category_id === cat.id) && (!q || normalizeArabic(s.name + ' ' + (s.description || '')).includes(q))).sort((a, b) => Number(spot.has(b.id)) - Number(spot.has(a.id)) || a.name.localeCompare(b.name, 'ar'));
+    const query = { q: ctx.query.get('q') || '', kind, cat: cat?.id || '' };
+    const tab = (v, label, ic) => html`<a class="pill ${kind === v ? 'on' : ''}" href="${href('/stores', { ...query, kind: v })}">${ic ? icon(ic, 15) : ''}${label}</a>`;
+    const catPill = (c) => html`<a class="pill ${(cat?.id || '') === (c?.id || '') ? 'on' : ''}" href="${href('/stores', { ...query, cat: c?.id || '' })}">${c ? c.name : 'كل الأقسام'}</a>`;
     render(
       main,
-      html`<h1 class="page-title">المتاجر</h1>
+      html`<h1 class="page-title">${cat ? cat.name : 'المتاجر'}</h1>
       <p class="muted page-sub">محلات الشطرة، وأهلها الذين يبيعون من بيوتهم.</p>
       <form data-store-search class="inline-search"><input class="input" name="q" type="search" placeholder="ابحث عن متجر" value="${ctx.query.get('q') || ''}"><button class="btn btn-primary" aria-label="بحث">${icon('search', 18)}</button></form>
+      ${storeCats.length ? html`<div class="chip-rail store-cats">${catPill(null)}${storeCats.map(catPill)}</div>` : ''}
       <div class="chip-rail">${tab('', 'الكل')}${tab('shop', 'محلات', 'store')}${tab('home', 'من البيت', 'home')}</div>
       <p class="muted small">${list.length} متجر</p>
-      ${list.length ? html`<div class="store-grid">${list.map((s) => storeCard(s, { featured: spot.has(s.id) }))}</div>` : emptyState('store', kind === 'home' ? 'لا يوجد بائعون من البيت بعد' : 'لا توجد متاجر مطابقة', kind === 'home' ? 'عندك بضاعة في البيت؟ كن أول من يعرضها.' : '', kind === 'home' ? html`<a class="btn btn-primary" href="#/sell">ابدأ البيع من بيتك</a>` : '')}`,
+      ${list.length ? html`<div class="store-grid">${list.map((s) => storeCard(s, { featured: spot.has(s.id), category: catName.get(s.store_category_id) }))}</div>` : emptyState('store', kind === 'home' ? 'لا يوجد بائعون من البيت بعد' : 'لا توجد متاجر مطابقة', kind === 'home' ? 'عندك بضاعة في البيت؟ كن أول من يعرضها.' : '', kind === 'home' ? html`<a class="btn btn-primary" href="#/sell">ابدأ البيع من بيتك</a>` : '')}`,
     );
     main.querySelector('[data-store-search]').addEventListener('submit', (e) => {
       e.preventDefault();
-      go('/stores', { q: formData(e.target).q, kind });
+      go('/stores', { ...query, q: formData(e.target).q });
     });
   } catch (e) {
     if (isCurrent(ctx.token)) render(main, errorBlock(e));
