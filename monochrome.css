@@ -109,3 +109,43 @@ html[data-shatra-ui][data-theme] body .tabs button[aria-current=page] .navicon{b
 html[data-shatra-ui][data-theme] body .tabs button[aria-current=page]::before{display:none!important}
 html[data-shatra-ui][data-theme]:not([data-portal=admin]) body .tabs button[aria-current=page] .navicon,html[data-shatra-ui][data-theme]:not([data-portal=admin]) body .tabs .navicon{background:transparent!important;color:inherit!important;box-shadow:none!important}
 html[data-shatra-ui][data-theme] body .figma-eyebrow{display:inline-block!important;width:auto!important;max-width:max-content!important;padding:4px 10px!important;border-radius:999px!important}
+
+/* ---------- Splash tones in the customer interface ----------
+   The splash gradient (beige #a49389 → taupe #6b6058 → near black #1d1a15) replaces flat black and grey. */
+html[data-shatra-ui][data-theme=light]{
+ --warm-1:#a49389;--warm-2:#6b6058;--warm-3:#1d1a15;
+ --ink:#1d1a15;--ink-soft:#7d7067;--mut:#7d7067;--line:#ebe3dc;--paper:#fbf9f7;--bg:#fbf9f7;--scene-bg:#fbf9f7;
+ --mono-soft:#f1ebe6;--mono-quiet:#a49389;
+ --warm-grad:linear-gradient(180deg,#a49389 0%,#6b6058 45%,#1d1a15 100%);
+ --warm-btn:linear-gradient(135deg,#6b6058 0%,#3a332c 55%,#1d1a15 100%);
+ --warm-tile:linear-gradient(160deg,#f6f1ec 0%,#e9dfd7 100%);
+ --mono-btn:#3a332c
+}
+html[data-shatra-ui][data-theme=dark]{
+ --warm-1:#a49389;--warm-2:#6b6058;--warm-3:#1d1a15;
+ --paper:#120f0c;--bg:#120f0c;--scene-bg:#120f0c;--surface:#1b1714;--card:#1b1714;--surface-2:#25201b;--line:#332c26;--mono-soft:#25201b;--ink-soft:#b3a69b;--mut:#b3a69b;
+ --warm-grad:linear-gradient(180deg,#a49389 0%,#6b6058 45%,#1d1a15 100%);
+ --warm-btn:linear-gradient(135deg,#d9cbbf 0%,#a49389 100%);
+ --warm-tile:linear-gradient(160deg,#2a241f 0%,#1d1a15 100%)
+}
+/* Hero: the splash gradient over the photo */
+html[data-shatra-ui][data-theme] body .figma-hero{background:var(--warm-grad)!important}
+html[data-shatra-ui][data-theme] body .figma-hero::after{background:linear-gradient(180deg,rgba(164,147,137,.35) 0%,rgba(107,96,88,.45) 40%,rgba(29,26,21,.88) 100%)!important}
+/* Main actions use the warm gradient */
+html[data-shatra-ui][data-theme] body :is(.buy,button.primary,.btn-primary,.figma-primary,.figma-add,.buyer-floating){background:var(--warm-btn)!important;color:#fff!important}
+html[data-shatra-ui][data-theme=dark] body :is(.buy,button.primary,.btn-primary,.figma-primary,.figma-add,.buyer-floating){color:#1d1a15!important}
+html[data-shatra-ui][data-theme] body .mp-discount{background:var(--warm-btn)!important;color:#fff!important}
+/* Image tiles and category tiles get the soft warm tone */
+html[data-shatra-ui][data-theme] body :is(.figma-product-media,#productPhoto,.product-detail .tile.big,.figma-cart-image,.mp-store-avatar){background:var(--warm-tile)!important}
+html[data-shatra-ui][data-theme] body .category-card{background:var(--warm-tile)!important;border-color:transparent!important}
+html[data-shatra-ui][data-theme] body .category-card:is([aria-pressed=true],.active,.selected){background:var(--warm-btn)!important}
+html[data-shatra-ui][data-theme] body .product-seller-card{background:var(--warm-tile)!important}
+/* Selected chips and the active tab take the taupe */
+html[data-shatra-ui][data-theme] body :is(.chip,.mp-switcher button):is([aria-pressed=true],[aria-current],.active,.selected,.on){background:var(--warm-btn)!important;border-color:transparent!important;color:#fff!important}
+html[data-shatra-ui][data-theme] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme] body .tabs button[aria-current=page] .navicon{color:var(--warm-2)!important}
+html[data-shatra-ui][data-theme=dark] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme=dark] body .tabs button[aria-current=page] .navicon{color:#d9cbbf!important}
+/* Search field and section links in warm grey */
+html[data-shatra-ui][data-theme] body :is(.desktop-search,#buyerSearch){background:var(--mono-soft)!important}
+html[data-shatra-ui][data-theme] body .section-title :is(a,button,small,span){color:var(--warm-2)!important}
+/* "Added to cart" confirmation uses the warm tone too, a little lighter than the main action */
+html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added,html[data-shatra-ui][data-theme] body .product-purchase .added{background:linear-gradient(135deg,#a49389 0%,#6b6058 100%)!important;color:#fff!important}
