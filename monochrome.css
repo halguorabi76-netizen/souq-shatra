@@ -1,0 +1,111 @@
+/* سوق الشطرة — monochrome skin (black, white, warm grey). Loaded last; changes appearance only. */
+html[data-shatra-ui][data-theme=light]{
+ --ink:#111111;--ink-soft:#77716a;--navy:#111111;--paper:#ffffff;--surface:#ffffff;--surface-2:#f3f2ef;--line:#ebe8e3;
+ --bg:#ffffff;--card:#ffffff;--mut:#77716a;--tile:#f3f2ef;--gold:#111111;--accent:#111111;--indigo:#111111;--blue:#111111;--cyan:#77716a;
+ --scene-bg:#ffffff;--panel-bg:#ffffff;--icon-bg:#f3f2ef;--icon-ink:#111111;--action-bg:#111111;--shadow:none;
+ --mono-btn:#111111;--mono-btn-ink:#ffffff;--mono-soft:#f3f2ef;--mono-quiet:#a29c95;color-scheme:light
+}
+html[data-shatra-ui][data-theme=dark]{
+ --ink:#f5f4f1;--ink-soft:#a8a29b;--navy:#f5f4f1;--paper:#0e0e0e;--surface:#171717;--surface-2:#202020;--line:#2b2a28;
+ --bg:#0e0e0e;--card:#171717;--mut:#a8a29b;--tile:#202020;--gold:#f5f4f1;--accent:#f5f4f1;--indigo:#f5f4f1;--blue:#f5f4f1;--cyan:#a8a29b;
+ --scene-bg:#0e0e0e;--panel-bg:#171717;--icon-bg:#202020;--icon-ink:#f5f4f1;--action-bg:#f5f4f1;--shadow:none;
+ --mono-btn:#f5f4f1;--mono-btn-ink:#111111;--mono-soft:#202020;--mono-quiet:#77716a;color-scheme:dark
+}
+html[data-shatra-ui] body,html[data-shatra-ui][data-theme] body .app{background:var(--paper)!important;color:var(--ink)}
+html[data-shatra-ui][data-theme] body :is(h1,h2,h3,b,strong){color:var(--ink)}
+
+/* Header: plain white bar, black logo, bare icons */
+html[data-shatra-ui][data-theme] body .app>.top,html[data-shatra-ui][data-theme] body .top{background:var(--paper)!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+html[data-shatra-ui][data-theme] body .topline :is(#marketMenuToggle,#accountTrigger,#themeToggle,.ac-inline,.header-cart,.header-icon){background:transparent!important;border:0!important;box-shadow:none!important;color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .menu-lines span{background:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .header-logo{filter:brightness(0)!important}
+html[data-shatra-ui][data-theme=dark] body .header-logo{filter:brightness(0) invert(1)!important}
+html[data-shatra-ui][data-theme] body .figma-logo-frame{background:transparent!important;box-shadow:none!important;border:0!important}
+html[data-shatra-ui][data-theme] body .header-brand-name{color:var(--ink)!important;font-weight:800;letter-spacing:0}
+
+/* Search: soft grey pill */
+html[data-shatra-ui][data-theme] body :is(.desktop-search,#buyerSearch){background:var(--mono-soft)!important;border:0!important;border-radius:14px!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body :is(.desktop-search,#buyerSearch) input{background:transparent!important;color:var(--ink)!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body :is(.desktop-search,#buyerSearch) input::placeholder{color:var(--mono-quiet)!important}
+html[data-shatra-ui][data-theme] body :is(.desktop-search,#buyerSearch) button{background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:11px!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .desktop-shortcut{background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:none!important;border-radius:12px!important}
+
+/* Hero banner: rounded image card, white pill button */
+html[data-shatra-ui][data-theme] body :is(.banner,.figma-hero){border-radius:20px!important;box-shadow:none!important;border:0!important;overflow:hidden}
+html[data-shatra-ui][data-theme] body .figma-button{background:#fff!important;color:#111!important;border:0!important;border-radius:999px!important;box-shadow:none!important;font-weight:700}
+html[data-shatra-ui][data-theme] body .figma-eyebrow{background:rgba(255,255,255,.18)!important;color:#fff!important;border:0!important}
+html[data-shatra-ui][data-theme] body .figma-trust{display:none!important}
+
+/* Sections */
+html[data-shatra-ui][data-theme] body .section-title :is(h2,h3,strong){color:var(--ink)!important;font-weight:800}
+html[data-shatra-ui][data-theme] body .section-title :is(a,button,small,span){color:var(--ink-soft)!important;background:transparent!important;border:0!important;box-shadow:none!important}
+
+/* Category tiles (like the brand row): white squares, thin border, black icon */
+html[data-shatra-ui][data-theme] body .category-card{background:var(--paper)!important;border:1px solid var(--line)!important;border-radius:16px!important;box-shadow:none!important;color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .category-card :is(svg,.icon,i,span){color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .category-card :is(.icon,.category-icon,.mp-cat-icon){background:transparent!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .category-card[aria-pressed=true],html[data-shatra-ui][data-theme] body .category-card.active,html[data-shatra-ui][data-theme] body .category-card.selected{background:var(--mono-btn)!important;color:var(--mono-btn-ink)!important;border-color:var(--mono-btn)!important}
+html[data-shatra-ui][data-theme] body .category-card:is([aria-pressed=true],.active,.selected) *{color:var(--mono-btn-ink)!important}
+
+/* Product cards: grey image tile, no frame, black price, black add button */
+html[data-shatra-ui][data-theme] body .figma-product-card,html[data-shatra-ui][data-theme] body .mp-product{background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important}
+html[data-shatra-ui][data-theme] body .figma-product-media{background:var(--mono-soft)!important;border:0!important;border-radius:16px!important;box-shadow:none!important;overflow:hidden}
+html[data-shatra-ui][data-theme] body .figma-product-media img{mix-blend-mode:normal}
+html[data-shatra-ui][data-theme] body .figma-product-info{background:transparent!important;padding:10px 2px 0!important}
+html[data-shatra-ui][data-theme] body .figma-product-name{color:var(--ink)!important;font-weight:600!important}
+html[data-shatra-ui][data-theme] body .figma-store-link{color:var(--ink-soft)!important}
+html[data-shatra-ui][data-theme] body :is(.mp-price,.mp-price b,.mp-price strong,#productPrice){color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .mp-price :is(del,s,small){color:var(--mono-quiet)!important}
+html[data-shatra-ui][data-theme] body .figma-add{background:var(--mono-btn)!important;color:var(--mono-btn-ink)!important;border:0!important;border-radius:11px!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .boutique-favorite{background:var(--paper)!important;color:var(--ink)!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .boutique-favorite[aria-pressed=true]{color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .boutique-favorite[aria-pressed=true] svg{fill:currentColor}
+html[data-shatra-ui][data-theme] body .mp-discount{background:var(--mono-btn)!important;color:var(--mono-btn-ink)!important;border:0!important;border-radius:7px!important;box-shadow:none!important}
+
+/* Stores */
+html[data-shatra-ui][data-theme] body :is(.figma-store-card,.mp-store-card){background:var(--paper)!important;border:1px solid var(--line)!important;border-radius:16px!important;box-shadow:none!important;color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .mp-store-avatar{background:var(--mono-soft)!important;color:var(--ink)!important;border:0!important;box-shadow:none!important}
+
+/* Chips, switchers, generic buttons */
+html[data-shatra-ui][data-theme] body :is(.chip,.mp-switcher button,.cart-history .chip){background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:999px!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body :is(.chip,.mp-switcher button):is([aria-pressed=true],[aria-current],.active,.selected,.on){background:var(--mono-btn)!important;color:var(--mono-btn-ink)!important;border-color:var(--mono-btn)!important}
+html[data-shatra-ui][data-theme] body :is(.buy,button.primary,.btn-primary,.figma-primary){background:var(--mono-btn)!important;color:var(--mono-btn-ink)!important;border:0!important;border-radius:14px!important;box-shadow:none!important;background-image:none!important}
+html[data-shatra-ui][data-theme] body :is(.alt,.secondary,.btn-outline){background:var(--paper)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:14px!important;box-shadow:none!important}
+
+/* Bottom bar: flat white strip, thin icons, active item black */
+html[data-shatra-ui][data-theme] body .app>.tabs,html[data-shatra-ui][data-theme] body .tabs{background:var(--paper)!important;border:0!important;border-top:1px solid var(--line)!important;box-shadow:none!important;backdrop-filter:none!important;border-radius:0!important;inset-inline:0!important;bottom:0!important;width:100%!important;max-width:none!important;margin:0!important;transform:none!important}
+html[data-shatra-ui][data-theme] body .tabs button{background:transparent!important;color:var(--mono-quiet)!important;box-shadow:none!important;border:0!important;border-radius:0!important}
+html[data-shatra-ui][data-theme] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme=light] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme=dark] body .tabs button[aria-current=page]{background:transparent!important;color:var(--ink)!important;font-weight:700}
+html[data-shatra-ui][data-theme] body .tabs .navicon{background:transparent!important;box-shadow:none!important;color:inherit!important}
+html[data-shatra-ui][data-theme] body .tabs .media-placeholder{background:transparent!important;color:var(--mono-quiet)!important;box-shadow:none!important;transform:none!important;border:0!important}
+html[data-shatra-ui][data-theme] body .tabs .media-placeholder .navicon{background:transparent!important;border:0!important;box-shadow:none!important;transform:none!important}
+html[data-shatra-ui][data-theme] body .buyer-floating{background:var(--mono-btn)!important;color:var(--mono-btn-ink)!important;border:0!important;box-shadow:0 6px 18px rgba(0,0,0,.18)!important}
+html[data-shatra-ui][data-theme] body .buyer-floating #cc,html[data-shatra-ui][data-theme] body .buyer-floating i{background:var(--paper)!important;color:var(--ink)!important}
+
+/* Product page */
+html[data-shatra-ui][data-theme] body .sheet{background:var(--paper)!important;color:var(--ink)!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .flow-heading{background:var(--paper)!important;color:var(--ink)!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .flow-heading :is(button,a){background:transparent!important;color:var(--ink)!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body #productPhoto,html[data-shatra-ui][data-theme] body .product-detail .tile.big{background:var(--mono-soft)!important;border:0!important;border-radius:20px!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .product-purchase{background:var(--paper)!important;border:0!important;border-top:1px solid var(--line)!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .qty{background:var(--paper)!important;border:1px solid var(--line)!important;border-radius:12px!important;box-shadow:none!important;color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .qty button{background:transparent!important;color:var(--ink)!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .product-seller-card{background:var(--mono-soft)!important;border:0!important;border-radius:16px!important;box-shadow:none!important;color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .variant-chips :is(button,span){border-radius:10px!important}
+
+/* Cart */
+html[data-shatra-ui][data-theme] body :is(.cart-store,.cart-line){background:var(--paper)!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .cart-line{border-bottom:1px solid var(--line)!important;border-radius:0!important}
+html[data-shatra-ui][data-theme] body .figma-cart-image{background:var(--mono-soft)!important;border-radius:14px!important;border:0!important}
+html[data-shatra-ui][data-theme] body .cart-clear{background:transparent!important;color:var(--ink)!important;border:0!important;text-decoration:underline;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .cart-checkout-actions{background:var(--paper)!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .empty :is(.icon,svg){color:var(--ink)!important}
+
+/* Hero copy stays white on the photo */
+html[data-shatra-ui][data-theme] body .figma-hero :is(h1,h2,h3,p,strong,.banner-caption){color:#fff!important}
+/* Active tab: no box, no filled icon — just black */
+html[data-shatra-ui][data-theme] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme] body .tabs [data-v=market][aria-current=page]{background:transparent!important;border:0!important;box-shadow:none!important;transform:none!important;width:auto!important;height:auto!important;min-height:0!important;border-radius:0!important}
+html[data-shatra-ui][data-theme] body .tabs button[aria-current=page] .navicon{background:transparent!important;color:var(--ink)!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .tabs button[aria-current=page]::before{display:none!important}
+html[data-shatra-ui][data-theme]:not([data-portal=admin]) body .tabs button[aria-current=page] .navicon,html[data-shatra-ui][data-theme]:not([data-portal=admin]) body .tabs .navicon{background:transparent!important;color:inherit!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .figma-eyebrow{display:inline-block!important;width:auto!important;max-width:max-content!important;padding:4px 10px!important;border-radius:999px!important}
