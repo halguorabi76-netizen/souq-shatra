@@ -42,7 +42,7 @@
     ],
     stores: [
       { id: S.a, owner_id: U.seller, name: 'أسواق النخيل', phone: '07801234567', address: 'شارع السوق الكبير', description: 'مواد غذائية وتمور بأسعار الجملة', approved: true, removed: false, verified: true, store_kind: 'physical', prep_time_min: 15, created_at: iso(9000), username: 'nakheel', image_path: img(120, 'النخيل') },
-      { id: S.b, owner_id: U.seller2, name: 'بوتيك الأناقة', phone: '07811111111', address: 'حي الشهداء', description: 'ملابس وأحذية رجالية ونسائية', approved: true, removed: false, verified: false, store_kind: 'physical', prep_time_min: 20, created_at: iso(7000) },
+      { id: S.b, owner_id: U.seller2, name: 'بوتيك الأناقة', phone: '07811111111', address: 'حي الشهداء', description: 'ملابس وأحذية رجالية ونسائية', approved: true, removed: false, verified: false, store_kind: 'online', prep_time_min: 20, created_at: iso(7000) },
       { id: S.c, owner_id: 'u-other', name: 'عالم الإلكترونيات', phone: '07722222222', address: 'شارع المحافظة', description: 'هواتف وإكسسوارات وأجهزة منزلية', approved: true, removed: false, verified: true, store_kind: 'physical', prep_time_min: 10, created_at: iso(6000) },
     ],
     store_pickups: [S.a, S.b, S.c].map((id, i) => ({ store_id: id, pickup_address: 'الشطرة', latitude: 31.41 + i * 0.002, longitude: 46.17 + i * 0.002 })),

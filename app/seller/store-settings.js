@@ -31,7 +31,7 @@ export async function storeView(ctx, body) {
       <button class="btn btn-primary">${icon('check', 18)} حفظ الهوية</button>
     </form>
     <form class="card" data-location><h2>${icon('pin', 20)} الموقع والتجهيز</h2>
-      <label class="field"><span>نوع المتجر</span><select name="kind"><option value="physical" ${s.store_kind !== 'online' ? 'selected' : ''}>محل في السوق (العنوان يظهر للزبائن)</option><option value="online" ${s.store_kind === 'online' ? 'selected' : ''}>متجر إلكتروني (العنوان للسائق فقط)</option></select></label>
+      <label class="field"><span>نوع المتجر</span><select name="kind"><option value="physical" ${s.store_kind !== 'online' ? 'selected' : ''}>محل أو بسطية (العنوان يظهر للزبائن)</option><option value="online" ${s.store_kind === 'online' ? 'selected' : ''}>أبيع من البيت (العنوان للسائق فقط)</option></select></label>
       <label class="field"><span>عنوان الاستلام *</span><input name="address" required maxlength="500" value="${pickup?.pickup_address || s.address || ''}"></label>
       <div class="field"><span>موقع استلام الطلبات على الخريطة *</span><div data-prev>${point ? mapPreview(point) : html`<div class="notice notice-warn">${icon('alert', 18)}<p>لم تحدد موقع الاستلام. لا يمكن حساب أجرة التوصيل لطلبات متجرك بدونه.</p></div>`}</div><button type="button" class="btn btn-outline" data-action="pick">${icon('pin', 18)} ${point ? 'تعديل الموقع' : 'تحديد الموقع'}</button></div>
       <label class="field"><span>وقت تجهيز الطلب (دقائق)</span><input name="prep" type="number" min="0" max="1440" step="1" value="${s.prep_time_min ?? 15}"><small>يظهر للزبون ويساعد السائق على الوصول في الوقت المناسب.</small></label>

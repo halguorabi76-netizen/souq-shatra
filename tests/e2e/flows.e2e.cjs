@@ -20,8 +20,33 @@ async function step(name, fn) {
       await goto('/');
       assert.match(await page.textContent('#hero'), /سماعات بلوتوث/);
       assert(await page.isVisible('text=عروض وتخفيضات'));
-      assert((await page.$$('.scard')).length >= 3);
+      assert.equal((await page.$$('.store-tile')).length, 3);
+      assert.match(await page.textContent('main'), /من بيوت الشطرة[\s\S]*بوتيك الأناقة/);
       await shot(page, 'home');
+    });
+    await step('categories tab opens a category with products and its stores', async () => {
+      await goto('/categories');
+      assert((await page.$$('.cat-grid .cat-card')).length >= 5);
+      await page.click('.cat-card:has-text("ملابس")');
+      await page.waitForURL(/#\/c\//);
+      await settle(page);
+      assert.match(await page.textContent('main'), /تيشيرت قطني رجالي/);
+      await page.click('.seg a:has-text("المتاجر")');
+      await settle(page);
+      assert.deepEqual(await page.$$eval('.scard h3', (n) => n.map((x) => x.childNodes[0].textContent.trim())), ['بوتيك الأناقة']);
+      await page.click('.seg a:has-text("المنتجات")');
+      await settle(page);
+      await page.click('.pill:has-text("تيشيرتات")');
+      await settle(page);
+      assert.match(await page.textContent('main'), /تيشيرت قطني رجالي/);
+    });
+    await step('stores tab filters shops and home sellers', async () => {
+      await goto('/stores?kind=home');
+      assert.deepEqual(await page.$$eval('.scard h3', (n) => n.map((x) => x.childNodes[0].textContent.trim())), ['بوتيك الأناقة']);
+      await goto('/stores?kind=shop');
+      assert.equal((await page.$$('.scard')).length, 2);
+      await goto('/products');
+      assert(await page.isVisible('.tabbar a.active:has-text("المنتجات")') || (await page.$$('.pcard')).length > 0);
     });
     await step('search matches Arabic spelling variants and filters', async () => {
       await goto('/search?q=' + encodeURIComponent('قهوه شاي'));

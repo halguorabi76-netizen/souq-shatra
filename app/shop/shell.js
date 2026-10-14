@@ -33,10 +33,11 @@ function header(cats) {
     </div>
     <div class="container mobile-search">${searchForm('q-mobile')}</div>
     <nav class="cat-strip" aria-label="الأقسام"><div class="container">
-      <a href="#/search">${icon('grid', 16)} كل الأقسام</a>
-      <a href="#/search?sort=deals">🔥 العروض</a>
-      <a href="#/stores">المتاجر</a>
-      ${cats.filter((c) => !c.parent_id).slice(0, 14).map((c) => html`<a href="${href('/search', { cat: c.name })}">${c.name}</a>`)}
+      <a href="#/categories">${icon('grid', 16)} كل الأقسام</a>
+      <a href="#/stores">${icon('store', 16)} المتاجر</a>
+      <a href="#/products">${icon('box', 16)} المنتجات</a>
+      <a href="#/products?sort=deals">🔥 العروض</a>
+      ${cats.filter((c) => !c.parent_id).slice(0, 14).map((c) => html`<a href="${href('/c/' + encodeURIComponent(c.name))}">${c.name}</a>`)}
     </div></nav>
   </header>`;
 }
@@ -61,7 +62,7 @@ function footer(platform) {
 function tabbar() {
   const p = current.path;
   const a = (to, ic, label, active, extra = '') => html`<a href="${to}" class="${active ? 'active' : ''}">${icon(ic, 22)}<span>${label}</span>${extra}</a>`;
-  return html`<nav class="tabbar" aria-label="التنقل">${a('#/', 'home', 'الرئيسية', p === '/')}${a('#/search', 'grid', 'الأقسام', p === '/search' || p === '/stores')}${a('#/cart', 'cart', 'السلة', p === '/cart' || p === '/checkout', html`<span class="count-dot" data-cart-count hidden></span>`)}${a('#/orders', 'package', 'طلباتي', p.startsWith('/orders'))}${a(session.user ? '#/account' : '#/login', 'user', 'حسابي', p.startsWith('/account') || p === '/login')}</nav>`;
+  return html`<nav class="tabbar" aria-label="التنقل">${a('#/', 'home', 'الرئيسية', p === '/')}${a('#/categories', 'grid', 'الأقسام', p === '/categories' || p.startsWith('/c/'))}${a('#/stores', 'store', 'المتاجر', p === '/stores' || p.startsWith('/s/'))}${a('#/products', 'box', 'المنتجات', p === '/products' || p === '/search')}${a(session.user ? '#/account' : '#/login', 'user', 'حسابي', p.startsWith('/account') || p === '/login' || p.startsWith('/orders'))}</nav>`;
 }
 export async function mountShop() {
   document.body.classList.add('has-tabbar');

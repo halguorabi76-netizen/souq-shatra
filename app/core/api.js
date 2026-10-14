@@ -117,7 +117,8 @@ export async function searchProducts({ q = '', category = '', store = '', min = 
   const groups = [];
   if (category) {
     const cats = await getCategories();
-    const root = cats.find((c) => c.name === category || c.id === category);
+    // Some names exist both as a main category and a subcategory; the main one wins.
+    const root = cats.find((c) => c.id === category) || cats.find((c) => !c.parent_id && c.name === category) || cats.find((c) => c.name === category);
     const catIds = root ? [root.id, ...cats.filter((c) => c.parent_id === root.id).map((c) => c.id)] : [];
     const name = root?.name || category;
     groups.push(`or(category.eq.${quote(name)}${catIds.length ? `,catalog_category_id.in.(${catIds.join(',')})` : ''})`);

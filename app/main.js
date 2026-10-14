@@ -9,6 +9,7 @@ import { emptyState, closeModals } from './core/ui.js';
 import { wireShopActions, mountShop, setTitle } from './shop/shell.js';
 import { homePage } from './shop/home.js';
 import { searchPage, storesPage } from './shop/search.js';
+import { categoriesPage, categoryPage } from './shop/categories.js';
 import { productPage } from './shop/product.js';
 import { storePage } from './shop/store.js';
 import { cartPage } from './shop/cart.js';
@@ -24,7 +25,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => th
 const lazy = (path, name) => async (ctx) => (await import(path))[name](ctx);
 route('/', homePage);
 route('/search', searchPage);
-route('/c/:name', (ctx) => go('/search', { cat: ctx.params.name }, { replace: true }));
+route('/products', searchPage);
+route('/categories', categoriesPage);
+route('/c/:name', categoryPage);
 route('/stores', storesPage);
 route('/s/:id', storePage);
 route('/p/:id', productPage);

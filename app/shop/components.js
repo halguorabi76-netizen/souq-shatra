@@ -10,6 +10,18 @@ const EMOJI = {
   رياضة: '⚽', حقائب: '👜', نظارات: '👓', 'منتجات تنظيف': '🧴', 'مستلزمات حيوانات': '🐾', 'زراعة وحدائق': '🌱', أخرى: '📦',
 };
 export const catEmoji = (name) => EMOJI[name] || '🛍️';
+// Soft tile tints, picked by the category name so each category keeps its colour.
+const TINTS = ['#e7f6ee', '#fff3dc', '#e9edfc', '#fde9ef', '#e6f4f8', '#f1ebfb', '#fbefe4', '#eef5e1'];
+const tint = (name) => TINTS[[...(name || '')].reduce((n, ch) => n + ch.codePointAt(0), 0) % TINTS.length];
+export function catTile(c, { count } = {}) {
+  return html`<a class="cat-card" href="${href('/c/' + encodeURIComponent(c.name))}"><span class="art" style="--tint:${tint(c.name)}">${catEmoji(c.name)}</span><b>${c.name}</b>${count ? html`<small>${count} منتج</small>` : ''}</a>`;
+}
+// Home sellers (no shop) are stored as store_kind = 'online'.
+export const isHomeSeller = (s) => s?.store_kind === 'online';
+export const kindBadge = (s) => (isHomeSeller(s) ? html`<span class="kind kind-home">${icon('home', 13)} من البيت</span>` : html`<span class="kind">${icon('store', 13)} محل</span>`);
+export function storeTile(s, { featured } = {}) {
+  return html`<a class="store-tile" href="${href('/s/' + s.id)}">${storeAvatar(s)}<b>${s.name}${s.verified ? html`<span class="verified">${icon('verified', 14)}</span>` : ''}</b>${kindBadge(s)}${featured ? html`<span class="ad-flag">مميز</span>` : ''}</a>`;
+}
 
 export function priceTag(p) {
   const price = p.display_price ?? p.price,
@@ -37,7 +49,7 @@ export function storeAvatar(s, size) {
   return html`<span class="avatar" style="${size ? `width:${size}px;height:${size}px` : ''}">${s.image_url ? html`<img src="${safeUrl(s.image_url)}" alt="" loading="lazy">` : (s.name || '؟').trim().slice(0, 1)}</span>`;
 }
 export function storeCard(s, { count, featured } = {}) {
-  return html`<a class="scard" href="${href('/s/' + s.id)}">${storeAvatar(s)}<div><h3>${s.name}${s.verified ? html`<span class="verified" title="متجر موثّق">${icon('verified', 16)}</span>` : ''}${featured ? html`<span class="ad-flag">مميز</span>` : ''}</h3><p>${s.description || s.address || 'متجر في سوق الشطرة'}</p>${count != null ? html`<small class="muted">${count} منتج</small>` : ''}</div></a>`;
+  return html`<a class="scard" href="${href('/s/' + s.id)}">${storeAvatar(s)}<div><h3>${s.name}${s.verified ? html`<span class="verified" title="متجر موثّق">${icon('verified', 16)}</span>` : ''}${featured ? html`<span class="ad-flag">مميز</span>` : ''}</h3><p>${s.description || (isHomeSeller(s) ? 'يبيع من البيت في الشطرة' : s.address) || 'متجر في سوق الشطرة'}</p><div class="meta">${kindBadge(s)}${count != null ? html`<small class="muted">${count} منتج</small>` : ''}</div></div></a>`;
 }
 export function sectionHead(title, sub, link, ic) {
   return html`<div class="section-head"><div><h2>${ic ? icon(ic, 22) : ''}${title}</h2>${sub ? html`<p>${sub}</p>` : ''}</div>${link ? html`<a href="${link}">عرض الكل ${icon('chevL', 16)}</a>` : ''}</div>`;
