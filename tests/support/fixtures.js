@@ -290,6 +290,33 @@
     save_store_delivery(a) { const p = T.store_pickups.find((x) => x.store_id === a.p_store); Object.assign(p, { latitude: a.p_lat, longitude: a.p_lng }); T.stores.find((s) => s.id === a.p_store).prep_time_min = a.p_prep; },
     driver_finance: () => ({ credit: 0, entries: [] }),
   });
+
+  Object.assign(db.rpc, {
+    admin_account_profiles: () => T.profiles.map((p) => ({ ...p, email: db.users.find((u) => u.id === p.id)?.email })),
+    admin_finance_summary: () => ({ orders_delivered: T.orders.filter((o) => o.status === 'delivered').length, gmv: T.orders.filter((o) => o.status === 'delivered').reduce((n, o) => n + o.total, 0), platform_fees: 1500, commissions: 4200, delivery_share: 600, online_paid: 0, refunds_due: 0, orders_total: T.orders.length, orders_cancelled: 0, subscriptions: 15000, promotions: 49000, store_receivable: 4200, store_payable: 0, driver_receivable: 3500, driver_payable: 0, pending_requests: T.payment_requests.length }),
+    admin_balances: () => ({ stores: T.stores.filter((s) => s.approved).map((s) => ({ store_id: s.id, name: s.name, balance: s.id === T.stores[0].id ? 4200 : 0, plan: 'الأساسية' })), drivers: T.delivery_workers.map((w) => ({ user_id: w.user_id, name: 'سائق', amount_due: w.amount_due, credit: 0 })) }),
+    approve_store: (a) => { T.stores.find((s) => s.id === a.p_store).approved = a.p_approved; },
+    admin_approve_driver: (a) => { T.delivery_workers.find((w) => w.user_id === a.p_driver).approved = a.p_approved; },
+    admin_set_store_removed: (a) => { T.stores.find((s) => s.id === a.p_store).removed = a.p_removed; },
+    admin_set_account_disabled: (a) => { T.profiles.find((p) => p.id === a.p_user).disabled = a.p_disabled; },
+    admin_set_product_blocked: (a) => { T.products.find((p) => p.id === a.p_product).blocked = a.p_blocked; },
+    admin_review_payment_request: (a) => { T.payment_requests.find((r) => r.id === a.p_id).status = a.p_approved ? 'approved' : 'rejected'; },
+    admin_review_delivery_payment: (a) => { T.delivery_payments.find((r) => r.id === a.p_payment).status = a.p_approved ? 'approved' : 'rejected'; },
+    admin_set_platform_settings: (a) => Object.assign(T.platform_settings[0], a.p_values),
+    admin_set_delivery_settings: (a) => Object.assign(T.delivery_settings[0], { platform_fee: a.p_platform_fee, qi_number: a.p_qi_number }),
+    admin_delivery_config: () => null,
+    admin_set_delivery_zone: () => null,
+    admin_save_plan: () => null,
+    admin_save_placement: () => null,
+    admin_set_promotion: (a) => { T.promotions.find((p) => p.id === a.p_id).status = a.p_status; },
+    admin_grant_subscription: () => null,
+    admin_ledger_entry: () => null,
+    admin_mark_refunded: () => null,
+    save_catalog_category: () => null,
+  });
+  T.stores.push({ id: '5d000000-0000-4000-8000-000000000004', owner_id: U.buyer, name: 'محل الوفاء الجديد', phone: '07733333333', address: 'حي العسكري', description: 'عطور ومستحضرات', approved: false, removed: false, store_kind: 'physical', created_at: iso(20) });
+  T.payment_requests.push({ id: 'req-1', payer_id: U.seller, store_id: S.a, purpose: 'subscription', ref_id: null, amount: 15000, method: 'zaincash', reference: 'ZC-998877', status: 'pending', created_at: iso(10) });
+  T.delivery_config = [{ key: 'BASE_FEE', value: 1000 }, { key: 'PER_KM_FEE', value: 500 }, { key: 'ROAD_FACTOR', value: 1.3 }];
   db.functions['payments/init'] = async () => ({ data: { redirect_url: '#/order-placed?payment=success' }, error: null });
   db.policies = {
     customer_addresses: (r, u) => r.user_id === u?.id,

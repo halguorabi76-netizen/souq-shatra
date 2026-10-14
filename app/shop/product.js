@@ -9,31 +9,12 @@ import { spinnerBlock, errorBlock, emptyState, toast, copyText } from '../core/u
 import { money, percentOff } from '../core/format.js';
 import { categoryDefinitions } from '../lib/product-variants.js';
 import { COLOR_PALETTE } from '../lib/product-options.js';
+import { variantState, initialPicks } from '../lib/variant-state.js';
 import { productCard, breadcrumbs, storeAvatar, sectionHead } from './components.js';
 import { mountShop, favorites, loadFavorites, setTitle, toggleFav } from './shell.js';
 
 const AXIS_LABEL = { color: 'اللون', size: 'المقاس', type: 'النوع', material: 'الخامة', custom_color: 'اللون', custom_size: 'المقاس', custom_type: 'النوع', custom_material: 'الخامة' };
 const isColor = (k, defs) => k === 'color' || k.endsWith('_color') || defs.find((d) => d.key === k)?.label === 'اللون';
-
-// Option logic: a value is selectable when some in-stock variant matches it together with the other picks.
-export function variantState(p, picks) {
-  const rows = p.variants.filter((v) => !v.archived);
-  const axes = [...new Set(rows.flatMap((v) => Object.keys(v.attributes || {})))];
-  const sellable = rows.filter((v) => v.available && v.stock > 0);
-  const values = Object.fromEntries(axes.map((a) => [a, [...new Set(rows.map((v) => v.attributes?.[a]).filter(Boolean))]]));
-  const enabled = (axis, value) => sellable.some((v) => v.attributes?.[axis] === value && axes.every((o) => o === axis || !picks[o] || v.attributes?.[o] === picks[o]));
-  const match = axes.length && axes.every((a) => picks[a]) ? rows.find((v) => axes.every((a) => v.attributes?.[a] === picks[a])) : rows.length === 1 && !axes.length ? rows[0] : null;
-  return { axes, values, enabled, match };
-}
-export function initialPicks(p) {
-  const { axes, values } = variantState(p, {});
-  const picks = {};
-  for (const a of axes) if (values[a].length === 1) picks[a] = values[a][0];
-  // Preselect the cheapest in-stock variant so the page opens ready to buy.
-  const best = p.variants.filter((v) => !v.archived && v.available && v.stock > 0).sort((a, b) => (a.sale_price ?? a.price) - (b.sale_price ?? b.price))[0];
-  if (best) Object.assign(picks, best.attributes);
-  return picks;
-}
 
 export async function productPage(ctx) {
   const main = await mountShop();
@@ -107,9 +88,9 @@ export async function productPage(ctx) {
     };
     const paint = () => {
       const y = scrollY;
-      const related = main.querySelector('#related')?.innerHTML;
+      const related = main.querySelector('#related');
       render(main, view());
-      if (related) main.querySelector('#related').innerHTML = related;
+      if (related?.childNodes.length) main.querySelector('#related').replaceWith(related);
       scrollTo(0, y);
     };
     render(main, view());

@@ -27,7 +27,7 @@ async function open({ width = 1280, height = 900, user, mobile = false } = {}) {
   await context.route(/fonts\.(googleapis|gstatic)\.com|openstreetmap|tile\./, (r) => r.abort());
   const mock = fs.readFileSync(path.join(root, 'tests/support/mock-supabase.js'), 'utf8');
   const fixtures = fs.readFileSync(path.join(root, 'tests/support/fixtures.js'), 'utf8');
-  await context.addInitScript({ content: mock + '\n' + fixtures + (user ? `\nwindow.__SOUQ_TEST_CLIENT__.login(${JSON.stringify(user)});` : '') });
+  await context.addInitScript({ content: mock + '\n' + fixtures + (user ? `\nif (!sessionStorage.getItem('mock-user')) window.__SOUQ_TEST_CLIENT__.login(${JSON.stringify(user)});` : '') });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
