@@ -432,16 +432,29 @@ body.starting{background:#000!important}
 }catch{}})();
 </script>
 <link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163">
+<link rel="preload" as="image" href="icons/shatra-splash-v175.webp">
+<style>
+html #startupSplash{background:linear-gradient(135deg,#101f48,#3547a5 55%,#392b64)!important;gap:0;overflow:hidden}
+html #startupSplash img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;animation:none!important}
+body.starting{overflow:hidden}
+</style>
 </head>
 <body>
-<div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/shatra-smile-display-v139.png" alt="" fetchpriority="high"></div>
+<div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/shatra-splash-v175.webp" alt="سوق الشطرة" fetchpriority="high"></div>
 <script>
 (()=>{
-  const theme=document.querySelector('meta[name="theme-color"]');
-  theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7';
-  const finish=()=>{document.getElementById('startupSplash').hidden=true;document.body.classList.remove('starting');theme.content=document.documentElement.dataset.theme==='dark'?'#101a39':'#e6eaf7'};
-  // Always finish even if the network, image, or sign-in module cannot load.
-  finish();
+  const splash=document.getElementById('startupSplash'),image=splash.querySelector('img');
+  const finish=()=>{splash.hidden=true;document.body.classList.remove('starting')};
+  if(document.documentElement.dataset.embeddedPreview==='true')return;
+  splash.hidden=false;document.body.classList.add('starting');
+  // Bounded independently of authentication or network: never trap the user.
+  let shown=false;
+  const showBriefly=()=>{if(shown)return;shown=true;setTimeout(finish,1400)};
+  image.addEventListener('load',showBriefly,{once:true});
+  image.addEventListener('error',finish,{once:true});
+  if(image.complete){if(image.naturalWidth)showBriefly();else finish()}
+  setTimeout(finish,3000);
+  window.addEventListener('pageshow',event=>{if(event.persisted)finish()});
 })();
 </script>
 <div class="app">
