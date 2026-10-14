@@ -77,7 +77,7 @@ export async function signUp({ name, email, password, phone }) {
   );
 }
 export async function signInWithGoogle() {
-  return check(await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.href.split('#')[0] + location.hash, queryParams: { prompt: 'select_account' } } }));
+  return check(await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: 'select_account' } } }));
 }
 export async function signOut() {
   check(await db.auth.signOut());
@@ -90,9 +90,9 @@ export async function authProviders() {
   try {
     const { SUPABASE_URL, SUPABASE_ANON_KEY } = await import('../../config.js');
     const r = await fetch(SUPABASE_URL + '/auth/v1/settings', { headers: { apikey: SUPABASE_ANON_KEY } });
-    return r.ok ? (await r.json()).external || {} : {};
+    return r.ok ? (await r.json()).external || {} : null;
   } catch {
-    return {};
+    return null;
   }
 }
 export const authEventCount = () => authEvents;

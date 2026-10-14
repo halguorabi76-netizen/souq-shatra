@@ -1,6 +1,6 @@
 import { theme } from '../core/state.js';
 import { route, start, setGuard, setNotFound, go, refresh, isCurrent, current } from '../core/router.js';
-import { load, session, onSession, isAdmin, signIn, signOut } from '../core/session.js';
+import { load, session, onSession, isAdmin, signIn, signOut, signInWithGoogle } from '../core/session.js';
 import { db, check, loading } from '../core/db.js';
 import { wireActions, pageActions, globalActions } from '../core/actions.js';
 import { html, render, formData } from '../core/dom.js';
@@ -75,7 +75,7 @@ function gate() {
   render(
     '#app',
     html`<div class="auth-wrap" style="margin-top:8vh"><div class="card"><div class="auth-logo"><img src="${LOGO}" alt=""><h1 style="margin:0">لوحة إدارة سوق الشطرة</h1><p class="muted" style="margin:0">${session.user ? 'هذا الحساب لا يملك صلاحية الإدارة.' : 'سجّل الدخول بحساب المدير'}</p></div>
-    ${session.user ? html`<p class="ltr" style="text-align:center">${session.user.email}</p><button class="btn btn-primary btn-block" data-action="logout">تبديل الحساب</button>` : html`<form data-admin-login><label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" required class="ltr" autocomplete="username"></label><label class="field"><span>كلمة المرور</span><input name="password" type="password" required class="ltr" autocomplete="current-password"></label><button class="btn btn-primary btn-block btn-lg">دخول</button></form>`}
+    ${session.user ? html`<p class="ltr" style="text-align:center">${session.user.email}</p><button class="btn btn-primary btn-block" data-action="logout">تبديل الحساب</button>` : html`<button class="btn btn-outline btn-block btn-lg" data-action="google"><b style="color:#4285f4">G</b> الدخول باستخدام Google</button><div class="or">أو</div><form data-admin-login><label class="field"><span>البريد الإلكتروني</span><input name="email" type="email" required class="ltr" autocomplete="username"></label><label class="field"><span>كلمة المرور</span><input name="password" type="password" required class="ltr" autocomplete="current-password"></label><button class="btn btn-primary btn-block btn-lg">دخول</button></form>`}
     <p style="text-align:center;margin-top:14px"><a href="index.html">العودة إلى السوق</a></p></div></div>`,
   );
   document.querySelector('[data-admin-login]')?.addEventListener('submit', (e) => {
@@ -86,9 +86,9 @@ function gate() {
       await load();
     });
   });
-  actions();
+  actions({ google: (b) => busy(b, () => signInWithGoogle()) });
 }
-const page = (title, fn) => async (ctx) => {
+const page =(title, fn) => async (ctx) => {
   if (!isAdmin()) return gate();
   const body = adminShell();
   wsTitle(title, html`<button class="btn btn-outline btn-sm" data-action="reload">${icon('refresh', 16)} تحديث</button>`);
@@ -222,6 +222,7 @@ let started = false;
 onSession(() => started && refresh());
 (async () => {
   await load().catch(console.error);
+  if (location.hash.startsWith('#access_token') || location.hash.startsWith('#error')) history.replaceState(null, '', location.pathname + '#/');
   await start();
   started = true;
 })();
