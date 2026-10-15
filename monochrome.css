@@ -238,3 +238,16 @@ html[data-shatra-ui][data-theme] body .buyer-floating:active{transform:scale(.9)
 html[data-shatra-ui][data-theme] body .buyer-floating:hover{transform:translateY(-2px)!important;box-shadow:0 10px 24px rgba(16,31,72,.3)!important}
 html[data-shatra-ui][data-theme] body .buyer-floating #cc:not([hidden]){animation:cartBadge .5s cubic-bezier(.3,1.6,.5,1)}
 @keyframes cartBadge{0%{transform:scale(.4)}100%{transform:scale(1)}}
+
+/* ---------- Wordmark and text in indigo, not black (requested) ---------- */
+html[data-shatra-ui][data-theme=light]{--ink:#1e2d6b;--ink-soft:#56648f;--mut:#56648f}
+/* «سوٯ» (dotless qaf) sits above «الشطرة», as in the calligraphy logo */
+html[data-shatra-ui][data-theme] body .header-brand-name{flex-direction:column!important;align-items:flex-start!important;gap:0!important}
+html[data-shatra-ui][data-theme] body .header-brand-name::before{content:'سوٯ'!important;font-family:'Aref Ruqaa','Amiri',serif!important;font-size:17px!important;line-height:1!important;transform:none!important;margin:0 4px -5px 0;color:#5b6fd1!important}
+html[data-shatra-ui][data-theme] body .header-brand-name::after{color:#3547a5!important;font-family:'Aref Ruqaa','Amiri',serif!important}
+html[data-shatra-ui][data-theme=dark] body .header-brand-name::before{color:#b8c3ff!important}
+html[data-shatra-ui][data-theme=dark] body .header-brand-name::after{color:#9cacfa!important}
+/* Section titles («تسوّق حسب القسم» …) and page headings in indigo */
+html[data-shatra-ui][data-theme=light] body :is(.section-title h2,.section-title h3,.section-title strong,main h1,main h2,.flow-heading h1,.flow-heading h2,.flow-heading strong){color:#3547a5!important}
+html[data-shatra-ui][data-theme=dark] body :is(.section-title h2,.section-title h3,.section-title strong,main h1,main h2,.flow-heading h1,.flow-heading h2,.flow-heading strong){color:#b8c3ff!important}
+html[data-shatra-ui][data-theme] body .figma-hero :is(h1,h2){color:#fff!important}
