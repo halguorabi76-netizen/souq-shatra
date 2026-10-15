@@ -55,7 +55,7 @@ const root=path.resolve(__dirname,'..');
    await frame.locator('#accountTrigger').click();await frame.locator('.profile-page').waitFor();
    assert.ok(await frame.locator('.profile-detail').count());
    assert.ok(await frame.evaluate(()=>document.documentElement.scrollWidth)<=width+1,`profile overflow at ${width}`);
-   assert.equal(await frame.locator('.profile-hero .portrait').evaluate(e=>getComputedStyle(e).color),await frame.evaluate(()=>document.documentElement.dataset.theme==='dark'?'rgb(245, 244, 241)':'rgb(29, 26, 21)'),'portrait uses the monochrome ink of the active theme');
+   assert.equal(await frame.locator('.profile-hero .portrait').evaluate(e=>getComputedStyle(e).color),await frame.evaluate(()=>document.documentElement.dataset.theme==='dark'?'rgb(156, 172, 250)':'rgb(53, 71, 165)'),'portrait uses the monochrome ink of the active theme');
    if(process.env.SOUQ_CAPTURE)await page.screenshot({path:path.join(process.env.SOUQ_CAPTURE,`figma-profile-${width}.png`)});
    // Real role gates/data still own the seller/driver views.
    for(const role of ['seller','driver']){

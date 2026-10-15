@@ -9,7 +9,7 @@ test('customer navigation keeps four destinations and an inactive media placehol
  assert.match(read('market-drawer.js'),/data-v="settings"/);
 });
 test('supplied app icons are used and interaction confirmations follow stored changes',()=>{
- const manifest=JSON.parse(read('manifest.webmanifest'));assert.equal(manifest.background_color,'#3a332c');assert.ok(manifest.icons.every(i=>i.src.includes('shatra-map-')));assert.ok(manifest.icons.some(i=>i.purpose==='maskable'));
+ const manifest=JSON.parse(read('manifest.webmanifest'));assert.equal(manifest.background_color,'#24357f');assert.ok(manifest.icons.every(i=>i.src.includes('shatra-map-')));assert.ok(manifest.icons.some(i=>i.purpose==='maskable'));
  const main=read('index.html');assert.doesNotMatch(main,/brand-classic-purple/);assert.match(main,/if\(await activity.react\(v,'favorite'\)\)/);
  assert.match(read('interaction-motion.js'),/count>cartCount/);assert.match(read('visual-identity.css'),/prefers-reduced-motion:reduce/);
  assert.match(read('market-drawer.js'),/root.inert=true/);
