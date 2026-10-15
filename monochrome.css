@@ -271,3 +271,7 @@ html[data-shatra-ui][data-theme] body .wa-status{display:flex;justify-content:ce
 html[data-shatra-ui][data-theme] body .wa-dot{width:9px;height:9px;border-radius:50%;background:#1fa855;animation:waPulse 1.2s ease-in-out infinite}
 @keyframes waPulse{50%{opacity:.25;transform:scale(.7)}}
 html[data-shatra-ui][data-theme] body .wa-note{margin:0;color:var(--ink-soft);font-size:12.5px;text-align:center}
+/* Messages stay above open sheets (sign-in, cart, product) */
+html[data-shatra-ui] body #toast{z-index:1000!important}
+html[data-shatra-ui][data-theme] body .wa-msg{margin:-2px 0 12px;padding:10px 12px;border-radius:12px;background:#fff4e5;color:#8a4b00;font-size:13.5px;text-align:center}
+html[data-shatra-ui][data-theme=dark] body .wa-msg{background:#3a2a12;color:#ffd59a}
