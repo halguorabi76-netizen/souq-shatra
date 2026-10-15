@@ -1,5 +1,5 @@
 // Read-only presentation of records already authorized by the database policies.
-export const ADMIN_SECTIONS=[['overview','الرئيسية','▦'],['customers','الزبائن','♙'],['sellers','التجار','▤'],['drivers','سائقو التوصيل','◇'],['activity','الطلبات','≡'],['products','المنتجات','□'],['catalog','الفئات والخصائص','▧'],['inventory','المخزون','▥'],['notifications','الموافقات والتسويات','✓']];
+export const ADMIN_SECTIONS=[['overview','الرئيسية','▦'],['customers','الزبائن','♙'],['sellers','التجار','▤'],['drivers','سائقو التوصيل','◇'],['activity','الطلبات','≡'],['products','المنتجات','□'],['catalog','الفئات والخصائص','▧'],['inventory','المخزون','▥'],['notifications','الموافقات والتسويات','✓'],['whatsapp','الدخول عبر واتساب','✆']];
 export function adminGroups(data){
  const sellers=new Set(data.m.map(m=>m.owner_id)),drivers=new Set([...(data.drivers||[]).map(w=>w.user_id),...(data.driverProfiles||[]).map(w=>w.user_id)]);
  return {customers:data.people.filter(p=>p.role!=='admin'&&p.role!=='seller'&&p.role!=='driver'&&!sellers.has(p.id)&&!drivers.has(p.id)),sellers:data.m,drivers:[...drivers].map(id=>({...(data.drivers||[]).find(w=>w.user_id===id),user_id:id,details:(data.driverProfiles||[]).find(w=>w.user_id===id)}))};
@@ -23,6 +23,8 @@ export function renderAdminWorkspace(ctx){
  const pending=D.m.filter(m=>!m.ok&&!m.removed),pendingDrivers=g.drivers.filter(w=>!w.approved),pendingPayments=payments.filter(p=>p.status==='pending'),done=D.o.filter(o=>o.st===3);
  const titles=Object.fromEntries(ADMIN_SECTIONS.map(([k,t])=>[k,t]));
  let h=`<div class="admin-layout"><aside class="admin-sidebar"><span class="admin-nav-label">إدارة السوق</span><nav aria-label="أقسام الإدارة">${ADMIN_SECTIONS.map(([k,t,i])=>`<button data-a="adminTab" data-v="${k}" ${s.tab===k?'aria-current="page"':''}><span aria-hidden="true">${i}</span>${t}</button>`).join('')}</nav><div class="admin-preview-tools"><span class="admin-nav-label">أدوات المعاينة المعزولة</span>${[['buyer','الزبون','♙'],['seller','التاجر','▤'],['driver','السائق','◇']].map(([k,t,i])=>`<a href="admin.html?section=preview&role=${k}" title="معاينة واجهة ${t}"><span aria-hidden="true">${i}</span>${t}</a>`).join('')}<small>تجربة محلية بلا تسجيل دخول</small></div></aside><div class="admin-main"><div class="admin-page-title"><div><small>سوق الشطرة / الإدارة</small><h1>${titles[s.tab]||'الرئيسية'}</h1><p>إدارة الحسابات والطلبات من مكان واحد</p></div><button data-a="adminRefresh">↻ تحديث البيانات</button></div>`;
+ const wa=ctx.whatsapp;
+ if(wa&&!wa.error&&!wa.enabled&&s.tab!=='whatsapp'&&!s.detail)h+=`<div class="admin-wa-notice" role="alert"><span aria-hidden="true">✆</span><div><b>الدخول عبر واتساب غير مفعّل</b><small>الزبائن يرون زر واتساب لكنه لا يعمل حتى تكمل التفعيل.</small></div>${btn('adminTab','whatsapp','فعّله الآن ‹','go')}</div>`;
  if(s.detail){
   h+=btn('adminBack','','‹ العودة إلى القائمة','admin-back');
   if(s.detail.kind==='order'){
@@ -67,6 +69,16 @@ export function renderAdminWorkspace(ctx){
   }).join(''):empty())+'</div>';
  }else if(s.tab==='products'||s.tab==='inventory')h+=section(titles[s.tab],products(D.p));
  else if(s.tab==='catalog')h+=ctx.catalog?.()||empty('لا توجد فئات.');
+ else if(s.tab==='whatsapp'){
+  if(!wa)h+=empty('جارٍ تحميل حالة الدخول عبر واتساب…');
+  else if(wa.error)h+=section('الدخول عبر واتساب',`<p class="admin-alert">${E(wa.error)}</p>${btn('waAdminReload','','إعادة المحاولة')}`);
+  else{
+   const copy=(label,value)=>`<div class="admin-wa-copy"><small>${label}</small><code dir="ltr">${E(value)}</code>${btn('waAdminCopy',value,'نسخ')}</div>`;
+   h+=section('الدخول عبر واتساب',`<p>${pill(wa.enabled?'مفعّل':'غير مفعّل',wa.enabled)} ${wa.last_webhook_at?pill('وصلت رسائل من واتساب',true):pill('لم تصل أي رسالة من واتساب بعد')}</p><p class="note">الزبون يرسل رمزًا من واتساب الخاص به إلى رقم سوق الشطرة، فيدخل تلقائيًا. استقبال الرسائل مجاني في واتساب، فلا تدفع شيئًا.</p><dl class="admin-fields">${field('رقم واتساب سوق الشطرة',wa.number?'+'+wa.number:'')}${field('المفتاح السري لتطبيق Meta',wa.has_secret?'محفوظ ✓':'')}${field('آخر رسالة وصلت من واتساب',wa.last_webhook_at?W(wa.last_webhook_at):'')}${field('آخر دخول عبر واتساب',wa.last_login_at?W(wa.last_login_at):'')}</dl>`);
+   h+=section('خطوات التفعيل (مرة واحدة)',`<ol class="admin-wa-steps"><li>افتح <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener">developers.facebook.com/apps</a> وسجّل الدخول بحساب فيسبوك، ثم اضغط <b>Create App</b> واختر حالة الاستخدام <b>Connect with customers through WhatsApp</b>.</li><li>من قائمة التطبيق: <b>WhatsApp ‹ API Setup</b>، أضف رقم هاتف سوق الشطرة وأكّده برسالة التحقق.</li><li>من <b>App settings ‹ Basic</b> انسخ <b>App secret</b> والصقه في الحقل بالأسفل.</li><li>من <b>WhatsApp ‹ Configuration ‹ Webhook</b> اضغط <b>Edit</b> والصق القيمتين التاليتين، ثم اضغط <b>Verify and save</b>:${copy('Callback URL',ctx.webhookUrl||'')}${copy('Verify token',wa.verify_token||'')}</li><li>في نفس الصفحة، بجانب <b>messages</b> اضغط <b>Subscribe</b>.</li><li>اكتب الرقم والمفتاح بالأسفل واضغط حفظ. عندما يظهر «مفعّل» جرّب الدخول من الموقع.</li></ol>`);
+   h+=section('رقم واتساب والمفتاح السري',`<form id="waAdminForm" class="admin-wa-form"><label for="waNumber">رقم واتساب سوق الشطرة</label><input id="waNumber" type="tel" dir="ltr" inputmode="tel" placeholder="07xxxxxxxxx" value="${E(wa.number?'0'+String(wa.number).replace(/^964/,''):'')}"><label for="waSecret">App secret من Meta ${wa.has_secret?'<small>(محفوظ؛ اتركه فارغًا للإبقاء عليه)</small>':''}</label><input id="waSecret" type="password" dir="ltr" autocomplete="off" spellcheck="false" placeholder="${wa.has_secret?'••••••••':'الصق App secret هنا'}"><button class="go" type="submit">حفظ وتفعيل</button></form>`);
+  }
+ }
  else if(s.tab==='activity'){
   h+=`<div class="admin-list-filters">${[['all','الكل'],['new','الجديدة'],['accepted','قيد التجهيز'],['delivery','التوصيل'],['delivered','المكتملة'],['cancelled','الملغاة']].map(([k,t])=>`<button data-a="adminListFilter" data-v="${k}" aria-pressed="${s.filter===k}">${t}</button>`).join('')}</div>`;
   h+=orders(D.o.filter(o=>s.filter==='all'||o.st===['new','accepted','delivery','delivered','cancelled'].indexOf(s.filter)));
