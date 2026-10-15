@@ -20,13 +20,23 @@ export function codeIn(text) {
 export const localPhone = (phone) => phone.startsWith('964') ? '0' + phone.slice(3) : phone;
 export const accountEmail = (phone) => 'wa' + phone + '@phone.souq-shatra.invalid';
 
-export function createHandler({ url, anonKey, serviceKey, number, verifyToken, appSecret, fetcher = fetch }) {
+// Number, webhook token and Meta app secret come from the admin page (database), with optional env fallbacks.
+export function createHandler({ url, anonKey, serviceKey, number: envNumber, verifyToken: envToken, appSecret: envSecret, fetcher = fetch }) {
  const service = { apikey: serviceKey, Authorization: 'Bearer ' + serviceKey, 'Content-Type': 'application/json' };
  const rpc = async (name, args) => {
   const r = await fetcher(url + '/rest/v1/rpc/' + name, { method: 'POST', headers: service, body: JSON.stringify(args) });
   if (!r.ok) throw new Error('rpc ' + name);
   return r.json();
  };
+ let cached = null;
+ const config = async () => {
+  if (cached && Date.now() - cached.at < 30000) return cached;
+  let stored = {};
+  try { stored = (await rpc('whatsapp_login_config', {})) || {}; } catch { /* keep env fallbacks */ }
+  cached = { at: Date.now(), number: String(stored.number || envNumber || '').replace(/\D/g, ''), verifyToken: stored.verify_token || envToken || '', appSecret: stored.app_secret || envSecret || '' };
+  return cached;
+ };
+ const seen = kind => rpc('whatsapp_login_seen', { p_kind: kind }).catch(() => {});
  async function session(found) {
   const phone = found.phone, email = found.email || accountEmail(phone);
   if (!found.user_id) {
@@ -44,20 +54,23 @@ export function createHandler({ url, anonKey, serviceKey, number, verifyToken, a
   if (!verified.ok) throw new Error('verify');
   const tokens = await verified.json();
   if (!tokens.access_token || !tokens.refresh_token) throw new Error('tokens');
+  await seen('login');
   return { status: 'verified', access_token: tokens.access_token, refresh_token: tokens.refresh_token };
  }
  return async (req) => {
   const reqUrl = new URL(req.url);
   // Meta's one-time webhook check.
   if (req.method === 'GET') {
+   const { verifyToken } = await config();
    const ok = verifyToken && reqUrl.searchParams.get('hub.mode') === 'subscribe' && sameText(reqUrl.searchParams.get('hub.verify_token') || '', verifyToken);
    return new Response(ok ? reqUrl.searchParams.get('hub.challenge') || '' : 'forbidden', { status: ok ? 200 : 403 });
   }
   // Incoming WhatsApp messages from Meta, signed with the app secret.
   const signature = req.headers.get('x-hub-signature-256');
   if (signature !== null) {
-   const raw = await req.text();
+   const raw = await req.text(), { appSecret } = await config();
    if (!appSecret || !sameText(signature, 'sha256=' + await hmac(appSecret, raw))) return new Response('bad signature', { status: 401 });
+   await seen('webhook');
    try {
     for (const entry of JSON.parse(raw).entry || []) for (const change of entry.changes || []) for (const message of change.value?.messages || []) {
      const code = codeIn(message.text?.body), phone = String(message.from || '');
@@ -79,7 +92,8 @@ export function createHandler({ url, anonKey, serviceKey, number, verifyToken, a
    if (text.length > 2048) return reply({ code: 'invalid' }, 400);
    const body = JSON.parse(text);
    if (body.action === 'start') {
-    if (!/^[0-9]{8,15}$/.test(number || '')) return reply({ code: 'not_configured' }, 503);
+    const { number, appSecret } = await config();
+    if (!appSecret || !/^[0-9]{8,15}$/.test(number || '')) return reply({ code: 'not_configured' }, 503);
     const secret = randomHex(), clientKey = await sha256(req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown');
     const started = await rpc('whatsapp_login_start', { p_secret_hash: await sha256(secret), p_client_key: clientKey });
     if (started.limited) return reply({ code: 'rate_limited' }, 429);

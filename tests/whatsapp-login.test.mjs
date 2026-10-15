@@ -5,6 +5,7 @@ import {createHmac} from 'node:crypto';
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink} from '../whatsapp-login.js';
 const {createHandler,codeIn,localPhone}=await import('data:text/javascript;base64,'+Buffer.from(readFileSync(new URL('../supabase/functions/whatsapp-login/index.ts',import.meta.url),'utf8')).toString('base64'));
 const site='https://halguorabi76-netizen.github.io';
+const rpcCall=(f,name)=>f.calls.filter(c=>c.url.endsWith('/rpc/'+name));
 const fixture=(rpc={})=>{
  const calls=[];
  const handler=createHandler({url:'https://db.invalid',anonKey:'public',serviceKey:'server-only',number:'9647837271707',verifyToken:'hook-token',appSecret:'app-secret',fetcher:async(url,options)=>{calls.push({url,...options,body:options.body&&JSON.parse(options.body)});
@@ -25,14 +26,21 @@ test('code reader accepts the prepared message and Arabic-Indic digits only as a
 test('start returns a code, a browser-only secret and the business number; the database stores only the secret hash',async()=>{
  const f=fixture({whatsapp_login_start:{code:'482913'}});const r=await f.site({action:'start'});assert.equal(r.status,200);const body=await r.json();
  assert.equal(body.code,'482913');assert.equal(body.number,'9647837271707');assert.match(body.secret,/^[0-9a-f]{64}$/);assert.equal(r.headers.get('cache-control'),'no-store');
- assert.match(f.calls[0].body.p_secret_hash,/^[0-9a-f]{64}$/);assert.notEqual(f.calls[0].body.p_secret_hash,body.secret);assert.equal(f.calls[0].headers.Authorization,'Bearer server-only');
+ const started=rpcCall(f,'whatsapp_login_start')[0];assert.match(started.body.p_secret_hash,/^[0-9a-f]{64}$/);assert.notEqual(started.body.p_secret_hash,body.secret);assert.equal(started.headers.Authorization,'Bearer server-only');
  const limited=fixture({whatsapp_login_start:{limited:true}});assert.equal((await limited.site({action:'start'})).status,429);
 });
 test('only messages signed by Meta confirm a code, using the real sender number',async()=>{
  const f=fixture();assert.equal((await f.meta(message('9647801234567','رمز الدخول إلى سوق الشطرة: 482913'))).status,200);
- assert.deepEqual(f.calls[0].body,{p_code:'482913',p_phone:'9647801234567'});
- const forged=fixture();assert.equal((await forged.meta(message('9647801234567','482913'),'wrong')).status,401);assert.equal(forged.calls.length,0);
- const noise=fixture();await noise.meta(message('9647801234567','مرحبا'));assert.equal(noise.calls.length,0);
+ assert.deepEqual(rpcCall(f,'whatsapp_login_confirm')[0].body,{p_code:'482913',p_phone:'9647801234567'});assert.deepEqual(rpcCall(f,'whatsapp_login_seen')[0].body,{p_kind:'webhook'});
+ const forged=fixture();assert.equal((await forged.meta(message('9647801234567','482913'),'wrong')).status,401);assert.equal(rpcCall(forged,'whatsapp_login_confirm').length+rpcCall(forged,'whatsapp_login_seen').length,0);
+ const noise=fixture();await noise.meta(message('9647801234567','مرحبا'));assert.equal(rpcCall(noise,'whatsapp_login_confirm').length,0);
+});
+test('number, webhook token and secret saved from the admin page are used; nothing saved means not activated',async()=>{
+ const f=fixture({whatsapp_login_config:{number:'9647700000001',verify_token:'from-admin',app_secret:'admin-secret-0123456789'},whatsapp_login_start:{code:'111111'}});
+ assert.equal((await (await f.site({action:'start'})).json()).number,'9647700000001');
+ assert.equal(await (await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=from-admin&hub.challenge=7'))).text(),'7');
+ const {createHandler:make}={createHandler};const empty=make({url:'https://db.invalid',anonKey:'a',serviceKey:'s',fetcher:async u=>Response.json(u.includes('whatsapp_login_config')?{number:null,verify_token:'t',app_secret:null}:true)});
+ const r=await empty(new Request('https://edge.invalid',{method:'POST',headers:{Origin:site},body:'{"action":"start"}'}));assert.equal(r.status,503);assert.deepEqual(await r.json(),{code:'not_configured'});
 });
 test('Meta webhook verification answers the challenge only with the right token',async()=>{
  const f=fixture();const ok=await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=hook-token&hub.challenge=42'));assert.equal(await ok.text(),'42');

@@ -1,0 +1,11 @@
+/* WhatsApp sign-in activation */
+.admin-wa-notice{display:flex;align-items:center;gap:12px;margin:0 0 16px;padding:14px 16px;border-radius:16px;background:#fff4e5;border:1px solid #f3c98b;color:#5c3700}
+.admin-wa-notice>span{display:grid;place-items:center;flex:0 0 40px;height:40px;border-radius:50%;background:#1fa855;color:#fff;font-size:20px}
+.admin-wa-notice>div{flex:1;display:grid;gap:3px}.admin-wa-notice small{color:#7a5a2e}
+.admin-wa-notice button{flex:0 0 auto;white-space:nowrap}
+.admin-wa-steps{display:grid;gap:12px;margin:0;padding-inline-start:22px;line-height:1.8}
+.admin-wa-steps a{color:#1f6fd1;text-decoration:underline}
+.admin-wa-copy{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 10px;margin:8px 0;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.04)}
+.admin-wa-copy small{grid-column:1/-1;opacity:.75}.admin-wa-copy code{overflow-wrap:anywhere;font-size:13px}
+.admin-wa-form{display:grid;gap:8px;max-width:480px}.admin-wa-form input{height:46px}.admin-wa-form button{margin-top:8px}
+@media (prefers-color-scheme:dark){.admin-wa-notice{background:#3a2a12;border-color:#6b4a1c;color:#ffd59a}.admin-wa-notice small{color:#e9c58f}.admin-wa-copy{background:rgba(255,255,255,.06)}}

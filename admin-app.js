@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=172";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=170";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=109";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=173";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=172";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -509,10 +509,19 @@ function renderAdminPortal(){
  tab='admin';admin();
 }
 
+// WhatsApp sign-in status for the admin notice and activation page.
+let waAdmin=null,waAdminLoading=false;
+async function loadWaAdmin(){
+ if(waAdminLoading)return;waAdminLoading=true;
+ try{const r=await db.rpc('admin_whatsapp_login_status');waAdmin=r.error?{error:'تعذّر تحميل حالة واتساب. إذا كانت هذه أول مرة، تأكد من تحديث قاعدة البيانات.'}:r.data}catch{waAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{waAdminLoading=false}
+ if(tab==='admin')admin();
+}
 function admin(){
  if(!ADMIN_PORTAL){location.assign('admin.html');return}
  if(profile?.disabled||profile?.role!=='admin')return;
- $('#view').innerHTML=renderAdminWorkspace({data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ if(!waAdmin)loadWaAdmin();
+ $('#view').innerHTML=renderAdminWorkspace({data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ $('#waAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.waAdminSave()});
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
@@ -872,6 +881,9 @@ const A={
   adminVerifyStore:v=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const m=mrec(v);if(!m)return;check(await db.from('stores').update({verified:!m.verified}).eq('id',v).select('id').single());await refresh();toast('تم تحديث حالة توثيق المتجر')}),
   adminDetail:v=>{if(profile?.role!=='admin'||profile?.disabled)return;const [kind,id]=v.split('|');adminDetail={kind,id};admin();scrollTo(0,0)},
   adminBack:()=>{adminDetail=null;admin();scrollTo(0,0)},
+  waAdminReload:()=>{waAdmin=null;admin()},
+  waAdminCopy:v=>{navigator.clipboard?.writeText(v).then(()=>toast('تم النسخ'),()=>toast('انسخه يدويًا'))||toast('انسخه يدويًا')},
+  waAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const number=val('waNumber'),secret=val('waSecret');if(number.replace(/\D/g,'').length<10){toast('اكتب رقم واتساب سوق الشطرة');$('#waNumber')?.focus();return}if(!waAdmin?.has_secret&&secret.length<16){toast('الصق App secret من صفحة Meta');$('#waSecret')?.focus();return}waAdmin=check(await db.rpc('admin_save_whatsapp_login',{p_number:number,p_app_secret:secret||null}));admin();toast(waAdmin.enabled?'تم الحفظ — الدخول عبر واتساب مفعّل':'تم الحفظ')}),
   adminRefresh:()=>act(async()=>{await refresh();toast('تم تحديث البيانات')}),
   adminOrder:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminDetail={kind:'order',id:v};admin();scrollTo(0,0)},
   adminDriverAsk:v=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;ask(w.approved?'إيقاف السائق عن قبول طلبات جديدة؟ ستبقى طلباته السابقة محفوظة.':'الموافقة على تسجيل هذا السائق؟','approveDriver',v)},

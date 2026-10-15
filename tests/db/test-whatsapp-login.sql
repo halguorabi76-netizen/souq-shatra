@@ -37,3 +37,23 @@ select pg_temp.ok(public.whatsapp_login_claim((select v from t_wa where k='c3'),
 select public.whatsapp_login_start(repeat('e',64),'ip3') from generate_series(1,5);
 select pg_temp.ok((public.whatsapp_login_start(repeat('e',64),'ip3')->>'limited')::boolean,'sixth start is rate limited');
 reset role;
+
+-- Admin activation: only the admin saves; the secret is never returned; the edge function reads it.
+create or replace function pg_temp.as_user(u uuid) returns void language plpgsql as $$
+begin perform set_config('request.jwt.claim.sub',coalesce(u::text,''),false); perform set_config('role',case when u is null then 'postgres' else 'authenticated' end,false); end $$;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+do $$begin perform public.admin_save_whatsapp_login('07837271707','x'); raise exception 'buyer saved'; exception when others then if sqlerrm like 'buyer saved%' then raise; end if; end$$;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+select pg_temp.ok(not (public.admin_whatsapp_login_status()->>'enabled')::boolean,'starts disabled');
+select pg_temp.ok(public.admin_save_whatsapp_login('0783 727 1707','0123456789abcdef0123456789abcdef')->>'number'='9647837271707','admin saves local number in international form');
+select pg_temp.ok((public.admin_whatsapp_login_status()->>'enabled')::boolean,'number and secret enable it');
+select pg_temp.ok(public.admin_whatsapp_login_status()::text not like '%0123456789abcdef%','secret never returned to the browser');
+select public.admin_save_whatsapp_login('9647837271707','');
+select pg_temp.as_user(null);
+set role service_role;
+select pg_temp.ok(public.whatsapp_login_config()->>'app_secret'='0123456789abcdef0123456789abcdef','empty secret keeps the stored one; edge function reads it');
+select public.whatsapp_login_seen('webhook');
+reset role;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+select pg_temp.ok(public.admin_whatsapp_login_status()->>'last_webhook_at' is not null,'admin sees that Meta reached the webhook');
+select pg_temp.as_user(null);
