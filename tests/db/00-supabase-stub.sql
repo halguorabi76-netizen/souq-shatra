@@ -12,7 +12,7 @@ create schema if not exists storage;
 create schema if not exists extensions;
 grant usage on schema public,auth,storage to anon,authenticated,service_role;
 
-create table auth.users(id uuid primary key default gen_random_uuid(), email text unique, raw_user_meta_data jsonb not null default '{}', created_at timestamptz default now());
+create table auth.users(id uuid primary key default gen_random_uuid(), email text unique, phone text unique, raw_user_meta_data jsonb not null default '{}', created_at timestamptz default now());
 create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
 create function auth.role() returns text language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claim.role',true),''),'anon')$$;
 grant execute on function auth.uid(),auth.role() to anon,authenticated,service_role;

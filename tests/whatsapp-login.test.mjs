@@ -1,0 +1,65 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHmac} from 'node:crypto';
+import {startWhatsappLogin,claimWhatsappLogin,whatsappLink} from '../whatsapp-login.js';
+const {createHandler,codeIn,localPhone}=await import('data:text/javascript;base64,'+Buffer.from(readFileSync(new URL('../supabase/functions/whatsapp-login/index.ts',import.meta.url),'utf8')).toString('base64'));
+const site='https://halguorabi76-netizen.github.io';
+const fixture=(rpc={})=>{
+ const calls=[];
+ const handler=createHandler({url:'https://db.invalid',anonKey:'public',serviceKey:'server-only',number:'9647837271707',verifyToken:'hook-token',appSecret:'app-secret',fetcher:async(url,options)=>{calls.push({url,...options,body:options.body&&JSON.parse(options.body)});
+  if(url.includes('/rpc/'))return Response.json(rpc[url.split('/rpc/')[1]]??true);
+  if(url.endsWith('/admin/generate_link'))return Response.json({hashed_token:'hash-1'});
+  if(url.endsWith('/verify'))return Response.json({access_token:'access',refresh_token:'refresh'});
+  return Response.json({id:'new-user'});}});
+ const site_=body=>handler(new Request('https://edge.invalid',{method:'POST',headers:{Origin:site,'Content-Type':'application/json'},body:JSON.stringify(body)}));
+ const meta=(payload,secret='app-secret')=>{const raw=JSON.stringify(payload);return handler(new Request('https://edge.invalid',{method:'POST',headers:{'X-Hub-Signature-256':'sha256='+createHmac('sha256',secret).update(raw).digest('hex')},body:raw}))};
+ return {calls,handler,site:site_,meta};
+};
+const message=(from,body)=>({entry:[{changes:[{value:{messages:[{from,type:'text',text:{body}}]}}]}]});
+
+test('code reader accepts the prepared message and Arabic-Indic digits only as a whole 6-digit code',()=>{
+ assert.equal(codeIn('رمز الدخول إلى سوق الشطرة: 482913'),'482913');assert.equal(codeIn('رمز ٤٨٢٩١٣'),'482913');assert.equal(codeIn('07801234567'),null);assert.equal(codeIn(null),null);assert.equal(localPhone('9647801234567'),'07801234567');
+ assert.equal(whatsappLink('9647837271707','482913'),'https://wa.me/9647837271707?text='+encodeURIComponent('رمز الدخول إلى سوق الشطرة: 482913'));
+});
+test('start returns a code, a browser-only secret and the business number; the database stores only the secret hash',async()=>{
+ const f=fixture({whatsapp_login_start:{code:'482913'}});const r=await f.site({action:'start'});assert.equal(r.status,200);const body=await r.json();
+ assert.equal(body.code,'482913');assert.equal(body.number,'9647837271707');assert.match(body.secret,/^[0-9a-f]{64}$/);assert.equal(r.headers.get('cache-control'),'no-store');
+ assert.match(f.calls[0].body.p_secret_hash,/^[0-9a-f]{64}$/);assert.notEqual(f.calls[0].body.p_secret_hash,body.secret);assert.equal(f.calls[0].headers.Authorization,'Bearer server-only');
+ const limited=fixture({whatsapp_login_start:{limited:true}});assert.equal((await limited.site({action:'start'})).status,429);
+});
+test('only messages signed by Meta confirm a code, using the real sender number',async()=>{
+ const f=fixture();assert.equal((await f.meta(message('9647801234567','رمز الدخول إلى سوق الشطرة: 482913'))).status,200);
+ assert.deepEqual(f.calls[0].body,{p_code:'482913',p_phone:'9647801234567'});
+ const forged=fixture();assert.equal((await forged.meta(message('9647801234567','482913'),'wrong')).status,401);assert.equal(forged.calls.length,0);
+ const noise=fixture();await noise.meta(message('9647801234567','مرحبا'));assert.equal(noise.calls.length,0);
+});
+test('Meta webhook verification answers the challenge only with the right token',async()=>{
+ const f=fixture();const ok=await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=hook-token&hub.challenge=42'));assert.equal(await ok.text(),'42');
+ assert.equal((await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=bad&hub.challenge=42'))).status,403);
+});
+test('a verified claim creates the phone account once and returns a session; pending claims touch nothing else',async()=>{
+ const pending=fixture({whatsapp_login_claim:{status:'pending'}});assert.deepEqual(await (await pending.site({action:'claim',code:'482913',secret:'a'.repeat(64)})).json(),{status:'pending'});assert.equal(pending.calls.length,1);
+ const f=fixture({whatsapp_login_claim:{status:'verified',phone:'9647801234567',user_id:null,email:null}});
+ const r=await f.site({action:'claim',code:'482913',secret:'a'.repeat(64)});assert.deepEqual(await r.json(),{status:'verified',access_token:'access',refresh_token:'refresh'});
+ const created=f.calls.find(c=>c.url.endsWith('/admin/users'));assert.equal(created.body.phone,'9647801234567');assert.equal(created.body.user_metadata.contact_phone,'07801234567');assert.match(created.body.email,/@phone\.souq-shatra\.invalid$/);
+ assert.equal(f.calls.find(c=>c.url.endsWith('/verify')).headers.apikey,'public');
+ const known=fixture({whatsapp_login_claim:{status:'verified',phone:'9647801234567',user_id:'u1',email:'me@mail.com'}});await known.site({action:'claim',code:'482913',secret:'a'.repeat(64)});
+ assert.equal(known.calls.some(c=>c.url.includes('/admin/users')),false);assert.equal(known.calls.find(c=>c.url.endsWith('/generate_link')).body.email,'me@mail.com');
+});
+test('foreign sites and malformed claims are refused',async()=>{
+ const f=fixture();const r=await f.handler(new Request('https://edge.invalid',{method:'POST',headers:{Origin:'https://evil.example'},body:'{"action":"start"}'}));assert.equal(r.status,403);
+ assert.equal((await f.site({action:'claim',code:'12',secret:'x'})).status,400);assert.equal(f.calls.length,0);
+});
+test('browser helper sets the session only after verification',async()=>{
+ const sessions=[];const db=answer=>({functions:{invoke:async()=>({data:answer,error:null})},auth:{setSession:async s=>{sessions.push(s);return {data:{user:{id:'u1'}},error:null}}}});
+ assert.deepEqual((await claimWhatsappLogin(db({status:'pending'}),'482913','a'.repeat(64))).data,{status:'pending'});assert.equal(sessions.length,0);
+ assert.equal((await claimWhatsappLogin(db({status:'verified',access_token:'a',refresh_token:'r'}),'482913','a'.repeat(64))).data.user.id,'u1');assert.deepEqual(sessions,[{access_token:'a',refresh_token:'r'}]);
+ assert.equal((await startWhatsappLogin({})).error.code,'not_configured');
+});
+test('customer login offers WhatsApp first; professionals keep their username login',()=>{
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ assert.match(html,/\$\{professional\?'':`<button type="button" class="auth-provider whatsapp" data-a="waLogin">/);assert.match(html,/waLogin:\(\)=>act\(/);assert.match(html,/claimWhatsappLogin\(db,r\.code,r\.secret\)/);
+ assert.match(readFileSync(new URL('../supabase/config.toml',import.meta.url),'utf8'),/\[functions\.whatsapp-login\]\nverify_jwt = false/);
+ assert.match(readFileSync(new URL('../sw.js',import.meta.url),'utf8'),/whatsapp-login\.js\?v=1/);
+});
