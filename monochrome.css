@@ -161,3 +161,20 @@ html[data-shatra-ui][data-theme] body .figma-hero::after{background:linear-gradi
 html[data-shatra-ui][data-theme] body .product-purchase .added,html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added{background:linear-gradient(135deg,#b39a86 0%,#7a5e49 100%)!important}
 html[data-shatra-ui][data-theme] body :is(.figma-store-card,.mp-store-card,.chip,.mp-switcher button,.qty,.alt,.desktop-shortcut){background:var(--surface)!important;border-color:var(--line)!important}
 html[data-shatra-ui][data-theme] body .tabs{background:var(--surface)!important}
+
+/* ---------- Indigo (requested): the site's earlier indigo replaces the beige/brown tones. Layout unchanged. ---------- */
+html[data-shatra-ui][data-theme=light]{
+ --ink:#0d1834;--ink-soft:#4e5d78;--mut:#4e5d78;--navy:#101f48;--paper:#f7f8fc;--bg:#f7f8fc;--scene-bg:#f7f8fc;--surface:#ffffff;--card:#ffffff;
+ --surface-2:#edf2f8;--line:#dce3ee;--mono-soft:#edf2f8;--mono-quiet:#8a96b0;--mono-btn:#3547a5;--accent:#3547a5;--icon-ink:#3547a5;
+ --warm-2:#3547a5;--warm-btn:linear-gradient(135deg,#3547a5 0%,#24357f 55%,#101f48 100%);--warm-tile:linear-gradient(160deg,#f1f4fb 0%,#e2e8f6 100%)
+}
+html[data-shatra-ui][data-theme=dark]{
+ --ink:#f3f6ff;--ink-soft:#b1bdd2;--mut:#b1bdd2;--paper:#080d1a;--bg:#080d1a;--scene-bg:#080d1a;--surface:#101827;--card:#101827;
+ --surface-2:#172135;--line:#26324a;--mono-soft:#172135;--mono-quiet:#7d8aa6;--accent:#9cacfa;--icon-ink:#9cacfa;
+ --warm-2:#9cacfa;--warm-btn:linear-gradient(135deg,#5b6fd1 0%,#3547a5 100%);--warm-tile:linear-gradient(160deg,#172135 0%,#101827 100%)
+}
+html[data-shatra-ui][data-theme] body .figma-hero{background:#101f48!important}
+html[data-shatra-ui][data-theme] body .figma-hero::after{background:linear-gradient(180deg,rgba(53,71,165,.3) 0%,rgba(36,53,127,.5) 45%,rgba(16,31,72,.9) 100%)!important}
+html[data-shatra-ui][data-theme] body :is(.buy,button.primary,.btn-primary,.figma-primary,.figma-add,.buyer-floating,.mp-discount){color:#fff!important}
+html[data-shatra-ui][data-theme] body .product-purchase .added,html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added{background:linear-gradient(135deg,#5b6fd1 0%,#3547a5 100%)!important}
+html[data-shatra-ui][data-theme] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme] body .tabs button[aria-current=page] .navicon{color:var(--warm-2)!important}
