@@ -259,3 +259,15 @@ html[data-shatra-ui][data-theme] body .tabs .offers-tab .navicon{display:grid!im
 html[data-shatra-ui][data-theme] body .tabs .offers-tab:active .navicon{transform:scale(.9)}
 html[data-shatra-ui][data-theme] body .tabs .offers-tab .navicon svg{width:24px;height:24px}
 html[data-shatra-ui][data-theme] body .offers-note{margin:0 0 12px;color:var(--ink-soft);font-size:13px}
+/* Free WhatsApp sign-in */
+html[data-shatra-ui][data-theme] body .auth-provider.whatsapp{width:100%;height:54px;margin:0 0 10px;border:0!important;border-radius:14px!important;background:#1fa855!important;color:#fff!important;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 6px 16px rgba(31,168,85,.28)}
+html[data-shatra-ui][data-theme] body .auth-provider.whatsapp svg,html[data-shatra-ui][data-theme] body .wa-open svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+html[data-shatra-ui][data-theme] body .wa-login{display:grid;gap:12px;padding:4px 0 8px}
+html[data-shatra-ui][data-theme] body .wa-step{display:flex;align-items:center;gap:10px;margin:0;color:var(--ink)}
+html[data-shatra-ui][data-theme] body .wa-step>b:first-child{display:grid;place-items:center;flex:0 0 26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px}
+html[data-shatra-ui][data-theme] body .wa-code{margin:6px auto;padding:12px 22px;border-radius:16px;background:var(--surface-2,#eef1fb);color:var(--accent);font:700 34px/1 ui-monospace,monospace;letter-spacing:8px;text-align:center}
+html[data-shatra-ui][data-theme] body #sheet .wa-login a.buy.wa-open{display:flex!important;justify-content:center;align-items:center;gap:10px;height:54px;border-radius:14px!important;background:#1fa855!important;color:#fff!important;font-weight:700;text-decoration:none}
+html[data-shatra-ui][data-theme] body .wa-status{display:flex;justify-content:center;align-items:center;gap:8px;margin:4px 0 0;color:var(--ink-soft)}
+html[data-shatra-ui][data-theme] body .wa-dot{width:9px;height:9px;border-radius:50%;background:#1fa855;animation:waPulse 1.2s ease-in-out infinite}
+@keyframes waPulse{50%{opacity:.25;transform:scale(.7)}}
+html[data-shatra-ui][data-theme] body .wa-note{margin:0;color:var(--ink-soft);font-size:12.5px;text-align:center}

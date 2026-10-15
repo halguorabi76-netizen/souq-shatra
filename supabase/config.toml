@@ -3,3 +3,7 @@ project_id = "nbktyynshqldyerqtjrd"
 # This pre-login endpoint verifies the submitted password with Supabase Auth.
 [functions.professional-login]
 verify_jwt = false
+
+# Free WhatsApp sign-in: Meta calls the webhook without a Supabase token (signature-checked inside).
+[functions.whatsapp-login]
+verify_jwt = false
