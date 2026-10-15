@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=172";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=170";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=173";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=174";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=172";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -883,7 +883,7 @@ const A={
   adminBack:()=>{adminDetail=null;admin();scrollTo(0,0)},
   waAdminReload:()=>{waAdmin=null;admin()},
   waAdminCopy:v=>{navigator.clipboard?.writeText(v).then(()=>toast('تم النسخ'),()=>toast('انسخه يدويًا'))||toast('انسخه يدويًا')},
-  waAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const number=val('waNumber'),secret=val('waSecret');if(number.replace(/\D/g,'').length<10){toast('اكتب رقم واتساب سوق الشطرة');$('#waNumber')?.focus();return}if(!waAdmin?.has_secret&&secret.length<16){toast('الصق App secret من صفحة Meta');$('#waSecret')?.focus();return}waAdmin=check(await db.rpc('admin_save_whatsapp_login',{p_number:number,p_app_secret:secret||null}));admin();toast(waAdmin.enabled?'تم الحفظ — الدخول عبر واتساب مفعّل':'تم الحفظ')}),
+  waAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const number=val('waNumber'),secret=val('waSecret').trim(),digits=number.replace(/\D/g,'');if(digits&&digits.length<10){toast('رقم واتساب غير مكتمل؛ اكتبه مثل 07xxxxxxxxx أو اتركه فارغًا الآن');$('#waNumber')?.focus();return}if(secret&&secret.length<16){toast('المفتاح السري قصير؛ انسخ App secret كاملًا من Meta');$('#waSecret')?.focus();return}if(!digits&&!secret){toast('الصق App secret أو اكتب رقم واتساب ثم اضغط حفظ');$('#waSecret')?.focus();return}waAdmin=check(await db.rpc('admin_save_whatsapp_login',{p_number:number,p_app_secret:secret||null}));admin();toast(waAdmin.enabled?'تم الحفظ — الدخول عبر واتساب مفعّل':waAdmin.has_secret&&!waAdmin.number?'تم حفظ المفتاح السري ✓ — أضف رقم واتساب بعد تسجيله في Meta':'تم الحفظ')}),
   adminRefresh:()=>act(async()=>{await refresh();toast('تم تحديث البيانات')}),
   adminOrder:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminDetail={kind:'order',id:v};admin();scrollTo(0,0)},
   adminDriverAsk:v=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;ask(w.approved?'إيقاف السائق عن قبول طلبات جديدة؟ ستبقى طلباته السابقة محفوظة.':'الموافقة على تسجيل هذا السائق؟','approveDriver',v)},
