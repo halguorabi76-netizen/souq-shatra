@@ -72,9 +72,18 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
    if (!appSecret || !sameText(signature, 'sha256=' + await hmac(appSecret, raw))) return new Response('bad signature', { status: 401 });
    await seen('webhook');
    try {
-    for (const entry of JSON.parse(raw).entry || []) for (const change of entry.changes || []) for (const message of change.value?.messages || []) {
-     const code = codeIn(message.text?.body), phone = String(message.from || '');
-     if (code && /^[0-9]{8,15}$/.test(phone)) await rpc('whatsapp_login_confirm', { p_code: code, p_phone: phone });
+    for (const entry of JSON.parse(raw).entry || []) for (const change of entry.changes || []) {
+     const contacts = change.value?.contacts || [];
+     console.log(JSON.stringify({ webhook: change.field, messages: (change.value?.messages || []).length, statuses: (change.value?.statuses || []).length }));
+     for (const message of change.value?.messages || []) {
+      // The sender's number: `from`, or the matching contact's wa_id when Meta omits it.
+      const contact = contacts.find(c => c.user_id && c.user_id === message.from_user_id) || contacts[0] || {};
+      const phone = [message.from, contact.wa_id].map(v => String(v || '').replace(/\D/g, '')).find(v => /^[0-9]{8,15}$/.test(v)) || '';
+      const code = codeIn(message.text?.body ?? message.button?.text ?? message.interactive?.button_reply?.title);
+      let linked = false;
+      if (code && phone) linked = await rpc('whatsapp_login_confirm', { p_code: code, p_phone: phone }).catch(() => 'rpc_error');
+      console.log(JSON.stringify({ webhook: 'message', type: message.type, has_code: !!code, has_phone: !!phone, from_keys: Object.keys(message).filter(k => /from|user/.test(k)), linked }));
+     }
     }
    } catch { /* Meta retries non-200 replies; a bad message must not cause a retry storm. */ }
    return new Response('ok');
