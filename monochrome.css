@@ -251,3 +251,11 @@ html[data-shatra-ui][data-theme=dark] body .header-brand-name::after{color:#9cac
 html[data-shatra-ui][data-theme=light] body :is(.section-title h2,.section-title h3,.section-title strong,main h1,main h2,.flow-heading h1,.flow-heading h2,.flow-heading strong){color:#3547a5!important}
 html[data-shatra-ui][data-theme=dark] body :is(.section-title h2,.section-title h3,.section-title strong,main h1,main h2,.flow-heading h1,.flow-heading h2,.flow-heading strong){color:#b8c3ff!important}
 html[data-shatra-ui][data-theme] body .figma-hero :is(h1,h2){color:#fff!important}
+
+/* Cart button on the left; «العروض» in the middle of the bottom bar (requested) */
+html[data-shatra-ui][data-theme] body .buyer-floating{inset-inline-start:auto!important;inset-inline-end:auto!important;left:16px!important;right:auto!important}
+html[data-shatra-ui][data-theme] body .tabs .offers-tab{color:var(--accent)!important;font-weight:700;cursor:pointer}
+html[data-shatra-ui][data-theme] body .tabs .offers-tab .navicon{display:grid!important;place-items:center;width:46px!important;height:46px!important;margin:-20px auto 2px!important;border-radius:50%!important;background:linear-gradient(135deg,#5b6fd1 0%,#3547a5 55%,#101f48 100%)!important;color:#fff!important;box-shadow:0 6px 16px rgba(53,71,165,.35)!important;transition:transform .18s cubic-bezier(.3,1.6,.5,1)}
+html[data-shatra-ui][data-theme] body .tabs .offers-tab:active .navicon{transform:scale(.9)}
+html[data-shatra-ui][data-theme] body .tabs .offers-tab .navicon svg{width:24px;height:24px}
+html[data-shatra-ui][data-theme] body .offers-note{margin:0 0 12px;color:var(--ink-soft);font-size:13px}

@@ -6,7 +6,7 @@
  if(document.documentElement.hasAttribute('data-portal'))return;
  const base=window.SouqMarketplace;if(!base)return;
  const paths={
-  media:'<path d="M3 10h18v10H3zM3 10l-1-5 18-3 1 5-18 3M7 4l3 4m4-5 3 4"/>',
+  media:'<path d="M3 10h18v10H3zM3 10l-1-5 18-3 1 5-18 3M7 4l3 4m4-5 3 4"/>',offer:'<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9Z"/><path d="m9 15 6-6"/><circle cx="9.5" cy="9.5" r=".7"/><circle cx="14.5" cy="14.5" r=".7"/>',
   trash:'<path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/>',
   bag:'<rect x="5" y="6" width="14" height="15" rx="3"/><path d="M8 6V4h8v2M8 10a4 4 0 0 0 8 0"/>',
   pin:'<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2"/>',

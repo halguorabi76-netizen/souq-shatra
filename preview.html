@@ -432,7 +432,7 @@ body.starting{background:#101f48!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=6">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=7">
 <style>
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#6f82e0 0%,#3547a5 35%,#16245a 75%,#070c1f 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
@@ -493,7 +493,7 @@ body.starting{overflow:hidden}
   <nav class="tabs" aria-label="التنقل">
     <button data-a="tab" data-v="profilePage"><span class="navicon">♙</span>حسابي</button>
     <button data-a="marketSection" data-v="materials"><span class="navicon">▦</span>الفئات</button>
-    <button class="media-placeholder" type="button" aria-label="الإعلام — قريباً" aria-disabled="true"><span class="navicon">▱</span></button>
+    <button class="media-placeholder offers-tab" type="button" data-a="offers" aria-label="العروض"><span class="navicon">%</span>العروض</button>
     <button data-a="marketSection" data-v="stores"><span class="navicon">⌂</span>المتاجر</button>
     <button data-a="tab" data-v="market"><span class="navicon">⌂</span>الرئيسية</button>
   </nav>
@@ -505,7 +505,7 @@ body.starting{overflow:hidden}
 
 <script src="account-access.js?v=89"></script>
 <script src="catalog-filter.js?v=62"></script>
-<script src="delivery-zones.js?v=165"></script><script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=161"></script>
+<script src="delivery-zones.js?v=165"></script><script src="marketplace.js?v=139"></script><script src="figma-ui.js?v=162"></script>
 
 
 <script type="module">
@@ -978,7 +978,7 @@ function render(){
   document.body.classList.toggle('profile-mode',tab==='profilePage');
   $('.tabs').hidden=tab==='welcome';
   const sellerView=canSell()&&viewMode==='seller';
-  if(!sellerView){$('.tabs').innerHTML=`<button data-a="tab" data-v="profilePage"><span class="navicon">${flowIcon('user')}</span>حسابي</button><button data-a="marketSection" data-v="materials"><span class="navicon">${flowIcon('grid')}</span>الفئات</button><button class="media-placeholder" type="button" aria-label="الإعلام — قريباً" aria-disabled="true"><span class="navicon">${flowIcon('media')}</span></button><button data-a="marketSection" data-v="stores"><span class="navicon">${flowIcon('store')}</span>المتاجر</button><button data-a="tab" data-v="market"><span class="navicon">${flowIcon('home')}</span>الرئيسية</button>`;}
+  if(!sellerView){$('.tabs').innerHTML=`<button data-a="tab" data-v="profilePage"><span class="navicon">${flowIcon('user')}</span>حسابي</button><button data-a="marketSection" data-v="materials"><span class="navicon">${flowIcon('grid')}</span>الفئات</button><button class="media-placeholder offers-tab" type="button" data-a="offers" aria-label="العروض"><span class="navicon">${flowIcon('offer')}</span>العروض</button><button data-a="marketSection" data-v="stores"><span class="navicon">${flowIcon('store')}</span>المتاجر</button><button data-a="tab" data-v="market"><span class="navicon">${flowIcon('home')}</span>الرئيسية</button>`;}
   let floating=$('#buyerFloating');if(!floating){floating=document.createElement('button');floating.id='buyerFloating';floating.className='buyer-floating';$('.app').append(floating)}floating.hidden=sellerView||viewMode==='driver'||tab==='welcome';floating.dataset.a='cart';floating.setAttribute('aria-label','فتح السلة');floating.innerHTML=flowIcon('cart')+`<i id="cc" ${n?'':'hidden'}>${n}</i>`;
   document.querySelectorAll('.tabs button[data-v]').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'profilePage':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
@@ -1560,6 +1560,8 @@ const A={
   notifications:()=>act(()=>activity.show()),
   reloadNotice:()=>act(()=>activity.poll()),
   react:v=>act(async()=>{const [id,kind]=v.split('|');if(await activity.react(id,kind))psheet()}),
+  // «العروض»: every discounted item on sale now, using the same discount rule as the card badges.
+  offers:()=>{const ui=window.SouqFigmaUI||window.SouqMarketplace,{products}=publicMarketplace(),list=products.filter(window.SouqMarketplace.discounted);sheet(head('العروض')+(list.length?'<p class="offers-note">'+list.length+' مادة بسعر مخفّض الآن</p>'+ui.productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()}):'<div class="empty">لا توجد عروض الآن. ستظهر هنا تخفيضات المتاجر فور نشرها.</div>'))},
   favorites:()=>act(async()=>{if(!user){A.enter('buyer');return}const body=()=>{const list=D.p.filter(p=>activity.favorites().includes(p.id)&&p.active&&!p.blocked);return list.length?window.SouqMarketplace.productCards(list,{esc,fmt,thumb,mname}):'<div class="empty">لم تضف مواد إلى المفضلة بعد.</div>'};sheet(head('المفضلة')+'<div id="favoritesBody">'+body()+'</div>');const target=$('#favoritesBody');await activity.poll();if(target?.isConnected)target.innerHTML=body();}),
   addentry:()=>{if(!canSell()){sellerRequest();return}if(!user){A.enter('seller');return}if(profile?.disabled){toast('هذا الحساب معطّل');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}if(ownStore.removed){toast('أزالت الإدارة هذا البائع من السوق');return}fsheet('')},
   close:closePage,
