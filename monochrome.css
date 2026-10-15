@@ -178,3 +178,63 @@ html[data-shatra-ui][data-theme] body .figma-hero::after{background:linear-gradi
 html[data-shatra-ui][data-theme] body :is(.buy,button.primary,.btn-primary,.figma-primary,.figma-add,.buyer-floating,.mp-discount){color:#fff!important}
 html[data-shatra-ui][data-theme] body .product-purchase .added,html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added{background:linear-gradient(135deg,#5b6fd1 0%,#3547a5 100%)!important}
 html[data-shatra-ui][data-theme] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme] body .tabs button[aria-current=page] .navicon{color:var(--warm-2)!important}
+
+/* ---------- Compact header, calligraphy wordmark, compact cards, store squares (requested) ---------- */
+/* Header: lower bar; no menu button; only the theme toggle remains on the left */
+html[data-shatra-ui][data-theme] body .topline{min-height:0!important;height:auto!important;padding-block:6px 2px!important}
+html[data-shatra-ui][data-theme] body #marketMenuToggle,html[data-shatra-ui][data-theme] body .topline :is(.ac-inline,#accountTrigger,.header-cart,.figma-profile-shortcut,.desktop-shortcut){display:none!important}
+html[data-shatra-ui][data-theme] body .desktop-search-row{padding-block:4px 10px!important;margin:0!important;gap:8px!important}
+html[data-shatra-ui][data-theme] body .desktop-search-row>.desktop-shortcut{display:none!important}
+/* Wordmark: small «سوق» above a calligraphic «الشطرة», like the app's calligraphy logo */
+html[data-shatra-ui][data-theme] body .figma-logo-frame{display:none!important}
+html[data-shatra-ui][data-theme] body .header-brand{display:inline-flex!important;align-items:center;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .header-brand-name{display:inline-flex!important;align-items:flex-end;gap:5px;font-size:0!important;line-height:1!important;color:var(--ink)!important}
+html[data-shatra-ui][data-theme] body .header-brand-name small{display:none!important}
+html[data-shatra-ui][data-theme] body .header-brand-name::before{content:'سوق';font-family:'Aref Ruqaa',serif;font-weight:700;font-size:15px;line-height:1;color:var(--accent);transform:translateY(-15px)}
+html[data-shatra-ui][data-theme] body .header-brand-name::after{content:'الشطرة';font-family:'Aref Ruqaa',serif;font-weight:700;font-size:34px;line-height:1.25;color:var(--ink)}
+/* Search: the filter button appears under the search icon only once search is in use */
+html[data-shatra-ui][data-theme] body #buyerSearch{position:relative!important;overflow:visible!important}
+html[data-shatra-ui][data-theme] body #buyerSearch .market-filter-trigger{display:none!important}
+html[data-shatra-ui][data-theme] body #buyerSearch:focus-within .market-filter-trigger{display:grid!important;place-items:center;position:absolute!important;top:calc(100% + 6px);inset-inline-end:4px;inset-inline-start:auto;z-index:30;width:44px;height:40px;background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:12px!important;box-shadow:0 6px 18px rgba(16,31,72,.14)!important}
+/* Hero banner: landscape on phones and tablets */
+html[data-shatra-ui][data-theme] body .figma-hero{min-height:0!important;height:auto!important;aspect-ratio:16/9;display:flex;align-items:flex-end}
+html[data-shatra-ui][data-theme] body .figma-hero-copy{padding:16px 18px!important;max-width:100%!important}
+html[data-shatra-ui][data-theme] body .figma-hero h1{font-size:clamp(20px,5.6vw,40px)!important;line-height:1.25!important}
+html[data-shatra-ui][data-theme] body .figma-hero p{margin:6px 0 10px!important;font-size:clamp(12px,3.2vw,16px)!important}
+html[data-shatra-ui][data-theme] body .figma-hero .figma-button{min-height:36px!important;padding:6px 16px!important;font-size:14px!important}
+html[data-shatra-ui][data-theme] body .figma-hero .figma-eyebrow,html[data-shatra-ui][data-theme] body .figma-hero-note{display:none!important}
+@media (min-width:1025px){html[data-shatra-ui][data-theme] body .figma-hero{aspect-ratio:21/8}}
+/* Product cards: compact white card, square grey image, heart on the image corner, tight info */
+html[data-shatra-ui][data-theme] body .figma-product-card,html[data-shatra-ui][data-theme] body .mp-product{background:var(--surface)!important;border-radius:18px!important;padding:6px!important;box-shadow:0 1px 3px rgba(16,31,72,.06)!important;overflow:hidden!important}
+html[data-shatra-ui][data-theme] body .figma-product-media{aspect-ratio:1/1!important;height:auto!important;min-height:0!important;border-radius:14px!important;font-size:42px}
+html[data-shatra-ui][data-theme] body .figma-product-card{container-type:inline-size}
+/* Heart sits on the image's bottom corner: image top (6px padding) + image height (card content width) - heart - gap */
+html[data-shatra-ui][data-theme] body .figma-product-card .boutique-favorite{position:absolute!important;top:calc(6px + 100cqw - 34px - 8px)!important;bottom:auto!important;left:14px!important;right:auto!important;width:34px!important;height:34px!important;padding:7px!important;border-radius:50%!important;background:var(--surface)!important;box-shadow:0 2px 8px rgba(16,31,72,.12)!important;z-index:3!important}
+html[data-shatra-ui][data-theme] body .figma-product-info{padding:8px 6px 6px!important;gap:3px!important}
+html[data-shatra-ui][data-theme] body .figma-product-name{font-size:13.5px!important;font-weight:500!important;color:var(--ink-soft)!important;line-height:1.45!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:start;min-height:0!important}
+html[data-shatra-ui][data-theme] body .figma-store-link{display:none!important}
+html[data-shatra-ui][data-theme] body .figma-product-row{display:flex!important;align-items:center;justify-content:space-between;gap:6px;margin-top:2px!important}
+html[data-shatra-ui][data-theme] body .figma-product-row .mp-price{font-size:15px!important;font-weight:800!important;display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+html[data-shatra-ui][data-theme] body .figma-product-row .mp-price :is(del,s){font-size:12px!important;font-weight:500!important}
+html[data-shatra-ui][data-theme] body .figma-add{width:32px!important;height:32px!important;min-height:0!important;border-radius:10px!important;padding:0!important}
+html[data-shatra-ui][data-theme] body .mp-discount{top:8px!important;inset-inline-start:8px!important;padding:2px 8px!important;font-size:11px!important;border-radius:7px!important}
+html[data-shatra-ui][data-theme] body .figma-product-grid{gap:12px!important}
+/* Stores: big squares, two per row on phones — image on top, details below */
+html[data-shatra-ui][data-theme] body .figma-store-grid,html[data-shatra-ui][data-theme] body .mp-stores{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+@media (min-width:768px){html[data-shatra-ui][data-theme] body .figma-store-grid,html[data-shatra-ui][data-theme] body .mp-stores{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media (min-width:1100px){html[data-shatra-ui][data-theme] body .figma-store-grid,html[data-shatra-ui][data-theme] body .mp-stores{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+html[data-shatra-ui][data-theme] body .figma-store-card{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;padding:6px!important;border-radius:18px!important;background:var(--surface)!important;border:0!important;box-shadow:0 1px 3px rgba(16,31,72,.06)!important;text-align:start;min-height:0!important}
+html[data-shatra-ui][data-theme] body .figma-store-card .mp-store-avatar{width:100%!important;height:auto!important;aspect-ratio:1/1;border-radius:14px!important;display:grid!important;place-items:center;overflow:hidden;font-size:40px}
+html[data-shatra-ui][data-theme] body .figma-store-card .mp-store-avatar :is(img){width:100%!important;height:100%!important;object-fit:cover}
+html[data-shatra-ui][data-theme] body .figma-store-card .mp-store-avatar svg{width:38%!important;height:38%!important}
+html[data-shatra-ui][data-theme] body .figma-store-card>div{padding:8px 6px 4px!important;min-width:0}
+html[data-shatra-ui][data-theme] body .figma-store-card h3{font-size:14.5px!important;margin:0 0 3px!important;color:var(--ink)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-shatra-ui][data-theme] body .figma-store-card p{font-size:12px!important;margin:0 0 3px!important;color:var(--ink-soft)!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html[data-shatra-ui][data-theme] body .figma-store-card small{font-size:11.5px!important;color:var(--accent)!important;font-weight:700}
+html[data-shatra-ui][data-theme] body .figma-store-card>svg{display:none!important}
+/* Cart button floats just above the bottom bar and reacts to taps */
+html[data-shatra-ui][data-theme] body .buyer-floating{position:fixed!important;bottom:calc(var(--tabs-h,72px) + 14px + env(safe-area-inset-bottom,0px))!important;inset-inline-start:16px!important;inset-inline-end:auto!important;z-index:60!important;width:54px!important;height:54px!important;border-radius:18px!important;transition:transform .18s cubic-bezier(.3,1.6,.5,1),box-shadow .18s!important}
+html[data-shatra-ui][data-theme] body .buyer-floating:active{transform:scale(.9)!important}
+html[data-shatra-ui][data-theme] body .buyer-floating:hover{transform:translateY(-2px)!important;box-shadow:0 10px 24px rgba(16,31,72,.3)!important}
+html[data-shatra-ui][data-theme] body .buyer-floating #cc:not([hidden]){animation:cartBadge .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes cartBadge{0%{transform:scale(.4)}100%{transform:scale(1)}}
