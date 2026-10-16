@@ -1424,7 +1424,18 @@ let waRequest=null,waTimer=0;
 const waTick=()=>waPoll().catch(error);
 // WhatsApp accounts carry a private placeholder address that is never shown.
 function shownEmail(u){return /\.invalid$/i.test(u?.email||'')?'':(u?.email||'')}
-function waStop(){clearTimeout(waTimer);waTimer=0;waRequest=null}
+// The request is kept on this device so it survives switching to WhatsApp, a reload, or the reply link.
+const WA_PENDING='souq-wa-pending';
+function waStop(){clearTimeout(waTimer);waTimer=0;waRequest=null;try{localStorage.removeItem(WA_PENDING)}catch{}}
+function waKeep(r,number){if(db.preview)return;try{localStorage.setItem(WA_PENDING,JSON.stringify({code:r.code,secret:r.secret,until:r.until,number,mode:waMode,draft:waMode==='new'?waDraft:null}))}catch{}}
+function waResume(){
+ let saved=null;try{saved=JSON.parse(localStorage.getItem(WA_PENDING)||'null')}catch{}
+ const url=new URL(location.href);if(url.searchParams.has('wa')){url.searchParams.delete('wa');history.replaceState(null,'',url)}
+ if(!saved||!/^[0-9]{6}$/.test(saved.code||'')||!(saved.until>Date.now())||user){try{localStorage.removeItem(WA_PENDING)}catch{};return}
+ waMode=saved.mode==='existing'?'existing':'new';waDraft=saved.draft||null;waRequest={code:saved.code,secret:saved.secret,until:saved.until};
+ waLoginSheet({code:saved.code,number:saved.number});const st=$('#waLogin .wa-status');if(st)st.lastChild.textContent='جارٍ التحقق من رسالتك…';
+ clearTimeout(waTimer);waTick();
+}
 // New accounts fill in their details first; they are saved right after WhatsApp confirms the sender.
 let waDraft=null,waMode='new',phoneLoginRole='buyer',phoneLoginNumber='';
 const SUPPORT_WHATSAPP='https://wa.me/9647837271707';
@@ -1479,7 +1490,8 @@ function waLoginSheet(r){
 }
 async function waPoll(){
  const r=waRequest;if(!r)return;
- if(!$('#waLogin')||Date.now()>r.until){waStop();return}
+ // Keeps waiting even if the sheet was closed: the customer may still send the code.
+ if(Date.now()>r.until){waStop();return}
  const result=await claimWhatsappLogin(db,r.code,r.secret).catch(()=>({data:{status:'pending'}}));
  if(waRequest!==r)return;
  if(result.error){waStop();toast(result.error.message);return}
@@ -1494,6 +1506,8 @@ async function waPoll(){
  await refresh();
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&waRequest){clearTimeout(waTimer);waTick()}});
+window.addEventListener('pageshow',()=>{if(waRequest){clearTimeout(waTimer);waTick()}});
+setTimeout(()=>{try{waResume()}catch(e){error(e)}},400);
 function recoverySheet(){
   sheet(head('تعيين كلمة مرور جديدة')+'<label for="recoveryPassword">كلمة المرور الجديدة</label><input id="recoveryPassword" type="password" minlength="6" autocomplete="new-password"><label for="recoveryConfirm">تأكيد كلمة المرور</label><input id="recoveryConfirm" type="password" autocomplete="new-password"><button class="buy" data-a="saveRecoveryPassword">حفظ كلمة المرور</button>');
 }
@@ -1568,7 +1582,7 @@ const A={
     try{
       const result=await withTimeout(startWhatsappLogin(db));
       if(result.error){const note=$('#waLoginNote');if(note){note.textContent=result.error.message;note.hidden=false}else toast(result.error.message);return}
-      waStop();waRequest={code:result.data.code,secret:result.data.secret,until:Date.now()+(result.data.expires_in||600)*1000};
+      waStop();waRequest={code:result.data.code,secret:result.data.secret,until:Date.now()+(result.data.expires_in||600)*1000};waKeep(waRequest,result.data.number);
       waLoginSheet(result.data);
       if(!result.data.preview)waTimer=setTimeout(waTick,2500);
     }finally{if(button?.isConnected)button.disabled=false}

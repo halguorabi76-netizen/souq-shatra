@@ -50,6 +50,17 @@ test('messages that carry only a WhatsApp user ID (usernames) still confirm the 
  const created=c.calls.find(x=>x.url.endsWith('/admin/users')).body;assert.equal(created.phone,undefined);assert.equal(created.app_metadata.wa_user_id,'IQ.555');assert.match(created.email,/^wau[0-9a-f]{32}@phone\.souq-shatra\.invalid$/);
  assert.equal(c.calls.find(x=>x.url.endsWith('/generate_link')).body.email,created.email);
 });
+test('after a code message the store number replies inside the free window: confirmed, or ask for a new code',async()=>{
+ const f=fixture({whatsapp_login_config:{number:'9647761076662',verify_token:'v',app_secret:'app-secret',access_token:'E'.repeat(60)},whatsapp_login_confirm:true});
+ const payload=(body,extra={})=>({entry:[{changes:[{field:'messages',value:{metadata:{phone_number_id:'1398820353312150'},contacts:[{wa_id:'9647801234567'}],messages:[{from:'9647801234567',type:'text',text:{body},...extra}]}}]}]});
+ await f.meta(payload('رمز الدخول إلى سوق الشطرة: 482913'));
+ const sent=f.calls.find(c=>c.url.startsWith('https://graph.facebook.com/'));assert.equal(sent.url,'https://graph.facebook.com/v21.0/1398820353312150/messages');assert.equal(sent.headers.Authorization,'Bearer '+'E'.repeat(60));
+ assert.equal(sent.body.to,'9647801234567');assert.match(sent.body.text.body,/تم تأكيد رقمك/);assert.match(sent.body.text.body,/\?wa=1/);
+ const late=fixture({whatsapp_login_config:{number:'1',verify_token:'v',app_secret:'app-secret',access_token:'E'.repeat(60)},whatsapp_login_confirm:false});await late.meta(payload('482913'));
+ assert.match(late.calls.find(c=>c.url.startsWith('https://graph.facebook.com/')).body.text.body,/انتهت صلاحيته/);
+ const quiet=fixture({whatsapp_login_config:{number:'1',verify_token:'v',app_secret:'app-secret',access_token:'E'.repeat(60)}});await quiet.meta(payload('مرحبا'));
+ assert.equal(quiet.calls.some(c=>c.url.startsWith('https://graph.facebook.com/')),false,'ordinary chat gets no automatic reply');
+});
 test('Meta webhook verification answers the challenge only with the right token',async()=>{
  const f=fixture();const ok=await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=hook-token&hub.challenge=42'));assert.equal(await ok.text(),'42');
  assert.equal((await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=bad&hub.challenge=42'))).status,403);
