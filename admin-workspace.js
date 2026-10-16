@@ -92,6 +92,7 @@ export function renderAdminWorkspace(ctx){
   if(!v)h+=empty('جارٍ تحميل الموافقات…');
   else if(v.error)h+=section('الأرقام الموافق عليها',`<p class="admin-alert">${E(v.error)}</p>${btn('invitesReload','','إعادة المحاولة')}`);
   else h+=section('الأرقام الموافق عليها ('+num(v.list.length)+')',v.list.length?`<div class="admin-action-list">${v.list.map(i=>`<div class="admin-used-row"><div><b dir="ltr">${E(i.phone)}</b> · ${i.role==='seller'?'بائع':'سائق'}<small>${i.used_at?'✓ سجّل: '+E(i.used_name||'')+' · '+date(i.used_at):'بانتظار التسجيل'}${i.note?' · '+E(i.note):''}</small></div>${i.used_at?'':btn('inviteRemove',i.id,'إلغاء','danger')}</div>`).join('')}</div>`:empty('لم توافق على أي رقم بعد.'));
+  if(v&&!v.error)h+=section('أرقام التجربة (تصفير الواجهة)',`<p class="note">حساب البائع أو السائق على هذه الأرقام يظهر له زر «تصفير الواجهة» ليحذف كل طلباته ومنتجاته ويبدأ من جديد. رقمك أنت (رقم الإدارة) مسموح دائمًا. لا تضف أرقام بائعين حقيقيين.</p><form id="resetPhoneForm" class="admin-wa-form"><label for="resetPhone">رقم حساب التجربة</label><input id="resetPhone" type="tel" dir="ltr" inputmode="tel" placeholder="07xxxxxxxxx"><button class="buy" type="submit">إضافة</button></form>${v.resetPhones?.length?`<div class="admin-action-list">${v.resetPhones.map(p=>`<div class="admin-used-row"><b dir="ltr">${E(p)}</b>${btn('resetPhoneRemove',p,'إزالة','danger')}</div>`).join('')}</div>`:''}`);
  }
  else if(s.tab==='used'){
   const u=ctx.used;

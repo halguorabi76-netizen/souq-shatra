@@ -23,7 +23,7 @@ export function createDriverWorkspace(ctx){let section='pending',saving=false;co
  if(section==='pending'||section==='done'){const list=g.data.o.filter(o=>o.driver_id===g.user.id&&(section==='done'?o.st===3:o.st<3)).sort((a,b)=>(a.tracking?.queue_rank??1e9)-(b.tracking?.queue_rank??1e9));html+=list.length?list.map(o=>orderCard(o,g)).join(''):'<div class="dw-empty">لا توجد طلبات في هذا القسم.</div>';}
  if(section==='available')html+=g.offers.length?g.offers.filter((o,i,list)=>!o.batch_id||list.findIndex(x=>x.batch_id===o.batch_id)===i).map(o=>offerCard(o,g)).join(''):`<div class="dw-empty">${w.amount_due>=w.debt_limit?'الطلبات الجديدة متوقفة حتى تسوية المستحقات.':'لا توجد طلبات متاحة الآن.'}</div>`;
  if(section==='payments')html+=g.payments.length?g.payments.map(p=>`<article class="dw-card"><b>${F(p.amount)}</b><p>${E(p.receipt||'')}</p><small>${E(p.status||'قيد المراجعة')} · ${E(ctx.when(p.created_at))}</small></article>`).join(''):'<div class="dw-empty">لم ترسل طلب تسوية بعد.</div>';
- }html+='</div>';document.querySelector('#view').innerHTML=html;ctx.noticeSync();}
+ if(g.canReset)html+='<section class="dw-card dw-reset"><h2>حساب تجربة</h2><p>يحذف كل الطلبات التي وصّلتها ومدفوعاتك وإشعاراتك لتبدأ من جديد.</p><button data-a="resetWorkspace" data-v="driver">🗑 تصفير الواجهة</button></section>';}html+='</div>';document.querySelector('#view').innerHTML=html;ctx.noticeSync();}
  document.addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;if(b.dataset.d==='application')application();if(b.dataset.d==='section'){section=b.dataset.v;render();}});
  return {render,application,available:()=>{section='available';ctx.tab('chats');},assigned:status=>{section=status===3?'done':'pending';ctx.tab('chats');},orderCard};
 }
