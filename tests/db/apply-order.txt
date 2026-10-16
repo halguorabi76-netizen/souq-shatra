@@ -23,3 +23,4 @@ supabase/migrations/20261016120000_phone_password_login.sql
 supabase/migrations/20261016140000_whatsapp_login_reply.sql
 supabase/migrations/20261017100000_used_listings.sql
 supabase/migrations/20261017120000_store_approval_notice.sql
+supabase/migrations/20261018100000_chat_and_ratings.sql

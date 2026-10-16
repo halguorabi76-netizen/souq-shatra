@@ -3,10 +3,10 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
-import {createSellerWorkspace} from "./seller-workspace.js?v=172";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=171";
+import {createSellerWorkspace} from "./seller-workspace.js?v=173";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=172";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=177";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=173";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=174";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
