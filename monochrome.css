@@ -294,8 +294,12 @@ html[data-shatra-ui][data-theme] body .wa-map-done{color:#1fa855;text-align:cent
 html[data-shatra-ui][data-theme] body #sheet button.buy.wa-open{display:flex!important;justify-content:center;align-items:center;gap:10px;width:100%;height:54px;margin-top:10px;border-radius:14px!important;background:#1fa855!important;color:#fff!important;font-weight:700}
 html[data-shatra-ui][data-theme] body .wa-summary{margin:0;padding:10px 12px;border-radius:12px;background:var(--surface-2,#eef1fb);font-size:14px}
 html[data-shatra-ui][data-theme] body .wa-summary .link{color:var(--accent);text-decoration:underline;background:none;padding:0 4px}
-html[data-shatra-ui][data-theme] body .wa-pro-note{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface-2,#eef1fb);color:var(--ink-soft);font-size:13px;line-height:1.8}
-html[data-shatra-ui][data-theme] body .wa-pro-note a{color:#1fa855;font-weight:700}
+html[data-shatra-ui][data-theme] body .wa-pro-note{display:flex;align-items:center;gap:12px;margin:14px 0 0;padding:12px;border-radius:14px;background:var(--surface-2,#eef1fb)}
+html[data-shatra-ui][data-theme] body .wa-pro-note>div{flex:1;display:grid;gap:2px}
+html[data-shatra-ui][data-theme] body .wa-pro-note b{font-size:14px;color:var(--ink)}
+html[data-shatra-ui][data-theme] body .wa-pro-note small{font-size:12.5px;color:var(--ink-soft)}
+html[data-shatra-ui][data-theme] body .wa-support{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:12px;background:var(--accent);color:#fff!important;font-weight:700;font-size:14px;text-decoration:none}
+html[data-shatra-ui][data-theme] body .wa-support svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
 html[data-shatra-ui][data-theme] body .wa-pro{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 html[data-shatra-ui][data-theme] body .wa-pro p{margin:0 0 8px;font-weight:700;color:var(--ink)}
 html[data-shatra-ui][data-theme] body .wa-pro div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
