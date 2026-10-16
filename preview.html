@@ -432,7 +432,7 @@ body.starting{background:#101f48!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=17">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=20">
 <style>
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#6f82e0 0%,#3547a5 35%,#16245a 75%,#070c1f 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
@@ -982,9 +982,15 @@ function render(){
   if(!sellerView){$('.tabs').innerHTML=`<button data-a="tab" data-v="profilePage"><span class="navicon">${flowIcon('user')}</span>حسابي</button><button data-a="marketSection" data-v="materials"><span class="navicon">${flowIcon('grid')}</span>الفئات</button><button class="media-placeholder offers-tab" type="button" data-a="offers" aria-label="العروض"><span class="navicon">${flowIcon('offer')}</span>العروض</button><button data-a="marketSection" data-v="stores"><span class="navicon">${flowIcon('store')}</span>المتاجر</button><button data-a="tab" data-v="market"><span class="navicon">${flowIcon('home')}</span>الرئيسية</button>`;}
   let floating=$('#buyerFloating');if(!floating){floating=document.createElement('button');floating.id='buyerFloating';floating.className='buyer-floating';$('.app').append(floating)}floating.hidden=sellerView||viewMode==='driver'||tab==='welcome';floating.dataset.a='cart';floating.setAttribute('aria-label','فتح السلة');floating.innerHTML=flowIcon('cart')+`<i id="cc" ${n?'':'hidden'}>${n}</i>`;
   document.querySelectorAll('.tabs button[data-v]').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'profilePage':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
-  ({welcome,market,catalog:market,stores:storesPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
+  const offersTab=document.querySelector('.tabs .offers-tab');if(offersTab){if(tab==='offers')offersTab.setAttribute('aria-current','page');else offersTab.removeAttribute?.('aria-current')}
+  ({welcome,market,catalog:market,stores:storesPage,offers:offersPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
   activity.sync();pageBackbar();
+}
+// «العروض»: every discounted item on sale now, using the same discount rule as the card badges.
+function offersPage(){
+ const ui=window.SouqFigmaUI||window.SouqMarketplace,{products}=publicMarketplace(),list=products.filter(window.SouqMarketplace.discounted);
+ $('#view').innerHTML='<section class="offers-page"><div class="section-title"><h2>العروض</h2></div>'+(list.length?'<p class="offers-note">'+list.length+' مادة بسعر مخفّض الآن</p>'+ui.productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()}):'<div class="empty">لا توجد عروض الآن. ستظهر هنا تخفيضات المتاجر فور نشرها.</div>')+'</section>';
 }
 function welcome(){
   $('#view').innerHTML=`<div class="welcome"><div class="welcome-content"><h1>أهلًا بك في سوق الشطرة</h1><p>اختر دورك مرة واحدة، ويمكنك شراء المنتجات من أي حساب</p>${bannerHtml()}<div class="welcome-roles"><button class="welcome-option" data-a="enter" data-v="buyer" aria-label="الدخول كزبون"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="15" r="7" fill="#F0C3A5"/><path d="M26 12q6-9 13 0v4H26Z" fill="#443a31"/><path d="M23 26q8-8 18 0l4 17H19Z" fill="#b49f8e"/><path d="M20 29l-5 11m29-11 5 11"/><path d="M9 38h46l-6 16H15Z" fill="#b69070"/><path d="M17 38l4 16m8-16 1 16m8-16-1 16m10-16-4 16M14 47h36" stroke="#48392d"/><path d="M24 35l4 5m12-5-4 5"/></svg></span><strong>زبون</strong></button><button class="welcome-option" data-a="enter" data-v="seller" aria-label="الدخول كبائع"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="35" width="48" height="19" rx="2" fill="#8e7057"/><rect x="12" y="39" width="40" height="9" rx="1" fill="#e5d5c7"/><rect x="18" y="27" width="26" height="8" rx="1" fill="#8BB8A4"/><rect x="21" y="15" width="23" height="14" rx="2" fill="#e5d5c7"/><rect x="25" y="18" width="15" height="8" fill="#A4CFB8"/><path d="M26 33h12m-30 2h48M21 44h8m6 0h8M9 55h46"/><rect x="8" y="16" width="10" height="15" rx="1" fill="#F2DAB4"/><path d="M11 20h4m-4 4h4"/></svg></span><strong>بائع</strong></button><button class="welcome-option" data-a="enter" data-v="driver" aria-label="الدخول كعامل توصيل"><span class="symbol"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="17" cy="49" r="8" fill="#efeae5"/><circle cx="49" cy="49" r="8" fill="#efeae5"/><circle cx="17" cy="49" r="3" fill="#866c56"/><circle cx="49" cy="49" r="3" fill="#866c56"/><path d="M17 49l9-17h17l6 17H17Zm9-17 11 17m-1-17 7 17M12 32h15" fill="#c8b2a0"/><rect x="6" y="24" width="16" height="14" rx="2" fill="#D99A5E"/><path d="M6 29h16m-8-5v14"/><circle cx="38" cy="17" r="6" fill="#EFC4A9"/><path d="M31 15q1-9 11-6l2 7Z" fill="#453b33"/><path d="M33 24l-7 9 12 4 7-13-7-3Z" fill="#ae9580"/><path d="M38 37l6 10m-16-14-6 13"/></svg></span><strong>عامل توصيل</strong></button></div></div><button class="welcome-guest" data-a="enter" data-v="guest"><span>الدخول كضيف دون تسجيل</span></button></div>`;
@@ -1711,7 +1717,7 @@ const A={
   reloadNotice:()=>act(()=>activity.poll()),
   react:v=>act(async()=>{const [id,kind]=v.split('|');if(await activity.react(id,kind))psheet()}),
   // «العروض»: every discounted item on sale now, using the same discount rule as the card badges.
-  offers:()=>{const ui=window.SouqFigmaUI||window.SouqMarketplace,{products}=publicMarketplace(),list=products.filter(window.SouqMarketplace.discounted);sheet(head('العروض')+(list.length?'<p class="offers-note">'+list.length+' مادة بسعر مخفّض الآن</p>'+ui.productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()}):'<div class="empty">لا توجد عروض الآن. ستظهر هنا تخفيضات المتاجر فور نشرها.</div>'))},
+  offers:()=>{closeAccountMenu();captureCheckout();A.close();publicStoreId=null;tab='offers';render();scrollTo(0,0)},
   favorites:()=>act(async()=>{if(!user){A.enter('buyer');return}const body=()=>{const list=D.p.filter(p=>activity.favorites().includes(p.id)&&p.active&&!p.blocked);return list.length?window.SouqMarketplace.productCards(list,{esc,fmt,thumb,mname}):'<div class="empty">لم تضف مواد إلى المفضلة بعد.</div>'};sheet(head('المفضلة')+'<div id="favoritesBody">'+body()+'</div>');const target=$('#favoritesBody');await activity.poll();if(target?.isConnected)target.innerHTML=body();}),
   addentry:()=>{if(!canSell()){sellerRequest();return}if(!user){A.enter('seller');return}if(profile?.disabled){toast('هذا الحساب معطّل');return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}if(!ownStore){lsheet('store');return}if(ownStore.removed){toast('أزالت الإدارة هذا البائع من السوق');return}fsheet('')},
   close:closePage,
@@ -1866,6 +1872,32 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e
 document.addEventListener('input',e=>{if(!['ca','cno'].includes(e.target.id))return;const invalid=addressContainsPhone(e.target.value);e.target.setCustomValidity(invalid?'لا تكتب رقم هاتفك هنا':'');if(invalid)toast('لا تكتب رقم هاتفك هنا');});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){if(window.SouqFigmaUI?.featuredBanner)return;const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}
+// Swipe sideways between the bottom-bar pages; the page follows the finger like the sign-in sheet.
+let pageTouch=null;
+function scrollsSideways(el){for(let n=el;n&&n!==document.body;n=n.parentElement){if(n.scrollWidth>n.clientWidth+4){const o=getComputedStyle(n).overflowX;if(o==='auto'||o==='scroll')return true}}return false}
+function swipeTargets(){const nav=$('.tabs');if(!nav||nav.hidden||(canSell()&&viewMode==='seller'))return null;const items=[...nav.querySelectorAll('button')],at=items.findIndex(b=>b.getAttribute('aria-current')==='page');return at<0?null:{items,at}}
+document.addEventListener('touchstart',e=>{
+ const t=e.touches[0],target=e.target;pageTouch=null;
+ const sheetOpen=$('#shade')&&!$('#shade').hidden;
+ if(e.touches.length!==1||sheetOpen||!target.closest?.('.app')||target.closest('.tabs,#buyerFloating,#accountMenu,input,textarea,select,iframe,.banner,.figma-hero,.leaflet-container,[data-no-swipe]')||scrollsSideways(target))return;
+ const nav=swipeTargets();if(!nav)return;pageTouch={x:t.clientX,y:t.clientY,at:Date.now(),axis:'',nav};
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+ const s=pageTouch;if(!s)return;const t=e.touches[0],dx=t.clientX-s.x,dy=t.clientY-s.y;
+ if(!s.axis){if(Math.abs(dx)<10&&Math.abs(dy)<10)return;s.axis=Math.abs(dx)>Math.abs(dy)*1.3?'x':'y'}
+ if(s.axis!=='x')return;
+ const next=s.nav.items[s.nav.at+(dx<0?1:-1)],view=$('#view');s.dx=next?dx:dx/4;
+ view.style.transition='none';view.style.transform=`translateX(${s.dx}px)`;view.style.opacity=String(Math.max(.4,1-Math.abs(s.dx)/window.innerWidth*.7));
+},{passive:true});
+document.addEventListener('touchend',()=>{
+ const s=pageTouch;pageTouch=null;if(!s||s.axis!=='x')return;
+ const view=$('#view'),dx=s.dx||0,w=window.innerWidth,next=s.nav.items[s.nav.at+(dx<0?1:-1)],fast=Math.abs(dx)>45&&Date.now()-s.at<260;
+ view.style.transition='transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s';
+ if(!next||(Math.abs(dx)<w/3&&!fast)){view.style.transform='';view.style.opacity='';return}
+ view.style.transform=`translateX(${dx<0?-w:w}px)`;view.style.opacity='0';
+ setTimeout(()=>{view.style.transition='none';view.style.transform='';view.style.opacity='';next.click();view.classList.remove('page-in-left','page-in-right');void view.offsetWidth;view.classList.add(dx<0?'page-in-left':'page-in-right');},190);
+},{passive:true});
+document.addEventListener('touchcancel',()=>{if(!pageTouch)return;pageTouch=null;const view=$('#view');view.style.transform='';view.style.opacity=''},{passive:true});
 let bannerTouch=null,lastBannerInteraction=0;
 $('#view').addEventListener('touchstart',e=>{
   bannerTouch=e.touches.length===1&&e.target.closest('.banner')?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;

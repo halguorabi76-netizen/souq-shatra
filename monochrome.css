@@ -326,3 +326,15 @@ html:has(#sheet .wa-tabs),html:has(#sheet .wa-tabs) body{overscroll-behavior-x:n
 html[data-shatra-ui][data-theme] body #shade:has(.wa-tabs),html[data-shatra-ui][data-theme] body #sheet:has(.wa-tabs){touch-action:pan-y}
 html[data-shatra-ui][data-theme] body .wa-pane{will-change:transform}
 html[data-shatra-ui][data-theme] body #sheet:has(.wa-pane){overflow-x:hidden}
+/* Swiping between bottom-bar pages */
+html[data-shatra-ui][data-theme] body #view{will-change:transform}
+html[data-shatra-ui][data-theme] body #view.page-in-left{animation:pageInLeft .24s cubic-bezier(.2,.8,.2,1)}
+html[data-shatra-ui][data-theme] body #view.page-in-right{animation:pageInRight .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes pageInLeft{from{opacity:.3;transform:translateX(60%)}to{opacity:1;transform:none}}
+@keyframes pageInRight{from{opacity:.3;transform:translateX(-60%)}to{opacity:1;transform:none}}
+html,body{overscroll-behavior-x:none}
+html[data-shatra-ui][data-theme] body .app{overflow-x:clip}
+@media (prefers-reduced-motion:reduce){html[data-shatra-ui][data-theme] body #view.page-in-left,html[data-shatra-ui][data-theme] body #view.page-in-right{animation:none}}
+html[data-shatra-ui][data-theme] body .offers-page .section-title{margin-top:4px}
+html[data-shatra-ui][data-theme]:not([data-portal="admin"]) body .tabs button.offers-tab.offers-tab[aria-current="page"] .navicon{display:grid!important;background:linear-gradient(135deg,#5b6fd1 0%,#3547a5 55%,#101f48 100%)!important;color:#fff!important;box-shadow:0 6px 16px rgba(53,71,165,.45),0 0 0 3px rgba(91,111,209,.25)!important}
+html[data-shatra-ui][data-theme] body .tabs .offers-tab[aria-current="page"]::before{display:none!important}
