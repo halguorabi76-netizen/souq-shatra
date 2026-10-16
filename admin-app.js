@@ -3,10 +3,10 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
-import {createSellerWorkspace} from "./seller-workspace.js?v=177";
+import {createSellerWorkspace} from "./seller-workspace.js?v=178";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=179";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=175";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=180";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=176";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -520,7 +520,7 @@ async function loadWaAdmin(){
 let inviteAdmin=null,inviteLoading=false;
 async function loadInvites(){
  if(inviteLoading)return;inviteLoading=true;
- try{const [r,q]=await Promise.all([db.rpc('admin_professional_invites'),db.rpc('admin_join_requests')]);inviteAdmin=r.error?{error:'تعذّر التحميل. إذا كانت هذه أول مرة، تأكد من تحديث قاعدة البيانات.'}:{list:r.data||[],requests:q.error?null:q.data||[]}}catch{inviteAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{inviteLoading=false}
+ try{const [r,q,z]=await Promise.all([db.rpc('admin_professional_invites'),db.rpc('admin_join_requests'),db.rpc('admin_reset_phones')]);inviteAdmin=r.error?{error:'تعذّر التحميل. إذا كانت هذه أول مرة، تأكد من تحديث قاعدة البيانات.'}:{list:r.data||[],requests:q.error?null:q.data||[],resetPhones:z.error?null:z.data||[]}}catch{inviteAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{inviteLoading=false}
  if(tab==='admin')admin();
 }
 // «بِع غرضك»: settings and live listings for the admin.
@@ -541,7 +541,7 @@ function admin(){
  $('#view').innerHTML=renderAdminWorkspace({used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
  $('#waAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.waAdminSave()});
  $('#usedAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.usedAdminSave()});
- $('#inviteForm')?.addEventListener('submit',e=>{e.preventDefault();A.inviteAdd()});
+ $('#inviteForm')?.addEventListener('submit',e=>{e.preventDefault();A.inviteAdd()});$('#resetPhoneForm')?.addEventListener('submit',e=>{e.preventDefault();A.resetPhoneAdd()});
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
@@ -906,6 +906,8 @@ const A={
   joinDecide:v=>{const [id,ok]=String(v).split('|');if(ok!=='1'&&!confirm('رفض طلب الانضمام هذا؟'))return;act(async()=>{check(await db.rpc('admin_decide_join_request',{p_id:id,p_approve:ok==='1'}));inviteAdmin=null;await loadInvites();toast(ok==='1'?'تمت الموافقة؛ أبلغه أن يفتح «حساب جديد» ويكمل التسجيل':'رُفض الطلب')})},
   driverReject:v=>{if(!confirm('رفض طلب هذا السائق وحذف بيانات التوصيل؟ يبقى حسابه كزبون.'))return;act(async()=>{check(await db.rpc('admin_reject_driver',{p_driver:v}));adminDetail=null;await refresh();toast('رُفض طلب السائق')})},
   invitesReload:()=>{inviteAdmin=null;loadInvites()},
+  resetPhoneAdd:()=>act(async()=>{const phone=val('resetPhone').replace(/[^0-9]/g,'');if(!/^0?7[0-9]{9}$/.test(phone)){toast('اكتب رقمًا عراقيًا صحيحًا يبدأ بـ 07');return}check(await db.rpc('admin_set_reset_phone',{p_phone:phone,p_allowed:true}));inviteAdmin=null;await loadInvites();toast('أُضيف رقم التجربة')}),
+  resetPhoneRemove:v=>act(async()=>{check(await db.rpc('admin_set_reset_phone',{p_phone:v,p_allowed:false}));inviteAdmin=null;await loadInvites();toast('أُزيل الرقم')}),
   inviteAdd:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const phone=val('invitePhone').replace(/[^0-9]/g,''),role=val('inviteRole'),note=val('inviteNote');
     if(!/^(07|9647|7)[0-9]{8,10}$/.test(phone)){toast('اكتب رقمًا صحيحًا مثل 07xxxxxxxxx');return}
     check(await db.rpc('admin_add_professional_invite',{p_phone:phone,p_role:role,p_note:note}));inviteAdmin=null;await loadInvites();toast('تمت الموافقة على الرقم؛ أخبره أن يفتح «حساب جديد» ويختار '+(role==='seller'?'«بائع»':'«سائق توصيل»'))}),
