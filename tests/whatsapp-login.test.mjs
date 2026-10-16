@@ -129,5 +129,7 @@ test('customer profile offers logout back to «لدي حساب» and a confirmed
  assert.match(html,/data-a="deleteAccountAsk">حذف الحساب نهائيًا/);
  assert.match(html,/الحذف نهائي ولا يمكن التراجع عنه/);
  assert.match(html,/«لدي حساب»/);
- assert.match(html,/deleteAccount:\(\)=>act\(async\(\)=>\{const r=await deleteMyAccount\(db\)/);
+ assert.match(html,/changeaccount:\(\)=>confirmBox\('تسجيل الخروج'[^\n]*A\.out\('profilePage'\)/);
+ assert.match(html,/deleteAccountAsk:\(\)=>confirmBox\([^\n]*await deleteMyAccount\(db\)[^\n]*A\.out\('profilePage'/);
+ assert.match(html,/غير موافق/);
 });
