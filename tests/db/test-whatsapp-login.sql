@@ -69,3 +69,17 @@ insert into t_wa values('c5',public.whatsapp_login_start(repeat('1',64),'ip4')->
 select public.whatsapp_login_confirm((select v from t_wa where k='c5'),'','IQ.new-user');
 select pg_temp.ok((public.whatsapp_login_claim((select v from t_wa where k='c5'),repeat('1',64))->>'user_id') is null,'unknown user id asks the edge function to create the account');
 reset role;
+
+-- Phone + password sign-in lookup: backend only, matches the profile phone, respects role and limits.
+update public.profiles set phone='07801112233' where id='00000000-0000-0000-0000-00000000000b';
+set role authenticated;
+do $$begin perform public.prepare_phone_login('07801112233','buyer',repeat('a',64)); raise exception 'browser looked up'; exception when insufficient_privilege then null; end$$;
+reset role;
+set role service_role;
+select pg_temp.ok(jsonb_array_length(public.prepare_phone_login('+964 780 111 2233','buyer',repeat('a',64))->'emails')=1,'buyer found by phone in any format');
+select pg_temp.ok(jsonb_array_length(public.prepare_phone_login('07801112233','seller',repeat('a',64))->'emails')=0,'a customer is not found as a seller');
+select pg_temp.ok(jsonb_array_length(public.prepare_phone_login('07809999999','buyer',repeat('a',64))->'emails')=0,'unknown phone finds nothing');
+select pg_temp.ok(jsonb_array_length(public.prepare_phone_login('abc','buyer',repeat('a',64))->'emails')=0,'malformed phone finds nothing');
+select public.prepare_phone_login('07801112233','buyer',repeat('b',64)) from generate_series(1,8);
+select pg_temp.ok((public.prepare_phone_login('07801112233','buyer',repeat('b',64))->>'limited')::boolean,'too many attempts on one phone are limited');
+reset role;

@@ -19,3 +19,4 @@ supabase/migrations/20261014170000_home_banners_category_icons.sql
 supabase/migrations/20261015120000_whatsapp_login.sql
 supabase/migrations/20261015140000_whatsapp_login_admin.sql
 supabase/migrations/20261016100000_whatsapp_login_user_id.sql
+supabase/migrations/20261016120000_phone_password_login.sql
