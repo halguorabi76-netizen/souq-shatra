@@ -512,19 +512,22 @@ body.starting{overflow:hidden}
   try{if(sessionStorage.getItem('souq-splash-done'))return}catch{}
   splash.hidden=false;document.body.classList.add('starting');
   if(themeMeta)themeMeta.content='#3547a5';
+  // Leave only when the first real screen (customer, seller or driver) is ready, never onto a loading screen.
+  let leaving=false;const began=Date.now();
+  const leave=fade=>{if(done||leaving)return;const root=document.documentElement;if(root.dataset.appReady||Date.now()-began>20000){leaving=true;splash.classList.add('leaving');setTimeout(finish,fade)}else setTimeout(()=>leave(fade),120)};
   // River 0.6–1.8s, then the name is written while the pin drops (1.9–3.3s); the page follows at 4s.
   const play=()=>{
     splash.classList.remove('play','leaving');void splash.offsetWidth;splash.classList.add('play');playing=true;
-    clearTimeout(timer);timer=setTimeout(()=>{splash.classList.add('leaving');setTimeout(finish,350)},4000);
+    clearTimeout(timer);timer=setTimeout(()=>leave(350),4000);
   };
   // Start only once the page has loaded and is on screen, so the phone's own launch screen never hides the animation.
   const start=()=>{if(playing||done)return;if(document.visibilityState==='hidden'){document.addEventListener('visibilitychange',start,{once:true});return}play()};
   window.addEventListener('load',start,{once:true});
   setTimeout(start,2500);
   // A tap skips the animation and opens the site at once, for people who open the app many times a day.
-  const skip=()=>{if(done)return;clearTimeout(timer);splash.classList.add('leaving');setTimeout(finish,180)};
+  const skip=()=>{if(done)return;clearTimeout(timer);leave(180)};
   splash.addEventListener('click',skip);
-  setTimeout(finish,15000);
+  setTimeout(finish,24000);
   window.addEventListener('pageshow',event=>{if(event.persisted)finish()});
 })();
 </script>
@@ -1021,11 +1024,13 @@ function sellerResume(){
  if(!$('#view .boot-seller-shell'))$('#view').innerHTML=$('#sellerStartTemplate').innerHTML;
 }
 
+// The opening splash stays until the first real screen is ready, so no loading screen shows in between.
+function appReady(){const root=document.documentElement;if(root?.dataset&&!root.dataset.appReady)root.dataset.appReady='true'}
 function render(){
   if(D.accountError&&!dataReady&&!db.preview&&!ADMIN_PORTAL){
    delete document.documentElement.dataset.accountBoot;delete document.documentElement.dataset.sellerResume;delete document.documentElement.dataset.accountResume;
    document.body.classList.remove('seller-workspace');$('.tabs').hidden=true;
-   $('#view').innerHTML='<div class="empty" data-driver-recovery role="alert"><h1>فتح حسابك</h1><p>'+esc(D.accountError)+'</p><button class="buy" data-a="refreshAccount">إعادة المحاولة</button></div>';return;
+   $('#view').innerHTML='<div class="empty" data-driver-recovery role="alert"><h1>فتح حسابك</h1><p>'+esc(D.accountError)+'</p><button class="buy" data-a="refreshAccount">إعادة المحاولة</button></div>';appReady();return;
   }
   if(!initialAccountResolved&&!db.preview&&!ADMIN_PORTAL){
    document.documentElement.dataset.accountBoot='true';
@@ -1047,6 +1052,7 @@ function render(){
   if(!dataReady&&viewMode==='seller'&&!db.preview){sellerResume();return}
   if(accountResolving&&!dataReady&&!db.preview){document.documentElement.dataset.accountResume='true';$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ فتح حسابك…</div>';return}
   if(viewMode==='driver'&&!dataReady){document.body.classList.remove('seller-workspace');$('.tabs').hidden=false;driverPage();return;}
+  if(dataReady)appReady();
   // Approved sellers and drivers always open in their own workspace, never as a customer.
   if(sellerAccount())viewMode='seller';
   else if(user&&dataReady&&driverAccount?.approved&&profile?.role==='driver'&&!profile?.disabled&&viewMode!=='driver'){viewMode='driver';rememberMode('driver');if(!['account','orders','profilePage','settings','chats'].includes(tab))tab='account';}
