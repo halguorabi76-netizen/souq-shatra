@@ -90,3 +90,44 @@ test('customer login offers WhatsApp first; professionals keep their username lo
  assert.match(readFileSync(new URL('../supabase/config.toml',import.meta.url),'utf8'),/\[functions\.whatsapp-login\]\nverify_jwt = false/);
  assert.match(readFileSync(new URL('../sw.js',import.meta.url),'utf8'),/whatsapp-login\.js\?v=1/);
 });
+function deletion({role='buyer',busy=[],signedIn=true}={}){
+ const calls=[],id='11111111-2222-3333-4444-555555555555';
+ const handler=createHandler({url:'https://db.invalid',anonKey:'public',serviceKey:'server-only',fetcher:async(url,options={})=>{
+  calls.push({url,method:options.method||'GET',body:options.body&&JSON.parse(options.body),auth:options.headers?.Authorization});
+  if(url.endsWith('/auth/v1/user'))return signedIn?Response.json({id}):new Response('{}',{status:401});
+  if(url.includes('/auth/v1/admin/users/')&&!options.method)return Response.json({id,phone:'9647801234567',user_metadata:{full_name:'علي',contact_phone:'0780'},app_metadata:{provider:'email',login:'whatsapp',wa_user_id:'IQ.123'}});
+  if(url.includes('/rest/v1/profiles?select'))return Response.json([{role}]);
+  if((options.method||'GET')==='GET'&&url.includes('/rest/v1/'))return Response.json(busy.some(t=>url.includes('/rest/v1/'+t+'?'))?[{x:1}]:[]);
+  return new Response(null,{status:200});
+ }});
+ const send=(token='user-jwt')=>handler(new Request('https://fn.invalid',{method:'POST',headers:{Origin:'https://halguorabi76-netizen.github.io',Authorization:'Bearer '+token},body:JSON.stringify({action:'delete_account'})}));
+ return {calls,send,id};
+}
+test('a customer without orders is deleted for good, using their own session to find the account',async()=>{
+ const {calls,send,id}=deletion();
+ const r=await send();assert.equal(r.status,200);assert.deepEqual(await r.json(),{status:'deleted'});
+ assert.equal(calls[0].auth,'Bearer user-jwt');
+ assert.ok(calls.some(c=>c.method==='DELETE'&&c.url.endsWith('/auth/v1/admin/users/'+id)));
+ assert.ok(calls.some(c=>c.method==='DELETE'&&c.url.includes('customer_addresses?user_id=eq.'+id)));
+});
+test('a customer with past orders loses every personal detail and can never sign in again',async()=>{
+ const {calls,send,id}=deletion({busy:['orders']});
+ assert.equal((await send()).status,200);
+ assert.ok(!calls.some(c=>c.method==='DELETE'&&c.url.includes('/auth/v1/admin/users/')));
+ const profile=calls.find(c=>c.method==='PATCH');assert.deepEqual(profile.body,{full_name:'حساب محذوف',phone:'',disabled:true});
+ const lock=calls.find(c=>c.method==='PUT'&&c.url.endsWith('/admin/users/'+id));
+ assert.match(lock.body.email,/@deleted\.souq-shatra\.invalid$/);assert.equal(lock.body.ban_duration,'876000h');assert.deepEqual(lock.body.user_metadata,{full_name:null,contact_phone:null});
+ assert.equal(lock.body.app_metadata.wa_user_id,null);assert.equal(lock.body.app_metadata.deleted,true);assert.match(lock.body.phone,/^000[0-9]{12}$/);
+});
+test('sellers, drivers, admins and signed-out visitors cannot delete through the app',async()=>{
+ for(const opts of [{busy:['stores']},{busy:['delivery_workers']},{role:'admin'}]){const {calls,send}=deletion(opts);assert.equal((await send()).status,409);assert.ok(!calls.some(c=>c.method!=='GET'))}
+ const out=deletion({signedIn:false});assert.equal((await out.send()).status,401);assert.equal(out.calls.length,1);
+ const anon=deletion();assert.equal((await anon.send('public')).status,401);assert.equal(anon.calls.length,0);
+});
+test('customer profile offers logout back to «لدي حساب» and a confirmed permanent delete',()=>{
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ assert.match(html,/data-a="deleteAccountAsk">حذف الحساب نهائيًا/);
+ assert.match(html,/الحذف نهائي ولا يمكن التراجع عنه/);
+ assert.match(html,/«لدي حساب»/);
+ assert.match(html,/deleteAccount:\(\)=>act\(async\(\)=>\{const r=await deleteMyAccount\(db\)/);
+});
