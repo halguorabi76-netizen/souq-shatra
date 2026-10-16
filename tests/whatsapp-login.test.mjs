@@ -75,7 +75,7 @@ test('browser helper sets the session only after verification',async()=>{
 });
 test('customer login offers WhatsApp first; professionals keep their username login',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.match(html,/\$\{professional\?'':`<button type="button" class="auth-provider whatsapp" data-a="waLogin">/);assert.match(html,/waLogin:\(\)=>act\(/);assert.match(html,/claimWhatsappLogin\(db,r\.code,r\.secret\)/);
+ assert.match(html,/\$\{professional\?'':`<button type="button" class="auth-provider whatsapp" data-a="waLogin">/);assert.match(html,/waLogin:\(\)=>waAccountSheet\(\)/);assert.match(html,/waStart:\(\)=>act\(/);assert.match(html,/waDraftProblem\(waDraft\)/);assert.match(html,/if\(waMode==='new'\)await waApplyDraft\(signedIn\?\.id\)/);assert.match(html,/claimWhatsappLogin\(db,r\.code,r\.secret\)/);
  assert.match(readFileSync(new URL('../supabase/config.toml',import.meta.url),'utf8'),/\[functions\.whatsapp-login\]\nverify_jwt = false/);
  assert.match(readFileSync(new URL('../sw.js',import.meta.url),'utf8'),/whatsapp-login\.js\?v=1/);
 });
