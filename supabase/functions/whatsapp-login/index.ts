@@ -52,8 +52,14 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   return method === 'GET' ? r.json() : null;
  };
  const busy = async (table, col, id) => (await rest('GET', table + '?select=' + col + '&limit=1&' + col + '=eq.' + id)).length > 0;
- // Sellers, delivery workers and admins keep their professional account to themselves.
+ // Approved sellers, approved delivery workers and admins keep their professional account to themselves.
+ // Applicants still waiting for approval are the same person signing in, so they keep their account.
  const professional = async (id) => {
+  const [profile] = await rest('GET', 'profiles?select=role&id=eq.' + id);
+  return profile?.role === 'admin' || await busy('stores', 'owner_id', id + '&approved=is.true&removed=is.false') || await busy('delivery_workers', 'user_id', id + '&approved=is.true');
+ };
+ // Any seller or driver record at all (pending included): such accounts are deleted through support.
+ const anyProfessional = async (id) => {
   const [profile] = await rest('GET', 'profiles?select=role&id=eq.' + id);
   return profile?.role === 'admin' || await busy('stores', 'owner_id', id) || await busy('delivery_workers', 'user_id', id) || await busy('driver_profiles', 'user_id', id);
  };
@@ -94,7 +100,7 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   if (!me.ok) return { code: 'login_required' };
   const id = (await me.json()).id;
   if (!/^[0-9a-f-]{36}$/.test(id || '')) return { code: 'login_required' };
-  if (await professional(id)) return { code: 'professional' };
+  if (await anyProfessional(id)) return { code: 'professional' };
   let history = false;
   for (const [table, col] of [['orders', 'buyer_id'], ['order_customer_actions', 'buyer_id'], ['delivery_batches', 'buyer_id'], ['delivery_events', 'buyer_id'], ['payment_requests', 'payer_id'], ['payment_intents', 'user_id']]) if (await busy(table, col, id)) { history = true; break; }
   for (const [table, col] of [['customer_addresses', 'user_id'], ['product_interactions', 'user_id'], ['account_notifications', 'recipient_id'], ['used_listings', 'owner_id']]) await rest('DELETE', table + '?' + col + '=eq.' + id);

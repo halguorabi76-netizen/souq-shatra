@@ -134,8 +134,8 @@ test('customer profile offers logout back to «لدي حساب» and a confirmed
  assert.match(html,/deleteAccountAsk:\(\)=>confirmBox\([^\n]*await deleteMyAccount\(db\)[^\n]*A\.out\('profilePage'/);
  assert.match(html,/غير موافق/);
 });
-test('a number that belongs to a seller or driver opens a separate customer account, never the professional one',async()=>{
- for(const table of ['stores','delivery_workers','driver_profiles']){
+test('a number that belongs to an approved seller or driver opens a separate customer account, never the professional one',async()=>{
+ for(const table of ['stores','delivery_workers']){
   const f=fixture({whatsapp_login_claim:{status:'verified',phone:'9647801234567',user_id:'seller-1',email:'shop@mail.com'}},[table]);
   assert.deepEqual(await (await f.site({action:'claim',code:'482913',secret:'a'.repeat(64)})).json(),{status:'verified',access_token:'access',refresh_token:'refresh'});
   const created=f.calls.find(c=>c.url.endsWith('/admin/users'));
@@ -143,4 +143,11 @@ test('a number that belongs to a seller or driver opens a separate customer acco
   assert.equal(f.calls.find(c=>c.url.endsWith('/generate_link')).body.email,'wac9647801234567@phone.souq-shatra.invalid');
   assert.ok(!f.calls.some(c=>c.url.includes('/admin/users/seller-1')));
  }
+});
+test('a seller or driver still waiting for approval keeps signing in to the same account; only approved ones get a separate customer account',async()=>{
+ const f=fixture({whatsapp_login_claim:{status:'verified',phone:'9647801234567',user_id:'u1',email:'me@mail.com'}});
+ await f.site({action:'claim',code:'482913',secret:'a'.repeat(64)});
+ const checks=f.calls.filter(c=>c.url.includes('/rest/v1/stores?')||c.url.includes('/rest/v1/delivery_workers?'));
+ assert.ok(checks.some(c=>c.url.includes('approved=is.true')));
+ assert.ok(!f.calls.some(c=>c.url.includes('/rest/v1/driver_profiles?')),'a pending driver profile alone is not a professional account');
 });
