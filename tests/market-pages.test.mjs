@@ -20,7 +20,7 @@ test('stores destination lists accounts only and filters them by their published
 });
 test('materials and stores chooser routes to dedicated pages while home stays home',()=>{
  for(const [section,expected] of [['materials','catalog'],['stores','stores'],['market','market']]){
-  const context={section,publicStoreId:null,cat:'',q:'',filt:{},tab:'',URL,location:{href:'https://example.test/'},history:{pushState(){}},render(){},scrollTo(){}};vm.createContext(context);vm.runInContext(code('marketSection')+'\nmarketSection(section);',context);assert.equal(context.tab,expected);
+  const context={section,publicStoreId:null,cat:'',q:'',filt:{},tab:'',URL,location:{href:'https://example.test/'},history:{pushState(){},replaceState(){}},render(){},scrollTo(){}};vm.createContext(context);vm.runInContext(code('marketSection')+'\nmarketSection(section);',context);assert.equal(context.tab,expected);
  }
 });
 

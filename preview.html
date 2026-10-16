@@ -1227,7 +1227,7 @@ function storesPage(){
 }
 function marketSection(section){
  publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
- const url=new URL('preview.html',location.href);if(tab==='stores')url.searchParams.set('view','stores');if(tab==='catalog')url.searchParams.set('view','materials');history.pushState(null,'',url);render();scrollTo(0,0);
+ const url=new URL('preview.html',location.href);if(tab==='stores')url.searchParams.set('view','stores');if(tab==='catalog')url.searchParams.set('view','materials');history.replaceState(history.state,'',url);render();scrollTo(0,0);
 }
 function chats(){
   if(viewMode==='driver'){driverPage();return}
@@ -1696,7 +1696,7 @@ function infoSheet(){
 /* ===== الإجراءات ===== */
 const A={
   marketSection,
-  visitStore:id=>{if(!/^[0-9a-f-]{36}$/i.test(id||''))return;closeAccountMenu();A.close();publicStoreId=id;tab='market';const url=new URL(db.preview?'preview.html':'./',location.href);url.searchParams.set('store',id);history.pushState(null,'',url);render();scrollTo(0,0)},
+  visitStore:id=>{if(!/^[0-9a-f-]{36}$/i.test(id||''))return;closeAccountMenu();A.close();publicStoreId=id;tab='market';const url=new URL(db.preview?'preview.html':'./',location.href);url.searchParams.set('store',id);history.replaceState(history.state,'',url);render();scrollTo(0,0)},
   chooseSellerLocation,
   submitSellerJoin:()=>act(submitSellerApplication),
   buyerAccountLogin,
@@ -1979,7 +1979,7 @@ const A={
 };
 const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0,compare_at_price:$('#baseDiscount')?.checked?Number(val('fcompare')):null}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
-const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.pushState(null,'',url);render();scrollTo(0,0)}});
+const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell()}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.replaceState(history.state,'',url);render();scrollTo(0,0)}});
 // Messages: the thread title, the store/driver names and who is the driver come from loaded data.
 function chatThread(t){
  if(t.kind==='used'){const l=(D.used||[]).find(x=>x.id===t.ref);return {title:l?'محادثة عن «'+l.title+'»':'محادثة عن غرض مستعمل',subtitle:l?fmt(l.price)+' · عاين الغرض قبل الدفع':'',names:{}}}
@@ -2111,7 +2111,24 @@ function connectDeliveryLive(){
 setInterval(()=>{connectDeliveryLive();if(!document.hidden&&user&&dataReady&&['orders','cartPage','chats','account'].includes(tab)&&!document.querySelector('input:focus,textarea:focus'))syncNotifiedOrders(D.o.map(o=>o.id)).catch(()=>{});},15000);
 db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(recoverySheet,0)});
 if(!ADMIN_PORTAL)window.SouqDemo?.init(render);
-window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':params.get('view')==='materials'||location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
+// Phone and browser back gestures go back exactly one step inside the site: close the open window,
+// or return to the previous page. Only at the home page does a second back (within 2 s) leave the site.
+if(!ADMIN_PORTAL&&!db.preview){
+ // The address of the page on screen, kept up to date by every in-app route change.
+ const replaceUrl=history.replaceState.bind(history);let appUrl=location.href;
+ history.replaceState=(state,title,url)=>{replaceUrl(state,title,url);if(url!=null)appUrl=new URL(url,location.href).href};
+ const armBack=()=>{replaceUrl({souqBase:true},'',appUrl);history.pushState({souqGuard:true},'',appUrl)};
+ try{armBack()}catch{}
+ let exitAsked=0;
+ addEventListener('popstate',e=>{
+  if(e.state?.souqGuard)return;
+  const modal=document.querySelector('.confirm-modal'),home=viewMode==='seller'||viewMode==='driver'?'account':'market';
+  if(modal||!$('#shade').hidden||pageNav?.canBack()||publicStoreId||tab!==home){if(modal)modal.remove();else goBack();armBack();return}
+  if(Date.now()-exitAsked<2000){history.back();return}
+  exitAsked=Date.now();toast('ارجع مرة أخرى للخروج من سوق الشطرة');armBack();
+ });
+}
+if(db.preview)window.addEventListener('popstate',()=>{const params=new URLSearchParams(location.search);publicStoreId=params.get('store');if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;tab=publicStoreId?'market':params.get('view')==='stores'?'stores':params.get('view')==='materials'||location.pathname.endsWith('/catalog.html')?'catalog':'market';cat=params.get('category')||'all';q=params.get('q')||'';A.close();render()});
 render();
 refresh().catch(e=>{
   if(!dataReady&&!window.SouqDemo?.isActive()){
