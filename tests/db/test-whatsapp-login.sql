@@ -83,3 +83,14 @@ select pg_temp.ok(jsonb_array_length(public.prepare_phone_login('abc','buyer',re
 select public.prepare_phone_login('07801112233','buyer',repeat('b',64)) from generate_series(1,8);
 select pg_temp.ok((public.prepare_phone_login('07801112233','buyer',repeat('b',64))->>'limited')::boolean,'too many attempts on one phone are limited');
 reset role;
+
+-- Reply token: write-only, saved by the admin, read by the edge function.
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+select pg_temp.ok(not (public.admin_whatsapp_login_status()->>'has_token')::boolean,'no reply token at first');
+do $$begin perform public.admin_save_whatsapp_login('07837271707',null,'short'); raise exception 'short token saved'; exception when others then if sqlerrm like 'short token%' then raise; end if; end$$;
+select public.admin_save_whatsapp_login('07837271707',null,repeat('E',60));
+select pg_temp.ok((public.admin_whatsapp_login_status()->>'has_token')::boolean and public.admin_whatsapp_login_status()::text not like '%EEEE%','token saved and never returned');
+select pg_temp.as_user(null);
+set role service_role;
+select pg_temp.ok(public.whatsapp_login_config()->>'access_token'=repeat('E',60),'edge function reads the token');
+reset role;

@@ -22,8 +22,13 @@ export const accountEmail = (phone) => 'wa' + phone + '@phone.souq-shatra.invali
 // Accounts known only by a WhatsApp user ID (usernames hide the number) get a stable private address.
 export const userIdEmail = async (id) => 'wau' + (await sha256(id)).slice(0, 32) + '@phone.souq-shatra.invalid';
 
-// Number, webhook token and Meta app secret come from the admin page (database), with optional env fallbacks.
-export function createHandler({ url, anonKey, serviceKey, number: envNumber, verifyToken: envToken, appSecret: envSecret, fetcher = fetch }) {
+// The automatic reply after a code message; the link brings the customer back to finish signing in.
+const SITE = 'https://halguorabi76-netizen.github.io/souq-shatra/?wa=1';
+export const replyText = linked => linked
+ ? '✅ تم تأكيد رقمك في سوق الشطرة.\nارجع إلى الموقع ليكتمل دخولك تلقائيًا:\n' + SITE
+ : 'لم نجد طلب دخول بهذا الرمز أو انتهت صلاحيته.\nاطلب رمزًا جديدًا من الموقع:\n' + SITE;
+// Number, webhook token, app secret and reply token come from the admin page (database), with optional env fallbacks.
+export function createHandler({ url, anonKey, serviceKey, number: envNumber, verifyToken: envToken, appSecret: envSecret, accessToken: envAccess, fetcher = fetch }) {
  const service = { apikey: serviceKey, Authorization: 'Bearer ' + serviceKey, 'Content-Type': 'application/json' };
  const rpc = async (name, args) => {
   const r = await fetcher(url + '/rest/v1/rpc/' + name, { method: 'POST', headers: service, body: JSON.stringify(args) });
@@ -35,7 +40,7 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   if (cached && Date.now() - cached.at < 30000) return cached;
   let stored = {};
   try { stored = (await rpc('whatsapp_login_config', {})) || {}; } catch { /* keep env fallbacks */ }
-  cached = { at: Date.now(), number: String(stored.number || envNumber || '').replace(/\D/g, ''), verifyToken: stored.verify_token || envToken || '', appSecret: stored.app_secret || envSecret || '' };
+  cached = { at: Date.now(), number: String(stored.number || envNumber || '').replace(/\D/g, ''), verifyToken: stored.verify_token || envToken || '', appSecret: stored.app_secret || envSecret || '', accessToken: stored.access_token || envAccess || '' };
   return cached;
  };
  const seen = kind => rpc('whatsapp_login_seen', { p_kind: kind }).catch(() => {});
@@ -74,7 +79,13 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   // Incoming WhatsApp messages from Meta, signed with the app secret.
   const signature = req.headers.get('x-hub-signature-256');
   if (signature !== null) {
-   const raw = await req.text(), { appSecret } = await config();
+   const raw = await req.text(), { appSecret, accessToken } = await config();
+   // A reply inside the 24-hour window the customer opened (free service message).
+   const answer = async (phoneId, to, linked) => {
+    if (!accessToken || !/^[0-9]{5,30}$/.test(String(phoneId || '')) || !to) return 'no_token';
+    const sent = await fetcher('https://graph.facebook.com/v21.0/' + phoneId + '/messages', { method: 'POST', headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' }, body: JSON.stringify({ messaging_product: 'whatsapp', ...to, type: 'text', text: { preview_url: false, body: replyText(linked) } }) }).catch(() => null);
+    return sent ? sent.status : 'network';
+   };
    if (!appSecret || !sameText(signature, 'sha256=' + await hmac(appSecret, raw))) return new Response('bad signature', { status: 401 });
    await seen('webhook');
    try {
@@ -89,7 +100,8 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
       const code = codeIn(message.text?.body ?? message.button?.text ?? message.interactive?.button_reply?.title);
       let linked = false;
       if (code && (phone || waUser)) linked = await rpc('whatsapp_login_confirm', { p_code: code, p_phone: phone, p_wa_user_id: waUser }).catch(() => 'rpc_error');
-      console.log(JSON.stringify({ webhook: 'message', type: message.type, has_code: !!code, has_phone: !!phone, has_user_id: !!waUser, linked }));
+      const replied = code ? await answer(change.value?.metadata?.phone_number_id, phone ? { to: phone } : waUser ? { recipient: waUser } : null, linked === true) : 'no_code';
+      console.log(JSON.stringify({ webhook: 'message', type: message.type, has_code: !!code, has_phone: !!phone, has_user_id: !!waUser, linked, replied }));
      }
     }
    } catch { /* Meta retries non-200 replies; a bad message must not cause a retry storm. */ }
@@ -125,4 +137,4 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   } catch (error) { console.log(JSON.stringify({ failed: String(error?.message || error).slice(0, 80) })); return reply({ code: 'temporarily_unavailable' }, 503); }
  };
 }
-if (typeof Deno !== 'undefined') Deno.serve(createHandler({ url: Deno.env.get('SUPABASE_URL'), anonKey: Deno.env.get('SUPABASE_ANON_KEY'), serviceKey: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'), number: (Deno.env.get('WHATSAPP_NUMBER') || '').replace(/\D/g, ''), verifyToken: Deno.env.get('WHATSAPP_VERIFY_TOKEN'), appSecret: Deno.env.get('WHATSAPP_APP_SECRET') }));
+if (typeof Deno !== 'undefined') Deno.serve(createHandler({ url: Deno.env.get('SUPABASE_URL'), anonKey: Deno.env.get('SUPABASE_ANON_KEY'), serviceKey: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'), number: (Deno.env.get('WHATSAPP_NUMBER') || '').replace(/\D/g, ''), verifyToken: Deno.env.get('WHATSAPP_VERIFY_TOKEN'), appSecret: Deno.env.get('WHATSAPP_APP_SECRET'), accessToken: Deno.env.get('WHATSAPP_ACCESS_TOKEN') }));
