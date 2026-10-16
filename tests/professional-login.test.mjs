@@ -22,3 +22,12 @@ test('frontend stores verified session and preserves generic credential errors',
  const result=await signInProfessional(db,'@STORE_One','secret123','seller');assert.equal(body.username,'store_one');assert.equal(body.role,'seller');assert.deepEqual(session,{access_token:'token',refresh_token:'refresh'});assert.equal(result.data.user.id,'professional');
  db.functions.invoke=async()=>({error:{context:Response.json({code:'invalid_credentials'},{status:401})}});assert.equal((await signInProfessional(db,'driver_one','badpass','driver')).error.code,'invalid_credentials');
 });
+test('phone + password sign-in tries only the accounts found for that phone and role, and hides which part was wrong',async()=>{
+ const calls=[];const make=(found,goodEmail)=>createHandler({url:'https://auth.invalid',anonKey:'public',serviceKey:'server-only',hash:async()=> 'a'.repeat(64),fetcher:async(url,options)=>{calls.push({url,body:JSON.parse(options.body)});if(url.includes('/rpc/'))return Response.json(found);const ok=JSON.parse(options.body).email===goodEmail;return Response.json(ok?{access_token:'t',refresh_token:'r'}:{error:'bad'},{status:ok?200:400});}});
+ const post=(h,body)=>h(new Request('https://edge.invalid',{method:'POST',headers:{Origin:'https://halguorabi76-netizen.github.io'},body:JSON.stringify(body)}));
+ let r=await post(make({limited:false,emails:['old@x.invalid','new@x.invalid']},'new@x.invalid'),{phone:'07801112233',password:'secret1',role:'buyer'});
+ assert.equal(r.status,200);assert.deepEqual(await r.json(),{access_token:'t',refresh_token:'r'});assert.deepEqual(calls[0].body,{p_phone:'07801112233',p_role:'buyer',p_client_key:'a'.repeat(64)});
+ calls.length=0;r=await post(make({limited:false,emails:[]},'x'),{phone:'07801112233',password:'secret1',role:'seller'});assert.equal(r.status,401);assert.deepEqual(await r.json(),{code:'invalid_credentials'});assert.equal(calls.length,2,'unknown phone still costs one password check');
+ r=await post(make({limited:true,emails:[]},'x'),{phone:'07801112233',password:'secret1',role:'driver'});assert.equal(r.status,429);
+ r=await post(make({limited:false,emails:[]},'x'),{phone:'07801112233',password:'secret1',role:'admin'});assert.equal(r.status,400);
+});

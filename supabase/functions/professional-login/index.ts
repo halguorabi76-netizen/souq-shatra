@@ -17,6 +17,25 @@ export function createHandler({ url, anonKey, serviceKey, fetcher = fetch, hash 
    const text = await req.text();
    if (text.length > 4096) return reply({ code: 'invalid_credentials' }, 400);
    const body = JSON.parse(text), username = typeof body.username === 'string' ? body.username.trim().replace(/^@/, '').toLowerCase() : '';
+   // Phone number + password, for customers, sellers and delivery workers alike.
+   if (typeof body.phone === 'string') {
+    if (!/^[0-9+\s-]{10,18}$/.test(body.phone) || !['buyer', 'seller', 'driver'].includes(body.role) || typeof body.password !== 'string' || body.password.length < 6 || body.password.length > 1024) return reply({ code: 'invalid_credentials' }, 400);
+    const clientKey = await hash(req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown');
+    const lookup = await fetcher(url + '/rest/v1/rpc/prepare_phone_login', { method: 'POST', headers: { apikey: serviceKey, Authorization: 'Bearer ' + serviceKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_phone: body.phone, p_role: body.role, p_client_key: clientKey }) });
+    if (!lookup.ok) return reply({ code: 'temporarily_unavailable' }, 503);
+    const found = await lookup.json();
+    if (found.limited) return reply({ code: 'rate_limited' }, 429);
+    // Unknown numbers still cost one Auth check, so both failures look the same.
+    const emails = Array.isArray(found.emails) && found.emails.length ? found.emails.slice(0, 3) : ['missing-' + crypto.randomUUID() + '@example.invalid'];
+    for (const email of emails) {
+     const auth = await fetcher(url + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: anonKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: body.password }) });
+     if (auth.status === 429) return reply({ code: 'rate_limited' }, 429);
+     if (!auth.ok) continue;
+     const session = await auth.json();
+     if (found.emails?.includes(email) && session.access_token && session.refresh_token) return reply({ access_token: session.access_token, refresh_token: session.refresh_token });
+    }
+    return reply({ code: 'invalid_credentials' }, 401);
+   }
    if (!/^[a-z][a-z0-9_]{2,29}$/.test(username) || !['seller', 'driver'].includes(body.role) || typeof body.password !== 'string' || body.password.length < 6 || body.password.length > 1024) return reply({ code: 'invalid_credentials' }, 400);
    const clientKey = await hash(req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown');
    const lookup = await fetcher(url + '/rest/v1/rpc/prepare_professional_login', { method: 'POST', headers: { apikey: serviceKey, Authorization: 'Bearer ' + serviceKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_username: username, p_role: body.role, p_client_key: clientKey }) });
