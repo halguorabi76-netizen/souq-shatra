@@ -432,7 +432,7 @@ body.starting{background:#101f48!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=10">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=11">
 <style>
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#6f82e0 0%,#3547a5 35%,#16245a 75%,#070c1f 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
@@ -1426,9 +1426,10 @@ function shownEmail(u){return /\.invalid$/i.test(u?.email||'')?'':(u?.email||'')
 function waStop(){clearTimeout(waTimer);waTimer=0;waRequest=null}
 // New accounts fill in their details first; they are saved right after WhatsApp confirms the sender.
 let waDraft=null,waMode='new';
+const SUPPORT_WHATSAPP='https://wa.me/9647837271707';
 const WA_ZONES=[['shatra','داخل الشطرة'],['nasr','مدينة النصر'],['dawaya','مدينة الدواي'],['bidaa','مدينة البدعة'],['alsada','السادة آل حمد'],['seven_april','سبعة نيسان']];
 function waZones(){const live=(deliveryZones||[]).filter(z=>z.enabled).map(z=>[z.id,z.name]);return live.length?live:WA_ZONES}
-function waCapture(){if(!$('#waAccountForm'))return;Object.assign(waDraft,{name:val('waName'),phone:val('waPhone').replace(/[^0-9]/g,''),role:$('#waAccountForm input[name="waRole"]:checked')?.value||'buyer',zone:val('waZone'),addr:val('waAddr')})}
+function waCapture(){if(!$('#waAccountForm'))return;Object.assign(waDraft,{name:val('waName'),phone:val('waPhone').replace(/[^0-9]/g,''),zone:val('waZone'),addr:val('waAddr')})}
 function waDraftProblem(d){
  if(!d||d.name.trim().length<3||d.name.trim().split(/\s+/).length<2)return ['waName','اكتب اسمك الكامل (الاسم واسم الأب على الأقل)'];
  if(!/^07[0-9]{9}$/.test(d.phone))return ['waPhone','اكتب رقم هاتف صحيح مثل 07xxxxxxxxx'];
@@ -1438,18 +1439,17 @@ function waDraftProblem(d){
  return null;
 }
 function waAccountSheet(mode=waMode){
- waMode=mode;waDraft||={name:profile?.full_name||'',phone:'',role:['seller','driver'].includes(viewMode)?viewMode:'buyer',zone:'',addr:'',point:null};
- const d=waDraft,roles=[['buyer','زبون'],['seller','بائع / صاحب متجر'],['driver','عامل توصيل']];
+ waMode=mode;waDraft||={name:profile?.full_name||'',phone:'',zone:'',addr:'',point:null};
+ const d=waDraft;
  const form=`<form id="waAccountForm" class="wa-account" onsubmit="return false"><p class="wa-intro">أكمل بياناتك مرة واحدة، ثم أكّد رقمك برسالة واتساب مجانية.</p>
 <label for="waName">الاسم الكامل <span class="auth-required">*</span></label><input id="waName" required autocomplete="name" maxlength="120" placeholder="مثال: علي حسن كاظم" value="${esc(d.name)}">
 <label for="waPhone">رقم الهاتف <span class="auth-required">*</span></label><input id="waPhone" type="tel" dir="ltr" inputmode="tel" autocomplete="tel" maxlength="14" placeholder="07xxxxxxxxx" value="${esc(d.phone)}">
-<fieldset class="wa-roles"><legend>نوع الحساب *</legend>${roles.map(([v,t])=>`<label><input type="radio" name="waRole" value="${v}" ${d.role===v?'checked':''}><span>${t}</span></label>`).join('')}</fieldset>
 <label for="waZone">المنطقة <span class="auth-required">*</span></label><select id="waZone"><option value="">اختر منطقتك</option>${waZones().map(([id,n])=>`<option value="${esc(id)}" ${id===d.zone?'selected':''}>${esc(n)}</option>`).join('')}</select>
 <label for="waAddr">العنوان <span class="auth-required">*</span></label><input id="waAddr" maxlength="300" placeholder="المحلة، الشارع، أقرب نقطة دالة" value="${esc(d.addr)}">
 <label>موقعك على الخريطة <span class="auth-required">*</span></label><button id="waMapButton" class="alt wa-map" type="button" data-a="waMap">📍 ${d.point?'تم تحديد الموقع — تعديل':'تحديد موقعي على الخريطة'}</button>${d.point?`<small class="wa-map-done" dir="ltr">${Number(d.point.lat).toFixed(5)}, ${Number(d.point.lon).toFixed(5)}</small>`:''}
-<p class="wa-note">يُحفظ موقعك وعنوانك لطلباتك القادمة${d.role==='seller'?'، وبعد التأكيد تكمل بيانات متجرك':d.role==='driver'?'، وبعد التأكيد تكمل طلب الانضمام كعامل توصيل':''}.</p></form>`;
- sheet(head('الدخول عبر واتساب')+`<div class="wa-tabs" role="tablist"><button type="button" role="tab" data-a="waMode" data-v="new" aria-selected="${mode==='new'}">حساب جديد</button><button type="button" role="tab" data-a="waMode" data-v="existing" aria-selected="${mode==='existing'}">لدي حساب</button></div>${mode==='new'?form:'<p class="wa-intro">إذا سجّلت سابقًا عبر واتساب، أكّد رقمك برسالة وتدخل إلى حسابك مباشرة.</p>'}<p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="button" class="buy wa-open" data-a="waStart">${authIcon('whatsapp')}${mode==='new'?'التالي: تأكيد الرقم عبر واتساب':'تأكيد الرقم عبر واتساب'}</button>`);
- $('#waAccountForm')?.addEventListener('change',e=>{if(e.target.name==='waRole'){waCapture();waAccountSheet('new')}});
+<p class="wa-note">يُحفظ موقعك وعنوانك لطلباتك القادمة.</p></form><p class="wa-pro-note">الانضمام كبائع أو عامل توصيل يتم بعد التواصل مع الدعم على واتساب: <a href="${SUPPORT_WHATSAPP}?text=${encodeURIComponent('أرغب بالانضمام إلى سوق الشطرة كبائع / عامل توصيل')}" target="_blank" rel="noopener" dir="ltr">07837271707</a></p>`;
+ const existing=`<p class="wa-intro">زبون سجّل سابقًا عبر واتساب؟ أكّد رقمك برسالة وتدخل إلى حسابك مباشرة.</p><p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="button" class="buy wa-open" data-a="waStart">${authIcon('whatsapp')}تأكيد الرقم عبر واتساب</button><div class="wa-pro"><p>دخول البائعين وعمال التوصيل</p><div><button type="button" class="alt" data-a="roleExisting" data-v="seller">دخول البائع</button><button type="button" class="alt" data-a="roleExisting" data-v="driver">دخول عامل التوصيل</button></div></div>`;
+ sheet(head('الدخول عبر واتساب')+`<div class="wa-tabs" role="tablist"><button type="button" role="tab" data-a="waMode" data-v="new" aria-selected="${mode==='new'}">حساب جديد</button><button type="button" role="tab" data-a="waMode" data-v="existing" aria-selected="${mode==='existing'}">لدي حساب</button></div>${mode==='new'?form+`<p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="button" class="buy wa-open" data-a="waStart">${authIcon('whatsapp')}التالي: تأكيد الرقم عبر واتساب</button>`:existing}`);
 }
 // Saves the details typed before verification into the new account.
 async function waApplyDraft(identity){
@@ -1459,8 +1459,6 @@ async function waApplyDraft(identity){
   db.from('customer_addresses').insert({user_id:identity,label:'عنواني',recipient_name:d.name.trim(),phone:d.phone,address:d.addr.trim(),zone_id:d.zone,latitude:d.point.lat,longitude:d.point.lon})
  ]);
  if(results.some(r=>r.status==='rejected'||r.value?.error))toast('تم الدخول، لكن تعذّر حفظ بعض البيانات؛ يمكنك إكمالها من صفحة حسابي');
- if(d.role==='seller'){sellerJoinPoint=d.point;sellerJoinOwner=identity;}
- if(['seller','driver'].includes(d.role)){try{sessionStorage.setItem('souq-role-request',d.role)}catch{};rememberMode(d.role)}
 }
 function waLoginSheet(r){
  const link=whatsappLink(r.number,r.code);
