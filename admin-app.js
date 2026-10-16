@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=172";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=170";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=175";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=176";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=172";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -516,12 +516,23 @@ async function loadWaAdmin(){
  try{const r=await db.rpc('admin_whatsapp_login_status');waAdmin=r.error?{error:'تعذّر تحميل حالة واتساب. إذا كانت هذه أول مرة، تأكد من تحديث قاعدة البيانات.'}:r.data}catch{waAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{waAdminLoading=false}
  if(tab==='admin')admin();
 }
+// «بِع غرضك»: settings and live listings for the admin.
+let usedAdmin=null,usedAdminLoading=false;
+async function loadUsedAdmin(){
+ if(usedAdminLoading)return;usedAdminLoading=true;
+ try{const [cfg,list]=await Promise.all([db.from('platform_settings').select('used_monthly_limit,used_listing_days,used_listing_price').limit(1).maybeSingle(),db.from('used_listings').select('*').eq('status','active').order('created_at',{ascending:false}).limit(500)]);
+  usedAdmin=cfg.error||list.error?{error:'تعذّر تحميل «بِع غرضك». إذا كانت هذه أول مرة، تأكد من تحديث قاعدة البيانات.'}:{settings:cfg.data||{},list:list.data||[]}}
+ catch{usedAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{usedAdminLoading=false}
+ if(tab==='admin')admin();
+}
 function admin(){
  if(!ADMIN_PORTAL){location.assign('admin.html');return}
  if(profile?.disabled||profile?.role!=='admin')return;
  if(!waAdmin)loadWaAdmin();
- $('#view').innerHTML=renderAdminWorkspace({data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ if(adminTab==='used'&&!usedAdmin)loadUsedAdmin();
+ $('#view').innerHTML=renderAdminWorkspace({used:usedAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
  $('#waAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.waAdminSave()});
+ $('#usedAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.usedAdminSave()});
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
@@ -883,6 +894,11 @@ const A={
   adminBack:()=>{adminDetail=null;admin();scrollTo(0,0)},
   waAdminReload:()=>{waAdmin=null;admin()},
   waAdminCopy:v=>{navigator.clipboard?.writeText(v).then(()=>toast('تم النسخ'),()=>toast('انسخه يدويًا'))||toast('انسخه يدويًا')},
+  usedAdminReload:()=>{usedAdmin=null;loadUsedAdmin()},
+  usedAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const n=id=>Math.round(Number(val(id)));const limit=n('usedLimit'),days=n('usedDays'),price=n('usedPrice');
+    if(!(limit>=0&&limit<=100)||!(days>=1&&days<=90)||!(price>=0&&price<=1000000)){toast('تحقق من الأرقام: الأغراض 0–100، الأيام 1–90');return}
+    check(await db.rpc('admin_set_used_settings',{p_limit:limit,p_days:days,p_price:price}));usedAdmin=null;await loadUsedAdmin();toast('تم حفظ إعدادات «بِع غرضك»')}),
+  usedAdminRemove:v=>{if(!confirm('إزالة هذا الغرض من السوق؟'))return;act(async()=>{check(await db.rpc('used_listing_action',{p_id:v,p_action:'delete'}));usedAdmin=null;await loadUsedAdmin();toast('أُزيل الغرض')})},
   waAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const number=val('waNumber'),secret=val('waSecret').trim(),token=val('waToken').trim(),digits=number.replace(/\D/g,'');if(token&&(token.length<40||/[•●*\s]/.test(token))){toast('رمز الإرسال غير صحيح؛ انسخه كاملًا من Meta (يبدأ بـ EAA)');$('#waToken')?.focus();return}if(digits&&digits.length<10){toast('رقم واتساب غير مكتمل؛ اكتبه مثل 07xxxxxxxxx أو اتركه فارغًا الآن');$('#waNumber')?.focus();return}if(/[•●*]/.test(secret)){toast('هذه نقاط الإخفاء وليست المفتاح؛ اضغط «إظهار» في Meta أولًا ثم انسخ النص الطويل');$('#waSecret')?.focus();return}if(secret&&secret.length<16){toast('المفتاح السري قصير؛ اضغط «إظهار» في Meta ثم انسخه كاملًا (حوالي 32 حرفًا)');$('#waSecret')?.focus();return}if(!digits&&!secret&&!token){toast('الصق App secret أو اكتب رقم واتساب ثم اضغط حفظ');$('#waSecret')?.focus();return}waAdmin=check(await db.rpc('admin_save_whatsapp_login',{p_number:number,p_app_secret:secret||null,...(token?{p_access_token:token}:{})}));admin();toast(waAdmin.enabled?'تم الحفظ — الدخول عبر واتساب مفعّل':waAdmin.has_secret&&!waAdmin.number?'تم حفظ المفتاح السري ✓ — أضف رقم واتساب بعد تسجيله في Meta':'تم الحفظ')}),
   adminRefresh:()=>act(async()=>{await refresh();toast('تم تحديث البيانات')}),
   adminOrder:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminDetail={kind:'order',id:v};admin();scrollTo(0,0)},

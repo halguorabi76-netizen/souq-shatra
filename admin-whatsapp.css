@@ -13,3 +13,4 @@
 .admin-wa-help summary{cursor:pointer;font-weight:600}
 .admin-wa-help ol{margin:8px 0 0;padding-inline-start:20px;line-height:1.9}
 .admin-wa-help a{color:#1f6fd1;text-decoration:underline}
+.admin-used-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #8882}.admin-used-row small{display:block;opacity:.75;margin-top:2px}.admin-used-row .danger{background:#b3261e;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:700}
