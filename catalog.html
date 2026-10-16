@@ -1686,7 +1686,7 @@ const A={
   confirmPayment:v=>act(async()=>{const [id,yes]=v.split('|');check(await db.rpc('admin_review_delivery_payment',{p_payment:id,p_approved:yes==='true'}));A.close();await refresh();toast('تمت مراجعة التحويل')}),
   saveprofile:()=>act(async()=>{if(!user)return;const name=val('pfname'),phone=val('pfphone').replace(/\D/g,'');if(name.length<2||phone.length<10){toast('اكتب الاسم ورقم هاتف صحيح');return}if($('#pfusername')){const username=val('pfusername').replace(/^@/,'').toLowerCase();check(await db.rpc('set_professional_username',{p_username:username}))}check(await db.from('profiles').update({full_name:name,phone}).eq('id',user.id));await refresh();toast('تم حفظ الملف الشخصي')}),
   changeaccount:()=>confirmBox('تسجيل الخروج','هل تريد تسجيل الخروج من حسابك؟ يمكنك العودة لاحقًا من «لدي حساب» برقم هاتفك وكلمة السر.','موافق',()=>A.out('profilePage')),
-  deleteAccountAsk:()=>confirmBox('حذف الحساب نهائيًا','الحذف نهائي ولا يمكن التراجع عنه. ستُحذف بياناتك وعناوينك ولن تستطيع الدخول بهذا الحساب مرة أخرى.','موافق، احذف حسابي',()=>act(async()=>{const r=await deleteMyAccount(db);if(r.error)throw r.error;try{await db.auth.signOut({scope:'local'})}catch{}await A.out('profilePage','تم حذف حسابك نهائيًا')}),true),
+  deleteAccountAsk:()=>confirmBox('حذف الحساب نهائيًا','الحذف نهائي ولا يمكن التراجع عنه. ستُحذف بياناتك وعناوينك ولن تستطيع الدخول بهذا الحساب مرة أخرى.','احذف حسابي',()=>act(async()=>{const r=await deleteMyAccount(db);if(r.error)throw r.error;try{await db.auth.signOut({scope:'local'})}catch{}await A.out('profilePage','تم حذف حسابك نهائيًا')}),true),
   geolocate:()=>chooseCheckoutLocation(),
   roleExisting:v=>act(()=>existingRole(v)),
   roleRequest:v=>act(()=>requestRole(v)),
