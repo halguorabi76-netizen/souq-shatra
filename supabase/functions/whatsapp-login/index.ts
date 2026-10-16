@@ -68,6 +68,40 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   await seen('login');
   return { status: 'verified', access_token: tokens.access_token, refresh_token: tokens.refresh_token };
  }
+ // Permanent account deletion requested by the signed-in customer. Accounts with order history keep
+ // the orders for the sellers but lose every personal detail and can never sign in again.
+ const rest = async (method, path, body) => {
+  const r = await fetcher(url + '/rest/v1/' + path, { method, headers: { ...service, Prefer: 'return=minimal' }, ...(body ? { body: JSON.stringify(body) } : {}) });
+  if (!r.ok) throw new Error(method + ' ' + path.split('?')[0] + ' ' + r.status);
+  return method === 'GET' ? r.json() : null;
+ };
+ async function deleteAccount(token) {
+  const me = await fetcher(url + '/auth/v1/user', { headers: { apikey: anonKey, Authorization: 'Bearer ' + token } });
+  if (!me.ok) return { code: 'login_required' };
+  const id = (await me.json()).id;
+  if (!/^[0-9a-f-]{36}$/.test(id || '')) return { code: 'login_required' };
+  const [profile] = await rest('GET', 'profiles?select=role&id=eq.' + id);
+  const busy = async (table, col) => (await rest('GET', table + '?select=' + col + '&limit=1&' + col + '=eq.' + id)).length > 0;
+  if (profile?.role === 'admin' || await busy('stores', 'owner_id') || await busy('delivery_workers', 'user_id') || await busy('driver_profiles', 'user_id')) return { code: 'professional' };
+  let history = false;
+  for (const [table, col] of [['orders', 'buyer_id'], ['order_customer_actions', 'buyer_id'], ['delivery_batches', 'buyer_id'], ['delivery_events', 'buyer_id'], ['payment_requests', 'payer_id'], ['payment_intents', 'user_id']]) if (await busy(table, col)) { history = true; break; }
+  for (const [table, col] of [['customer_addresses', 'user_id'], ['product_interactions', 'user_id'], ['account_notifications', 'recipient_id']]) await rest('DELETE', table + '?' + col + '=eq.' + id);
+  if (!history) {
+   const gone = await fetcher(url + '/auth/v1/admin/users/' + id, { method: 'DELETE', headers: service });
+   if (!gone.ok) throw new Error('delete user ' + gone.status);
+   return { status: 'deleted' };
+  }
+  await rest('PATCH', 'profiles?id=eq.' + id, { full_name: 'حساب محذوف', phone: '', disabled: true });
+  // Auth merges metadata and ignores an empty phone: clear every key and swap the number for an
+  // unreachable placeholder, so the old WhatsApp number can open a brand-new account later.
+  const old = await fetcher(url + '/auth/v1/admin/users/' + id, { headers: service });
+  if (!old.ok) throw new Error('read user ' + old.status);
+  const before = await old.json(), cleared = meta => Object.fromEntries(Object.keys(meta || {}).map(k => [k, null]));
+  const placeholder = '000' + Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b % 10).join('');
+  const locked = await fetcher(url + '/auth/v1/admin/users/' + id, { method: 'PUT', headers: service, body: JSON.stringify({ email: 'deleted-' + crypto.randomUUID() + '@deleted.souq-shatra.invalid', email_confirm: true, phone: placeholder, phone_confirm: true, password: randomHex(), user_metadata: cleared(before.user_metadata), app_metadata: { wa_user_id: null, login: null, deleted: true }, ban_duration: '876000h' }) });
+  if (!locked.ok) throw new Error('lock user ' + locked.status);
+  return { status: 'deleted' };
+ }
  return async (req) => {
   const reqUrl = new URL(req.url);
   // Meta's one-time webhook check.
@@ -126,6 +160,12 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
     const started = await rpc('whatsapp_login_start', { p_secret_hash: await sha256(secret), p_client_key: clientKey });
     if (started.limited) return reply({ code: 'rate_limited' }, 429);
     return reply({ code: started.code, secret, number, expires_in: 600 });
+   }
+   if (body.action === 'delete_account') {
+    const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+    if (!token || token === anonKey) return reply({ code: 'login_required' }, 401);
+    const done = await deleteAccount(token);
+    return reply(done, done.status ? 200 : done.code === 'professional' ? 409 : 401);
    }
    if (body.action === 'claim') {
     if (!/^[0-9]{6}$/.test(body.code || '') || !/^[0-9a-f]{64}$/.test(body.secret || '')) return reply({ code: 'invalid' }, 400);
