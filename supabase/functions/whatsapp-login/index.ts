@@ -21,6 +21,8 @@ export const localPhone = (phone) => phone.startsWith('964') ? '0' + phone.slice
 export const accountEmail = (phone) => 'wa' + phone + '@phone.souq-shatra.invalid';
 // Accounts known only by a WhatsApp user ID (usernames hide the number) get a stable private address.
 export const userIdEmail = async (id) => 'wau' + (await sha256(id)).slice(0, 32) + '@phone.souq-shatra.invalid';
+// The customer account kept beside a seller or driver account with the same number.
+export const customerEmail = (key) => 'wac' + key.replace(/@.*$/, '') + '@phone.souq-shatra.invalid';
 
 // The automatic reply after a code message; the link brings the customer back to finish signing in.
 const SITE = 'https://halguorabi76-netizen.github.io/souq-shatra/?wa=1';
@@ -44,11 +46,28 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   return cached;
  };
  const seen = kind => rpc('whatsapp_login_seen', { p_kind: kind }).catch(() => {});
+ const rest = async (method, path, body) => {
+  const r = await fetcher(url + '/rest/v1/' + path, { method, headers: { ...service, Prefer: 'return=minimal' }, ...(body ? { body: JSON.stringify(body) } : {}) });
+  if (!r.ok) throw new Error(method + ' ' + path.split('?')[0] + ' ' + r.status);
+  return method === 'GET' ? r.json() : null;
+ };
+ const busy = async (table, col, id) => (await rest('GET', table + '?select=' + col + '&limit=1&' + col + '=eq.' + id)).length > 0;
+ // Sellers, delivery workers and admins keep their professional account to themselves.
+ const professional = async (id) => {
+  const [profile] = await rest('GET', 'profiles?select=role&id=eq.' + id);
+  return profile?.role === 'admin' || await busy('stores', 'owner_id', id) || await busy('delivery_workers', 'user_id', id) || await busy('driver_profiles', 'user_id', id);
+ };
  async function session(found) {
   const phone = found.phone || '', waUser = found.wa_user_id || '';
-  const email = found.email || (phone ? accountEmail(phone) : await userIdEmail(waUser));
+  // WhatsApp sign-in is for customers only. When the number belongs to a seller or driver account,
+  // the customer gets a separate shopping account with the same number instead.
+  const separate = !!found.user_id && await professional(found.user_id);
+  if (separate) found = { phone, wa_user_id: waUser };
+  const email = found.email || (separate ? customerEmail(phone || await userIdEmail(waUser)) : phone ? accountEmail(phone) : await userIdEmail(waUser));
   if (!found.user_id) {
-   const account = phone
+   const account = separate
+    ? { email, email_confirm: true, user_metadata: { full_name: '', ...(phone ? { contact_phone: localPhone(phone) } : {}) }, app_metadata: { login: 'whatsapp', customer_of: 'professional' } }
+    : phone
     ? { email, phone, email_confirm: true, phone_confirm: true, user_metadata: { full_name: '', contact_phone: localPhone(phone) }, app_metadata: { login: 'whatsapp', ...(waUser ? { wa_user_id: waUser } : {}) } }
     : { email, email_confirm: true, user_metadata: { full_name: '' }, app_metadata: { login: 'whatsapp', wa_user_id: waUser } };
    const created = await fetcher(url + '/auth/v1/admin/users', { method: 'POST', headers: service, body: JSON.stringify(account) });
@@ -70,21 +89,14 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
  }
  // Permanent account deletion requested by the signed-in customer. Accounts with order history keep
  // the orders for the sellers but lose every personal detail and can never sign in again.
- const rest = async (method, path, body) => {
-  const r = await fetcher(url + '/rest/v1/' + path, { method, headers: { ...service, Prefer: 'return=minimal' }, ...(body ? { body: JSON.stringify(body) } : {}) });
-  if (!r.ok) throw new Error(method + ' ' + path.split('?')[0] + ' ' + r.status);
-  return method === 'GET' ? r.json() : null;
- };
  async function deleteAccount(token) {
   const me = await fetcher(url + '/auth/v1/user', { headers: { apikey: anonKey, Authorization: 'Bearer ' + token } });
   if (!me.ok) return { code: 'login_required' };
   const id = (await me.json()).id;
   if (!/^[0-9a-f-]{36}$/.test(id || '')) return { code: 'login_required' };
-  const [profile] = await rest('GET', 'profiles?select=role&id=eq.' + id);
-  const busy = async (table, col) => (await rest('GET', table + '?select=' + col + '&limit=1&' + col + '=eq.' + id)).length > 0;
-  if (profile?.role === 'admin' || await busy('stores', 'owner_id') || await busy('delivery_workers', 'user_id') || await busy('driver_profiles', 'user_id')) return { code: 'professional' };
+  if (await professional(id)) return { code: 'professional' };
   let history = false;
-  for (const [table, col] of [['orders', 'buyer_id'], ['order_customer_actions', 'buyer_id'], ['delivery_batches', 'buyer_id'], ['delivery_events', 'buyer_id'], ['payment_requests', 'payer_id'], ['payment_intents', 'user_id']]) if (await busy(table, col)) { history = true; break; }
+  for (const [table, col] of [['orders', 'buyer_id'], ['order_customer_actions', 'buyer_id'], ['delivery_batches', 'buyer_id'], ['delivery_events', 'buyer_id'], ['payment_requests', 'payer_id'], ['payment_intents', 'user_id']]) if (await busy(table, col, id)) { history = true; break; }
   for (const [table, col] of [['customer_addresses', 'user_id'], ['product_interactions', 'user_id'], ['account_notifications', 'recipient_id']]) await rest('DELETE', table + '?' + col + '=eq.' + id);
   if (!history) {
    const gone = await fetcher(url + '/auth/v1/admin/users/' + id, { method: 'DELETE', headers: service });

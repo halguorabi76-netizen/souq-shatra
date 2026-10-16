@@ -6,10 +6,11 @@ import {startWhatsappLogin,claimWhatsappLogin,whatsappLink} from '../whatsapp-lo
 const {createHandler,codeIn,localPhone}=await import('data:text/javascript;base64,'+Buffer.from(readFileSync(new URL('../supabase/functions/whatsapp-login/index.ts',import.meta.url),'utf8')).toString('base64'));
 const site='https://halguorabi76-netizen.github.io';
 const rpcCall=(f,name)=>f.calls.filter(c=>c.url.endsWith('/rpc/'+name));
-const fixture=(rpc={})=>{
+const fixture=(rpc={},owned=[])=>{
  const calls=[];
  const handler=createHandler({url:'https://db.invalid',anonKey:'public',serviceKey:'server-only',number:'9647837271707',verifyToken:'hook-token',appSecret:'app-secret',fetcher:async(url,options)=>{calls.push({url,...options,body:options.body&&JSON.parse(options.body)});
   if(url.includes('/rpc/'))return Response.json(rpc[url.split('/rpc/')[1]]??true);
+  if(url.includes('/rest/v1/')&&!url.includes('/rpc/'))return Response.json(owned.some(t=>url.includes('/rest/v1/'+t+'?'))?[{role:'seller'}]:[]);
   if(url.endsWith('/admin/generate_link'))return Response.json({hashed_token:'hash-1'});
   if(url.endsWith('/verify'))return Response.json({access_token:'access',refresh_token:'refresh'});
   return Response.json({id:'new-user'});}});
@@ -132,4 +133,14 @@ test('customer profile offers logout back to «لدي حساب» and a confirmed
  assert.match(html,/changeaccount:\(\)=>confirmBox\('تسجيل الخروج'[^\n]*A\.out\('profilePage'\)/);
  assert.match(html,/deleteAccountAsk:\(\)=>confirmBox\([^\n]*await deleteMyAccount\(db\)[^\n]*A\.out\('profilePage'/);
  assert.match(html,/غير موافق/);
+});
+test('a number that belongs to a seller or driver opens a separate customer account, never the professional one',async()=>{
+ for(const table of ['stores','delivery_workers','driver_profiles']){
+  const f=fixture({whatsapp_login_claim:{status:'verified',phone:'9647801234567',user_id:'seller-1',email:'shop@mail.com'}},[table]);
+  assert.deepEqual(await (await f.site({action:'claim',code:'482913',secret:'a'.repeat(64)})).json(),{status:'verified',access_token:'access',refresh_token:'refresh'});
+  const created=f.calls.find(c=>c.url.endsWith('/admin/users'));
+  assert.equal(created.body.email,'wac9647801234567@phone.souq-shatra.invalid');assert.equal(created.body.phone,undefined);assert.equal(created.body.user_metadata.contact_phone,'07801234567');
+  assert.equal(f.calls.find(c=>c.url.endsWith('/generate_link')).body.email,'wac9647801234567@phone.souq-shatra.invalid');
+  assert.ok(!f.calls.some(c=>c.url.includes('/admin/users/seller-1')));
+ }
 });
