@@ -31,3 +31,12 @@ test('phone + password sign-in tries only the accounts found for that phone and 
  r=await post(make({limited:true,emails:[]},'x'),{phone:'07801112233',password:'secret1',role:'driver'});assert.equal(r.status,429);
  r=await post(make({limited:false,emails:[]},'x'),{phone:'07801112233',password:'secret1',role:'admin'});assert.equal(r.status,400);
 });
+test('choosing «زبون» never opens a seller or driver account, even when both accounts share the password',async()=>{
+ const run=async(emails,owner)=>{const calls=[];const h=createHandler({url:'https://auth.invalid',anonKey:'public',serviceKey:'server-only',hash:async()=> 'a'.repeat(64),fetcher:async(url,options={})=>{calls.push(url);
+  if(url.includes('/rpc/'))return Response.json({limited:false,emails});
+  if(url.includes('/rest/v1/'))return Response.json(url.includes('stores?')&&url.endsWith('owner_id=eq.'+owner)?[{id:'s'}]:[]);
+  const email=JSON.parse(options.body).email;return Response.json({access_token:'t-'+email,refresh_token:'r',user:{id:email.split('@')[0]}});}});
+  const r=await h(new Request('https://edge.invalid',{method:'POST',headers:{Origin:'https://halguorabi76-netizen.github.io'},body:JSON.stringify({phone:'07801112233',password:'same123',role:'buyer'})}));return {status:r.status,body:await r.json()};};
+ assert.deepEqual(await run(['shop@x.invalid','buyer@x.invalid'],'shop'),{status:200,body:{access_token:'t-buyer@x.invalid',refresh_token:'r'}});
+ assert.deepEqual(await run(['shop@x.invalid'],'shop'),{status:401,body:{code:'professional_account'}});
+});

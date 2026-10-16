@@ -4,6 +4,10 @@ export function createHandler({ url, anonKey, serviceKey, fetcher = fetch, hash 
  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
  return Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2, '0')).join('');
 } }) {
+ const service = { apikey: serviceKey, Authorization: 'Bearer ' + serviceKey };
+ const owns = async (path) => { const r = await fetcher(url + '/rest/v1/' + path, { headers: service }); if (!r.ok) throw new Error('lookup'); return (await r.json()).length > 0; };
+ // A seller, driver or admin account; customers choosing «زبون» never land in one of these.
+ const professional = async (id) => await owns('profiles?select=id&role=eq.admin&id=eq.' + id) || await owns('stores?select=id&limit=1&owner_id=eq.' + id) || await owns('delivery_workers?select=user_id&limit=1&user_id=eq.' + id) || await owns('driver_profiles?select=user_id&limit=1&user_id=eq.' + id);
  return async req => {
   const origin = req.headers.get('Origin');
   const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Vary': 'Origin',
@@ -27,14 +31,18 @@ export function createHandler({ url, anonKey, serviceKey, fetcher = fetch, hash 
     if (found.limited) return reply({ code: 'rate_limited' }, 429);
     // Unknown numbers still cost one Auth check, so both failures look the same.
     const emails = Array.isArray(found.emails) && found.emails.length ? found.emails.slice(0, 3) : ['missing-' + crypto.randomUUID() + '@example.invalid'];
+    // The chosen account type decides which account opens, so one number may keep a customer
+    // account and a seller or driver account even with the same password.
+    let professionalOnly = false;
     for (const email of emails) {
      const auth = await fetcher(url + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: anonKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: body.password }) });
      if (auth.status === 429) return reply({ code: 'rate_limited' }, 429);
      if (!auth.ok) continue;
      const session = await auth.json();
+     if (body.role === 'buyer' && session.user?.id && await professional(session.user.id)) { professionalOnly = true; continue; }
      if (found.emails?.includes(email) && session.access_token && session.refresh_token) return reply({ access_token: session.access_token, refresh_token: session.refresh_token });
     }
-    return reply({ code: 'invalid_credentials' }, 401);
+    return reply({ code: professionalOnly ? 'professional_account' : 'invalid_credentials' }, 401);
    }
    if (!/^[a-z][a-z0-9_]{2,29}$/.test(username) || !['seller', 'driver'].includes(body.role) || typeof body.password !== 'string' || body.password.length < 6 || body.password.length > 1024) return reply({ code: 'invalid_credentials' }, 400);
    const clientKey = await hash(req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown');
