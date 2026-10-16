@@ -483,8 +483,9 @@ body.starting{overflow:hidden}
   const start=()=>{if(playing||done)return;if(document.visibilityState==='hidden'){document.addEventListener('visibilitychange',start,{once:true});return}play()};
   window.addEventListener('load',start,{once:true});
   setTimeout(start,2500);
-  // A tap replays the animation, like the original splash.html.
-  splash.addEventListener('click',()=>{if(playing&&!done)play()});
+  // A tap skips the animation and opens the site at once, for people who open the app many times a day.
+  const skip=()=>{if(done)return;clearTimeout(timer);splash.classList.add('leaving');setTimeout(finish,180)};
+  splash.addEventListener('click',skip);
   setTimeout(finish,15000);
   window.addEventListener('pageshow',event=>{if(event.persisted)finish()});
 })();
