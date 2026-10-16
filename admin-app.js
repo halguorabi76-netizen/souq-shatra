@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=174";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=172";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=177";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=178";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=174";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -516,6 +516,13 @@ async function loadWaAdmin(){
  try{const r=await db.rpc('admin_whatsapp_login_status');waAdmin=r.error?{error:'تعذّر تحميل حالة واتساب. إذا كانت هذه أول مرة، تأكد من تحديث قاعدة البيانات.'}:r.data}catch{waAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{waAdminLoading=false}
  if(tab==='admin')admin();
 }
+// Numbers the admin approved beforehand as sellers or drivers.
+let inviteAdmin=null,inviteLoading=false;
+async function loadInvites(){
+ if(inviteLoading)return;inviteLoading=true;
+ try{const r=await db.rpc('admin_professional_invites');inviteAdmin=r.error?{error:'تعذّر التحميل. إذا كانت هذه أول مرة، تأكد من تحديث قاعدة البيانات.'}:{list:r.data||[]}}catch{inviteAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{inviteLoading=false}
+ if(tab==='admin')admin();
+}
 // «بِع غرضك»: settings and live listings for the admin.
 let usedAdmin=null,usedAdminLoading=false;
 async function loadUsedAdmin(){
@@ -530,9 +537,11 @@ function admin(){
  if(profile?.disabled||profile?.role!=='admin')return;
  if(!waAdmin)loadWaAdmin();
  if(adminTab==='used'&&!usedAdmin)loadUsedAdmin();
- $('#view').innerHTML=renderAdminWorkspace({used:usedAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ if(adminTab==='invites'&&!inviteAdmin)loadInvites();
+ $('#view').innerHTML=renderAdminWorkspace({used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
  $('#waAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.waAdminSave()});
  $('#usedAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.usedAdminSave()});
+ $('#inviteForm')?.addEventListener('submit',e=>{e.preventDefault();A.inviteAdd()});
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
@@ -894,6 +903,11 @@ const A={
   adminBack:()=>{adminDetail=null;admin();scrollTo(0,0)},
   waAdminReload:()=>{waAdmin=null;admin()},
   waAdminCopy:v=>{navigator.clipboard?.writeText(v).then(()=>toast('تم النسخ'),()=>toast('انسخه يدويًا'))||toast('انسخه يدويًا')},
+  invitesReload:()=>{inviteAdmin=null;loadInvites()},
+  inviteAdd:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const phone=val('invitePhone').replace(/[^0-9]/g,''),role=val('inviteRole'),note=val('inviteNote');
+    if(!/^(07|9647|7)[0-9]{8,10}$/.test(phone)){toast('اكتب رقمًا صحيحًا مثل 07xxxxxxxxx');return}
+    check(await db.rpc('admin_add_professional_invite',{p_phone:phone,p_role:role,p_note:note}));inviteAdmin=null;await loadInvites();toast('تمت الموافقة على الرقم؛ أخبره أن يفتح «حساب جديد» ويختار '+(role==='seller'?'«بائع»':'«سائق توصيل»'))}),
+  inviteRemove:v=>{if(!confirm('إلغاء الموافقة على هذا الرقم؟'))return;act(async()=>{check(await db.rpc('admin_remove_professional_invite',{p_id:v}));inviteAdmin=null;await loadInvites();toast('أُلغيت الموافقة')})},
   usedAdminReload:()=>{usedAdmin=null;loadUsedAdmin()},
   usedAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const n=id=>Math.round(Number(val(id)));const limit=n('usedLimit'),days=n('usedDays'),price=n('usedPrice');
     if(!(limit>=0&&limit<=100)||!(days>=1&&days<=90)||!(price>=0&&price<=1000000)){toast('تحقق من الأرقام: الأغراض 0–100، الأيام 1–90');return}
