@@ -796,6 +796,12 @@ function trackPage(){if(!ADMIN_PORTAL&&!db.preview){pageNav?.track({tab,dt,publi
 // The current page survives a reload: same tab, same place, same account.
 const ROUTE_TABS=['market','catalog','stores','offers','usedPage','orders','profilePage','account','listings','myMarket','chats','settings','categories','searchPage'];
 let routeRestored=false;
+// New code published? A data refresh alone would keep the old screens, so load the new version
+// (the page and scroll position come back through restoreRoute, without the opening animation).
+let buildSeen=null;
+async function liveBuild(){try{const r=await fetch('./sw.js',{cache:'no-store'});return r.ok?((await r.text()).match(/souq-shatra-design-v\d+/)||[])[0]||null:null}catch{return null}}
+async function newBuildReady(){const v=await liveBuild();if(!v)return false;if(!buildSeen){buildSeen=v;return false}return v!==buildSeen}
+if(!ADMIN_PORTAL&&!db.preview){liveBuild().then(v=>{buildSeen||=v});document.addEventListener('visibilitychange',async()=>{if(document.visibilityState!=='visible'||!$('#shade')?.hidden||document.querySelector('.confirm-modal,input:focus,textarea:focus'))return;if(await newBuildReady()){saveRoute();location.reload()}})}
 // Pull down at the top of a page to refresh its data only (the app is not restarted).
 (()=>{
  if(typeof document==='undefined'||!document.addEventListener)return;
@@ -807,7 +813,7 @@ let routeRestored=false;
  document.addEventListener('touchmove',e=>{if(y0==null)return;const dy=e.touches[0].clientY-y0;if(dy<=0||(window.scrollY||0)>2){pull=0;paint();return}pull=dy*.55;paint()},{passive:true});
  document.addEventListener('touchend',()=>{if(y0==null)return;y0=null;if(pull<70){pull=0;paint();return}
   busy=true;el.classList.add('spinning');pull=70;paint();const keep=window.scrollY||0;
-  act(async()=>{await refresh();if(typeof loadUsed==='function')await loadUsed().catch(()=>{});render();scrollTo(0,keep);toast('تم تحديث الصفحة')}).finally(()=>{busy=false;pull=0;el.classList.remove('spinning','armed');paint()});
+  act(async()=>{if(await newBuildReady()){saveRoute();toast('جارٍ تحميل النسخة الجديدة…');location.reload();return}await refresh();if(typeof loadUsed==='function')await loadUsed().catch(()=>{});render();scrollTo(0,keep);toast('تم تحديث الصفحة')}).finally(()=>{busy=false;pull=0;el.classList.remove('spinning','armed');paint()});
  },{passive:true});
 })();
 function saveRoute(){if(!dataReady||!routeRestored)return;try{sessionStorage.setItem('souq-route',JSON.stringify({who:(user?.id||'guest')+':'+viewMode,tab,dt,cat,scroll:Math.round(window.scrollY||0),at:Date.now()}))}catch{}}
