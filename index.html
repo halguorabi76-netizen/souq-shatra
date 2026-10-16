@@ -516,7 +516,7 @@ import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
 import {createSellerWorkspace} from "./seller-workspace.js?v=174";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=172";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=177";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=178";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=174";
 import {createChat} from "./chat.js?v=1";
 async function apiFetch(resource,init={}){
@@ -973,7 +973,9 @@ function render(){
   if(!dataReady&&viewMode==='seller'&&!db.preview){sellerResume();return}
   if(accountResolving&&!dataReady&&!db.preview){document.documentElement.dataset.accountResume='true';$('.tabs').hidden=true;$('#view').innerHTML='<div class="empty" role="status">جارٍ فتح حسابك…</div>';return}
   if(viewMode==='driver'&&!dataReady){document.body.classList.remove('seller-workspace');$('.tabs').hidden=false;driverPage();return;}
+  // Approved sellers and drivers always open in their own workspace, never as a customer.
   if(sellerAccount())viewMode='seller';
+  else if(user&&dataReady&&driverAccount?.approved&&profile?.role==='driver'&&!profile?.disabled&&viewMode!=='driver'){viewMode='driver';rememberMode('driver');if(!['account','orders','profilePage','settings','chats'].includes(tab))tab='account';}
   if(dataReady&&viewMode==='seller'&&!canSell())viewMode='buyer';
   if(canSell()&&viewMode==='seller'&&ownStore){if(publicStoreId&&publicStoreId!==ownStore.id)publicStoreId=null;if(!['account','market','listings','myMarket','chats','settings','profilePage','postPage','orders'].includes(tab))tab='account';}
   window.SouqTheme.set(window.SouqTheme.get(),false);
@@ -1578,14 +1580,14 @@ function waAccountSheet(mode=waMode){
 <fieldset class="wa-join"><legend>أريد الانضمام كـ</legend>${[['buyer','زبون'],['seller','بائع'],['driver','سائق توصيل']].map(([v,t])=>`<button type="button" data-a="waJoin" data-v="${v}" aria-pressed="${(d.join||'buyer')===v}">${t}</button>`).join('')}</fieldset>
 ${d.join==='seller'?`<div class="wa-join-fields"><label for="waStoreName">اسم المتجر <span class="auth-required">*</span></label><input id="waStoreName" maxlength="100" placeholder="مثال: أسواق النور" value="${esc(d.storeName||'')}"><label for="waStoreKind">نوع المتجر <span class="auth-required">*</span></label><select id="waStoreKind"><option value="">اختر</option><option value="physical" ${d.storeKind==='physical'?'selected':''}>محل في المدينة</option><option value="online" ${d.storeKind==='online'?'selected':''}>متجر إلكتروني / من البيت</option></select><label for="waStoreDesc">ماذا تبيع؟ <small>(اختياري)</small></label><input id="waStoreDesc" maxlength="300" placeholder="مثال: ملابس رجالية، مواد غذائية…" value="${esc(d.storeDesc||'')}"></div>`:''}
 ${d.join==='driver'?`<div class="wa-join-fields"><label for="waVehicle">وسيلة التوصيل ووصفها <span class="auth-required">*</span></label><input id="waVehicle" maxlength="160" placeholder="مثال: دراجة نارية حمراء، رقم اللوحة إن وجد" value="${esc(d.vehicle||'')}"></div>`:''}
-${d.join&&d.join!=='buyer'?`<p class="wa-join-note">🔒 زر الدعم يظهر بعد إكمال كل البيانات وتأكيد رقمك، فتُرسَل بياناتك كاملة للإدارة للموافقة. حتى الموافقة تستخدم حسابك كزبون.</p>`:''}</form>`;
+${d.join&&d.join!=='buyer'?`<div class="wa-join-note"><p>🔒 <b>موافقة الإدارة أولًا:</b> تواصل مع الدعم ليوافق على رقمك ${d.join==='seller'?'كبائع':'كسائق توصيل'}، ثم أكمل بياناتك هنا وأكّد رقمك مرة واحدة فقط، فيُفتح حسابك ${d.join==='seller'?'كمتجر':'كسائق'} مباشرة.</p><a class="wa-support" href="${SUPPORT_WHATSAPP}?text=${encodeURIComponent('مرحبًا، أرغب بالانضمام إلى سوق الشطرة '+(d.join==='seller'?'كبائع':'كسائق توصيل')+'. رقمي: '+(d.phone||''))}" target="_blank" rel="noopener">${authIcon('support')}تواصل مع الدعم</a></div>`:''}</form>`;
  const roles=[['buyer','زبون'],['seller','بائع / صاحب متجر'],['driver','عامل توصيل']],role=phoneLoginRole;
  const existing=`<form id="phoneLoginForm" class="wa-account" onsubmit="return false"><fieldset class="wa-roles"><legend>نوع الحساب *</legend>${roles.map(([v,t])=>`<label><input type="radio" name="loginRole" value="${v}" ${role===v?'checked':''}><span>${t}</span></label>`).join('')}</fieldset>
 <label for="loginPhone">رقم الهاتف</label><input id="loginPhone" type="tel" dir="ltr" inputmode="tel" autocomplete="tel" maxlength="14" placeholder="07xxxxxxxxx" value="${esc(phoneLoginNumber)}">
 <label for="loginPassword">كلمة السر</label><div class="auth-field"><span class="auth-field-icon">${authIcon('lock')}</span><input id="loginPassword" type="password" autocomplete="current-password"><button class="auth-eye" type="button" data-a="showPassword" data-v="loginPassword" aria-label="إظهار كلمة المرور" aria-pressed="false">${authIcon('eyeOff')}</button></div>
 <p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="submit" class="buy wa-login-button">دخول</button></form>
 ${role==='buyer'?`<p class="wa-alt">نسيت كلمة السر؟ <button type="button" class="link" data-a="waStart">ادخل برسالة واتساب</button> ثم غيّرها من الإعدادات.</p>`:`<p class="wa-alt"><button type="button" class="link" data-a="roleExisting" data-v="${role}">الدخول باسم المستخدم أو البريد</button> · <a href="${SUPPORT_WHATSAPP}" target="_blank" rel="noopener">نسيت كلمة السر؟ راسل الدعم</a></p>`}`;
- sheet(head(mode==='new'?'إنشاء حساب':'تسجيل الدخول')+`<div class="wa-tabs" role="tablist"><button type="button" role="tab" data-a="waMode" data-v="new" aria-selected="${mode==='new'}">حساب جديد</button><button type="button" role="tab" data-a="waMode" data-v="existing" aria-selected="${mode==='existing'}">لدي حساب</button></div><div class="wa-pane">${mode==='new'?form+`<p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="button" class="buy wa-open" data-a="waStart">${authIcon('whatsapp')}${d.join&&d.join!=='buyer'?'التالي: تأكيد الرقم وإرسال الطلب':'التالي: تأكيد الرقم عبر واتساب'}</button>`:existing}</div>`);
+ sheet(head(mode==='new'?'إنشاء حساب':'تسجيل الدخول')+`<div class="wa-tabs" role="tablist"><button type="button" role="tab" data-a="waMode" data-v="new" aria-selected="${mode==='new'}">حساب جديد</button><button type="button" role="tab" data-a="waMode" data-v="existing" aria-selected="${mode==='existing'}">لدي حساب</button></div><div class="wa-pane">${mode==='new'?form+`<p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="button" class="buy wa-open" data-a="waStart">${authIcon('whatsapp')}${d.join&&d.join!=='buyer'?'تمت الموافقة؟ أكّد رقمك وافتح حسابك':'التالي: تأكيد الرقم عبر واتساب'}</button>`:existing}</div>`);
  const slid=waPane();if(waSlide&&slid){slid.classList.add('wa-slide-'+waSlide);waSlide=''}
  $('#phoneLoginForm')?.addEventListener('change',e=>{if(e.target.name==='loginRole'){phoneLoginRole=e.target.value;phoneLoginNumber=val('loginPhone');waAccountSheet('existing')}});
  $('#phoneLoginForm')?.addEventListener('submit',()=>A.phoneLogin());
@@ -1623,22 +1625,13 @@ async function waPoll(){
  await refresh();
  if(joining)await waSubmitJoin(joining);
 }
-// A seller or driver who signed up with their details: the request goes to the admin's approvals,
-// and only now the support button opens WhatsApp with everything the admin needs.
+// A seller or driver approved by the admin beforehand: the account opens as a store or driver at once.
 async function waSubmitJoin(d){
- const role=d.join,name=d.name.trim(),parts=name.split(/\s+/),zone=waZones().find(z=>z[0]===d.zone)?.[1]||'';
- let saved=true;
- try{
-  if(role==='seller')check(await db.rpc('request_seller_join_map',{p_first:parts[0],p_last:parts.slice(1).join(' '),p_name:d.storeName.trim(),p_phone:d.phone,p_address:[zone,d.addr.trim()].filter(Boolean).join(' - '),p_description:(d.storeDesc||'').trim(),p_kind:d.storeKind,p_lat:d.point.lat,p_lon:d.point.lon}));
-  else check(await db.rpc('request_driver_application',{p_name:name,p_phone:d.phone,p_email:user?.email||'',p_address:[zone,d.addr.trim()].filter(Boolean).join(' - '),p_vehicle:d.vehicle.trim()}));
-  await refresh();
- }catch(e){saved=false;console.error(e)}
- const map=d.point?`https://maps.google.com/?q=${d.point.lat},${d.point.lon}`:'';
- const lines=role==='seller'
-  ?['طلب انضمام كبائع — سوق الشطرة','الاسم: '+name,'الهاتف: '+d.phone,'اسم المتجر: '+d.storeName.trim(),'نوع المتجر: '+(d.storeKind==='online'?'متجر إلكتروني / من البيت':'محل في المدينة'),d.storeDesc?'ماذا يبيع: '+d.storeDesc.trim():'','المنطقة: '+zone,'العنوان: '+d.addr.trim(),map?'الموقع: '+map:'']
-  :['طلب انضمام كسائق توصيل — سوق الشطرة','الاسم: '+name,'الهاتف: '+d.phone,'وسيلة التوصيل: '+d.vehicle.trim(),'المنطقة: '+zone,'العنوان: '+d.addr.trim(),map?'الموقع: '+map:''];
- const text=lines.filter(Boolean).join('\n')+'\n'+(saved?'(الطلب محفوظ في الإدارة بانتظار الموافقة)':'');
- sheet(head(saved?'تم إرسال طلبك للإدارة ✅':'أكمل طلبك عبر الدعم')+`<div class="wa-join-done"><p>${saved?'طلبك الآن في صفحة الموافقات لدى الإدارة. أرسل بياناتك للدعم لتسريع المراجعة:':'تعذّر حفظ الطلب تلقائيًا. أرسل بياناتك للدعم وسيُفعَّل حسابك من الإدارة:'}</p><pre class="wa-join-summary">${esc(lines.filter(Boolean).join('\n'))}</pre><a class="buy wa-support-send" href="${SUPPORT_WHATSAPP}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">${authIcon('support')} إرسال بياناتي إلى الدعم عبر واتساب</a><p class="note">بعد الموافقة يصلك إشعار، وتدخل من «لدي حساب» باختيار «${role==='seller'?'بائع':'عامل توصيل'}» ورقمك وكلمة السر.</p><button class="alt" data-a="close">لاحقًا</button></div>`);
+ const role=d.join,zone=waZones().find(z=>z[0]===d.zone)?.[1]||'',address=[zone,d.addr.trim()].filter(Boolean).join(' - ');
+ const r=await db.rpc('claim_professional_invite',{p_role:role,p_store_name:d.storeName||null,p_kind:d.storeKind||null,p_description:d.storeDesc||null,p_address:address,p_lat:d.point?.lat??null,p_lon:d.point?.lon??null,p_vehicle:d.vehicle||null});
+ if(r.error){sheet(head('لم يُفعَّل حسابك بعد')+`<div class="wa-join-done"><p>دخلت بحسابك، لكن رقمك لم تتم الموافقة عليه ${role==='seller'?'كبائع':'كسائق'} بعد.</p><a class="buy wa-support-send" href="${SUPPORT_WHATSAPP}?text=${encodeURIComponent('مرحبًا، أرغب بالانضمام إلى سوق الشطرة '+(role==='seller'?'كبائع':'كسائق توصيل')+'. رقمي: '+d.phone)}" target="_blank" rel="noopener">${authIcon('support')} تواصل مع الدعم</a><p class="note">بعد الموافقة افتح «حسابي» واضغط ${role==='seller'?'«طلب الانضمام كبائع»':'«الانضمام كسائق توصيل»'}.</p><button class="alt" data-a="close">حسنًا</button></div>`);return}
+ rememberMode(role);tab='account';A.close();await refresh();render();scrollTo(0,0);
+ toast(role==='seller'?'تم فتح متجرك ✅ ابدأ بإضافة منتجاتك':'تم تفعيل حسابك كسائق توصيل ✅');
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&waRequest){clearTimeout(waTimer);waTick()}});
 window.addEventListener('pageshow',()=>{if(waRequest){clearTimeout(waTimer);waTick()}});
@@ -1714,7 +1707,8 @@ const A={
   waJoin:v=>{waCapture();waDraft.join=['seller','driver'].includes(v)?v:'buyer';waAccountSheet('new');$('#waStoreName,#waVehicle')?.focus()},
   waMap:()=>{waCapture();window.SouqLocationPicker.show({value:waDraft.point,sheet,head,title:'حدّد موقعك',purpose:'عنوانك',onConfirm:p=>{waDraft.point=p;waAccountSheet('new');toast('تم تحديد موقعك')}})},
   waStart:()=>act(async()=>{
-    if(waMode==='new'){waCapture();const problem=waDraftProblem(waDraft);if(problem){const note=$('#waLoginNote');if(note){note.textContent=problem[1];note.hidden=false}$('#'+problem[0])?.focus();return}}
+    if(waMode==='new'){waCapture();const problem=waDraftProblem(waDraft);if(problem){const note=$('#waLoginNote');if(note){note.textContent=problem[1];note.hidden=false}$('#'+problem[0])?.focus();return}
+     if(waDraft.join&&waDraft.join!=='buyer'&&!db.preview){const ok=await db.rpc('professional_invite_open',{p_phone:waDraft.phone,p_role:waDraft.join});if(!ok.error&&ok.data!==true){const note=$('#waLoginNote');if(note){note.textContent='رقمك لم تتم الموافقة عليه بعد '+(waDraft.join==='seller'?'كبائع':'كسائق')+'. اضغط «تواصل مع الدعم» أعلاه وانتظر الموافقة، ثم عد إلى هنا.';note.hidden=false}return}}}
     const button=$('#sheet [data-a="waStart"]');if(button?.disabled)return;if(button)button.disabled=true;
     try{
       const result=await withTimeout(startWhatsappLogin(db));

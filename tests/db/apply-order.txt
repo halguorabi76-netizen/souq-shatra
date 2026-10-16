@@ -25,3 +25,4 @@ supabase/migrations/20261017100000_used_listings.sql
 supabase/migrations/20261017120000_store_approval_notice.sql
 supabase/migrations/20261018100000_chat_and_ratings.sql
 supabase/migrations/20261018120000_store_opening_hours.sql
+supabase/migrations/20261018140000_professional_invites.sql
