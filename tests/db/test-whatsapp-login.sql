@@ -57,3 +57,15 @@ reset role;
 select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
 select pg_temp.ok(public.admin_whatsapp_login_status()->>'last_webhook_at' is not null,'admin sees that Meta reached the webhook');
 select pg_temp.as_user(null);
+
+-- WhatsApp user IDs (usernames): Meta may send from_user_id without a phone number.
+insert into auth.users(id,email,raw_app_meta_data) values('00000000-0000-0000-0000-0000000000d2','wau@phone.invalid','{"wa_user_id":"IQ.1234567890"}');
+set role service_role;
+insert into t_wa values('c4',public.whatsapp_login_start(repeat('f',64),'ip4')->>'code');
+select pg_temp.ok(not public.whatsapp_login_confirm((select v from t_wa where k='c4'),'',''),'neither phone nor user id is refused');
+select pg_temp.ok(public.whatsapp_login_confirm((select v from t_wa where k='c4'),'','IQ.1234567890'),'user id alone confirms the code');
+select pg_temp.ok(public.whatsapp_login_claim((select v from t_wa where k='c4'),repeat('f',64))->>'user_id'='00000000-0000-0000-0000-0000000000d2','user id maps to its account');
+insert into t_wa values('c5',public.whatsapp_login_start(repeat('1',64),'ip4')->>'code');
+select public.whatsapp_login_confirm((select v from t_wa where k='c5'),'','IQ.new-user');
+select pg_temp.ok((public.whatsapp_login_claim((select v from t_wa where k='c5'),repeat('1',64))->>'user_id') is null,'unknown user id asks the edge function to create the account');
+reset role;

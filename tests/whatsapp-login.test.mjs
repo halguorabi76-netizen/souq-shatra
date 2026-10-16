@@ -31,7 +31,7 @@ test('start returns a code, a browser-only secret and the business number; the d
 });
 test('only messages signed by Meta confirm a code, using the real sender number',async()=>{
  const f=fixture();assert.equal((await f.meta(message('9647801234567','رمز الدخول إلى سوق الشطرة: 482913'))).status,200);
- assert.deepEqual(rpcCall(f,'whatsapp_login_confirm')[0].body,{p_code:'482913',p_phone:'9647801234567'});assert.deepEqual(rpcCall(f,'whatsapp_login_seen')[0].body,{p_kind:'webhook'});
+ assert.deepEqual(rpcCall(f,'whatsapp_login_confirm')[0].body,{p_code:'482913',p_phone:'9647801234567',p_wa_user_id:''});assert.deepEqual(rpcCall(f,'whatsapp_login_seen')[0].body,{p_kind:'webhook'});
  const forged=fixture();assert.equal((await forged.meta(message('9647801234567','482913'),'wrong')).status,401);assert.equal(rpcCall(forged,'whatsapp_login_confirm').length+rpcCall(forged,'whatsapp_login_seen').length,0);
  const noise=fixture();await noise.meta(message('9647801234567','مرحبا'));assert.equal(rpcCall(noise,'whatsapp_login_confirm').length,0);
 });
@@ -41,6 +41,14 @@ test('number, webhook token and secret saved from the admin page are used; nothi
  assert.equal(await (await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=from-admin&hub.challenge=7'))).text(),'7');
  const {createHandler:make}={createHandler};const empty=make({url:'https://db.invalid',anonKey:'a',serviceKey:'s',fetcher:async u=>Response.json(u.includes('whatsapp_login_config')?{number:null,verify_token:'t',app_secret:null}:true)});
  const r=await empty(new Request('https://edge.invalid',{method:'POST',headers:{Origin:site},body:'{"action":"start"}'}));assert.equal(r.status,503);assert.deepEqual(await r.json(),{code:'not_configured'});
+});
+test('messages that carry only a WhatsApp user ID (usernames) still confirm the code and create a private account',async()=>{
+ const f=fixture();await f.meta({entry:[{changes:[{field:'messages',value:{contacts:[{profile:{name:'x'},user_id:'IQ.555'}],messages:[{from_user_id:'IQ.555',type:'text',text:{body:'رمز الدخول إلى سوق الشطرة: 482913'}}]}}]}]});
+ assert.deepEqual(rpcCall(f,'whatsapp_login_confirm')[0].body,{p_code:'482913',p_phone:'',p_wa_user_id:'IQ.555'});
+ const c=fixture({whatsapp_login_claim:{status:'verified',phone:null,wa_user_id:'IQ.555',user_id:null,email:null}});
+ assert.equal((await (await c.site({action:'claim',code:'482913',secret:'a'.repeat(64)})).json()).access_token,'access');
+ const created=c.calls.find(x=>x.url.endsWith('/admin/users')).body;assert.equal(created.phone,undefined);assert.equal(created.app_metadata.wa_user_id,'IQ.555');assert.match(created.email,/^wau[0-9a-f]{32}@phone\.souq-shatra\.invalid$/);
+ assert.equal(c.calls.find(x=>x.url.endsWith('/generate_link')).body.email,created.email);
 });
 test('Meta webhook verification answers the challenge only with the right token',async()=>{
  const f=fixture();const ok=await f.handler(new Request('https://edge.invalid/?hub.mode=subscribe&hub.verify_token=hook-token&hub.challenge=42'));assert.equal(await ok.text(),'42');
