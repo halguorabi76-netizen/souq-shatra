@@ -1442,7 +1442,9 @@ function waResume(){
 let waDraft=null,waMode='new',phoneLoginRole='buyer',phoneLoginNumber='';
 const SUPPORT_WHATSAPP='https://wa.me/9647837271707';
 const WA_ZONES=[['shatra','داخل الشطرة'],['nasr','مدينة النصر'],['dawaya','مدينة الدواي'],['bidaa','مدينة البدعة'],['alsada','السادة آل حمد'],['seven_april','سبعة نيسان']];
-function waZones(){const live=(deliveryZones||[]).filter(z=>z.enabled).map(z=>[z.id,z.name]);return live.length?live:WA_ZONES}
+// Al-Shatra first, then the nearby towns in the order the admin asked for.
+const WA_ZONE_ORDER=['shatra','nasr','gharraf','dawaya','seven_april','bidaa','alsada'];
+function waZones(){const live=(deliveryZones||[]).filter(z=>z.enabled).map(z=>[z.id,z.name]),rows=live.length?live:WA_ZONES,rank=id=>{const i=WA_ZONE_ORDER.indexOf(id);return i<0?99:i};return [...rows].sort((a,b)=>rank(a[0])-rank(b[0]))}
 function waCapture(){if(!$('#waAccountForm'))return;Object.assign(waDraft,{name:val('waName'),phone:val('waPhone').replace(/[^0-9]/g,''),password:$('#waPassword')?.value||'',password2:$('#waPassword2')?.value||'',zone:val('waZone'),addr:val('waAddr')})}
 function waDraftProblem(d){
  if(!d||d.name.trim().length<3||d.name.trim().split(/\s+/).length<2)return ['waName','اكتب اسمك الكامل (الاسم واسم الأب على الأقل)'];
