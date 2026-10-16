@@ -432,7 +432,7 @@ body.starting{background:#101f48!important}
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=14">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=16">
 <style>
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#6f82e0 0%,#3547a5 35%,#16245a 75%,#070c1f 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
@@ -1439,7 +1439,16 @@ function waResume(){
  clearTimeout(waTimer);waTick();
 }
 // New accounts fill in their details first; they are saved right after WhatsApp confirms the sender.
-let waDraft=null,waMode='new',phoneLoginRole='buyer',phoneLoginNumber='';
+let waDraft=null,waMode='new',phoneLoginRole='buyer',phoneLoginNumber='',waSlide='';
+// Swiping sideways on the sign-in sheet switches between «حساب جديد» and «لدي حساب».
+let waTouch=null;
+document.addEventListener('touchstart',e=>{const t=e.touches[0];waTouch=e.touches.length===1&&$('#sheet .wa-tabs')&&e.target.closest?.('#sheet')&&!e.target.closest('select,iframe,.location-picker')?{x:t.clientX,y:t.clientY,at:Date.now()}:null},{passive:true});
+document.addEventListener('touchend',e=>{
+ const s=waTouch;waTouch=null;if(!s||!$('#sheet .wa-tabs'))return;
+ const t=e.changedTouches[0],dx=t.clientX-s.x,dy=t.clientY-s.y;
+ if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-s.at>900)return;
+ waSlide=dx<0?'left':'right';A.waMode(waMode==='new'?'existing':'new');
+},{passive:true});
 const SUPPORT_WHATSAPP='https://wa.me/9647837271707';
 const WA_ZONES=[['shatra','الشطرة'],['nasr','مدينة النصر'],['dawaya','مدينة الدواية'],['seven_april','سبعة نيسان'],['bidaa','مدينة البدعة']];
 // Al-Shatra first, then the nearby towns in the order the admin asked for.
@@ -1475,6 +1484,7 @@ function waAccountSheet(mode=waMode){
 <p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="submit" class="buy wa-login-button">دخول</button></form>
 ${role==='buyer'?`<p class="wa-alt">نسيت كلمة السر؟ <button type="button" class="link" data-a="waStart">ادخل برسالة واتساب</button> ثم غيّرها من الإعدادات.</p>`:`<p class="wa-alt"><button type="button" class="link" data-a="roleExisting" data-v="${role}">الدخول باسم المستخدم أو البريد</button> · <a href="${SUPPORT_WHATSAPP}" target="_blank" rel="noopener">نسيت كلمة السر؟ راسل الدعم</a></p>`}`;
  sheet(head(mode==='new'?'إنشاء حساب':'تسجيل الدخول')+`<div class="wa-tabs" role="tablist"><button type="button" role="tab" data-a="waMode" data-v="new" aria-selected="${mode==='new'}">حساب جديد</button><button type="button" role="tab" data-a="waMode" data-v="existing" aria-selected="${mode==='existing'}">لدي حساب</button></div>${mode==='new'?form+`<p id="waLoginNote" class="wa-msg" role="alert" hidden></p><button type="button" class="buy wa-open" data-a="waStart">${authIcon('whatsapp')}التالي: تأكيد الرقم عبر واتساب</button>`:existing}`);
+ const slid=$('#waAccountForm')||$('#phoneLoginForm');if(waSlide&&slid){slid.classList.add('wa-slide-'+waSlide);waSlide=''}
  $('#phoneLoginForm')?.addEventListener('change',e=>{if(e.target.name==='loginRole'){phoneLoginRole=e.target.value;phoneLoginNumber=val('loginPhone');waAccountSheet('existing')}});
  $('#phoneLoginForm')?.addEventListener('submit',()=>A.phoneLogin());
 }
