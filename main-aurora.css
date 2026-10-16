@@ -38,6 +38,9 @@
 
 :root[data-theme] .account-shortcuts button{background:var(--panel-bg)!important;color:var(--ink)}
 :root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:46px 1fr 46px 46px!important;background:transparent!important}
+/* The sticky bar must hide what scrolls under it. */
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar.sw-sitebar{background:color-mix(in srgb,var(--card,#fff) 96%,transparent)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 8px 24px #0f1a3917!important;z-index:40}
+:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar img{width:38px!important;height:38px!important;max-width:38px!important;border-radius:12px!important;object-fit:cover!important;flex:none}
 :root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-monogram{color:var(--icon-ink)!important}
 body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var(--bg);--sw-card:var(--card);--sw-ink:var(--ink);--sw-muted:var(--mut);--sw-line:var(--line);--sw-icon-ink:var(--icon-ink);--sw-icon-bg:var(--icon-bg);--sw-panel-bg:var(--panel-bg);--sw-action-bg:var(--action-bg)}
 @media(max-width:600px){:root[data-theme] body:is(.seller-workspace,.seller-storefront) .sw-sitebar{grid-template-columns:34px 1fr 34px 34px!important;gap:6px}.sw-sitebar .sw-icon{width:34px!important;height:34px!important}.sw-sitebrand b{font-size:14px!important}}
