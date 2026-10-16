@@ -317,10 +317,12 @@ html[data-shatra-ui][data-theme] body .guest-auth button{width:100%;max-width:34
 /* Sign-in sheet: swipe between tabs */
 html[data-shatra-ui][data-theme] body .wa-slide-left{animation:waSlideLeft .26s cubic-bezier(.2,.8,.2,1)}
 html[data-shatra-ui][data-theme] body .wa-slide-right{animation:waSlideRight .26s cubic-bezier(.2,.8,.2,1)}
-@keyframes waSlideLeft{from{opacity:.2;transform:translateX(42px)}to{opacity:1;transform:none}}
-@keyframes waSlideRight{from{opacity:.2;transform:translateX(-42px)}to{opacity:1;transform:none}}
+@keyframes waSlideLeft{from{opacity:.3;transform:translateX(100%)}to{opacity:1;transform:none}}
+@keyframes waSlideRight{from{opacity:.3;transform:translateX(-100%)}to{opacity:1;transform:none}}
 html[data-shatra-ui][data-theme] body .wa-tabs button{transition:background .2s,color .2s,box-shadow .2s}
 @media (prefers-reduced-motion:reduce){html[data-shatra-ui][data-theme] body .wa-slide-left,html[data-shatra-ui][data-theme] body .wa-slide-right{animation:none}}
 /* Sideways swipes on the sign-in sheet switch tabs instead of navigating back */
 html:has(#sheet .wa-tabs),html:has(#sheet .wa-tabs) body{overscroll-behavior-x:none}
 html[data-shatra-ui][data-theme] body #shade:has(.wa-tabs),html[data-shatra-ui][data-theme] body #sheet:has(.wa-tabs){touch-action:pan-y}
+html[data-shatra-ui][data-theme] body .wa-pane{will-change:transform}
+html[data-shatra-ui][data-theme] body #sheet:has(.wa-pane){overflow-x:hidden}
