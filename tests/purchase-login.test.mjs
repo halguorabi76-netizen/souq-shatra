@@ -14,7 +14,7 @@ function setup(){
  return {c,storage,events,replaceProduct:p=>current=p};
 }
 test('anonymous add opens email login and leaves the cart untouched; login returns the same product options',()=>{
- const {c,storage,events,replaceProduct}=setup();c.A.add();assert.equal(c.D.cart.length,0);assert.deepEqual(events.filter(x=>x[0]==='menu').slice(-1),[['menu','existing']]);
+ const {c,storage,events,replaceProduct}=setup();c.A.add();assert.equal(c.D.cart.length,0);assert.deepEqual(events.filter(x=>x[0]==='menu').slice(-1),[['menu','new']]);
  const saved=JSON.parse(storage.get('test-purchase-return'));assert.equal(saved.pid,pid);assert.equal(saved.vid,vid);assert.equal(saved.n,3);
  c.user={id:'buyer'};const updated={...c.cur.p,price:11000};replaceProduct(updated);assert.equal(c.resumePurchaseAfterLogin(),true);
  assert.equal(c.cur.p,updated);assert.equal(c.cur.vid,vid);assert.equal(c.cur.n,3);assert.equal(c.tab,'catalog');assert.equal(c.q,'قميص');assert.equal(c.filt.sort,'cheap');assert.equal(storage.has('test-purchase-return'),false);assert.equal(c.D.cart.length,0);
