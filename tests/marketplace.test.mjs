@@ -31,13 +31,13 @@ function workspaceContext(mode='guest'){
  const workspace=context.window.createWorkspace(ctx);return {workspace,view,events,data,g};
 }
 test('storefront shows only its seller, has an offers filter, and hides stock',()=>{
- const {workspace,view,events}=workspaceContext();workspace.storefront('one');assert.match(view.innerHTML,/قميص|حذاء/);assert.doesNotMatch(view.innerHTML,/تفاح|المتوفر 5/);assert.match(view.innerHTML,/تصفح التخفيضات/);
+ const {workspace,view,events}=workspaceContext();workspace.storefront('one');assert.match(view.innerHTML,/قميص|حذاء/);assert.doesNotMatch(view.innerHTML,/تفاح|المتوفر 5/);assert.match(view.innerHTML,/data-s="publicDeals" data-v="on"/);
  events.click({target:{closest:()=>({dataset:{s:'publicDeals',v:'on'},disabled:false})}});assert.match(view.innerHTML,/قميص/);assert.doesNotMatch(view.innerHTML,/>حذاء</);
  workspace.storefront('two');assert.match(view.innerHTML,/تفاح/);assert.doesNotMatch(view.innerHTML,/قميص/);
 });
 test('owner preview returns to management, without exposing management to visitors',()=>{
  const owner=workspaceContext('seller');owner.workspace.storefront('one');assert.match(owner.view.innerHTML,/العودة لإدارة متجري|معاينة ما يراه الزبون/);
- const visitor=workspaceContext();visitor.workspace.storefront('one');assert.doesNotMatch(visitor.view.innerHTML,/data-s="openMenu"/);assert.match(visitor.view.innerHTML,/جميع المتاجر/);
+ const visitor=workspaceContext();visitor.workspace.storefront('one');assert.doesNotMatch(visitor.view.innerHTML,/data-s="openMenu"/);assert.match(visitor.view.innerHTML,/العودة إلى المتاجر/);assert.match(visitor.view.innerHTML,/class="sm-stores"/);
 });
 
 test('direct store entry waits for initial data instead of showing a false unavailable screen',()=>{
