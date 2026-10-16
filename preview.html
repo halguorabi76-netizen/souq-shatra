@@ -2040,11 +2040,12 @@ function updateBanner(){if(window.SouqFigmaUI?.featuredBanner)return;const banne
 // Swipe sideways between the bottom-bar pages; the page follows the finger like the sign-in sheet.
 let pageTouch=null;
 function scrollsSideways(el){for(let n=el;n&&n!==document.body;n=n.parentElement){if(n.scrollWidth>n.clientWidth+4){const o=getComputedStyle(n).overflowX;if(o==='auto'||o==='scroll')return true}}return false}
-function swipeTargets(){const nav=$('.tabs');if(!nav||nav.hidden||(canSell()&&viewMode==='seller'))return null;const items=[...nav.querySelectorAll('button')],at=items.findIndex(b=>b.getAttribute('aria-current')==='page');return at<0?null:{items,at}}
+// The pages of whichever bottom bar is showing: the seller's own bar in the store dashboard, the main bar otherwise.
+function swipeTargets(){const seller=canSell()&&viewMode==='seller',nav=seller?$('#sellerNav'):$('.tabs');if(!nav||nav.hidden)return null;const items=[...nav.querySelectorAll(seller?':scope > button[data-v]':'button')],at=items.findIndex(b=>b.getAttribute('aria-current')==='page');return at<0?null:{items,at}}
 document.addEventListener('touchstart',e=>{
  const t=e.touches[0],target=e.target;pageTouch=null;
  const sheetOpen=$('#shade')&&!$('#shade').hidden;
- if(e.touches.length!==1||sheetOpen||!target.closest?.('.app')||target.closest('.tabs,#buyerFloating,#accountMenu,input,textarea,select,iframe,.banner,.figma-hero,.leaflet-container,[data-no-swipe]')||scrollsSideways(target))return;
+ if(e.touches.length!==1||sheetOpen||!target.closest?.('.app')||target.closest('.tabs,#sellerNav,.sw-arrange-toggle,[draggable="true"],#buyerFloating,#accountMenu,input,textarea,select,iframe,.banner,.figma-hero,.leaflet-container,[data-no-swipe]')||scrollsSideways(target))return;
  const nav=swipeTargets();if(!nav)return;pageTouch={x:t.clientX,y:t.clientY,at:Date.now(),axis:'',nav};
 },{passive:true});
 document.addEventListener('touchmove',e=>{
