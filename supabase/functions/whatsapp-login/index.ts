@@ -97,7 +97,7 @@ export function createHandler({ url, anonKey, serviceKey, number: envNumber, ver
   if (await professional(id)) return { code: 'professional' };
   let history = false;
   for (const [table, col] of [['orders', 'buyer_id'], ['order_customer_actions', 'buyer_id'], ['delivery_batches', 'buyer_id'], ['delivery_events', 'buyer_id'], ['payment_requests', 'payer_id'], ['payment_intents', 'user_id']]) if (await busy(table, col, id)) { history = true; break; }
-  for (const [table, col] of [['customer_addresses', 'user_id'], ['product_interactions', 'user_id'], ['account_notifications', 'recipient_id']]) await rest('DELETE', table + '?' + col + '=eq.' + id);
+  for (const [table, col] of [['customer_addresses', 'user_id'], ['product_interactions', 'user_id'], ['account_notifications', 'recipient_id'], ['used_listings', 'owner_id']]) await rest('DELETE', table + '?' + col + '=eq.' + id);
   if (!history) {
    const gone = await fetcher(url + '/auth/v1/admin/users/' + id, { method: 'DELETE', headers: service });
    if (!gone.ok) throw new Error('delete user ' + gone.status);
