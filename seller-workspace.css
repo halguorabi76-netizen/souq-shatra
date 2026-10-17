@@ -139,3 +139,4 @@ body .sw-folds .sw-fold-body .sw-card-title{justify-content:flex-end}
 html body .sw-shell .sw-sitebar{display:flex!important;align-items:center;gap:8px}
 .sw-sitebar .sw-bar-gap{flex:1}
 html body .sw-sitebar .sw-brand{display:inline-flex!important;align-items:center;background:none!important;border:0!important;box-shadow:none!important;padding:0 4px!important;cursor:pointer;min-height:44px}
+html body .sw-sitebar .sw-brand{position:static!important;transform:none!important;margin:0!important;order:-1;flex:0 0 auto!important;width:auto!important;justify-content:flex-start!important}
