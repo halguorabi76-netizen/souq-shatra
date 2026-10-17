@@ -99,7 +99,7 @@ export function createPreviewModel(storage,uuid=()=>crypto.randomUUID(),clock=()
   }else if(name==='save_seller_workspace'){
    if(role!=='seller')fail('اختر واجهة التاجر');const row=data.seller_workspace_settings.find(r=>r.store_id===p.p_store);if(row)row.settings=clone(p.p_settings);else data.seller_workspace_settings.push({store_id:p.p_store,settings:clone(p.p_settings)});data.stores[0].storefront_settings=clone(p.p_appearance);
   }else if(name==='save_store_location'){
-   if(role!=='seller'||!['online','physical'].includes(p.p_kind)||p.p_address?.trim().length<3)fail('أكمل نوع المتجر والعنوان');data.stores[0].store_kind=p.p_kind;data.stores[0].address=p.p_kind==='physical'?p.p_address:'';data.store_pickups[0].pickup_address=p.p_address;
+   if(role!=='seller'||!['online','physical','social','personal','other'].includes(p.p_kind)||p.p_address?.trim().length<3)fail('أكمل نوع المتجر والعنوان');data.stores[0].store_kind=p.p_kind;data.stores[0].address=p.p_kind==='physical'?p.p_address:'';data.store_pickups[0].pickup_address=p.p_address;
   }else if(name==='rename_seller_category'){
    if(role!=='seller')fail('اختر واجهة التاجر');const c=data.seller_categories.find(c=>c.id===p.p_category);if(!c)fail('التصنيف غير موجود');data.products.filter(x=>x.category===c.name).forEach(x=>x.category=p.p_name);c.name=p.p_name;
   }else if(name==='submit_delivery_payment'){if(role!=='driver')fail('اختر واجهة السائق');data.delivery_payments.unshift({id:uuid(),driver_id:id,amount:p.p_amount,receipt:p.p_receipt,status:'pending',created_at:clock()});notice(id,'طلب تسوية تجريبي',String(p.p_amount)+' د.ع — لا تحوّل مالًا');
