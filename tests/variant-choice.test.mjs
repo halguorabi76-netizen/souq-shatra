@@ -9,7 +9,7 @@ test('switching type replaces incompatible color and updates chosen image and sa
  const display=selectedProduct(p,chosen.vid);assert.equal(display.img,'blue.jpg');assert.equal(display.price,1200);assert.equal(display.compare_at_price,1500);
  assert.equal(chooseVariant(variants,chosen.options,'custom_color','أبيض').vid,null);
 });
-test('types are a select and colors are circles restricted to the chosen type',()=>{
+test('types are chips (a select only when there are many) and colors are circles restricted to the chosen type',()=>{
  const html=variantChoices(p,[],variants[1].attributes);
- assert.match(html,/<select id="variantType-custom_type"/);assert.match(html,/va-swatch/);assert.match(html,/#2563eb/);assert.match(html,/data-option="أبيض"[^>]*disabled/);assert.doesNotMatch(html,/data-option="أسود"/);
+ assert.match(html,/class="va-chip [^"]*" data-a="chooseVariantOption" data-axis="custom_type"/);assert.doesNotMatch(html,/<select/);assert.match(html,/va-swatch/);assert.match(html,/#2563eb/);assert.match(html,/data-option="أبيض"[^>]*disabled/);assert.doesNotMatch(html,/data-option="أسود"/);
 });
