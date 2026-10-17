@@ -722,7 +722,7 @@ function chooseCheckoutLocation(value=geoPoint){
 }
 function csheet(){
  const heading='<div class="buyer-cart-heading"><h1>سلة التسوق</h1><button data-a="tab" data-v="market">العودة إلى السوق ‹</button></div>';
- if(cartReceipt){$('#view').innerHTML=heading+`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">✓</div><h2>وصل طلبك</h2><p>رقم الطلب ${cartReceipt.map(esc).join('، ')}</p><p class="note">سيؤكد البائع الطلب. الدفع عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button></section>`;return;}
+ if(cartReceipt){$('#view').innerHTML=heading+`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">✓</div><h2>تم تأكيد طلبك</h2><p>في انتظار موافقة البائع وسائق التوصيل</p><p class="note">رقم الطلب ${cartReceipt.map(esc).join('، ')} · الدفع عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button></section>`;return;}
   const it=cartRows(),tot=it.reduce((s,x)=>s+(x.p?.price||0)*x.c.q,0);
   if(!it.length){$('#view').innerHTML=heading+'<section class="buyer-checkout-card empty"><h2>سلتك فارغة</h2><p>اختر مشترياتك من السوق لتظهر هنا.</p><button class="buy" data-a="tab" data-v="market">تصفح المنتجات</button></section>';return}
   const u={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',addr:D.cust.addr||''},fees=(deliverySettings.platform_fee||0)+(deliverySettings.delivery_fee||0),orderCount=new Set(it.map(x=>x.p?.mid).filter(Boolean)).size;
