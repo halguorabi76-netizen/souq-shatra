@@ -1974,7 +1974,7 @@ const A={
   productHome:()=>{A.close();A.tab('market')},
   productPhoto:v=>{const live=(cur.p.variants||[]).filter(v=>!v.archived),photos=[...new Set([cur.p.img,...live.map(v=>v.img)].filter(Boolean))],img=photos[Number(v)];cur.photo=img;
     // A photo that belongs to a variant selects that variant, so name, price and stock follow the photo.
-    const match=live.filter(x=>x.img===img).sort((a,b)=>(b.stock>0)-(a.stock>0))[0];if(match&&match.id!==cur.vid){cur.vid=match.id;cur.options={...match.attributes};cur.n=1;cur.added=false}
+    const own=live.filter(x=>x.img===img),bare=img===cur.p.img?live.filter(x=>!x.img):[],base=bare.find(x=>x.id===cur.p.attributes?._base_variant_id);const match=own.length?own.sort((a,b)=>(b.stock>0)-(a.stock>0))[0]:base||(bare.length===1?bare[0]:null);if(match&&match.id!==cur.vid){cur.vid=match.id;cur.options={...match.attributes};cur.n=1;cur.added=false}
     updateProductDetail()},
   cartEdit:v=>{const c=D.cart.find(c=>cartKey(c)===v);if(!c)return;A.prod(c.pid);cur.vid=c.vid;cur.n=c.q;cur.options={...c.attributes};cur.editKey=v;updateProductDetail()},
   checkoutAddresses:()=>act(openAddresses),
