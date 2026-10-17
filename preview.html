@@ -428,6 +428,51 @@ body.starting{background:#101f48!important}
 .auth-field svg,.auth-channels svg,.auth-support svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .auth-sheet .auth-field input{height:56px;border-radius:13px;padding:12px 48px 12px 14px;border-color:var(--line);background:var(--card);margin-top:6px;color:var(--ink)}
 .auth-sheet .auth-field input[type=password],.auth-sheet .auth-field:has(.auth-eye) input{padding-left:52px}.auth-field input[dir=ltr]{text-align:left}
+.pd2{padding-bottom:96px}
+.pd2 .pd-media{margin:4px 0 12px}
+.pd2 .pd-media .tile.big{border-radius:24px;overflow:hidden;background:var(--tile);aspect-ratio:1/1;max-height:62vh;margin:0;width:100%!important;max-width:none!important}
+.pd2 .pd-media .tile.big img{width:100%;height:100%;object-fit:cover}
+.pd-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+.pd-dots button{width:8px;height:8px;padding:0;border-radius:99px;border:0;background:var(--line);transition:width .2s,background .2s}
+.pd-dots button[aria-pressed="true"]{width:26px;background:var(--ink)}
+.pd-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:6px 0 12px}
+.pd-cat{display:block;color:var(--mut);font-size:13px;margin-bottom:3px}
+html:root body .pd2 .pd-head h1{margin:0;font-size:24px;line-height:1.35;color:var(--ink)!important}
+.pd-fav{flex:none;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;box-shadow:0 4px 14px #0000000d;cursor:pointer}
+.pd-fav svg{width:24px;height:24px;fill:none;stroke:var(--ink);stroke-width:1.6}
+.pd-fav[aria-pressed="true"] svg{fill:#e5484d;stroke:#e5484d}
+.pd-store{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
+html:root body .pd2 .pd-store .product-seller-card{display:flex;align-items:center;gap:10px;margin:0;padding:0;border:0!important;background:none!important;box-shadow:none!important;min-width:0;color:var(--ink);text-decoration:none}
+.pd-store .product-seller-card>span{display:grid;min-width:0}
+.pd-store .product-seller-card b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pd-store .product-seller-card small{color:var(--mut);font-size:12px}
+.pd-verified{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--ink);color:var(--card);font-size:10px;font-style:normal;vertical-align:middle}
+.pd-visit{flex:none;padding:10px 18px;border-radius:999px;background:var(--ink);color:var(--card)!important;font-weight:800;font-size:13.5px;text-decoration:none}
+.pd-pick{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;margin-bottom:14px}
+.pd2 .va-choice{margin:0;padding:0;border:0!important;background:none}
+html:root body .pd2 .product-description{color:var(--ink)!important}
+html:root body .pd2 .detail-home{bottom:104px!important}
+.pd2 .va-choice fieldset{border:0;padding:0;margin:0 0 8px}
+.pd2 .va-choice legend,.pd-qty>small,.pd-desc>small{display:block;color:var(--mut);font-size:13px;margin-bottom:7px;font-weight:600}
+.pd2 .va-choice [role=status]{font-size:12px;color:var(--mut);margin:2px 0 0}
+.pd2 .va-chips{display:flex;flex-wrap:wrap;gap:8px}
+html:root body .pd2 .va-chip:not(.va-swatch){min-width:44px;padding:9px 14px;border-radius:10px;border:0;background:var(--tile);color:var(--ink);font-weight:700}
+html:root body .pd2 .va-chip.va-selected:not(.va-swatch){background:var(--ink)!important;color:var(--card)!important}
+.pd-qty{text-align:left}
+.pd-qty>small{text-align:left}
+.pd2 .pd-qty .qty{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.pd2 .pd-qty .qty button{width:38px;height:38px;border:0;background:none;font-size:18px;color:var(--ink)}
+.pd2 .pd-qty .qty b{min-width:30px;text-align:center;font-size:16px}
+.pd-desc{margin:0 0 12px}
+.pd-desc p{margin:0;line-height:1.8;color:var(--ink)}
+.pd-specs{margin:0 0 12px}
+html[data-shatra-ui][data-theme] body #sheet .pd2 .product-purchase.pd-bar,html:root body #sheet .pd2 .pd-bar{position:fixed;bottom:12px;inset-inline:12px;max-width:496px;margin:0 auto;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px 12px 12px;border-radius:24px!important;background:var(--card)!important;box-shadow:0 10px 30px #00000030!important;border:1px solid var(--line)!important}
+.pd-total{display:grid;line-height:1.25}
+.pd-total small{color:var(--mut);font-size:12px}
+.pd-total b{font-size:20px;color:var(--ink)}
+html:root body .pd-total .mp-price strong{font-size:15px!important;white-space:nowrap}html:root body .pd-total b{white-space:nowrap}
+html:root body #sheet .pd2 .pd-bar .pd-add{flex:none;width:auto;margin:0;padding:13px 20px;border-radius:999px;font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:7px}
+.pd-add svg{width:20px;height:20px}
 .auth-field.has-value:has(.auth-eye) .auth-field-icon{display:none}
 html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,.product-purchase .buy.added{background:linear-gradient(135deg,#22a565 0%,#137a49 100%)!important;color:#fff!important}
 .pw-field{position:relative}.pw-field input{padding-left:50px!important}
@@ -557,7 +602,7 @@ import {createPreviewClient} from "./preview-lab.js?v=161";
 
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
-import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=110';
+import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
 import {createSellerWorkspace} from "./seller-workspace.js?v=178";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=180";
@@ -1457,12 +1502,23 @@ function productDetailBody(){
  const {p,n}=cur,chosen=selectedProduct(p,cur.vid),display=chosen||p,m=mrec(p.mid),owner=canSell()&&ownStore?.id===p.mid;
  const defs=[...categoryDefinitions(D.catalog||[],p.catalog_category_id),...(p.attributes?._custom_options||[])],vs=(p.variants||[]).filter(v=>!v.archived),axes=[...new Set(vs.flatMap(v=>Object.keys(v.attributes)))];
  const selected=cur.options||{},unit=p.attributes?._selling?.unit||p.attributes?.sale_unit||'قطعة';
- return `<div class="product-detail"><div class="tile big" id="productPhoto">${thumb(cur.photo?{...display,img:cur.photo}:display)}</div>${productGallery(p,display)}<h1>${esc(p.name)}</h1><div id="productPrice">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${p.has_variants?`<section class="va-choice" aria-label="خيارات المنتج">${variantChoices(p,defs,selected)}<p role="status">${chosen?esc(chosen.selectedVariant.label):'اختر خصائص النسخة المطلوبة؛ الخيارات غير المتوفرة معطلة.'}</p></section>`:''}
- ${owner?`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="product-purchase"><div class="purchase-price">${window.SouqMarketplace.price(display,fmt)}</div><div class="qty"><button type="button" data-a="pq" data-v="-1" aria-label="تقليل الكمية">−</button><b id="productQuantity">${n}</b><button type="button" data-a="pq" data-v="1" aria-label="زيادة الكمية">+</button></div><button type="button" class="buy ${cur.added&&!cur.adding?'added':''}" data-cart-pane="items" data-a="${cur.added?'cart':'add'}" ${!chosen||chosen.stock<1||cur.adding?'disabled':''}>${cur.adding?'<span class="flow-spinner"></span> جارٍ الإضافة…':cur.added?'✓ تمت الإضافة':!chosen?'اختر النسخة':chosen.stock<1?'غير متوفر':cur.editKey?'حفظ التغيير':flowIcon('cart')+' أضف'}</button></div><button class="buyer-floating detail-home" data-a="productHome" aria-label="الرئيسية">${flowIcon('home')}</button>`}
- ${p.desc?`<section><h2>معلومات المنتج</h2><p class="product-description">${esc(p.desc)}</p></section>`:''}${specifications(p,D.catalog||[])?`<details><summary>مواصفات المنتج</summary>${specifications(p,D.catalog||[])}</details>`:''}${m?`<a class="product-seller-card" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">${window.SouqMarketplace.avatar(m,esc)}<div><b>${esc(m.name)}</b>${m.username?`<small dir="ltr">@${esc(m.username)}</small>`:''}<small>${esc(m.description||m.address||'عرض معلومات المتجر ومنتجاته')}</small>${m.verified?'<small class="seller-verified">✓ بائع موثّق</small>':''}</div><span>←</span></a>`:''}</div>`;
+ const photos=productPhotos(p),shown=cur.photo||display.img,cat=p.attributes?._selling?.subcategory||p.cat||'',fav=typeof activity!=='undefined'&&activity.favorites().includes(p.id);
+ const total=chosen?`${fmt(chosen.price*n)}`:window.SouqMarketplace.price(display,fmt);
+ const options=p.has_variants?`<section class="va-choice" aria-label="خيارات المنتج">${variantChoices(p,defs,selected)}<p role="status">${chosen?esc(chosen.selectedVariant.label):'اختر النوع المطلوب'}</p></section>`:'';
+ const store=m?`<div class="pd-store"><a class="product-seller-card" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">${window.SouqMarketplace.avatar(m,esc)}<span><b>${esc(m.name)}${m.verified?' <i class="pd-verified" aria-label="بائع موثّق">✓</i>':''}</b><small>${esc(m.verified?'متجر موثّق':m.address||'متجر في الشطرة')}</small></span></a><a class="pd-visit" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">زيارة المتجر</a></div>`:'';
+ const qty=`<div class="pd-qty"><small>الكمية</small><div class="qty"><button type="button" data-a="pq" data-v="-1" aria-label="تقليل الكمية">−</button><b id="productQuantity">${n}</b><button type="button" data-a="pq" data-v="1" aria-label="زيادة الكمية">+</button></div></div>`;
+ const add=`<button type="button" class="buy pd-add ${cur.added&&!cur.adding?'added':''}" data-cart-pane="items" data-a="${cur.added?'cart':'add'}" ${!chosen||chosen.stock<1||cur.adding?'disabled':''}>${cur.adding?'<span class="flow-spinner"></span> جارٍ الإضافة…':cur.added?'✓ تمت الإضافة':!chosen?'اختر النوع':chosen.stock<1?'غير متوفر':cur.editKey?'حفظ التغيير':flowIcon('bag')+' أضف إلى السلة'}</button>`;
+ const specs=specifications(p,D.catalog||[]);
+ return `<div class="product-detail pd2"><div class="pd-media"><div class="tile big" id="productPhoto">${thumb(cur.photo?{...display,img:cur.photo}:display)}</div>${photos.length>1?`<div class="pd-dots" aria-label="صور المنتج">${photos.map((img,i)=>`<button data-a="productPhoto" data-v="${i}" aria-label="صورة ${i+1}" aria-pressed="${shown===img}"></button>`).join('')}</div>`:''}</div>
+ <div class="pd-head"><div>${cat?`<small class="pd-cat">${esc(cat)}</small>`:''}<h1>${esc(p.name)}</h1></div>${owner?'':`<button class="pd-fav" data-a="cardFavorite" data-v="${esc(p.id)}" aria-pressed="${fav}" aria-label="${fav?'إزالة من المفضلة':'إضافة إلى المفضلة'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></button>`}</div>
+ ${store}
+ ${owner?`<div id="productPrice" class="pd-owner-price">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${options}`+`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="pd-pick">${options||'<div></div>'}${qty}</div>`}
+ ${p.desc?`<section class="pd-desc"><small>الوصف</small><p class="product-description">${esc(p.desc)}</p></section>`:''}${specs?`<details class="pd-specs"><summary>المواصفات</summary>${specs}</details>`:''}
+ ${owner?'':`<div class="product-purchase pd-bar"><div class="pd-total"><small>السعر الإجمالي</small><b id="productPrice">${total}</b><small>${chosen?`${n} ${esc(unit)}`:''}</small></div>${add}</div><button class="buyer-floating detail-home" data-a="productHome" aria-label="الرئيسية">${flowIcon('home')}</button>`}</div>`;
 }
 function psheet(){if(cur?.vid&&!cur.options)cur.options={...(cur.p.variants||[]).find(v=>v.id===cur.vid)?.attributes};if(!cur?.p){toast('المنتج غير متاح');return;}sheet(`<div class="flow-heading"><button data-a="back" aria-label="رجوع">→</button><h2>تفاصيل المنتج</h2><button class="detail-cart" data-a="cart" aria-label="السلة">${flowIcon('cart')}<i>${D.cart.reduce((n,c)=>n+c.q,0)||''}</i></button></div>`+'<div id="productDetailBody">'+productDetailBody()+'</div>');}
 function updateProductDetail(){const el=$('#productDetailBody');if(el)el.innerHTML=productDetailBody();}
+function productPhotos(p){return [...new Set([p.img,...(p.variants||[]).filter(v=>!v.archived).map(v=>v.img)].filter(Boolean))]}
 function productGallery(p,display){const photos=[...new Set([p.img,...(p.variants||[]).filter(v=>!v.archived).map(v=>v.img)].filter(Boolean))];return photos.length>1?`<div class="product-gallery" aria-label="صور المنتج">${photos.map((img,i)=>`<button data-a="productPhoto" data-v="${i}" aria-label="صورة ${i+1}" aria-pressed="${(cur.photo||display.img)===img}"><img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy"></button>`).join('')}</div>`:'';}
 function updateProductQuantity(){cur.added=false;updateProductDetail();}
 function cartRows(){return D.cart.map(c=>({c,p:selectedProduct(prod(c.pid),c.vid)}));}
@@ -2091,6 +2147,7 @@ async function showOrderNotice(id){
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
 }
 document.addEventListener('change',e=>{if(e.target.id==='filterCondition'){$('#filterSaleBox').hidden=e.target.value!=='new';return}if(e.target.id==='productCondition'){$('#productSaleBox').hidden=e.target.value==='used';return}if(e.target.id==='baseDiscount'){$('#baseDiscountFields').hidden=!e.target.checked;return;}if(e.target.dataset.variantType==='true'){A.chooseVariantOption(null,{disabled:false,dataset:{axis:e.target.dataset.axis,option:e.target.value}});return;}if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;updateProductDetail();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
+{let sx=null;document.addEventListener('touchstart',e=>{sx=e.target.closest?.('#productPhoto')?e.touches[0].clientX:null},{passive:true});document.addEventListener('touchend',e=>{if(sx===null||!cur?.p)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)<40)return;const photos=productPhotos(cur.p),now=photos.indexOf(cur.photo||selectedProduct(cur.p,cur.vid)?.img||cur.p.img);if(photos.length<2)return;A.productPhoto((now+(dx<0?1:-1)+photos.length)%photos.length)},{passive:true});}
 document.addEventListener('input',e=>{const f=e.target.closest?.('.auth-field');if(f)f.classList.toggle('has-value',!!e.target.value)});
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
