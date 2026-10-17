@@ -1,0 +1,159 @@
+/* سوق الشطرة — merchant workspace in the earth palette (Figma file YEiaM2Eka2hDgwxw5y2k1n, frame "Seller / Dashboard").
+ * Loaded last and scoped to body.seller-workspace only: the buyer, driver, admin and public storefront are untouched.
+ * Presentation only; every button keeps the data-a / data-s actions the app already handles. */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace{
+ --se-bg:#F3EFEB;--se-card:#FDFBFC;--se-ink:#1D1A15;--se-mid:#6B6058;--se-muted:#8C8178;--se-taupe:#A49389;--se-line:#E6DFD8;--se-sand:#EFE8E2;
+ --se-green:#2F8F5B;--se-green-bg:#E3F2E9;--se-amber:#B7791F;--se-amber-bg:#FBF0DC;--se-red:#C0443A;--se-red-bg:#F8E3E1;
+ --sw-bg:var(--se-bg)!important;--sw-card:var(--se-card)!important;--sw-ink:var(--se-ink)!important;--sw-muted:var(--se-muted)!important;--sw-line:var(--se-line)!important;
+ --seller-accent:var(--se-ink)!important;--seller-soft:var(--se-sand)!important;
+ --indigo:var(--se-ink)!important;--accent:var(--se-ink)!important;--blue:var(--se-mid)!important;--cyan:var(--se-taupe)!important;
+ --ink:var(--se-ink)!important;--mut:var(--se-muted)!important;--ink-soft:var(--se-muted)!important;--line:var(--se-line)!important;--card:var(--se-card)!important;--surface:var(--se-card)!important;--surface-2:var(--se-sand)!important;--paper:var(--se-bg)!important;--tile:var(--se-sand)!important;
+ background:var(--se-bg)!important;color:var(--se-ink)!important;font-family:'Cairo','Tajawal',sans-serif!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace[data-seller-mode=dark]{
+ --se-bg:#15130F;--se-card:#211D19;--se-ink:#F3EFEB;--se-mid:#D3C8BE;--se-muted:#A99C91;--se-line:#38312A;--se-sand:#2E2823;
+ --se-green:#7BD3A2;--se-green-bg:#1F3329;--se-amber:#E9B862;--se-amber-bg:#3A2E1A;--se-red:#F2907F;--se-red-bg:#3E2420}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .app{background:var(--se-bg)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.sw-shell,.sw-nav,#swDrawer,.sw-dialog),:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.sw-shell,.sw-nav,#swDrawer,.sw-dialog) :is(button,input,select,textarea,h1,h2,h3,small,b,strong,p,span){font-family:'Cairo','Tajawal',sans-serif!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-shell{padding:22px 20px 28px!important;color:var(--se-ink)!important}
+
+/* Wordmark: small «سوق», large «الشطرة», Aref Ruqaa, top right */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar{display:flex!important;align-items:center!important;gap:8px!important;position:sticky!important;top:0!important;z-index:30!important;background:var(--se-bg)!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:10px 0 8px!important;margin:-10px 0 14px!important;min-height:0!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar .sw-brand{background:none!important;border:0!important;padding:0!important;box-shadow:none!important;margin-inline-end:auto!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar .header-brand-name{display:inline-flex!important;flex-direction:column!important;align-items:flex-start!important;gap:0!important;font-size:0!important;color:transparent!important;background:none!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar .header-brand-name::before{content:'سوق'!important;font-family:'Aref Ruqaa','Amiri',serif!important;font-weight:700!important;font-size:19px!important;line-height:1!important;color:var(--se-taupe)!important;transform:none!important;margin:0 2px -6px 0!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar .header-brand-name::after{content:'الشطرة'!important;font-family:'Aref Ruqaa','Amiri',serif!important;font-weight:700!important;font-size:36px!important;line-height:1.15!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar .sw-bar-gap{display:none!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar .sw-icon{width:40px!important;height:40px!important;min-width:40px!important;border-radius:14px!important;background:var(--se-card)!important;border:1px solid var(--se-line)!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-sitebar .sw-icon svg{width:19px!important;height:19px!important}
+
+/* Header: store avatar, greeting, notifications */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-header{margin:0 0 18px!important;gap:12px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-monogram{width:48px!important;height:48px!important;border-radius:50%!important;border:0!important;background:var(--se-taupe)!important;color:#FDFBFC!important;font-size:20px!important;font-weight:700!important;overflow:hidden}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-monogram img{width:100%;height:100%;object-fit:cover}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-header small{font-size:12px!important;font-weight:500!important;color:var(--se-muted)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-header h1{font-size:19px!important;font-weight:700!important;margin:0!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-header :is(.sw-icon,.sw-add){width:46px!important;height:46px!important;border-radius:16px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-header .sw-icon{background:var(--se-card)!important;border:1px solid var(--se-line)!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-add,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-header .sw-add{background:var(--se-ink)!important;color:var(--se-card)!important;border:0!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-bell{position:relative!important;overflow:visible!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-bell svg{width:22px!important;height:22px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-bell [data-notice-count]{position:absolute!important;top:-5px!important;inset-inline-end:-5px!important;min-width:16px!important;width:auto!important;max-width:30px!important;height:16px!important;padding:0 4px!important;margin:0!important;border-radius:8px!important;background:var(--se-red)!important;color:#fff!important;font:700 10px/16px 'Cairo',sans-serif!important;text-align:center!important;border:2px solid var(--se-card)!important;box-sizing:content-box!important;transform:none!important;display:block}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-bell [data-notice-count][hidden]{display:none}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace:has(.sw-bell) #activityBell{display:none!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace #activityBell{background:var(--se-card)!important;color:var(--se-ink)!important;border:1px solid var(--se-line)!important;box-shadow:0 8px 20px rgba(29,26,21,.14)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace #activityBell [data-notice-count]{background:var(--se-red)!important;color:#fff!important}
+
+/* Search */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-search{margin:0 0 20px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-search input{height:50px!important;border-radius:16px!important;background:var(--se-card)!important;border:1px solid var(--se-line)!important;color:var(--se-ink)!important;font-size:14px!important;box-shadow:none!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-search input::placeholder{color:var(--se-muted)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-search button{color:var(--se-mid)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-search svg{stroke:currentColor!important;color:inherit!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-search .market-filter-trigger{background:var(--se-sand)!important;border:0!important;box-shadow:none!important;color:var(--se-ink)!important}
+
+/* Today's sales */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-hero{display:flex;flex-direction:column;gap:8px;padding:20px;border-radius:26px;background:linear-gradient(90deg,#1D1A15,#6B6058);color:#FDFBFC;box-shadow:0 10px 28px rgba(29,26,21,.16)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-hero-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-hero-top small{font-size:13px;font-weight:500;color:#D9CFC7}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-pill{padding:4px 12px;border-radius:10px;background:rgba(255,255,255,.12);font-size:12px;font-weight:600;color:#FDFBFC}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-hero strong{font-size:34px;font-weight:800;line-height:1.25;color:#FDFBFC;overflow-wrap:anywhere}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-trend{display:flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:600;color:#9BE3B8}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-trend.down{color:#F5B3AA}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-trend.down svg{transform:scaleY(-1)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-trend svg{width:16px!important;height:16px!important;stroke:currentColor;fill:none;stroke-width:2}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-mini{display:flex;justify-content:space-between;gap:10px;margin-top:6px;padding-top:12px;border-top:1px solid rgba(255,255,255,.14)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-mini div{display:flex;flex-direction:column;min-width:0}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-mini small{font-size:11px;font-weight:500;color:#BFB3A9}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-mini b{font-size:16px;font-weight:700;color:#FDFBFC;overflow-wrap:anywhere}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-note{margin:8px 4px 20px!important;font-size:12px!important;color:var(--se-muted)!important}
+
+/* Stat cards */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:24px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-stat{display:flex!important;flex-direction:column;align-items:flex-start;gap:6px;padding:14px!important;border-radius:18px!important;background:var(--se-card)!important;border:1px solid var(--se-line)!important;text-align:start;color:var(--se-ink)!important;min-width:0;box-shadow:none!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-chip{display:grid;place-items:center;width:34px;height:34px;border-radius:11px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-chip svg{width:18px!important;height:18px!important;stroke-width:2!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-green .se-chip{background:var(--se-green-bg);color:var(--se-green)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-amber .se-chip{background:var(--se-amber-bg);color:var(--se-amber)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-red .se-chip{background:var(--se-red-bg);color:var(--se-red)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-stat b{font-size:22px;font-weight:700;line-height:1.2}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-stat small{font-size:12px;font-weight:500;color:var(--se-muted);line-height:1.4}
+
+/* Section titles */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-section{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 12px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-section h2{margin:0!important;font-size:17px!important;font-weight:700!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-section button{background:none!important;border:0!important;padding:4px 0!important;font-size:13px!important;font-weight:600!important;color:var(--se-taupe)!important;box-shadow:none!important}
+
+/* Followers (not enabled in the database yet: shown empty, never with invented numbers) */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-card{background:var(--se-card);border:1px solid var(--se-line);border-radius:20px;padding:16px;margin-bottom:24px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-follow-counts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-follow-counts div{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;border-radius:16px;background:var(--se-bg)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-follow-counts span{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--se-mid)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-follow-counts b{font-size:24px;font-weight:800;color:var(--se-ink)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-dot{width:8px;height:8px;border-radius:50%;background:var(--se-ink)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-dot.soft{background:var(--se-taupe)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-ratio{display:flex;gap:3px;margin:14px 0 10px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-ratio i{flex:1;height:8px;border-radius:4px;background:var(--se-line)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-followers p{margin:0!important;font-size:12px!important;line-height:1.7!important;color:var(--se-muted)!important}
+
+/* Quick actions */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-quick{display:flex;justify-content:space-between;gap:8px;margin-bottom:24px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-quick button{display:flex;flex-direction:column;align-items:center;gap:8px;background:none!important;border:0!important;padding:0!important;font-size:12px!important;font-weight:600!important;color:var(--se-ink)!important;box-shadow:none!important;min-width:0;flex:1}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-quick span{display:grid;place-items:center;width:58px;height:58px;border-radius:20px;background:var(--se-card);border:1px solid var(--se-line);color:var(--se-ink)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-quick span svg{width:22px!important;height:22px!important;stroke-width:2!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-quick .dark span{background:var(--se-ink);border-color:var(--se-ink);color:var(--se-card)}
+
+/* Order cards (dashboard and orders page) */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-orders{gap:12px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-new-orders{margin-bottom:24px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-new-orders .sw-empty{padding:22px 16px!important;background:var(--se-card);border:1px dashed var(--se-line);border-radius:20px}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-new-orders .sw-empty svg{width:28px!important;height:28px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-new-orders .sw-empty p{margin:6px 0 0!important;font-size:13px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order{background:var(--se-card)!important;border:1px solid var(--se-line)!important;border-radius:20px!important;padding:16px!important;box-shadow:none!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order-head b{font-size:15px;font-weight:700}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order h3{font-size:15px!important;font-weight:700!important;margin:12px 0 2px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order small{font-size:12px!important;color:var(--se-muted)!important;margin:4px 0!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order p{font-size:13px!important;color:var(--se-mid)!important;margin:10px 0!important;line-height:1.7!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order a{color:var(--se-ink)!important;font-weight:600}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order-total{border-top:1px solid var(--se-line)!important;padding-top:12px!important;font-size:13px!important;color:var(--se-muted)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-order-total b{font-size:16px;color:var(--se-ink)}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-status{border-radius:8px!important;padding:3px 10px!important;font-size:11px!important;font-weight:700!important;background:var(--se-sand)!important;color:var(--se-mid)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-status.status-0{background:var(--se-green-bg)!important;color:var(--se-green)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-status:is(.status-1,.status-2){background:var(--se-amber-bg)!important;color:var(--se-amber)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-status.status-4{background:var(--se-red-bg)!important;color:var(--se-red)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-actions{gap:8px!important;margin-top:12px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-actions button{border-radius:12px!important;padding:8px 18px!important;font-size:13px!important;font-weight:700!important;background:var(--se-card)!important;border:1px solid var(--se-line)!important;color:var(--se-ink)!important;box-shadow:none!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-primary,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-actions .sw-primary{background:var(--se-ink)!important;color:var(--se-card)!important;border:0!important;border-radius:12px!important;box-shadow:none!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-card .sw-order{border:0!important;border-top:1px solid var(--se-line)!important;border-radius:0!important;padding:14px 0!important}
+
+/* Store details folds, cards, tabs */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.pe-shell h1,.pe-shell h2,.pe-shell h3,.sw-card-title h2,.sw-best-heading h2){color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-menu-title{color:var(--se-muted)!important;font-weight:700!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-fold,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-card,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-toolbar,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-product,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-category-list>button{background:var(--se-card)!important;border:1px solid var(--se-line)!important;border-radius:20px!important;box-shadow:none!important;color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-fold summary{font-size:15px!important;font-weight:600!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-fold-icon,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-metric-icon,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-best-rank{background:var(--se-sand)!important;color:var(--se-mid)!important;border:0!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-segment .selected,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-product-tabs .selected{background:var(--se-ink)!important;border-color:var(--se-ink)!important;color:var(--se-card)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-product-tabs button{border-radius:14px!important;background:var(--se-card)!important;border:1px solid var(--se-line)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-product-info>b,:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-chart-total{color:var(--se-ink)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-product-info :is(s,del){color:var(--se-muted)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-revenue-chart{color:var(--se-mid)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-product-image{background:var(--se-sand)!important;border-radius:14px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.sw-muted,.sw-card small){color:var(--se-muted)}
+
+/* Bottom bar with the centre add-product button */
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav{background:var(--se-card)!important;border:0!important;border-top:1px solid var(--se-line)!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;align-items:center}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav>button{background:transparent!important;color:var(--se-muted)!important;font-size:11px!important;font-weight:600!important;box-shadow:none!important;border:0!important;gap:3px!important;padding:6px 2px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav>button svg{width:22px!important;height:22px!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav>button[aria-current=page]{background:transparent!important;color:var(--se-ink)!important;font-weight:700!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav>button.sw-fab{width:56px!important;height:56px!important;padding:0!important;place-self:center;display:grid!important;place-items:center;border-radius:50%!important;background:var(--se-ink)!important;color:var(--se-card)!important;box-shadow:0 6px 14px rgba(29,26,21,.25)!important}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav>button.sw-fab svg{width:26px!important;height:26px!important;stroke-width:2.2!important}
+@media(max-width:799px){:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav{grid-template-columns:repeat(2,1fr) 64px repeat(2,1fr)!important;padding:10px 12px calc(14px + env(safe-area-inset-bottom,0px))!important}}
+@media(min-width:800px){:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-nav>button.sw-fab{display:none!important}}
+
+/* Wider screens: same blocks, more room */
+@media(min-width:800px){
+ :is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-stats{grid-template-columns:repeat(3,minmax(0,220px))}
+ :is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-quick{justify-content:flex-start;gap:28px}
+ :is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-quick button{flex:0 0 auto}
+ :is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .se-new-orders{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:no-preference){:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.se-stat,.se-quick button,.sw-fab){transition:transform .15s ease}:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.se-stat,.se-quick button,.sw-fab):active{transform:scale(.97)}}

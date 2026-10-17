@@ -3,7 +3,7 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=180";
+import {createSellerWorkspace} from "./seller-workspace.js?v=181";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=178";
