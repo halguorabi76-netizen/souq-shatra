@@ -6,7 +6,7 @@ import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,
 import {createSellerWorkspace} from "./seller-workspace.js?v=179";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=176";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=177";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();

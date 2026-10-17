@@ -1,21 +1,22 @@
 // In-app messages: used items (buyer ↔ owner) and orders (customer ↔ store ↔ driver).
 // The database decides who belongs to a thread; this module only shows and sends messages.
 const QUICK={
- driver:['أنا في الطريق إليك 🛵','وصلت، أنا عند الباب 🚪','هل أترك الطلب عند الباب؟','تم التسليم، شكرًا لك ✅'],
- buyer:['اترك الطلب عند الباب من فضلك','سأنزل خلال دقيقة','لا تتصل، راسلني هنا فقط 🔕','شكرًا لك 🌷'],
- seller:['طلبك قيد التجهيز','طلبك جاهز وسيصلك قريبًا','شكرًا لطلبك من متجرنا 🌷'],
+ driver:['أنا في الطريق إليك 🛵','وصلت، أنا عند الباب 🚪','هل أترك الطلب عند الباب؟','أرسل لي أقرب نقطة دالة 📍','تم التسليم، شكرًا لك ✅'],
+ buyer:['أين وصلت؟','اترك الطلب عند الباب من فضلك','سأنزل خلال دقيقة','لا تتصل، راسلني هنا فقط 🔕','شكرًا لك 🌷'],
+ buyerStore:['هل المنتج متوفر؟','أريد تعديل الطلب','متى يكون الطلب جاهزًا؟','هل يمكن تبديل المنتج؟','شكرًا لكم 🌷'],
+ seller:['طلبك قيد التجهيز','طلبك جاهز وسيُسلَّم للسائق','نفدت إحدى المواد، هل نبدّلها؟','شكرًا لطلبك من متجرنا 🌷'],
  owner:['نعم، ما زال متوفرًا','السعر نهائي','يمكنك المعاينة اليوم'],
  usedBuyer:['هل ما زال متوفرًا؟','هل السعر قابل للتفاوض؟','أين يمكنني معاينته؟']
 };
 export function createChat(ctx){
- const E=ctx.esc;let current=null,timer=null,messages=[],busy=false;
+ const E=ctx.esc;let current=null,timer=null,messages=[],busy=false,loaded=false;
  const key=t=>t.kind+':'+t.ref+':'+t.buyer;
  const parse=v=>{const [kind,ref,buyer]=String(v||'').split(/[:|]/);return kind&&ref&&buyer?{kind,ref,buyer}:null;};
- function role(t){const me=ctx.user()?.id,info=ctx.thread(t);if(t.kind==='used')return me===t.buyer?'usedBuyer':'owner';if(me===info?.driver)return 'driver';if(me===t.buyer)return 'buyer';return 'seller';}
+ function role(t){const me=ctx.user()?.id,info=ctx.thread(t);if(t.kind==='used')return me===t.buyer?'usedBuyer':'owner';if(t.kind==='store')return me===t.buyer?'buyerStore':'seller';if(t.kind==='driver')return me===t.buyer?'buyer':'driver';if(me===info?.driver)return 'driver';if(me===t.buyer)return 'buyer';return 'seller';}
  function bubble(m){const me=m.sender_id===ctx.user()?.id,who=me?'':ctx.thread(current)?.names?.[m.sender_id]||'';return `<div class="chat-msg ${me?'mine':''}">${who?`<small>${E(who)}</small>`:''}<p>${E(m.body)}</p><time>${E(ctx.when(m.created_at))}</time></div>`;}
  function paint(){const box=document.getElementById('chatLog');if(!box)return;const atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<60;box.innerHTML=messages.length?messages.map(bubble).join(''):'<p class="chat-empty">ابدأ المحادثة. رسائلك تبقى داخل سوق الشطرة ولا يظهر رقمك.</p>';if(atEnd)box.scrollTop=box.scrollHeight;}
- async function load(){if(!current)return;const t=current,r=await ctx.db.from('chat_messages').select('*').eq('kind',t.kind).eq('ref_id',t.ref).eq('buyer_id',t.buyer).order('created_at',{ascending:true}).limit(300);if(current!==t)return;if(r.error){if(!messages.length){const box=document.getElementById('chatLog');if(box)box.innerHTML='<p class="chat-empty">تعذّر تحميل الرسائل. تحقق من الاتصال.</p>';}return;}const before=messages.length;messages=r.data||[];if(messages.length!==before)paint();}
- function stop(){clearInterval(timer);timer=null;current=null;messages=[];}
+ async function load(){if(!current)return;const t=current,r=await ctx.db.from('chat_messages').select('*').eq('kind',t.kind).eq('ref_id',t.ref).eq('buyer_id',t.buyer).order('created_at',{ascending:true}).limit(300);if(current!==t)return;if(r.error){if(!messages.length){const box=document.getElementById('chatLog');if(box)box.innerHTML='<p class="chat-empty">تعذّر تحميل الرسائل. تحقق من الاتصال.</p>';}return;}const before=messages.length,first=!loaded;loaded=true;messages=r.data||[];if(first||messages.length!==before)paint();}
+ function stop(){clearInterval(timer);timer=null;current=null;messages=[];loaded=false;}
  function open(value){
   const t=typeof value==='string'?parse(value):value;if(!t)return;
   if(!ctx.user()){ctx.login();return;}

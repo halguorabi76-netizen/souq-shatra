@@ -517,6 +517,7 @@ html:root body .pd-total .mp-price strong{font-size:15px!important;white-space:n
 html:root body #sheet .pd2 .pd-bar .pd-add{flex:none;width:auto;margin:0;padding:13px 20px;border-radius:999px;font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:7px}
 .pd-add svg{width:20px;height:20px}
 .auth-field.has-value:has(.auth-eye) .auth-field-icon{display:none}
+.order-chat{display:flex;gap:8px;flex-wrap:wrap}.order-chat .chat-open{flex:1 1 140px}.order-chat-hint{margin:4px 0 0;color:var(--mut);font-size:12px}
 html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,.product-purchase .buy.added{background:linear-gradient(135deg,#22a565 0%,#137a49 100%)!important;color:#fff!important}
 .pw-field{position:relative}.pw-field input{padding-left:50px!important}
 .pw-field .auth-eye{position:absolute;left:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;padding:8px;display:grid;place-items:center;color:var(--mut);background:none;border:0}
@@ -649,8 +650,8 @@ import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,
 import {createSellerWorkspace} from "./seller-workspace.js?v=179";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=176";
-import {createChat} from "./chat.js?v=1";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=177";
+import {createChat} from "./chat.js?v=2";
 import {createStoreExplorer} from "./store-explorer.js?v=1";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -1457,13 +1458,13 @@ function ordCard(o,m){
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m&&o.driver_id&&o.cust.phone?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
-  ${m&&o.st<4?chatButton('order',o.id,o.buyer_id,'راسل الزبون'):''}${m?`<small>📍 ${esc(o.cust.addr)}</small>${o.st===1&&!o.tracking?.ready_at?`<button class="alt" data-op="READY" data-id="${esc(o.id)}">الطلب جاهز للاستلام</button>`:''}`:''}${!m&&user?.id===o.buyer_id?customerOrderControls(o):''}${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
+  ${m&&o.st<4?chatButton('store',o.id,o.buyer_id,'راسل الزبون'):''}${m?`<small>📍 ${esc(o.cust.addr)}</small>${o.st===1&&!o.tracking?.ready_at?`<button class="alt" data-op="READY" data-id="${esc(o.id)}">الطلب جاهز للاستلام</button>`:''}`:''}${!m&&user?.id===o.buyer_id?customerOrderControls(o):''}${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
 }
 function customerOrderControls(o){
  const hidden=!!o.customer_action?.hidden_at;
  if(hidden)return `<div class="acts"><button data-a="customerAction" data-v="${o.id}|restore">↶ إعادة إلى قائمتي</button></div>`;
  const kind=o.st===3?'return':(o.st<2&&!o.driver_id)||(o.st<3&&o.tracking?.late_reported_at)?'cancel':null,requested=o.customer_action?.request_kind===kind;
- return `${o.st<4?`<div class="acts order-chat">${chatButton('order',o.id,o.buyer_id,o.driver_id&&o.st<3?'راسل السائق والمتجر':'راسل المتجر')}</div>`:''}${o.st===3?rateBlock(o):''}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
+ return `${o.st<4?`<div class="acts order-chat">${chatButton('store',o.id,o.buyer_id,'راسل المتجر')}${o.driver_id&&o.st<3?chatButton('driver',o.id,o.buyer_id,'راسل السائق'):''}</div><p class="order-chat-hint">المتجر: أسئلة المنتجات وتعديل الطلب · السائق: الموقع ووقت الوصول والتسليم</p>`:''}${o.st===3?rateBlock(o):''}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
 }
 function customerOrderHub(){
  const mine=D.o.filter(o=>user&&o.buyer_id===user.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts)),filter=D.orderFilter||'all';
@@ -2186,7 +2187,9 @@ const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,whe
 // Messages: the thread title, the store/driver names and who is the driver come from loaded data.
 function chatThread(t){
  if(t.kind==='used'){const l=(D.used||[]).find(x=>x.id===t.ref);return {title:l?'محادثة عن «'+l.title+'»':'محادثة عن غرض مستعمل',subtitle:l?fmt(l.price)+' · عاين الغرض قبل الدفع':'',names:{}}}
- const o=(D.o||[]).find(x=>x.id===t.ref),store=o&&D.m.find(m=>m.id===o.mid);
+ const o=(D.o||[]).find(x=>x.id===t.ref),store=o&&D.m.find(m=>m.id===o.mid),no=o?sid(o):'#'+String(t.ref).slice(-6).toUpperCase(),mine=user?.id===t.buyer;
+ if(t.kind==='store')return {title:(mine?'مراسلة '+(store?.name||'المتجر'):'مراسلة الزبون')+' · الطلب '+no,subtitle:'أسئلة المنتجات، تعديل الطلب، وتجهيزه',names:Object.fromEntries([[o?.buyer_id,'الزبون'],[store?.owner_id,store?.name||'المتجر']].filter(x=>x[0]))};
+ if(t.kind==='driver')return {title:(mine?'مراسلة سائق التوصيل':'مراسلة الزبون')+' · الطلب '+no,subtitle:'الموقع، وقت الوصول، وتسليم الطلب',driver:o?.driver_id,names:Object.fromEntries([[o?.buyer_id,'الزبون'],[o?.driver_id,'السائق']].filter(x=>x[0]))};
  return {title:'محادثة الطلب '+(o?sid(o):'#'+String(t.ref).slice(-6).toUpperCase()),subtitle:store?'المتجر: '+store.name+(o?.driver_id?' · السائق مشارك في المحادثة':''):'',driver:o?.driver_id,names:Object.fromEntries([[o?.buyer_id,'الزبون'],[store?.owner_id,store?.name||'المتجر'],[o?.driver_id,'السائق']].filter(x=>x[0]))};
 }
 const chat=createChat({db,esc,when,toast,sheet,head,user:()=>user,login:()=>{toast('سجّل الدخول أولًا لبدء المحادثة');waAccountSheet('new')},thread:chatThread});
