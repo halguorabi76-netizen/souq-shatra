@@ -672,7 +672,7 @@ addEventListener('error',e=>reportProblem('error',e.message||'error',(e.filename
 addEventListener('unhandledrejection',e=>reportProblem('rejection',e.reason?.message||String(e.reason),e.reason?.stack||''));
 function checkScreen(action){
  const app=document.querySelector('.app'),shade=document.getElementById('shade'),mid=document.elementFromPoint(innerWidth/2,innerHeight/2),desc=el=>el?(el.tagName.toLowerCase()+(el.id?'#'+el.id:'')+(typeof el.className==='string'&&el.className?'.'+el.className.trim().split(/\s+/).slice(0,3).join('.'):'')):'none';
- const covered=mid&&!mid.closest('.app,#shade,#toast,.confirm-modal,#marketDrawer,#swDrawer,.leaflet-container');
+ const covered=mid&&!mid.closest('.app,#shade,#toast,.confirm-modal,#marketDrawer,#swDrawer,.leaflet-container,.ac-feed,.ac-panel,dialog[open],#startupSplash,#auroraLoading');
  if((app?.inert&&shade?.hidden)||covered)reportProblem('blocked','after '+action,'inert='+!!app?.inert+' shade='+(shade?.hidden?'hidden':'open')+' top='+desc(mid)+' parent='+desc(mid?.parentElement)+' overflow='+getComputedStyle(document.body).overflow);
 }
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
