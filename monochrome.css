@@ -243,7 +243,7 @@ html[data-shatra-ui][data-theme] body .buyer-floating #cc:not([hidden]){animatio
 html[data-shatra-ui][data-theme=light]{--ink:#1e2d6b;--ink-soft:#56648f;--mut:#56648f}
 /* «سوٯ» (dotless qaf) sits above «الشطرة», as in the calligraphy logo */
 html[data-shatra-ui][data-theme] body .header-brand-name{flex-direction:column!important;align-items:flex-start!important;gap:0!important}
-html[data-shatra-ui][data-theme] body .header-brand-name::before{content:'سوٯ'!important;font-family:'Aref Ruqaa','Amiri',serif!important;font-size:17px!important;line-height:1!important;transform:none!important;margin:0 4px -5px 0;color:#5b6fd1!important}
+html[data-shatra-ui][data-theme] body .header-brand-name::before{content:'سوق'!important;font-family:'Aref Ruqaa','Amiri',serif!important;font-size:17px!important;line-height:1!important;transform:none!important;margin:0 4px -5px 0;color:#5b6fd1!important}
 html[data-shatra-ui][data-theme] body .header-brand-name::after{color:#3547a5!important;font-family:'Aref Ruqaa','Amiri',serif!important}
 html[data-shatra-ui][data-theme=dark] body .header-brand-name::before{color:#b8c3ff!important}
 html[data-shatra-ui][data-theme=dark] body .header-brand-name::after{color:#9cacfa!important}

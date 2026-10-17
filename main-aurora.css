@@ -216,3 +216,5 @@ body[data-seller-mode=dark]:is(.seller-workspace,.seller-storefront){--sw-bg:var
 :root:not([data-portal]) .account-profile-link{margin-bottom:8px}
 .professional-contact{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
 .professional-contact a.buy{display:block;text-align:center;text-decoration:none;padding:14px;border-radius:14px}
+/* The «سوق الشطرة» wordmark sits at the start edge (right in Arabic) on every screen size. */
+@media(min-width:768px){:root:not([data-portal]) .topline .header-brand{position:static!important;left:auto!important;right:auto!important;transform:none!important;margin:0 0 0 auto!important;order:-1}}
