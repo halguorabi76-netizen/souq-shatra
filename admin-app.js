@@ -318,7 +318,18 @@ function sheet(h){
 }
 const head=t=>`<div class="sh"><h2>${t}</h2><button class="x" data-a="${ADMIN_PORTAL?'close':'back'}" aria-label="${ADMIN_PORTAL?'إغلاق':'الرجوع إلى الواجهة السابقة'}">${ADMIN_PORTAL?'✕':backIcon}</button></div>`;
 const val=id=>($('#'+id)||{}).value?.trim()||'';
-const ask=(msg,act,v)=>sheet(head('تأكيد')+`<p>${msg}</p><button class="buy" data-a="${act}" data-v="${v}">نعم</button><button class="alt" data-a="${ADMIN_PORTAL?'close':'back'}">تراجع</button>`);
+// Confirmations are a small centred box, never a full page.
+function confirmBox(title,msg,ok,onOk,danger=false,no='تراجع'){
+ if(!document.getElementById('confirmBoxCss')){const st=document.createElement('style');st.id='confirmBoxCss';st.textContent='.confirm-modal{position:fixed;inset:0;z-index:999;display:grid;place-items:center;padding:16px;background:#0d0f1a8c}.confirm-card{width:min(100%,340px);background:var(--bg,#fff);color:var(--ink,#1c1f33);border-radius:20px;padding:22px 18px 16px;text-align:center;box-shadow:0 18px 50px #0006}.confirm-card h2{margin:0 0 8px;font-size:19px}.confirm-card p{margin:0 0 18px;line-height:1.7;font-size:14.5px;opacity:.85}.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.confirm-actions button{padding:13px 8px;border-radius:13px;font-weight:700;font-size:15px;cursor:pointer}.confirm-ok{background:#2e3a8c;color:#fff;border:0}.confirm-ok.danger{background:#b3261e}.confirm-no{background:transparent;color:inherit;border:1px solid #9aa0b866}';document.head.append(st)}
+ document.querySelector('.confirm-modal')?.remove();
+ const box=document.createElement('div');box.className='confirm-modal';box.setAttribute('role','alertdialog');box.setAttribute('aria-modal','true');
+ box.innerHTML=`<div class="confirm-card"><h2>${title}</h2><p>${msg}</p><div class="confirm-actions"><button class="confirm-ok${danger?' danger':''}">${ok}</button><button class="confirm-no">${no}</button></div></div>`;
+ const close=()=>box.remove();
+ box.addEventListener('click',e=>{e.stopPropagation();if(e.target===box||e.target.closest('.confirm-no'))close();else if(e.target.closest('.confirm-ok')){close();onOk()}});
+ box.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+ document.body.append(box);box.querySelector('.confirm-no').focus();
+}
+const ask=(msg,act,v)=>confirmBox('تأكيد',msg,'نعم',()=>A[act]?.(v,null),/إلغاء|حذف|إزالة|تعطيل|رفض|إيقاف/.test(msg));
 
 const sellerAccount=()=>!!user&&profile?.role!=='admin'&&!profile?.disabled&&!!(ownStore?.ok&&!ownStore?.removed);
 function buyerAccountLogin(){if(db.preview){db.preview.selectRole('buyer');return}sheet(head('الدخول بحساب زبون')+'<p>هذا حساب متجرك. لتصفح السوق والشراء، سجّل الخروج وادخل بحساب زبون آخر.</p><button class="buy" data-a="loginBuyerAccount">تسجيل الخروج والدخول كزبون</button><button class="alt" data-a="close">البقاء في متجري</button>')}
@@ -904,20 +915,20 @@ const A={
   adminBack:()=>{adminDetail=null;admin();scrollTo(0,0)},
   waAdminReload:()=>{waAdmin=null;admin()},
   waAdminCopy:v=>{navigator.clipboard?.writeText(v).then(()=>toast('تم النسخ'),()=>toast('انسخه يدويًا'))||toast('انسخه يدويًا')},
-  joinDecide:v=>{const [id,ok]=String(v).split('|');if(ok!=='1'&&!confirm('رفض طلب الانضمام هذا؟'))return;act(async()=>{check(await db.rpc('admin_decide_join_request',{p_id:id,p_approve:ok==='1'}));inviteAdmin=null;await loadInvites();toast(ok==='1'?'تمت الموافقة؛ أبلغه أن يفتح «حساب جديد» ويكمل التسجيل':'رُفض الطلب')})},
-  driverReject:v=>{if(!confirm('رفض طلب هذا السائق وحذف بيانات التوصيل؟ يبقى حسابه كزبون.'))return;act(async()=>{check(await db.rpc('admin_reject_driver',{p_driver:v}));adminDetail=null;await refresh();toast('رُفض طلب السائق')})},
+  joinDecide:v=>{const [id,ok]=String(v).split('|');const run=()=>act(async()=>{check(await db.rpc('admin_decide_join_request',{p_id:id,p_approve:ok==='1'}));inviteAdmin=null;await loadInvites();toast(ok==='1'?'تمت الموافقة؛ أبلغه أن يفتح «حساب جديد» ويكمل التسجيل':'رُفض الطلب')});if(ok==='1')run();else confirmBox('تأكيد','رفض طلب الانضمام هذا؟','رفض',run,true)},
+  driverReject:v=>{confirmBox('تأكيد','رفض طلب هذا السائق وحذف بيانات التوصيل؟ يبقى حسابه كزبون.','نعم',()=>act(async()=>{check(await db.rpc('admin_reject_driver',{p_driver:v}));adminDetail=null;await refresh();toast('رُفض طلب السائق')}),true)},
   invitesReload:()=>{inviteAdmin=null;loadInvites()},
   resetPhoneAdd:()=>act(async()=>{const phone=val('resetPhone').replace(/[^0-9]/g,'');if(!/^0?7[0-9]{9}$/.test(phone)){toast('اكتب رقمًا عراقيًا صحيحًا يبدأ بـ 07');return}check(await db.rpc('admin_set_reset_phone',{p_phone:phone,p_allowed:true}));inviteAdmin=null;await loadInvites();toast('أُضيف رقم التجربة')}),
   resetPhoneRemove:v=>act(async()=>{check(await db.rpc('admin_set_reset_phone',{p_phone:v,p_allowed:false}));inviteAdmin=null;await loadInvites();toast('أُزيل الرقم')}),
   inviteAdd:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const phone=val('invitePhone').replace(/[^0-9]/g,''),role=val('inviteRole'),note=val('inviteNote');
     if(!/^(07|9647|7)[0-9]{8,10}$/.test(phone)){toast('اكتب رقمًا صحيحًا مثل 07xxxxxxxxx');return}
     check(await db.rpc('admin_add_professional_invite',{p_phone:phone,p_role:role,p_note:note}));inviteAdmin=null;await loadInvites();toast('تمت الموافقة على الرقم؛ أخبره أن يفتح «حساب جديد» ويختار '+(role==='seller'?'«بائع»':'«سائق توصيل»'))}),
-  inviteRemove:v=>{if(!confirm('إلغاء الموافقة على هذا الرقم؟'))return;act(async()=>{check(await db.rpc('admin_remove_professional_invite',{p_id:v}));inviteAdmin=null;await loadInvites();toast('أُلغيت الموافقة')})},
+  inviteRemove:v=>{confirmBox('تأكيد','إلغاء الموافقة على هذا الرقم؟','نعم',()=>act(async()=>{check(await db.rpc('admin_remove_professional_invite',{p_id:v}));inviteAdmin=null;await loadInvites();toast('أُلغيت الموافقة')}),true)},
   usedAdminReload:()=>{usedAdmin=null;loadUsedAdmin()},
   usedAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const n=id=>Math.round(Number(val(id)));const limit=n('usedLimit'),days=n('usedDays'),price=n('usedPrice');
     if(!(limit>=0&&limit<=100)||!(days>=1&&days<=90)||!(price>=0&&price<=1000000)){toast('تحقق من الأرقام: الأغراض 0–100، الأيام 1–90');return}
     check(await db.rpc('admin_set_used_settings',{p_limit:limit,p_days:days,p_price:price}));usedAdmin=null;await loadUsedAdmin();toast('تم حفظ إعدادات «بِع غرضك»')}),
-  usedAdminRemove:v=>{if(!confirm('إزالة هذا الغرض من السوق؟'))return;act(async()=>{check(await db.rpc('used_listing_action',{p_id:v,p_action:'delete'}));usedAdmin=null;await loadUsedAdmin();toast('أُزيل الغرض')})},
+  usedAdminRemove:v=>{confirmBox('تأكيد','إزالة هذا الغرض من السوق؟','نعم',()=>act(async()=>{check(await db.rpc('used_listing_action',{p_id:v,p_action:'delete'}));usedAdmin=null;await loadUsedAdmin();toast('أُزيل الغرض')}),true)},
   waAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const number=val('waNumber'),secret=val('waSecret').trim(),token=val('waToken').trim(),digits=number.replace(/\D/g,'');if(token&&(token.length<40||/[•●*\s]/.test(token))){toast('رمز الإرسال غير صحيح؛ انسخه كاملًا من Meta (يبدأ بـ EAA)');$('#waToken')?.focus();return}if(digits&&digits.length<10){toast('رقم واتساب غير مكتمل؛ اكتبه مثل 07xxxxxxxxx أو اتركه فارغًا الآن');$('#waNumber')?.focus();return}if(/[•●*]/.test(secret)){toast('هذه نقاط الإخفاء وليست المفتاح؛ اضغط «إظهار» في Meta أولًا ثم انسخ النص الطويل');$('#waSecret')?.focus();return}if(secret&&secret.length<16){toast('المفتاح السري قصير؛ اضغط «إظهار» في Meta ثم انسخه كاملًا (حوالي 32 حرفًا)');$('#waSecret')?.focus();return}if(!digits&&!secret&&!token){toast('الصق App secret أو اكتب رقم واتساب ثم اضغط حفظ');$('#waSecret')?.focus();return}waAdmin=check(await db.rpc('admin_save_whatsapp_login',{p_number:number,p_app_secret:secret||null,...(token?{p_access_token:token}:{})}));admin();toast(waAdmin.enabled?'تم الحفظ — الدخول عبر واتساب مفعّل':waAdmin.has_secret&&!waAdmin.number?'تم حفظ المفتاح السري ✓ — أضف رقم واتساب بعد تسجيله في Meta':'تم الحفظ')}),
   adminRefresh:()=>act(async()=>{await refresh();toast('تم تحديث البيانات')}),
   adminOrder:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminDetail={kind:'order',id:v};admin();scrollTo(0,0)},
