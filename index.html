@@ -620,6 +620,15 @@ async function apiFetch(resource,init={}){
 }
 const accountSession=window.SouqAccountAccess?.createStorage(localStorage,sessionStorage,'sb-'+new URL(SUPABASE_URL).hostname.split('.')[0]+'-auth-token');
 const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:accountSession?.storage},global:{fetch:apiFetch}});
+// Error reports: a short technical note (no personal data) when the page breaks or the screen stops answering taps.
+const reportProblem=(()=>{let sent=0;const seen=new Set();return (kind,message,detail='')=>{try{const key=kind+'|'+message;if(seen.has(key)||sent>=12||db.preview)return;seen.add(key);sent++;db.rpc('log_client_error',{p_kind:kind,p_message:String(message||'').slice(0,500),p_detail:String(detail||'').slice(0,2000),p_page:String(typeof tab==='undefined'?'':tab)+(document.getElementById('shade')?.hidden===false?' +sheet':''),p_build:typeof buildSeen==='undefined'?'':buildSeen||'',p_agent:navigator.userAgent.slice(0,300)}).then(()=>{},()=>{})}catch{}}})();
+addEventListener('error',e=>reportProblem('error',e.message||'error',(e.filename||'').split('/').pop()+':'+(e.lineno||'')+':'+(e.colno||'')+'\n'+(e.error?.stack||'')));
+addEventListener('unhandledrejection',e=>reportProblem('rejection',e.reason?.message||String(e.reason),e.reason?.stack||''));
+function checkScreen(action){
+ const app=document.querySelector('.app'),shade=document.getElementById('shade'),mid=document.elementFromPoint(innerWidth/2,innerHeight/2),desc=el=>el?(el.tagName.toLowerCase()+(el.id?'#'+el.id:'')+(typeof el.className==='string'&&el.className?'.'+el.className.trim().split(/\s+/).slice(0,3).join('.'):'')):'none';
+ const covered=mid&&!mid.closest('.app,#shade,#toast,.confirm-modal,#marketDrawer,#swDrawer,.leaflet-container');
+ if((app?.inert&&shade?.hidden)||covered)reportProblem('blocked','after '+action,'inert='+!!app?.inert+' shade='+(shade?.hidden?'hidden':'open')+' top='+desc(mid)+' parent='+desc(mid?.parentElement)+' overflow='+getComputedStyle(document.body).overflow);
+}
 /* طبقة التخزين: حالياً في متصفح الجهاز. عند الانتقال لتطبيق حقيقي تُستبدل بقاعدة بيانات (Firebase / Supabase). */
 const KEY='souq-shatra-online';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
@@ -2149,6 +2158,7 @@ document.addEventListener('change',e=>{if(e.target.id==='filterCondition'){$('#f
 {let sx=null;document.addEventListener('touchstart',e=>{sx=e.target.closest?.('#productPhoto')?e.touches[0].clientX:null},{passive:true});document.addEventListener('touchend',e=>{if(sx===null||!cur?.p)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)<40)return;const photos=productPhotos(cur.p),now=photos.indexOf(cur.photo||selectedProduct(cur.p,cur.vid)?.img||cur.p.img);if(photos.length<2)return;A.productPhoto((now+(dx<0?1:-1)+photos.length)%photos.length)},{passive:true});}
 document.addEventListener('input',e=>{const f=e.target.closest?.('.auth-field');if(f)f.classList.toggle('has-value',!!e.target.value)});
 document.addEventListener('click',e=>{
+ {const a=e.target.closest?.('[data-a]')?.dataset.a;if(a)setTimeout(()=>{try{checkScreen(a)}catch{}},1500);}
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
   const t=e.target.closest('[data-a]');if(t?.dataset.a==='visitStore'){if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();}if(t?.matches('#authForm [type="submit"],#sellerJoinForm [type="submit"],#productCreateForm [type="submit"]'))return;if(t&&A[t.dataset.a])A[t.dataset.a](t.dataset.v,t);
