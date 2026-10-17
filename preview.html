@@ -535,7 +535,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 .auth-sheet .auth-providers{margin:0 0 20px}.auth-provider.google{height:54px;border-radius:14px}.auth-divider{margin:16px 0 0}.auth-phone-link{display:block;width:100%;margin:14px 0 8px;padding:10px;color:var(--navy);text-align:center;border:1px solid var(--line);border-radius:13px}.auth-channels button:not(:disabled){color:var(--ink);cursor:pointer;background:var(--tile)}.auth-channels button:disabled{cursor:wait}.auth-otp-note{color:var(--mut);font-size:14px}.auth-otp-input{letter-spacing:8px;text-align:center;font-size:24px!important}.auth-resend{display:block;padding:12px;color:var(--navy);margin:auto}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
-<link rel="stylesheet" href="seller-workspace.css?v=171">
+<link rel="stylesheet" href="seller-workspace.css?v=171"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
 <link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=63">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=171">
@@ -651,6 +651,7 @@ import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=176";
 import {createChat} from "./chat.js?v=1";
+import {createStoreExplorer} from "./store-explorer.js?v=1";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -838,7 +839,7 @@ async function refresh(){
   if(id!==refreshId)return;
   profile=nextProfile;
   D.publicCategories=check(cs);
-  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,prep_time_min:m.prep_time_min,open_time:m.open_time,close_time:m.close_time,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,pickup_latitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.latitude,pickup_longitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.longitude,username:m.username,verified:m.verified,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
+  D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,prep_time_min:m.prep_time_min,open_time:m.open_time,close_time:m.close_time,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,pickup_latitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.latitude,pickup_longitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.longitude,username:m.username,verified:m.verified,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:{...(m.storefront_settings||{}),cover_url:/^[0-9a-f-]{36}\/[\w.-]+$/i.test(m.storefront_settings?.cover_path||'')?db.storage.from('products').getPublicUrl(m.storefront_settings.cover_path).data.publicUrl:''}}));
   const variantsByProduct=new Map();for(const v of D.variants||[]){let rows=variantsByProduct.get(v.product_id);if(!rows)variantsByProduct.set(v.product_id,rows=[]);rows.push({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''});}
   D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:variantsByProduct.get(p.id)||[]}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
@@ -859,7 +860,7 @@ async function refresh(){
   D.people=people;
   dataReady=true;
   D.cart=D.cart.filter(x=>D.p.some(p=>p.id===x.pid));save();render();resumePurchaseAfterLogin();
-  finishAccountEntry();restoreRoute();loadUsed().catch(()=>{});loadReset().catch(()=>{});loadRatings().then(()=>{if(['orders','market','stores'].includes(tab)||publicStoreId)render()}).catch(()=>{});
+  finishAccountEntry();restoreRoute();loadUsed().catch(()=>{});loadReset().catch(()=>{});loadRatings().then(()=>{if(['orders','market','stores','explorer'].includes(tab)||publicStoreId)render()}).catch(()=>{});
   }catch(e){if(id===refreshId){if(viewMode==='driver')D.driverError='تعذّر تحميل حساب التوصيل. أعد المحاولة.';if(!dataReady)D.accountError='تعذّر التحقق من الحساب. أعد المحاولة.';render();}throw e;}finally{if(id===refreshId)$('#loading').hidden=true}
 }
 async function act(f){const token=window.SouqLoading?.begin();try{await f()}catch(e){error(e)}finally{window.SouqLoading?.end(token)}}
@@ -933,7 +934,7 @@ const pageNav=window.SouqPageNavigation?.create()||null;
 const backIcon='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7M16 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function trackPage(){if(!ADMIN_PORTAL&&!db.preview){pageNav?.track({tab,dt,publicStoreId,cat,q,filt:{...filt},url:location.href,scroll:window.scrollY||0},(user?.id||'guest')+':'+viewMode);saveRoute()}}
 // The current page survives a reload: same tab, same place, same account.
-const ROUTE_TABS=['market','catalog','stores','offers','usedPage','orders','profilePage','account','listings','myMarket','chats','settings','categories','searchPage'];
+const ROUTE_TABS=['explorer','market','catalog','stores','offers','usedPage','orders','profilePage','account','listings','myMarket','chats','settings','categories','searchPage'];
 let routeRestored=false;
 // New code published? A data refresh alone would keep the old screens, so load the new version
 // (the page and scroll position come back through restoreRoute, without the opening animation).
@@ -1174,7 +1175,7 @@ function render(){
   let floating=$('#buyerFloating');if(!floating){floating=document.createElement('button');floating.id='buyerFloating';floating.className='buyer-floating';$('.app').append(floating)}floating.hidden=sellerView||viewMode==='driver'||tab==='welcome';floating.dataset.a='cart';floating.setAttribute('aria-label','فتح السلة');floating.innerHTML=flowIcon('cart')+`<i id="cc" ${n?'':'hidden'}>${n}</i>`;
   document.querySelectorAll('.tabs button[data-v]').forEach(b=>b.dataset.v===(['account','profilePage','settings'].includes(tab)?'profilePage':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   const offersTab=document.querySelector('.tabs .offers-tab');if(offersTab){if(tab==='offers')offersTab.setAttribute('aria-current','page');else offersTab.removeAttribute?.('aria-current')}
-  ({welcome,market,catalog:market,stores:storesPage,offers:offersPage,usedPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
+  ({explorer:()=>storeExplorer.render(cat),welcome,market,catalog:market,stores:storesPage,offers:offersPage,usedPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
   activity.sync();pageBackbar();
 }
@@ -1289,7 +1290,8 @@ function supportSheet(){sheet(head('تواصل مع الدعم')+`<p>مصمم و
 
 function bannerHtml(){const figma=window.SouqFigmaUI;if(figma?.featuredBanner)return figma.featuredBanner(D.p.filter(p=>mok(p.mid)),{esc,fmt,mname,fallback:BANNERS[0]});const [src,caption]=BANNERS[bannerIndex];return `<div class="banner-wrap"><div class="banner ${figma?'figma-hero':''}" aria-label="صور الشطرة؛ اسحب للتنقل بين الصور"><img src="${src}" alt="مشهد من مدينة الشطرة" decoding="async" draggable="false">${figma?`<div class="figma-hero-copy"><span class="figma-eyebrow">من الشطرة وإليها</span><h1>اكتشف محلات مدينتك<br>من مكانك</h1><p>منتجات محلية، وتسوق أسهل كل يوم.</p><button class="figma-button" data-a="marketSection" data-v="materials">ابدأ التسوق ${figma.icon('arrow')}</button></div><div class="figma-hero-note"><small>أسواق مدينتك</small><strong class="banner-caption">${esc(caption)}</strong></div>`:`<span class="banner-caption">${caption}</span>`}</div><div class="banner-dots" aria-label="صور الشطرة">${BANNERS.map((_,i)=>`<button data-a="banner" data-v="${i}" aria-label="الصورة ${i+1}" aria-current="${i===bannerIndex}"></button>`).join('')}</div></div>`}
 function categories(){
-  $('#view').innerHTML=`<div class="section-title"><h2>الأقسام</h2></div><div class="category-cards" style="flex-wrap:wrap;justify-content:center">${CATS.map((c,i)=>`<button class="category-card" data-a="pickcat" data-v="${c}"><span aria-hidden="true">${catIcon(i)}</span>${c}</button>`).join('')}</div>`;
+  const {stores,products}=publicMarketplace(),count=c=>new Set(products.filter(p=>p.cat===c).map(p=>p.mid)).size;
+  $('#view').innerHTML=`<div class="section-title"><div><h2>الأقسام</h2><p>اختر قسماً وتنقّل بين متاجره</p></div></div><div class="category-cards sx-sections">${CATS.map((c,i)=>`<button class="category-card ${dataReady&&!count(c)?'is-empty':''}" data-a="exploreSection" data-v="${esc(c)}"><span aria-hidden="true">${catIcon(i)}</span>${esc(c)}<small>${!dataReady?'':count(c)?count(c)+' متجر':'لا متاجر بعد'}</small></button>`).join('')}</div>`;
 }
 function myMarket(){
   if(canSell()&&viewMode==='seller'){listings();return}
@@ -1386,7 +1388,7 @@ function market(){
 }
 function storesPage(){
  const ui=window.SouqFigmaUI||window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>c!=='تمور'&&published.some(p=>p.cat===c)),products=window.SouqCatalog.select(published,{category:cat,...filt,saleMode:filt.condition==='new'?filt.saleMode:'all'}),eligible=approved.filter(m=>cat==='all'&&filt.condition==='all'&&filt.min===''&&filt.max===''||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
- const sections='';
+ const sections=dataReady?'<nav class="sx-section-chips" aria-label="تصفح المتاجر حسب القسم" data-no-pull>'+CATS.filter(c=>published.some(p=>p.cat===c)).map(c=>'<button type="button" data-a="exploreSection" data-v="'+esc(c)+'">'+esc(c)+' ‹</button>').join('')+'</nav>':'';
  $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+rows.length+' متجر</span></div>'+(rows.length?(q?ui.storeMatches(rows,{esc,fmt,thumb,mname}):ui.storeCards(rows.map(x=>x.store),published,{esc})):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
 }
 function marketSection(section){
@@ -2051,6 +2053,7 @@ const A={
   adminStat:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminSearch='';adminTab=v==='pending'?'sellers':v==='accounts'?'customers':'activity';adminFilter=v==='accounts'?'all':v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   adminListFilter:v=>{adminFilter=v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   cat:v=>{cat=v;tab='catalog';render()},
+  exploreSection:v=>{closeAccountMenu();cat=String(v||'');q='';publicStoreId=null;tab='explorer';render();scrollTo(0,0)},
   pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
   storeCategory:v=>{cat=v;render();},
   allcat:()=>{cat='all';tab='catalog';render()},
@@ -2177,6 +2180,7 @@ const A={
   comm:()=>{toast('إعداد العمولة يحتاج تفعيلًا في قاعدة البيانات')}
 
 };
+const storeExplorer=createStoreExplorer({esc,ready:()=>dataReady,stores:()=>publicMarketplace().stores,products:()=>publicMarketplace().products,ratings:()=>storeRatings,rating:id=>storeRatings.get(id),productCards:list=>(window.SouqFigmaUI||window.SouqMarketplace).productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()})});
 const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0,compare_at_price:$('#baseDiscount')?.checked?Number(val('fcompare')):null}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
 const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell(),canReset}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.replaceState(history.state,'',url);render();scrollTo(0,0)}});
