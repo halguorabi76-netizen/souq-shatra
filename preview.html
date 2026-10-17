@@ -428,6 +428,49 @@ body.starting{background:#101f48!important}
 .auth-field svg,.auth-channels svg,.auth-support svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .auth-sheet .auth-field input{height:56px;border-radius:13px;padding:12px 48px 12px 14px;border-color:var(--line);background:var(--card);margin-top:6px;color:var(--ink)}
 .auth-sheet .auth-field input[type=password],.auth-sheet .auth-field:has(.auth-eye) input{padding-left:52px}.auth-field input[dir=ltr]{text-align:left}
+.my-cart{padding-bottom:24px}
+body.buyer-cart-mode:has(.my-cart) #buyerFloating{display:none!important}
+.mc-head{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;margin:6px 0 10px}
+.mc-more>button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;display:grid;place-items:center}
+html:root body .my-cart .mc-head h1{margin:0;text-align:center;white-space:nowrap;font-size:19px;font-weight:700;color:var(--ink)!important}
+.mc-head h1 small{font-size:13px;color:var(--mut);font-weight:600}
+.mc-more{position:relative}
+.mc-menu{position:absolute;top:48px;left:0;z-index:6;min-width:180px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px #0000001f;overflow:hidden}
+.mc-menu button{display:block;width:100%;text-align:right;padding:13px 14px;border:0;background:none;color:var(--ink);font-weight:700}
+.mc-menu button+button{border-top:1px solid var(--line)}
+.mc-menu .mc-danger{color:#c0392b}
+.mc-store-name{display:flex;align-items:center;gap:6px;margin:12px 0 2px;color:var(--mut);font-size:13px;font-weight:700}
+.mc-store-name svg{width:16px;height:16px}
+.mc-line,html body .my-cart .mc-line.cart-line{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;padding:14px 0;border-bottom:1px solid var(--line);background:none!important;border-radius:0!important;box-shadow:none!important;margin:0!important}
+.mc-photo{width:96px;height:96px;border-radius:16px;background:var(--tile);overflow:hidden;display:grid;place-items:center}
+.mc-photo img{width:100%;height:100%;object-fit:cover}
+.mc-info{display:flex;flex-direction:column;min-width:0}
+.mc-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.mc-top b{font-size:16px;font-weight:600;color:var(--ink);line-height:1.4}
+.mc-x{border:0;background:none;color:var(--mut);font-size:15px;padding:2px 4px;line-height:1}
+.mc-variant{color:var(--mut);font-size:13px;margin-top:2px}
+.mc-edit{align-self:flex-start;border:0;background:none;color:var(--mut);font-size:12px;text-decoration:underline;padding:2px 0}
+.mc-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:8px}
+.mc-bottom strong{font-size:17px;color:var(--ink)}
+.mc-qty{display:flex;align-items:center;gap:10px}
+.mc-qty button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;line-height:1;display:grid;place-items:center}
+.mc-qty .mc-plus{border-color:#22c55e;color:#16a34a}
+.mc-qty b{min-width:14px;text-align:center;font-size:15px}
+.mc-orders{display:flex;justify-content:space-between;align-items:center;width:100%;margin:16px 0 4px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font-weight:600}
+.mc-orders span{display:flex;align-items:center;gap:8px;color:#16a34a;font-size:14px}
+.mc-orders svg{width:18px;height:18px}
+.mc-orders i{font-style:normal;color:var(--mut)}
+.mc-summary{display:grid;gap:10px;margin:14px 0 6px}
+.mc-summary div{display:flex;justify-content:space-between;font-size:14px}
+.mc-summary span{color:var(--ink)}
+.mc-summary b{font-weight:700;color:var(--ink)}
+.mc-summary p{margin:0;color:var(--mut);font-size:12px}
+.mc-checkout{position:sticky;bottom:calc(90px + env(safe-area-inset-bottom,0px));margin:14px 0 0;padding:0;background:none;z-index:5}
+html[data-shatra-ui][data-theme] body .mc-checkout .buy,html:root body .mc-checkout .buy{width:100%;margin:0;padding:16px;border-radius:16px;border:0;background:#22c55e!important;background-image:none!important;color:#fff!important;font-size:16px;font-weight:600}
+.mc-checkout .buy b{font-size:18px;font-weight:800}
+html[data-shatra-ui][data-theme] body .my-cart .mc-checkout .buy.buy,html[data-shatra-ui][data-theme] body .my-cart .mc-checkout .buy.buy *{color:#fff!important;-webkit-text-fill-color:#fff!important}
+html[data-shatra-ui][data-theme] body .my-cart .mc-checkout .buy.buy{box-shadow:0 10px 24px #16a34a40!important}
+.my-cart .flow-empty .mc-orders{margin-top:18px}
 .pd2{padding-bottom:96px}
 .pd2 .pd-media{margin:4px 0 12px}
 .pd2 .pd-media .tile.big{border-radius:24px;overflow:hidden;background:var(--tile);aspect-ratio:1/1;max-height:62vh;margin:0;width:100%!important;max-width:none!important}
@@ -1560,7 +1603,10 @@ function flowHeading(title){return `<div class="flow-heading"><button data-a="ba
 function renderCartStage(){
  if(checkoutStage==='addresses'){renderAddresses();return;}
  const rows=cartRows(),groups=new Map();for(const x of rows){const id=x.p?.mid||prod(x.c.pid)?.mid||'missing';if(!groups.has(id))groups.set(id,[]);groups.get(id).push(x);}
- $('#view').innerHTML=flowHeading('السلة · '+D.cart.reduce((n,c)=>n+c.q,0))+`<div class="cart-history"><button class="chip" data-a="cartPane" data-v="orders">الطلبات والمتابعة</button>${rows.length?'<button class="cart-clear" data-a="cartClear">'+flowIcon('trash')+' إفراغ السلة</button>':''}</div>`+(rows.length?[...groups].map(([id,items])=>`<details class="cart-store" open><summary>${flowIcon('store')}<span><b>${esc(mname(id)||'المتجر')}</b><small>${items.length} منتجات</small></span></summary>${items.map(({c,p})=>`<article class="cart-line"><div class="figma-cart-image">${p?thumb(p):''}</div><div class="cart-line-copy"><b>${esc(p?.name||prod(c.pid)?.name||'منتج غير متاح')}</b><div class="variant-chips">${Object.entries(c.attributes||{}).map(([k,v])=>`<span>${esc(v)}</span>`).join('')}</div>${p?.has_variants||prod(c.pid)?.has_variants?`<button class="chip" data-a="cartEdit" data-v="${esc(cartKey(c))}">تغيير ✎</button>`:''}<strong>${p?fmt(p.price*c.q):'غير متاح'}</strong>${p&&p.stock<c.q?'<small class="va-unavailable">الكمية المطلوبة غير متاحة</small>':''}</div><div class="cart-line-actions"><div class="qty"><button data-a="cq" data-v="${cartKey(c)}|1" aria-label="زيادة الكمية">+</button><b>${c.q}</b><button data-a="cq" data-v="${cartKey(c)}|-1" aria-label="تقليل الكمية">−</button></div><button data-a="cartRemove" data-v="${cartKey(c)}" aria-label="حذف المنتج">${flowIcon('trash')}</button></div></article>`).join('')}</details>`).join('')+`<div class="cart-checkout-actions"><button class="buy" data-a="checkoutAddresses">إتمام الشراء <b>${fmt(rows.reduce((n,x)=>n+(x.p?.price||0)*x.c.q,0))}</b></button><button class="alt" data-a="tab" data-v="market">أضف المزيد</button></div>`:`<section class="flow-empty"><span class="empty-symbol">${flowIcon('bag')}</span><h2>سلتك فارغة</h2><p>ابدأ التسوق واكتشف عروض اليوم.</p><button class="buy" data-a="marketSection" data-v="materials">تصفح المنتجات ${flowIcon('arrow')}</button></section>`);
+ const count=D.cart.reduce((n,c)=>n+c.q,0),subtotal=rows.reduce((n,x)=>n+(x.p?.price||0)*x.c.q,0),saved=rows.reduce((n,x)=>n+(x.p&&x.p.compare_at_price>x.p.price?(x.p.compare_at_price-x.p.price)*x.c.q:0),0),many=groups.size>1;
+ const line=({c,p})=>{const base=prod(c.pid),variant=Object.values(c.attributes||{}).filter(Boolean).join(' · ');return `<article class="cart-line mc-line"><div class="mc-photo">${p?thumb(p):''}</div><div class="mc-info"><div class="mc-top"><b>${esc(p?.name||base?.name||'منتج غير متاح')}</b><button class="mc-x" data-a="cartRemove" data-v="${cartKey(c)}" aria-label="حذف المنتج">✕</button></div>${variant?`<small class="mc-variant">${esc(variant)}</small>`:''}${p?.has_variants||base?.has_variants?`<button class="mc-edit" data-a="cartEdit" data-v="${esc(cartKey(c))}">تغيير النوع</button>`:''}${p&&p.stock<c.q?'<small class="va-unavailable">الكمية المطلوبة غير متاحة</small>':''}<div class="mc-bottom"><strong>${p?fmt(p.price*c.q):'غير متاح'}</strong><div class="mc-qty"><button data-a="cq" data-v="${cartKey(c)}|-1" aria-label="تقليل الكمية">−</button><b>${c.q}</b><button class="mc-plus" data-a="cq" data-v="${cartKey(c)}|1" aria-label="زيادة الكمية">+</button></div></div></div></article>`};
+ const head=`<div class="mc-head"><span aria-hidden="true"></span><h1>سلتي${count?` <small>(${count})</small>`:''}</h1><div class="mc-more"><button data-a="cartMenu" aria-label="خيارات السلة" aria-expanded="false">⋯</button><div class="mc-menu" hidden><button data-a="cartPane" data-v="orders">الطلبات والمتابعة</button>${rows.length?'<button class="mc-danger" data-a="cartClear">إفراغ السلة</button>':''}</div></div></div>`;
+ $('#view').innerHTML=`<section class="my-cart">${head}`+(rows.length?[...groups].map(([id,items])=>`<div class="cart-store mc-store">${many?`<p class="mc-store-name">${flowIcon('store')} ${esc(mname(id)||'المتجر')}</p>`:''}${items.map(line).join('')}</div>`).join('')+`<button class="mc-orders" data-a="cartPane" data-v="orders"><span>${flowIcon('bag')} طلباتي السابقة ومتابعتها</span><i>‹</i></button><div class="mc-summary"><div><span>المجموع الفرعي:</span><b>${fmt(subtotal+saved)}</b></div><div><span>رسم التوصيل:</span><b>يُحسب بعد اختيار العنوان</b></div>${saved?`<div><span>الخصم:</span><b>${fmt(saved)}</b></div>`:''}${many?`<p>طلبك من ${groups.size} متاجر؛ يصل كطلبات منفصلة.</p>`:''}</div><div class="mc-checkout"><button class="buy" data-a="checkoutAddresses">إتمام الشراء بـ <b>${fmt(subtotal)}</b></button></div>`:`<section class="flow-empty"><span class="empty-symbol">${flowIcon('bag')}</span><h2>سلتك فارغة</h2><p>ابدأ التسوق واكتشف عروض اليوم.</p><button class="buy" data-a="marketSection" data-v="materials">تصفح المنتجات ${flowIcon('arrow')}</button><button class="mc-orders" data-a="cartPane" data-v="orders"><span>${flowIcon('bag')} طلباتي السابقة ومتابعتها</span><i>‹</i></button></section>`)+'</section>';
 }
 function confirmCartRemove(key){const c=D.cart.find(c=>cartKey(c)===key);if(key!=='all'&&!c)return;sheet(`<section class="cart-delete-dialog"><span class="empty-symbol">${flowIcon('trash')}</span><h2>${key==='all'?'إفراغ السلة':'حذف المنتج'}</h2><p>${key==='all'?'سيتم حذف المنتجات من سلتك.':`سيتم حذف «${esc(prod(c.pid)?.name||'المنتج')}» من سلتك.`}</p><div><button class="alt" data-a="close">إلغاء</button><button class="buy" data-a="confirmCartRemove" data-v="${esc(key)}">حذف</button></div></section>`);}
 async function openAddresses(){captureCheckout();if(requirePurchaseLogin())return;if(!D.cart.length)return;checkoutStage='addresses';customerAddresses=[];addressOwner=user.id;renderAddresses(true);const identity=user.id;try{const rows=check(await withTimeout(db.from('customer_addresses').select('*').eq('user_id',identity).order('created_at',{ascending:false})));if(user?.id!==identity)return;customerAddresses=rows;if(checkoutStage==='addresses')renderAddresses();}catch(e){if(user?.id===identity&&checkoutStage==='addresses')renderAddresses(false,true);error(e)}}
@@ -2049,6 +2095,7 @@ const A={
   addressChoose:v=>{const a=customerAddresses.find(a=>a.id===v);if(!a)return;useAddress(a);checkoutStage='review';csheet();scrollTo(0,0)},
   addressSave:(_,b)=>act(()=>saveAddress(b)),
   confirmCartRemove:v=>{const previous=D.cart;D.cart=v==='all'?[]:D.cart.filter(c=>cartKey(c)!==v);if(!save()){D.cart=previous;return}A.close();checkoutStage='items';render()},
+  cartMenu:(_,button)=>{const menu=button?.nextElementSibling;if(!menu)return;menu.hidden=!menu.hidden;button.setAttribute('aria-expanded',String(!menu.hidden))},
   cartClear:()=>{if(D.cart.length)confirmBox('إفراغ السلة؟','سيتم حذف كل المنتجات من سلتك.','إفراغ',()=>A.confirmCartRemove('all'),true)},
   archiveProduct:v=>act(async()=>{const p=prod(v);if(!canSell()||p?.mid!==ownStore?.id)return;check(await db.from('products').update({active:!p.active}).eq('id',v).eq('store_id',ownStore.id).select('id').single());await refresh();cur={p:prod(v),n:1,options:{}};updateProductDetail();toast(p.active?'تمت الأرشفة دون حذف البيانات':'تم نشر المنتج')}),
   cart:(_,button)=>{checkoutStage='items';D.cartPane=button?.dataset?.cartPane==='orders'?'orders':'items';if(sellerAccount()){buyerAccountLogin();return}A.close();cartReceipt=null;tab='cartPage';render();scrollTo(0,0);loadCustomerOrders();},
