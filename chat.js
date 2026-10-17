@@ -9,14 +9,20 @@ const QUICK={
  usedBuyer:['هل ما زال متوفرًا؟','هل السعر قابل للتفاوض؟','أين يمكنني معاينته؟']
 };
 export function createChat(ctx){
- const E=ctx.esc;let current=null,timer=null,messages=[],busy=false,loaded=false;
+ const E=ctx.esc;let current=null,timer=null,messages=[],busy=false,loaded=false,seenBy=0,marked='';
  const key=t=>t.kind+':'+t.ref+':'+t.buyer;
  const parse=v=>{const [kind,ref,buyer]=String(v||'').split(/[:|]/);return kind&&ref&&buyer?{kind,ref,buyer}:null;};
  function role(t){const me=ctx.user()?.id,info=ctx.thread(t);if(t.kind==='used')return me===t.buyer?'usedBuyer':'owner';if(t.kind==='store')return me===t.buyer?'buyerStore':'seller';if(t.kind==='driver')return me===t.buyer?'buyer':'driver';if(me===info?.driver)return 'driver';if(me===t.buyer)return 'buyer';return 'seller';}
- function bubble(m){const me=m.sender_id===ctx.user()?.id,who=me?'':ctx.thread(current)?.names?.[m.sender_id]||'';return `<div class="chat-msg ${me?'mine':''}">${who?`<small>${E(who)}</small>`:''}<p>${E(m.body)}</p><time>${E(ctx.when(m.created_at))}</time></div>`;}
+ // Two ticks on my messages: brown = reached the server, blue = the other person has read it.
+ function ticks(m){const read=seenBy&&new Date(m.created_at).getTime()<=seenBy;return `<i class="chat-ticks ${read?'is-read':''}" aria-label="${read?'تمت المشاهدة':'وصلت'}" title="${read?'تمت المشاهدة':'وصلت'}">✓✓</i>`}
+ function bubble(m){const me=m.sender_id===ctx.user()?.id,who=me?'':ctx.thread(current)?.names?.[m.sender_id]||'';return `<div class="chat-msg ${me?'mine':''}">${who?`<small>${E(who)}</small>`:''}<p>${E(m.body)}</p><time>${E(ctx.when(m.created_at))}${me?ticks(m):''}</time></div>`;}
  function paint(){const box=document.getElementById('chatLog');if(!box)return;const atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<60;box.innerHTML=messages.length?messages.map(bubble).join(''):'<p class="chat-empty">ابدأ المحادثة. رسائلك تبقى داخل سوق الشطرة ولا يظهر رقمك.</p>';if(atEnd)box.scrollTop=box.scrollHeight;}
- async function load(){if(!current)return;const t=current,r=await ctx.db.from('chat_messages').select('*').eq('kind',t.kind).eq('ref_id',t.ref).eq('buyer_id',t.buyer).order('created_at',{ascending:true}).limit(300);if(current!==t)return;if(r.error){if(!messages.length){const box=document.getElementById('chatLog');if(box)box.innerHTML='<p class="chat-empty">تعذّر تحميل الرسائل. تحقق من الاتصال.</p>';}return;}const before=messages.length,first=!loaded;loaded=true;messages=r.data||[];if(first||messages.length!==before)paint();}
- function stop(){clearInterval(timer);timer=null;current=null;messages=[];loaded=false;}
+ async function load(){if(!current)return;const t=current,r=await ctx.db.from('chat_messages').select('*').eq('kind',t.kind).eq('ref_id',t.ref).eq('buyer_id',t.buyer).order('created_at',{ascending:true}).limit(300);if(current!==t)return;if(r.error){if(!messages.length){const box=document.getElementById('chatLog');if(box)box.innerHTML='<p class="chat-empty">تعذّر تحميل الرسائل. تحقق من الاتصال.</p>';}return;}const before=messages.length,first=!loaded,seenBefore=seenBy;loaded=true;messages=r.data||[];
+  const me=ctx.user()?.id,reads=await ctx.db.from('chat_reads').select('user_id,read_at').eq('kind',t.kind).eq('ref_id',t.ref).eq('buyer_id',t.buyer).then(x=>x,()=>({data:null}));if(current!==t)return;
+  seenBy=Math.max(0,...(reads?.data||[]).filter(x=>x.user_id!==me).map(x=>new Date(x.read_at).getTime()));
+  const last=[...messages].reverse().find(m=>m.sender_id!==me),key=last?last.id:'';if(key&&key!==marked&&!document.hidden){marked=key;ctx.db.rpc('mark_chat_read',{p_kind:t.kind,p_ref:t.ref,p_buyer:t.buyer}).then(()=>{},()=>{})}
+  if(first||messages.length!==before||seenBy!==seenBefore)paint();}
+ function stop(){clearInterval(timer);timer=null;current=null;messages=[];loaded=false;seenBy=0;marked='';}
  function open(value){
   const t=typeof value==='string'?parse(value):value;if(!t)return;
   if(!ctx.user()){ctx.login();return;}
