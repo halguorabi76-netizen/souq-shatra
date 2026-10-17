@@ -1984,7 +1984,7 @@ const A={
   addressChoose:v=>{const a=customerAddresses.find(a=>a.id===v);if(!a)return;useAddress(a);checkoutStage='review';csheet();scrollTo(0,0)},
   addressSave:(_,b)=>act(()=>saveAddress(b)),
   confirmCartRemove:v=>{const previous=D.cart;D.cart=v==='all'?[]:D.cart.filter(c=>cartKey(c)!==v);if(!save()){D.cart=previous;return}A.close();checkoutStage='items';render()},
-  cartClear:()=>confirmCartRemove('all'),
+  cartClear:()=>{if(D.cart.length)confirmBox('إفراغ السلة؟','سيتم حذف كل المنتجات من سلتك.','إفراغ',()=>A.confirmCartRemove('all'),true)},
   archiveProduct:v=>act(async()=>{const p=prod(v);if(!canSell()||p?.mid!==ownStore?.id)return;check(await db.from('products').update({active:!p.active}).eq('id',v).eq('store_id',ownStore.id).select('id').single());await refresh();cur={p:prod(v),n:1,options:{}};updateProductDetail();toast(p.active?'تمت الأرشفة دون حذف البيانات':'تم نشر المنتج')}),
   cart:(_,button)=>{checkoutStage='items';D.cartPane=button?.dataset?.cartPane==='orders'?'orders':'items';if(sellerAccount()){buyerAccountLogin();return}A.close();cartReceipt=null;tab='cartPage';render();scrollTo(0,0);loadCustomerOrders();},
   cartPane:v=>{checkoutStage='items';captureCheckout();A.close();D.cartPane=v==='items'?'items':'orders';cartReceipt=null;tab='cartPage';render();if(D.cartPane==='orders')loadCustomerOrders();},
