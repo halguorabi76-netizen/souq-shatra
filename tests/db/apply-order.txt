@@ -30,3 +30,4 @@ supabase/migrations/20261018160000_join_requests.sql
 supabase/migrations/20261019100000_workspace_reset.sql
 supabase/migrations/20261019120000_client_errors.sql
 supabase/migrations/20261019140000_store_kinds.sql
+supabase/migrations/20261019160000_split_order_chat.sql
