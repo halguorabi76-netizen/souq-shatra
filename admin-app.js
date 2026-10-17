@@ -3,9 +3,9 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=178";
+import {createSellerWorkspace} from "./seller-workspace.js?v=179";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=180";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=176";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -374,9 +374,10 @@ function sellerRequest(){
  if(!user){requestRole('seller');return}
  tab='sellerJoin';render();scrollTo(0,0);
 }
+const STORE_KINDS=[['physical','محل في المدينة'],['online','متجر إلكتروني / من البيت'],['social','صفحة على مواقع التواصل (إنستغرام، تيك توك، فيسبوك)'],['personal','بائع فردي (قطعة أو سلعة واحدة)'],['other','غير ذلك']];
 function storeLocationFields(prefix,m){
  const kind=m?.store_kind||'',address=m?.pickup_address||m?.address||'',id=prefix==='join'?'joinAddress':'editStoreAddress';
- return `<label for="${prefix}StoreKind">نوع المتجر</label><select id="${prefix}StoreKind" required data-location="${prefix}"><option value="">اختر نوع المتجر</option><option value="physical" ${kind==='physical'?'selected':''}>متجر واقعي / محل</option><option value="online" ${kind==='online'?'selected':''}>متجر إلكتروني</option></select><label id="${prefix}LocationLabel" for="${id}">${kind==='online'?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر'}</label><input id="${id}" required maxlength="500" autocomplete="street-address" value="${esc(address)}"><p class="op-location-note" id="${prefix}LocationNote">${kind==='online'?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'اكتب المدينة والحي وأقرب نقطة دالة. عنوان المحل يظهر للزبائن ولسائق التوصيل.'}</p>`;
+ return `<label for="${prefix}StoreKind">نوع المتجر</label><select id="${prefix}StoreKind" required data-location="${prefix}"><option value="">اختر نوع المتجر</option>${STORE_KINDS.map(([k,t])=>`<option value="${k}" ${kind===k?'selected':''}>${t}</option>`).join('')}</select><label id="${prefix}LocationLabel" for="${id}">${kind&&kind!=='physical'?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر'}</label><input id="${id}" required maxlength="500" autocomplete="street-address" value="${esc(address)}"><p class="op-location-note" id="${prefix}LocationNote">${kind&&kind!=='physical'?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'اكتب المدينة والحي وأقرب نقطة دالة. عنوان المحل يظهر للزبائن ولسائق التوصيل.'}</p>`;
 }
 function sellerJoinPage(){
  if(!user){sellerRequest();return}
@@ -1035,7 +1036,7 @@ async function showOrderNotice(id){
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
  sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
 }
-document.addEventListener('change',e=>{if(e.target.id==='productCondition'){document.getElementById('productSaleBox').hidden=e.target.value==='used';return}if(e.target.id==='baseDiscount'){$('#baseDiscountFields').hidden=!e.target.checked;return;}if(e.target.dataset.variantType==='true'){A.chooseVariantOption(null,{disabled:false,dataset:{axis:e.target.dataset.axis,option:e.target.value}});return;}if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;updateProductDetail();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=e.target.value==='online';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
+document.addEventListener('change',e=>{if(e.target.id==='productCondition'){document.getElementById('productSaleBox').hidden=e.target.value==='used';return}if(e.target.id==='baseDiscount'){$('#baseDiscountFields').hidden=!e.target.checked;return;}if(e.target.dataset.variantType==='true'){A.chooseVariantOption(null,{disabled:false,dataset:{axis:e.target.dataset.axis,option:e.target.value}});return;}if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;updateProductDetail();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=!!e.target.value&&e.target.value!=='physical';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
 document.addEventListener('click',e=>{
   if(e.target.id==='shade'){A.close();return}
   if(!e.target.closest('#accountMenu')&&!e.target.closest('#accountTrigger'))closeAccountMenu();
