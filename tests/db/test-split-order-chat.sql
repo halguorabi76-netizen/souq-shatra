@@ -21,4 +21,15 @@ select public.send_chat_message('driver','00000000-0000-0000-0000-0000000066c6',
 select pg_temp.as_user(null);
 select pg_temp.ok((select count(*) from public.account_notifications where recipient_id='00000000-0000-0000-0000-0000000066c1' and event_key like 'chat:driver:%')=1,'customer is notified for the delivery thread');
 select pg_temp.ok(not exists(select 1 from public.account_notifications where recipient_id='00000000-0000-0000-0000-0000000066c2' and event_key like 'chat:driver:%'),'the store is not notified of delivery messages');
-delete from public.chat_messages where ref_id='00000000-0000-0000-0000-0000000066c6';
+-- Read receipts: the customer reads the delivery thread; the driver sees it, the store does not.
+select pg_temp.as_user('00000000-0000-0000-0000-0000000066c1');
+select public.mark_chat_read('driver','00000000-0000-0000-0000-0000000066c6','00000000-0000-0000-0000-0000000066c1');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000066c3');
+select pg_temp.ok(exists(select 1 from public.chat_reads where user_id='00000000-0000-0000-0000-0000000066c1' and kind='driver'),'the driver sees that the customer read the thread');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000066c2');
+select public.mark_chat_read('driver','00000000-0000-0000-0000-0000000066c6','00000000-0000-0000-0000-0000000066c1');
+select pg_temp.ok(not exists(select 1 from public.chat_reads where kind='driver'),'the store cannot see or mark the delivery thread');
+select pg_temp.as_user(null);
+select pg_temp.ok((select count(*) from public.chat_reads where kind='driver')=1,'a stranger marking read is ignored');
+select pg_temp.ok((select read_at from public.account_notifications where recipient_id='00000000-0000-0000-0000-0000000066c1' and event_key like 'chat:driver:%') is not null,'reading clears the message notice');
+delete from public.chat_reads; delete from public.chat_messages where ref_id='00000000-0000-0000-0000-0000000066c6';

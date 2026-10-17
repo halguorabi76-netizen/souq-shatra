@@ -135,3 +135,7 @@ body .sw-folds .sw-fold-body>.sw-card{border:0!important;box-shadow:none!importa
 body .sw-folds .sw-fold-body .sw-card-title>h2{display:none!important}
 body .sw-folds .sw-fold-body .sw-card-title{justify-content:flex-end}
 .sw-fold-body .sw-period{margin:0 4px 6px}
+/* Top bar: the site wordmark «سوق الشطرة» like the customer header, then the mode and preview buttons. */
+html body .sw-shell .sw-sitebar{display:flex!important;align-items:center;gap:8px}
+.sw-sitebar .sw-bar-gap{flex:1}
+html body .sw-sitebar .sw-brand{display:inline-flex!important;align-items:center;background:none!important;border:0!important;box-shadow:none!important;padding:0 4px!important;cursor:pointer;min-height:44px}

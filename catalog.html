@@ -517,6 +517,7 @@ html:root body .pd-total .mp-price strong{font-size:15px!important;white-space:n
 html:root body #sheet .pd2 .pd-bar .pd-add{flex:none;width:auto;margin:0;padding:13px 20px;border-radius:999px;font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:7px}
 .pd-add svg{width:20px;height:20px}
 .auth-field.has-value:has(.auth-eye) .auth-field-icon{display:none}
+.chat-ticks{font-style:normal;margin-inline-start:5px;letter-spacing:-4px;font-size:12px;color:#9a6b4a}.chat-ticks.is-read{color:#2f80ed}
 .order-chat{display:flex;gap:8px;flex-wrap:wrap}.order-chat .chat-open{flex:1 1 140px}.order-chat-hint{margin:4px 0 0;color:var(--mut);font-size:12px}
 html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,.product-purchase .buy.added{background:linear-gradient(135deg,#22a565 0%,#137a49 100%)!important;color:#fff!important}
 .pw-field{position:relative}.pw-field input{padding-left:50px!important}
@@ -536,7 +537,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 .auth-sheet .auth-providers{margin:0 0 20px}.auth-provider.google{height:54px;border-radius:14px}.auth-divider{margin:16px 0 0}.auth-phone-link{display:block;width:100%;margin:14px 0 8px;padding:10px;color:var(--navy);text-align:center;border:1px solid var(--line);border-radius:13px}.auth-channels button:not(:disabled){color:var(--ink);cursor:pointer;background:var(--tile)}.auth-channels button:disabled{cursor:wait}.auth-otp-note{color:var(--mut);font-size:14px}.auth-otp-input{letter-spacing:8px;text-align:center;font-size:24px!important}.auth-resend{display:block;padding:12px;color:var(--navy);margin:auto}
 @media(max-width:600px){.sheet.auth-sheet{padding:calc(23px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px));border-radius:0;height:100dvh;max-height:100dvh}.auth-top{margin-bottom:20px}}
 </style>
-<link rel="stylesheet" href="seller-workspace.css?v=171"><link rel="stylesheet" href="store-explorer.css?v=1">
+<link rel="stylesheet" href="seller-workspace.css?v=172"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
 <link rel="stylesheet" href="operations.css?v=170">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=171">
@@ -647,11 +648,11 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=179";
+import {createSellerWorkspace} from "./seller-workspace.js?v=180";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=177";
-import {createChat} from "./chat.js?v=2";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=178";
+import {createChat} from "./chat.js?v=3";
 import {createStoreExplorer} from "./store-explorer.js?v=1";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -1458,13 +1459,13 @@ function ordCard(o,m){
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m&&o.driver_id&&o.cust.phone?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
-  ${m&&o.st<4?chatButton('store',o.id,o.buyer_id,'راسل الزبون'):''}${m?`<small>📍 ${esc(o.cust.addr)}</small>${o.st===1&&!o.tracking?.ready_at?`<button class="alt" data-op="READY" data-id="${esc(o.id)}">الطلب جاهز للاستلام</button>`:''}`:''}${!m&&user?.id===o.buyer_id?customerOrderControls(o):''}${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
+  ${m?`<small>📍 ${esc(o.cust.addr)}</small>${o.st===1&&!o.tracking?.ready_at?`<button class="alt" data-op="READY" data-id="${esc(o.id)}">الطلب جاهز للاستلام</button>`:''}`:''}${!m&&user?.id===o.buyer_id?customerOrderControls(o):''}${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
 }
 function customerOrderControls(o){
  const hidden=!!o.customer_action?.hidden_at;
  if(hidden)return `<div class="acts"><button data-a="customerAction" data-v="${o.id}|restore">↶ إعادة إلى قائمتي</button></div>`;
  const kind=o.st===3?'return':(o.st<2&&!o.driver_id)||(o.st<3&&o.tracking?.late_reported_at)?'cancel':null,requested=o.customer_action?.request_kind===kind;
- return `${o.st<4?`<div class="acts order-chat">${chatButton('store',o.id,o.buyer_id,'راسل المتجر')}${o.driver_id&&o.st<3?chatButton('driver',o.id,o.buyer_id,'راسل السائق'):''}</div><p class="order-chat-hint">المتجر: أسئلة المنتجات وتعديل الطلب · السائق: الموقع ووقت الوصول والتسليم</p>`:''}${o.st===3?rateBlock(o):''}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
+ return `${o.driver_id&&o.st<3?`<div class="acts order-chat">${chatButton('driver',o.id,o.buyer_id,'راسل السائق')}</div><p class="order-chat-hint">للموقع ووقت الوصول والتسليم</p>`:''}${o.st===3?rateBlock(o):''}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
 }
 function customerOrderHub(){
  const mine=D.o.filter(o=>user&&o.buyer_id===user.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts)),filter=D.orderFilter||'all';
