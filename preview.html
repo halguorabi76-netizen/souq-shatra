@@ -539,7 +539,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=174"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=63">
+<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=64">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=172">
 <style>
 .seller-preflight{display:none}
@@ -643,7 +643,7 @@ body.starting{overflow:hidden}
 
 
 <script type="module">
-import {createPreviewClient} from "./preview-lab.js?v=162";
+import {createPreviewClient} from "./preview-lab.js?v=163";
 
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
@@ -2205,7 +2205,7 @@ async function paintInbox(){
 const activity=createActivityCenter({chat:v=>chat.open(v),db,esc,fmt,when,check,error,ordersChanged:syncNotifiedOrders,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
 const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments,canReset})});
 const deliveryOps=createDeliveryOperations({db,esc,fmt,check,sheet,head,toast,refresh,error,reloadOrders:loadCustomerOrders,get:()=>({user,profile,store:ownStore,data:D})});
-db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
+db.preview?.init({sheet,refresh:()=>{refresh().catch(()=>{});activity.poll?.()?.catch?.(()=>{});},close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
 async function showOrderNotice(id){
  const row=check(await orderRead().eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
  const contacts=check(await db.rpc('assigned_delivery_contacts'))||[];D.driverContacts=contacts;
