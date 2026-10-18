@@ -32,3 +32,4 @@ supabase/migrations/20261019120000_client_errors.sql
 supabase/migrations/20261019140000_store_kinds.sql
 supabase/migrations/20261019160000_split_order_chat.sql
 supabase/migrations/20261019180000_chat_reads.sql
+supabase/migrations/20261020100000_used_simple.sql
