@@ -1,5 +1,6 @@
 /* Round profile photos (customers, drivers), the driver card the customer sees, and «منتجات مشابهة». */
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .avatar-circle{--av:44px;position:relative;flex:none;display:inline-grid;place-items:center;width:var(--av);height:var(--av);border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#5b6fd1,#3547a5);color:#fff;font-weight:800;font-size:calc(var(--av) * .42);line-height:1;vertical-align:middle}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .avatar-circle b{color:#fff!important;font-weight:800}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .avatar-circle img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .profile-hero .portrait{padding:0;overflow:hidden;border-radius:50%}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .portrait .avatar-circle{--av:100%;width:100%;height:100%;font-size:32px}

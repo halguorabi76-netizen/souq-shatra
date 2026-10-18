@@ -560,7 +560,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=21"><link rel="stylesheet" href="checkout-review.css?v=2"><link rel="stylesheet" href="returns.css?v=1"><link rel="stylesheet" href="people.css?v=1"><link rel="stylesheet" href="seller-dashboard.css?v=3">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=21"><link rel="stylesheet" href="checkout-review.css?v=2"><link rel="stylesheet" href="returns.css?v=1"><link rel="stylesheet" href="people.css?v=2"><link rel="stylesheet" href="settings.css?v=1"><link rel="stylesheet" href="seller-dashboard.css?v=3">
 <style>
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#6f82e0 0%,#3547a5 35%,#16245a 75%,#070c1f 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
@@ -648,12 +648,12 @@ import {createPreviewClient} from "./preview-lab.js?v=166";
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=184";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
+import {createSellerWorkspace} from "./seller-workspace.js?v=185";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=174";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=179";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=180";
 import {createAvatars} from "./avatars.js?v=1";
-import {createChat} from "./chat.js?v=3";
+import {createChat} from "./chat.js?v=4";
 import {createStoreExplorer} from "./store-explorer.js?v=1";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -885,7 +885,20 @@ const returnable=p=>typeof p?.attributes?._returnable==='boolean'?p.attributes._
 const returnBadge=(p,cls='')=>{const r=returnable(p);return r===null?'':`<span class="return-badge ${r?'is-yes':'is-no'} ${cls}">${r?'↩ قابل للإرجاع':'✕ غير قابل للإرجاع'}</span>`;};
 const orderReturnable=o=>(o.items||[]).some(i=>returnable(prod(i.pid))===true);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
-const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'short'});
+// Times read like a conversation: «الآن», «منذ 5 دقائق», «منذ 3 ساعات», «أمس · 9:40 م»; from the day before
+// yesterday on, the date and time («17 أكتوبر · 9:40 م»). Every shown time refreshes itself each minute.
+const exactWhen=t=>new Date(t).toLocaleString('ar-IQ-u-nu-latn',{dateStyle:'medium',timeStyle:'short'});
+function arabicCount(n,one,two,few,many){return n===1?one:n===2?two:n<=10?`${n} ${few}`:`${n} ${many}`;}
+function relativeTime(t,now=Date.now()){
+ const d=new Date(t);if(isNaN(d))return '';const s=Math.max(0,(now-d)/1000),clock=d.toLocaleTimeString('ar-IQ-u-nu-latn',{hour:'numeric',minute:'2-digit'});
+ if(s<60)return 'الآن';const m=Math.floor(s/60);if(m<60)return 'منذ '+arabicCount(m,'دقيقة','دقيقتين','دقائق','دقيقة');
+ const h=Math.floor(m/60);if(h<24)return 'منذ '+arabicCount(h,'ساعة','ساعتين','ساعات','ساعة');
+ const today=new Date(now);today.setHours(0,0,0,0);const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
+ if(d>=yesterday)return 'أمس · '+clock;
+ return d.toLocaleDateString('ar-IQ-u-nu-latn',{day:'numeric',month:'long',...(d.getFullYear()!==today.getFullYear()?{year:'numeric'}:{})})+' · '+clock;
+}
+const when=t=>{const d=new Date(t);return t==null||isNaN(d)?'':`<time class="rel-time" datetime="${d.toISOString()}" title="${exactWhen(d)}">${relativeTime(d)}</time>`;};
+setInterval(()=>document.querySelectorAll('time.rel-time[datetime]').forEach(el=>{const v=relativeTime(el.getAttribute('datetime'));if(v&&el.textContent!==v)el.textContent=v;}),60000);
 let publicStoreId=new URLSearchParams(location.search).get('store');
 if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;
 const ADMIN_PORTAL=document.documentElement.dataset.portal==='admin';
@@ -1200,7 +1213,7 @@ function usedImg(path){return path?db.storage.from('used-items').getPublicUrl(pa
 function usedLive(l){return l.status==='active'&&new Date(l.expires_at)>new Date()}
 function usedPriceLabel(){return fmt(usedQuota?.price??0)}
 function usedZone(id){return (deliveryZones.find(z=>z.id===id)?.name)||''}
-function usedAgo(t){const d=Math.floor((Date.now()-new Date(t))/86400000);return d<1?'اليوم':d===1?'أمس':'منذ '+d+' أيام'}
+function usedAgo(t){return relativeTime(t)||''}
 async function loadUsed(){
  if(db.preview||ADMIN_PORTAL&&!user)return;
  const [list,quota]=await Promise.all([db.from('used_listings').select('*').order('created_at',{ascending:false}).limit(300),user?db.rpc('used_listing_quota'):Promise.resolve({data:null})]).catch(()=>[{data:null},{data:null}]);
@@ -1292,8 +1305,39 @@ function profilePage(){
  let location=null;try{const saved=JSON.parse(localStorage.getItem('souq-shatra-location-'+user.id)||'null');if(saved&&Number.isFinite(+saved.lat)&&Number.isFinite(+saved.lon))location=saved}catch{}
  $('#view').innerHTML=`<div class="profile-page"><section class="profile-card profile-hero"><div class="profile-photo"><div class="portrait" aria-label="صورة الحساب">${avatars.html(user.id,name,'portrait-avatar')}</div><button data-a="chooseAvatar" aria-label="إضافة أو تغيير صورتك">📷</button><input id="avatarInput" type="file" accept="image/*" hidden></div><div><b>${esc(name)}</b><small>${esc(shownEmail(user)||'تم الدخول عبر واتساب')}</small></div></section><section class="profile-card"><div class="profile-heading"><h2>بيانات الحساب الأساسية</h2>${profile?.username?`<p dir="ltr">@${esc(profile.username)}</p>`:''}<button class="profile-edit" data-a="editprofile" aria-label="تعديل بيانات الحساب">✎</button></div><div class="profile-detail"><span class="picon">♙</span><span>${esc(name)}</span></div><div class="profile-detail"><span class="picon">☎</span><button class="buyer-phone-action" data-a="editCustomerPhone" ${profile?.phone?'dir="ltr"':''}>${esc(profile?.phone||'أضف رقم هاتفك')}</button></div>${shownEmail(user)?`<div class="profile-detail"><span class="picon">✉</span><span dir="ltr">${esc(shownEmail(user))}</span></div>`:''}</section><div class="profile-pair"><section class="profile-card"><h3>ملخص الطلبات</h3><p>${completed.length} طلب مكتمل</p><small>${last?'آخر طلب: '+esc(last):'لم تطلب بعد'}</small><button class="profile-action" data-a="tab" data-v="orders">عرض طلباتي</button></section><section class="profile-card"><h3>عنوان التوصيل</h3><p>${address?esc(address):'لم تُضف عنوانًا بعد'}</p><div class="profile-address-actions"><button class="profile-action" data-a="editaddress">${address?'تعديل العنوان':'إضافة عنوان'}</button><button class="profile-gps" data-a="saveProfileLocation" aria-label="تحديد موقعي عبر GPS" title="تحديد موقعي عبر GPS">📍</button></div><small class="profile-location-status">${location?'الموقع محفوظ ويمكن مشاركته عند الطلب':'اضغط علامة الموقع لتحديد مكانك'}</small></section></div><section class="profile-card"><button class="profile-link" data-a="tab" data-v="orders">♧ طلباتي <span>‹</span></button><button class="profile-link" data-a="paymentinfo">▣ طريقة الدفع <span>‹</span></button><button class="profile-link" data-a="editaddress">⌖ عنواني <span>‹</span></button><button class="profile-link" data-a="editEmail">✉ تغيير البريد الإلكتروني <span>‹</span></button></section><section class="profile-card"><h3>استخدام الحساب</h3><div class="profile-role-actions"><button data-a="profileSwitch" data-v="buyer" aria-pressed="${viewMode==='buyer'}">🛒 الدخول كزبون</button><button data-a="profileSwitch" data-v="seller" aria-pressed="${viewMode==='seller'}">${canSell()?'▤ إدارة متجري':'طلب الانضمام كبائع'}</button>${sellerAccount()?'':`<button class="profile-driver-join" data-a="profileDriver">${driverAccount?.approved?'🛵 لوحة التوصيل':driverProfile?'طلب التوصيل قيد المراجعة':'الانضمام كسائق توصيل'}</button>`}</div><p class="note">${sellerAccount()?'حسابك مخصص لإدارة متجرك. للشراء ادخل بحساب زبون آخر.':'تُفتح أدوات البيع بعد اعتماد الإدارة لمتجرك.'}</p></section><section id="chatInbox" class="profile-card chat-inbox"></section>${usedMine()}<button class="profile-logout" data-a="changeaccount">تسجيل الخروج من الحساب</button>${sellerAccount()||profile?.role==='admin'?'':'<button class="profile-delete" data-a="deleteAccountAsk">حذف الحساب نهائيًا</button>'}</div>`;paintInbox();
 }
+// Settings, grouped like a phone's own settings: who you are on top, then your account, the app's look,
+// help, and signing out last and apart. Each row has an icon, a title and one line saying what's inside.
+const SETTING_ICONS={
+ store:'<path d="M4 10h16l-1.5-5h-13zM5 10v9h14v-9M9 19v-5h6v5"/>',person:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/>',
+ bag:'<path d="M6 8h12l-1 12H7zM9 8a3 3 0 0 1 6 0"/>',heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+ box:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',truck:'<path d="M3 6h11v11H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5h.01"/>',chat:'<path d="M4 5h16v11H8l-4 4z"/>',
+ out:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',login:'<path d="M9 4H5v16h4M14 8l4 4-4 4M18 12H8"/>'
+};
+function settingIcon(name){return `<span class="st-icon st-${name}" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${SETTING_ICONS[name]}</svg></span>`;}
+function settingRow(icon,title,sub,attrs){return `<button type="button" class="st-row" ${attrs}>${settingIcon(icon)}<span class="st-text"><b>${title}</b>${sub?`<small>${sub}</small>`:''}</span><i class="st-chevron" aria-hidden="true">‹</i></button>`;}
 function settings(){
- $('#view').innerHTML=`<div class="section-title"><h2>الإعدادات</h2></div><section class="box" aria-labelledby="appearanceTitle"><h2 id="appearanceTitle">مظهر التطبيق</h2><p>اختر الوضع الذي يناسبك</p><div class="theme-options" role="group" aria-label="مظهر التطبيق"><button data-a="theme" data-v="light" aria-pressed="${window.SouqTheme.get()==='light'}">☀ الوضع الفاتح</button><button data-a="theme" data-v="dark" aria-pressed="${window.SouqTheme.get()==='dark'}">☾ الوضع الغامق</button></div></section><div class="box"><button class="setting-row" data-a="tab" data-v="account">حسابي وإدارة نشاطي</button><button class="setting-row" data-a="tab" data-v="profilePage"><span class="avatar"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></span>ملفي الشخصي ومعلوماتي</button>${ownStore&&viewMode==='seller'?'<button class="setting-row" data-a="tab" data-v="listings">إعلاناتي ومنتجاتي</button>':''}<button class="setting-row" data-a="tab" data-v="orders">طلباتي</button><button class="setting-row" data-a="tab" data-v="market">الإعلانات والمنتجات الجديدة</button><button class="setting-row" data-a="info">شرح التطبيق والأسئلة الشائعة</button><button class="setting-row" data-a="support">تواصل مع الدعم</button></div>`;
+ const theme=window.SouqTheme.get(),seller=!!ownStore&&viewMode==='seller',driver=viewMode==='driver';
+ const name=user?(seller?ownStore.name:profile?.full_name||user.user_metadata?.full_name||'مستخدم سوق الشطرة'):'';
+ const contact=user?(profile?.phone||shownEmail(user)||(profile?.username?'@'+profile.username:'')):'';
+ const role=seller?'حساب تاجر':driver?'حساب سائق توصيل':'حساب زبون';
+ const mine=user?D.o.filter(o=>o.buyer_id===user.id):[],active=mine.filter(o=>o.st<3).length,favs=typeof activity==='undefined'?0:activity.favorites().length;
+ const head=user?`<button type="button" class="st-profile" data-a="tab" data-v="profilePage">${avatars.html(user.id,name,'st-avatar')}<span class="st-text"><b>${esc(name)}</b>${contact?`<small dir="auto">${esc(contact)}</small>`:''}<em>${role}</em></span><i class="st-chevron" aria-hidden="true">‹</i></button>`
+  :`<section class="st-profile st-guest">${settingIcon('person')}<span class="st-text"><b>أهلاً بك في سوق الشطرة</b><small>سجّل الدخول لتشتري وتتابع طلباتك</small></span><button type="button" class="buy" data-a="authStart" data-v="new">تسجيل الدخول</button></section>`;
+ const account=user?[
+  seller?settingRow('store','إدارة متجري','الطلبات والمنتجات والمبيعات','data-a="tab" data-v="account"'):driver?settingRow('truck','مساحة التوصيل','طلباتك المتاحة والحالية','data-a="tab" data-v="chats"'):'',
+  settingRow('person','ملفي الشخصي','الاسم والصورة ورقم الهاتف','data-a="tab" data-v="profilePage"'),
+  seller?settingRow('box','منتجاتي','إضافة المنتجات وتعديلها','data-a="tab" data-v="listings"'):'',
+  settingRow('bag','طلباتي',active?`${active} ${active===1?'طلب جارٍ':'طلبات جارية'} الآن`:'متابعة طلباتك السابقة','data-a="tab" data-v="orders"'),
+  seller||driver?'':settingRow('heart','المفضلة',favs?`${favs} ${favs===1?'منتج محفوظ':'منتجات محفوظة'}`:'المنتجات التي حفظتها','data-a="favorites"')
+ ].join(''):'';
+ $('#view').innerHTML=`<div class="st-page"><header class="st-title"><h1>الإعدادات</h1></header>${head}
+ ${account?`<section class="st-group" aria-labelledby="stAccount"><h2 id="stAccount">الحساب</h2><div class="st-list">${account}</div></section>`:''}
+ <section class="st-group" aria-labelledby="stLook"><h2 id="stLook">المظهر</h2><div class="st-list"><div class="st-row st-static">${settingIcon('sun')}<span class="st-text"><b>مظهر التطبيق</b><small>${theme==='dark'?'الوضع الليلي مفعّل':'الوضع النهاري مفعّل'}</small></span></div><div class="st-segment" role="radiogroup" aria-label="مظهر التطبيق"><button type="button" role="radio" data-a="theme" data-v="light" aria-checked="${theme==='light'}">☀ نهاري</button><button type="button" role="radio" data-a="theme" data-v="dark" aria-checked="${theme==='dark'}">☾ ليلي</button></div></div></section>
+ <section class="st-group" aria-labelledby="stHelp"><h2 id="stHelp">المساعدة</h2><div class="st-list">${settingRow('help','شرح التطبيق والأسئلة الشائعة','كيف تشتري وتبيع وتتابع الطلب','data-a="info"')}${settingRow('chat','تواصل مع الدعم','واتساب وإنستغرام','data-a="support"')}</div></section>
+ ${user?`<section class="st-group st-danger"><div class="st-list">${settingRow('out','تسجيل الخروج','يمكنك الدخول مرة ثانية متى شئت','data-a="changeaccount"')}</div></section>`:''}
+ <p class="st-foot">سوق الشطرة · من الشطرة وإليها</p></div>`;
 }
 function supportSheet(){sheet(head('تواصل مع الدعم')+`<p>مصمم ومبرمج تقني لتطبيق سوق الشطرة.</p><p><a href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">واتساب: 07837271707</a></p><p><a href="https://www.instagram.com/haider.alguorabi?stkn=Nzd2eTluem9oNnNr" target="_blank" rel="noopener noreferrer">حساب إنستغرام</a></p>`)}
 
@@ -2287,7 +2331,7 @@ const A={
 const storeExplorer=createStoreExplorer({esc,ready:()=>dataReady,stores:()=>publicMarketplace().stores,products:()=>publicMarketplace().products,ratings:()=>storeRatings,rating:id=>storeRatings.get(id),productCards:list=>(window.SouqFigmaUI||window.SouqMarketplace).productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()})});
 const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0,compare_at_price:$('#baseDiscount')?.checked?Number(val('fcompare')):null}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
-const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc,(id,n)=>avatars.html(id,n)),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell(),canReset}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.replaceState(history.state,'',url);render();scrollTo(0,0)}});
+const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,when,exactWhen,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc,(id,n)=>avatars.html(id,n)),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell(),canReset}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.replaceState(history.state,'',url);render();scrollTo(0,0)}});
 // Messages: the thread title, the store/driver names and who is the driver come from loaded data.
 function chatThread(t){
  if(t.kind==='used'){const l=(D.used||[]).find(x=>x.id===t.ref);return {title:l?'محادثة عن «'+l.title+'»':'محادثة عن غرض مستعمل',subtitle:l?fmt(l.price)+' · عاين الغرض قبل الدفع':'',names:{}}}
@@ -2301,7 +2345,7 @@ const chatButton=(kind,ref,buyer,label)=>`<button type="button" class="chat-open
 async function paintInbox(){
  const box=$('#chatInbox');if(!box||!user)return;const list=await chat.threads().catch(()=>null);if(!$('#chatInbox'))return;
  if(!list){box.innerHTML='';return}
- box.innerHTML=`<h3>رسائلي</h3>${list.length?list.slice(0,12).map(t=>{const info=chatThread(t);return `<button class="chat-thread" data-a="chatOpen" data-v="${esc(t.kind+':'+t.ref+':'+t.buyer)}"><b>${esc(info.title)}</b><small>${esc((t.last.sender_id===user.id?'أنت: ':'')+t.last.body)}</small><time>${esc(when(t.last.created_at))}</time></button>`}).join(''):'<p class="note">لا توجد محادثات بعد. راسل صاحب غرض مستعمل أو المتجر والسائق من صفحة طلباتك.</p>'}`;
+ box.innerHTML=`<h3>رسائلي</h3>${list.length?list.slice(0,12).map(t=>{const info=chatThread(t);return `<button class="chat-thread" data-a="chatOpen" data-v="${esc(t.kind+':'+t.ref+':'+t.buyer)}"><b>${esc(info.title)}</b><small>${esc((t.last.sender_id===user.id?'أنت: ':'')+t.last.body)}</small><time>${when(t.last.created_at)}</time></button>`}).join(''):'<p class="note">لا توجد محادثات بعد. راسل صاحب غرض مستعمل أو المتجر والسائق من صفحة طلباتك.</p>'}`;
 }
 const activity=createActivityCenter({chat:v=>chat.open(v),db,esc,fmt,when,check,error,ordersChanged:syncNotifiedOrders,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
 const driverWorkspace=createDriverWorkspace({avatar:(id,name)=>avatars.html(id,name),db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments,canReset})});
