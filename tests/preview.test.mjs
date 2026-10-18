@@ -12,7 +12,7 @@ test('preview opens without login, uses one isolated local storage key, no produ
 test('full simulated lifecycle generates seller, buyer and driver notifications and local debt',async()=>{
  const {model,ids}=setup();const p=model.snapshot().products[0];model.setRole('buyer');const orderId=ok(await model.rpc('place_order',{p_store:ids.store,p_lines:[{id:p.id,quantity:2}],p_name:'معاينة زبون',p_phone:'00000000000',p_address:'عنوان تجريبي'}));assert.equal(model.snapshot().products[0].stock,18);
  model.setRole('seller');const notices=ok(await model.from('account_notifications').select('*'));assert.equal(notices[0].event_kind,'order');assert.match(notices[0].body,/قميص تجريبي × 2/);ok(await model.rpc('set_order_status',{p_order:orderId,p_status:'accepted'}));
- model.setRole('driver');const offers=ok(await model.rpc('delivery_offer_details'));assert.equal(offers.length,1);assert.doesNotMatch(JSON.stringify(offers),/customer_name|customer_phone|عنوان تجريبي/);ok(await model.rpc('claim_delivery',{p_order:orderId}));assert.equal(ok(await model.from('orders').select('*')).length,1);ok(await model.rpc('delivery_step',{p_order:orderId,p_status:'delivery'}));ok(await model.rpc('delivery_step',{p_order:orderId,p_status:'delivered'}));assert.equal(model.snapshot().delivery_workers[0].amount_due,500);assert.equal(model.snapshot().orders[0].status,'delivered');assert.equal(ok(await model.rpc('delivery_offer_details')).length,0);
+ model.setRole('driver');const offers=ok(await model.rpc('delivery_offer_details'));assert.equal(offers.length,1);assert.doesNotMatch(JSON.stringify(offers),/customer_name|customer_phone|عنوان تجريبي/);ok(await model.rpc('claim_delivery',{p_order:orderId}));assert.equal(ok(await model.from('orders').select('*')).length,1);ok(await model.rpc('delivery_step',{p_order:orderId,p_status:'delivery'}));ok(await model.rpc('delivery_step',{p_order:orderId,p_status:'delivered'}));assert.equal(model.snapshot().delivery_workers[0].amount_due,0);assert.equal(model.snapshot().orders[0].status,'delivered');assert.equal(ok(await model.rpc('delivery_offer_details')).length,0);
  assert.ok(ok(await model.from('account_notifications').select('*')).length>=3);
 });
 test('local favorite and like notify only seller and remain independently saved',async()=>{
@@ -39,7 +39,7 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  vm.createContext(context);
  const strip=code=>code.replace(/^import .*;$/gm,'').replace(/^export \{.*\} from .*;$/gm,'').replace(/export /g,'');
  for(const file of ['product-options.js','product-variants.js','product-editor.js']){const code=readFileSync(new URL('../'+file,import.meta.url),'utf8'),names=[...code.matchAll(/export (?:const|function|async function) ([a-zA-Z0-9_]+)/g)].map(m=>m[1]);vm.runInContext('{'+strip(code)+';Object.assign(globalThis,{'+names.join(',')+'});}',context);}
- for(const file of ['delivery-operations.js','delivery-zones.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js','chat.js','store-explorer.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
+ for(const file of ['delivery-operations.js','delivery-zones.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js','chat.js','store-explorer.js','avatars.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
  const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8').match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;$/gm,'');vm.runInContext(source,context,{filename:'preview.html'});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();assert.match(nodes.get('#view').innerHTML,/أي واجهة تريد تجربتها/);
  vm.runInContext("db.preview.selectRole('buyer')",context);await settle();assert.match(nodes.get('#view').innerHTML,/المواد المعروضة|قميص تجريبي/);
@@ -55,9 +55,11 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  assert.match(nodes.get('#view').innerHTML,/productCreateForm|إضافة صورة/);
  const values={fn:'قميص محدّث',fpr:'11000',fs:'20',fthreshold:'5',funit:'قطعة',fcompare:'',factive:'true',fd:'وصف جديد',fcCustom:'وصل حديثًا',fsku:'SH-1'};
  for(const [id,value] of Object.entries(values))document.querySelector('#'+id).value=value;
+ nodes.set('input[name="productReturnable"]:checked',{value:'no'});
  await vm.runInContext('saveProduct()',context);
  assert.equal(vm.runInContext('workspace.productCost(D.p[0].id)',context),7000);
  assert.equal(vm.runInContext('D.p[0].name',context),'قميص محدّث');
+ assert.equal(vm.runInContext('D.p[0].attributes._returnable',context),false);
  const productResult=await vm.runInContext("db.from('products').select('*')",context);
  const workspaceResult=await vm.runInContext("db.from('seller_workspace_settings').select('*')",context);
  const saved={products:productResult.data,seller_workspace_settings:workspaceResult.data};

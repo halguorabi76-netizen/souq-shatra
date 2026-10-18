@@ -1,0 +1,29 @@
+/* Round profile photos (customers, drivers), the driver card the customer sees, and «منتجات مشابهة». */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .avatar-circle{--av:44px;position:relative;flex:none;display:inline-grid;place-items:center;width:var(--av);height:var(--av);border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#5b6fd1,#3547a5);color:#fff;font-weight:800;font-size:calc(var(--av) * .42);line-height:1;vertical-align:middle}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .avatar-circle b{color:#fff!important;font-weight:800}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .avatar-circle img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .profile-hero .portrait{padding:0;overflow:hidden;border-radius:50%}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .portrait .avatar-circle{--av:100%;width:100%;height:100%;font-size:32px}
+/* Driver header: your photo with a camera badge to change it. */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-header{align-items:center}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-me{flex:none;order:-1}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-photo{position:relative;padding:0;margin:0;width:76px;height:76px;border-radius:50%;border:3px solid #fff;background:none;box-shadow:0 6px 18px rgba(13,24,52,.18);cursor:pointer}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-photo .avatar-circle{--av:70px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-photo>span:last-child{position:absolute;inset:auto -2px -2px auto;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff;color:#0d1834;font-size:14px;box-shadow:0 2px 8px rgba(13,24,52,.2)}
+/* The assigned driver, as the customer and merchant see them. */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-driver-contact{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px;margin:10px 0;border-radius:16px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-driver-contact .avatar-circle{--av:52px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-driver-info{display:flex;flex-direction:column;gap:1px;flex:1;min-width:120px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-driver-info b{font-size:15px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-driver-info small{font-size:12px;color:var(--mut,#4e5d78)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-driver-call{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:14px;background:#3547a5;color:#fff!important;font-weight:800;text-decoration:none;white-space:nowrap}
+:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .dw-driver-call{background:#9cacfa;color:#0d1834!important}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-customer{display:flex;align-items:center;gap:8px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .dw-customer .avatar-circle{--av:34px}
+/* «منتجات مشابهة» under the order history: one swipeable row. */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .similar-products{margin:22px 0 12px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .similar-products .section-title{margin:0 16px 10px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .similar-products .section-title h2{font-size:18px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .similar-products .figma-product-grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,44%);grid-template-columns:none;gap:12px;overflow-x:auto;padding:0 16px 8px;scroll-snap-type:x mandatory;scrollbar-width:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .similar-products .figma-product-grid>*{scroll-snap-align:start}
+@media (min-width:700px){:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .similar-products .figma-product-grid{grid-auto-columns:minmax(170px,23%)}}

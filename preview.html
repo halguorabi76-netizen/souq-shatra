@@ -566,7 +566,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=174"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=63">
+<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=64">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=172">
 <style>
 .seller-preflight{display:none}
@@ -587,7 +587,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=21"><link rel="stylesheet" href="seller-dashboard.css?v=2">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=21"><link rel="stylesheet" href="checkout-review.css?v=2"><link rel="stylesheet" href="returns.css?v=1"><link rel="stylesheet" href="people.css?v=2"><link rel="stylesheet" href="settings.css?v=1"><link rel="stylesheet" href="seller-dashboard.css?v=3">
 <style>
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#6f82e0 0%,#3547a5 35%,#16245a 75%,#070c1f 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
@@ -660,7 +660,7 @@ body.starting{overflow:hidden}
   </nav>
 </div>
 <div class="shade" id="shade" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
-<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=155"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=163"></script>
+<div id="auroraLoading" hidden role="status" aria-live="polite"><img src="icons/basket-mascot-v69.png" alt=""><span>جارٍ التحميل…</span></div><script src="main-loading.js?v=155"></script><script src="latin-digits.js?v=2"></script><script src="page-navigation.js?v=79"></script><script src="location-picker.js?v=163"></script>
 <div id="loading" class="loading-overlay startup-splash" hidden role="status" aria-label="جارٍ التحميل"><img src="icons/basket-mascot-v69.png" alt=""></div>
 <div id="toast" hidden role="status"></div>
 
@@ -670,16 +670,17 @@ body.starting{overflow:hidden}
 
 
 <script type="module">
-import {createPreviewClient} from "./preview-lab.js?v=162";
+import {createPreviewClient} from "./preview-lab.js?v=166";
 
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=182";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
+import {createSellerWorkspace} from "./seller-workspace.js?v=185";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=174";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=178";
-import {createChat} from "./chat.js?v=3";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=180";
+import {createAvatars} from "./avatars.js?v=1";
+import {createChat} from "./chat.js?v=4";
 import {createStoreExplorer} from "./store-explorer.js?v=1";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -693,6 +694,7 @@ async function apiFetch(resource,init={}){
 }
 const accountSession=null;
 const db=createPreviewClient();
+const avatars=createAvatars({db,esc:s=>esc(s)});
 // Error reports: a short technical note (no personal data) when the page breaks or the screen stops answering taps.
 const reportProblem=(()=>{let sent=0;const seen=new Set();return (kind,message,detail='')=>{try{const key=kind+'|'+message;if(seen.has(key)||sent>=12||db.preview)return;seen.add(key);sent++;db.rpc('log_client_error',{p_kind:kind,p_message:String(message||'').slice(0,500),p_detail:String(detail||'').slice(0,2000),p_page:String(typeof tab==='undefined'?'':tab)+(document.getElementById('shade')?.hidden===false?' +sheet':''),p_build:typeof buildSeen==='undefined'?'':buildSeen||'',p_agent:navigator.userAgent.slice(0,300)}).then(()=>{},()=>{})}catch{}}})();
 addEventListener('error',e=>reportProblem('error',e.message||'error',(e.filename||'').split('/').pop()+':'+(e.lineno||'')+':'+(e.colno||'')+'\n'+(e.error?.stack||'')));
@@ -707,7 +709,7 @@ const KEY='souq-preview-cart-v1';
 const local=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch{return {}}})();
 let D={m:[],p:[],o:[],people:[],cartPane:'orders',deliveryChoice:{outside:'',city:'',...local.deliveryChoice,area:local.deliveryChoice?.area||'shatra'},orderFilter:'all',cart:Array.isArray(local.cart)?local.cart:[],me:null,comm:10,opin:'',cust:local.cust||{name:'معاينة زبون',phone:'00000000000',addr:'عنوان تجريبي'}};
 let user=null,profile=null,ownStore=null,refreshId=0,dataReady=false;
-let productSaveBusy=false,storeSaveBusy=false;
+let productSaveBusy=false,storeSaveBusy=false,claimBusy=false;
 let storeQuery='';
 let driverAccount=null,driverProfile=null,deliverySettings={platform_fee:0,delivery_fee:0,qi_number:''},deliveryOffers=[],deliveryPayments=[],deliveryZones=[];
 function savedSellerView(storage,sessionKey,modeStorage=storage){
@@ -905,8 +907,25 @@ const mname=id=>id==='owner'?(ownStore?.name||'سوق الشطرة'):mrec(id).na
 const mok=id=>id==='owner'||!!mrec(id).ok&&!mrec(id).removed;
 const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${esc(p.img)}" loading="lazy" decoding="async" alt="">`:CI[CATS.indexOf(p.cat)]||'📦';
 const prod=id=>D.p.find(x=>x.id===id);
+// The merchant answers «قابل للإرجاع؟» on every product. Older products have no answer yet (null).
+const returnable=p=>typeof p?.attributes?._returnable==='boolean'?p.attributes._returnable:null;
+const returnBadge=(p,cls='')=>{const r=returnable(p);return r===null?'':`<span class="return-badge ${r?'is-yes':'is-no'} ${cls}">${r?'↩ قابل للإرجاع':'✕ غير قابل للإرجاع'}</span>`;};
+const orderReturnable=o=>(o.items||[]).some(i=>returnable(prod(i.pid))===true);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
-const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'short'});
+// Times read like a conversation: «الآن», «منذ 5 دقائق», «منذ 3 ساعات», «أمس · 9:40 م»; from the day before
+// yesterday on, the date and time («17 أكتوبر · 9:40 م»). Every shown time refreshes itself each minute.
+const exactWhen=t=>new Date(t).toLocaleString('ar-IQ-u-nu-latn',{dateStyle:'medium',timeStyle:'short'});
+function arabicCount(n,one,two,few,many){return n===1?one:n===2?two:n<=10?`${n} ${few}`:`${n} ${many}`;}
+function relativeTime(t,now=Date.now()){
+ const d=new Date(t);if(isNaN(d))return '';const s=Math.max(0,(now-d)/1000),clock=d.toLocaleTimeString('ar-IQ-u-nu-latn',{hour:'numeric',minute:'2-digit'});
+ if(s<60)return 'الآن';const m=Math.floor(s/60);if(m<60)return 'منذ '+arabicCount(m,'دقيقة','دقيقتين','دقائق','دقيقة');
+ const h=Math.floor(m/60);if(h<24)return 'منذ '+arabicCount(h,'ساعة','ساعتين','ساعات','ساعة');
+ const today=new Date(now);today.setHours(0,0,0,0);const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
+ if(d>=yesterday)return 'أمس · '+clock;
+ return d.toLocaleDateString('ar-IQ-u-nu-latn',{day:'numeric',month:'long',...(d.getFullYear()!==today.getFullYear()?{year:'numeric'}:{})})+' · '+clock;
+}
+const when=t=>{const d=new Date(t);return t==null||isNaN(d)?'':`<time class="rel-time" datetime="${d.toISOString()}" title="${exactWhen(d)}">${relativeTime(d)}</time>`;};
+setInterval(()=>document.querySelectorAll('time.rel-time[datetime]').forEach(el=>{const v=relativeTime(el.getAttribute('datetime'));if(v&&el.textContent!==v)el.textContent=v;}),60000);
 let publicStoreId=new URLSearchParams(location.search).get('store');
 if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;
 const ADMIN_PORTAL=document.documentElement.dataset.portal==='admin';
@@ -1221,7 +1240,7 @@ function usedImg(path){return path?db.storage.from('used-items').getPublicUrl(pa
 function usedLive(l){return l.status==='active'&&new Date(l.expires_at)>new Date()}
 function usedPriceLabel(){return fmt(usedQuota?.price??0)}
 function usedZone(id){return (deliveryZones.find(z=>z.id===id)?.name)||''}
-function usedAgo(t){const d=Math.floor((Date.now()-new Date(t))/86400000);return d<1?'اليوم':d===1?'أمس':'منذ '+d+' أيام'}
+function usedAgo(t){return relativeTime(t)||''}
 async function loadUsed(){
  if(db.preview||ADMIN_PORTAL&&!user)return;
  const [list,quota]=await Promise.all([db.from('used_listings').select('*').order('created_at',{ascending:false}).limit(300),user?db.rpc('used_listing_quota'):Promise.resolve({data:null})]).catch(()=>[{data:null},{data:null}]);
@@ -1321,12 +1340,43 @@ function profilePage(){
  if(!user){$('#view').innerHTML='<div class="box guest-auth"><span class="guest-auth-icon" aria-hidden="true">'+authIcon('person')+'</span><h2>حسابك في سوق الشطرة</h2><p>سجّل الدخول لتشتري وتتابع طلباتك وعناوينك.</p><button class="buy" data-a="authStart" data-v="new">تسجيل الدخول</button></div>';return}
  const name=profile?.full_name||user.user_metadata?.full_name||'مستخدم سوق الشطرة';
  const mine=D.o.filter(o=>o.buyer_id===user.id),completed=mine.filter(o=>o.st===3),last=mine.length?new Date(mine[0].ts).toLocaleDateString('ar-IQ'):'';
- let address='',avatar='';try{address=localStorage.getItem('souq-shatra-address-'+user.id)||'';avatar=localStorage.getItem('souq-shatra-avatar-'+user.id)||''}catch{}
+ let address='';try{address=localStorage.getItem('souq-shatra-address-'+user.id)||''}catch{}
  let location=null;try{const saved=JSON.parse(localStorage.getItem('souq-shatra-location-'+user.id)||'null');if(saved&&Number.isFinite(+saved.lat)&&Number.isFinite(+saved.lon))location=saved}catch{}
- $('#view').innerHTML=`<div class="profile-page"><section class="profile-card profile-hero"><div class="profile-photo"><div class="portrait" aria-label="صورة الحساب">${avatar.startsWith('data:image/jpeg;base64,')?`<img src="${avatar}" alt="صورة الحساب">`:esc(name.trim().slice(0,1))}</div><button data-a="chooseAvatar" aria-label="إضافة صورة للحساب">✎</button><input id="avatarInput" type="file" accept="image/*" hidden></div><div><b>${esc(name)}</b><small>${esc(shownEmail(user)||'تم الدخول عبر واتساب')}</small></div></section><section class="profile-card"><div class="profile-heading"><h2>بيانات الحساب الأساسية</h2>${profile?.username?`<p dir="ltr">@${esc(profile.username)}</p>`:''}<button class="profile-edit" data-a="editprofile" aria-label="تعديل بيانات الحساب">✎</button></div><div class="profile-detail"><span class="picon">♙</span><span>${esc(name)}</span></div><div class="profile-detail"><span class="picon">☎</span><button class="buyer-phone-action" data-a="editCustomerPhone" ${profile?.phone?'dir="ltr"':''}>${esc(profile?.phone||'أضف رقم هاتفك')}</button></div>${shownEmail(user)?`<div class="profile-detail"><span class="picon">✉</span><span dir="ltr">${esc(shownEmail(user))}</span></div>`:''}</section><div class="profile-pair"><section class="profile-card"><h3>ملخص الطلبات</h3><p>${completed.length} طلب مكتمل</p><small>${last?'آخر طلب: '+esc(last):'لم تطلب بعد'}</small><button class="profile-action" data-a="tab" data-v="orders">عرض طلباتي</button></section><section class="profile-card"><h3>عنوان التوصيل</h3><p>${address?esc(address):'لم تُضف عنوانًا بعد'}</p><div class="profile-address-actions"><button class="profile-action" data-a="editaddress">${address?'تعديل العنوان':'إضافة عنوان'}</button><button class="profile-gps" data-a="saveProfileLocation" aria-label="تحديد موقعي عبر GPS" title="تحديد موقعي عبر GPS">📍</button></div><small class="profile-location-status">${location?'الموقع محفوظ ويمكن مشاركته عند الطلب':'اضغط علامة الموقع لتحديد مكانك'}</small></section></div><section class="profile-card"><button class="profile-link" data-a="tab" data-v="orders">♧ طلباتي <span>‹</span></button><button class="profile-link" data-a="paymentinfo">▣ طريقة الدفع <span>‹</span></button><button class="profile-link" data-a="editaddress">⌖ عنواني <span>‹</span></button><button class="profile-link" data-a="editEmail">✉ تغيير البريد الإلكتروني <span>‹</span></button></section><section class="profile-card"><h3>استخدام الحساب</h3><div class="profile-role-actions"><button data-a="profileSwitch" data-v="buyer" aria-pressed="${viewMode==='buyer'}">🛒 الدخول كزبون</button><button data-a="profileSwitch" data-v="seller" aria-pressed="${viewMode==='seller'}">${canSell()?'▤ إدارة متجري':'طلب الانضمام كبائع'}</button>${sellerAccount()?'':`<button class="profile-driver-join" data-a="profileDriver">${driverAccount?.approved?'🛵 لوحة التوصيل':driverProfile?'طلب التوصيل قيد المراجعة':'الانضمام كسائق توصيل'}</button>`}</div><p class="note">${sellerAccount()?'حسابك مخصص لإدارة متجرك. للشراء ادخل بحساب زبون آخر.':'تُفتح أدوات البيع بعد اعتماد الإدارة لمتجرك.'}</p></section><section id="chatInbox" class="profile-card chat-inbox"></section>${usedMine()}<button class="profile-logout" data-a="changeaccount">تسجيل الخروج من الحساب</button>${sellerAccount()||profile?.role==='admin'?'':'<button class="profile-delete" data-a="deleteAccountAsk">حذف الحساب نهائيًا</button>'}</div>`;paintInbox();
+ $('#view').innerHTML=`<div class="profile-page"><section class="profile-card profile-hero"><div class="profile-photo"><div class="portrait" aria-label="صورة الحساب">${avatars.html(user.id,name,'portrait-avatar')}</div><button data-a="chooseAvatar" aria-label="إضافة أو تغيير صورتك">📷</button><input id="avatarInput" type="file" accept="image/*" hidden></div><div><b>${esc(name)}</b><small>${esc(shownEmail(user)||'تم الدخول عبر واتساب')}</small></div></section><section class="profile-card"><div class="profile-heading"><h2>بيانات الحساب الأساسية</h2>${profile?.username?`<p dir="ltr">@${esc(profile.username)}</p>`:''}<button class="profile-edit" data-a="editprofile" aria-label="تعديل بيانات الحساب">✎</button></div><div class="profile-detail"><span class="picon">♙</span><span>${esc(name)}</span></div><div class="profile-detail"><span class="picon">☎</span><button class="buyer-phone-action" data-a="editCustomerPhone" ${profile?.phone?'dir="ltr"':''}>${esc(profile?.phone||'أضف رقم هاتفك')}</button></div>${shownEmail(user)?`<div class="profile-detail"><span class="picon">✉</span><span dir="ltr">${esc(shownEmail(user))}</span></div>`:''}</section><div class="profile-pair"><section class="profile-card"><h3>ملخص الطلبات</h3><p>${completed.length} طلب مكتمل</p><small>${last?'آخر طلب: '+esc(last):'لم تطلب بعد'}</small><button class="profile-action" data-a="tab" data-v="orders">عرض طلباتي</button></section><section class="profile-card"><h3>عنوان التوصيل</h3><p>${address?esc(address):'لم تُضف عنوانًا بعد'}</p><div class="profile-address-actions"><button class="profile-action" data-a="editaddress">${address?'تعديل العنوان':'إضافة عنوان'}</button><button class="profile-gps" data-a="saveProfileLocation" aria-label="تحديد موقعي عبر GPS" title="تحديد موقعي عبر GPS">📍</button></div><small class="profile-location-status">${location?'الموقع محفوظ ويمكن مشاركته عند الطلب':'اضغط علامة الموقع لتحديد مكانك'}</small></section></div><section class="profile-card"><button class="profile-link" data-a="tab" data-v="orders">♧ طلباتي <span>‹</span></button><button class="profile-link" data-a="paymentinfo">▣ طريقة الدفع <span>‹</span></button><button class="profile-link" data-a="editaddress">⌖ عنواني <span>‹</span></button><button class="profile-link" data-a="editEmail">✉ تغيير البريد الإلكتروني <span>‹</span></button></section><section class="profile-card"><h3>استخدام الحساب</h3><div class="profile-role-actions"><button data-a="profileSwitch" data-v="buyer" aria-pressed="${viewMode==='buyer'}">🛒 الدخول كزبون</button><button data-a="profileSwitch" data-v="seller" aria-pressed="${viewMode==='seller'}">${canSell()?'▤ إدارة متجري':'طلب الانضمام كبائع'}</button>${sellerAccount()?'':`<button class="profile-driver-join" data-a="profileDriver">${driverAccount?.approved?'🛵 لوحة التوصيل':driverProfile?'طلب التوصيل قيد المراجعة':'الانضمام كسائق توصيل'}</button>`}</div><p class="note">${sellerAccount()?'حسابك مخصص لإدارة متجرك. للشراء ادخل بحساب زبون آخر.':'تُفتح أدوات البيع بعد اعتماد الإدارة لمتجرك.'}</p></section><section id="chatInbox" class="profile-card chat-inbox"></section>${usedMine()}<button class="profile-logout" data-a="changeaccount">تسجيل الخروج من الحساب</button>${sellerAccount()||profile?.role==='admin'?'':'<button class="profile-delete" data-a="deleteAccountAsk">حذف الحساب نهائيًا</button>'}</div>`;paintInbox();
 }
+// Settings, grouped like a phone's own settings: who you are on top, then your account, the app's look,
+// help, and signing out last and apart. Each row has an icon, a title and one line saying what's inside.
+const SETTING_ICONS={
+ store:'<path d="M4 10h16l-1.5-5h-13zM5 10v9h14v-9M9 19v-5h6v5"/>',person:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/>',
+ bag:'<path d="M6 8h12l-1 12H7zM9 8a3 3 0 0 1 6 0"/>',heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+ box:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',truck:'<path d="M3 6h11v11H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5h.01"/>',chat:'<path d="M4 5h16v11H8l-4 4z"/>',
+ out:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',login:'<path d="M9 4H5v16h4M14 8l4 4-4 4M18 12H8"/>'
+};
+function settingIcon(name){return `<span class="st-icon st-${name}" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${SETTING_ICONS[name]}</svg></span>`;}
+function settingRow(icon,title,sub,attrs){return `<button type="button" class="st-row" ${attrs}>${settingIcon(icon)}<span class="st-text"><b>${title}</b>${sub?`<small>${sub}</small>`:''}</span><i class="st-chevron" aria-hidden="true">‹</i></button>`;}
 function settings(){
- $('#view').innerHTML=`<div class="section-title"><h2>الإعدادات</h2></div><section class="box" aria-labelledby="appearanceTitle"><h2 id="appearanceTitle">مظهر التطبيق</h2><p>اختر الوضع الذي يناسبك</p><div class="theme-options" role="group" aria-label="مظهر التطبيق"><button data-a="theme" data-v="light" aria-pressed="${window.SouqTheme.get()==='light'}">☀ الوضع الفاتح</button><button data-a="theme" data-v="dark" aria-pressed="${window.SouqTheme.get()==='dark'}">☾ الوضع الغامق</button></div></section><div class="box"><button class="setting-row" data-a="tab" data-v="account">حسابي وإدارة نشاطي</button><button class="setting-row" data-a="tab" data-v="profilePage"><span class="avatar"><svg viewBox="0 0 32 32" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="16" cy="10" r="5"/><path d="M5 28v-3c0-5 4-9 11-9s11 4 11 9v3"/></svg></span>ملفي الشخصي ومعلوماتي</button>${ownStore&&viewMode==='seller'?'<button class="setting-row" data-a="tab" data-v="listings">إعلاناتي ومنتجاتي</button>':''}<button class="setting-row" data-a="tab" data-v="orders">طلباتي</button><button class="setting-row" data-a="tab" data-v="market">الإعلانات والمنتجات الجديدة</button><button class="setting-row" data-a="info">شرح التطبيق والأسئلة الشائعة</button><button class="setting-row" data-a="support">تواصل مع الدعم</button></div>`;
+ const theme=window.SouqTheme.get(),seller=!!ownStore&&viewMode==='seller',driver=viewMode==='driver';
+ const name=user?(seller?ownStore.name:profile?.full_name||user.user_metadata?.full_name||'مستخدم سوق الشطرة'):'';
+ const contact=user?(profile?.phone||shownEmail(user)||(profile?.username?'@'+profile.username:'')):'';
+ const role=seller?'حساب تاجر':driver?'حساب سائق توصيل':'حساب زبون';
+ const mine=user?D.o.filter(o=>o.buyer_id===user.id):[],active=mine.filter(o=>o.st<3).length,favs=typeof activity==='undefined'?0:activity.favorites().length;
+ const head=user?`<button type="button" class="st-profile" data-a="tab" data-v="profilePage">${avatars.html(user.id,name,'st-avatar')}<span class="st-text"><b>${esc(name)}</b>${contact?`<small dir="auto">${esc(contact)}</small>`:''}<em>${role}</em></span><i class="st-chevron" aria-hidden="true">‹</i></button>`
+  :`<section class="st-profile st-guest">${settingIcon('person')}<span class="st-text"><b>أهلاً بك في سوق الشطرة</b><small>سجّل الدخول لتشتري وتتابع طلباتك</small></span><button type="button" class="buy" data-a="authStart" data-v="new">تسجيل الدخول</button></section>`;
+ const account=user?[
+  seller?settingRow('store','إدارة متجري','الطلبات والمنتجات والمبيعات','data-a="tab" data-v="account"'):driver?settingRow('truck','مساحة التوصيل','طلباتك المتاحة والحالية','data-a="tab" data-v="chats"'):'',
+  settingRow('person','ملفي الشخصي','الاسم والصورة ورقم الهاتف','data-a="tab" data-v="profilePage"'),
+  seller?settingRow('box','منتجاتي','إضافة المنتجات وتعديلها','data-a="tab" data-v="listings"'):'',
+  settingRow('bag','طلباتي',active?`${active} ${active===1?'طلب جارٍ':'طلبات جارية'} الآن`:'متابعة طلباتك السابقة','data-a="tab" data-v="orders"'),
+  seller||driver?'':settingRow('heart','المفضلة',favs?`${favs} ${favs===1?'منتج محفوظ':'منتجات محفوظة'}`:'المنتجات التي حفظتها','data-a="favorites"')
+ ].join(''):'';
+ $('#view').innerHTML=`<div class="st-page"><header class="st-title"><h1>الإعدادات</h1></header>${head}
+ ${account?`<section class="st-group" aria-labelledby="stAccount"><h2 id="stAccount">الحساب</h2><div class="st-list">${account}</div></section>`:''}
+ <section class="st-group" aria-labelledby="stLook"><h2 id="stLook">المظهر</h2><div class="st-list"><div class="st-row st-static">${settingIcon('sun')}<span class="st-text"><b>مظهر التطبيق</b><small>${theme==='dark'?'الوضع الليلي مفعّل':'الوضع النهاري مفعّل'}</small></span></div><div class="st-segment" role="radiogroup" aria-label="مظهر التطبيق"><button type="button" role="radio" data-a="theme" data-v="light" aria-checked="${theme==='light'}">☀ نهاري</button><button type="button" role="radio" data-a="theme" data-v="dark" aria-checked="${theme==='dark'}">☾ ليلي</button></div></div></section>
+ <section class="st-group" aria-labelledby="stHelp"><h2 id="stHelp">المساعدة</h2><div class="st-list">${settingRow('help','شرح التطبيق والأسئلة الشائعة','كيف تشتري وتبيع وتتابع الطلب','data-a="info"')}${settingRow('chat','تواصل مع الدعم','واتساب وإنستغرام','data-a="support"')}</div></section>
+ ${user?`<section class="st-group st-danger"><div class="st-list">${settingRow('out','تسجيل الخروج','يمكنك الدخول مرة ثانية متى شئت','data-a="changeaccount"')}</div></section>`:''}
+ <p class="st-foot">سوق الشطرة · من الشطرة وإليها</p></div>`;
 }
 function supportSheet(){sheet(head('تواصل مع الدعم')+`<p>مصمم ومبرمج تقني لتطبيق سوق الشطرة.</p><p><a href="https://wa.me/9647837271707" target="_blank" rel="noopener noreferrer">واتساب: 07837271707</a></p><p><a href="https://www.instagram.com/haider.alguorabi?stkn=Nzd2eTluem9oNnNr" target="_blank" rel="noopener noreferrer">حساب إنستغرام</a></p>`)}
 
@@ -1355,6 +1405,7 @@ function postPage(){
   </section>
   <section class="post-card"><label class="va-check"><input id="baseDiscount" type="checkbox" ${p?.compare_at_price?'checked':''}>هل يوجد تخفيض للنسخة الأساسية؟</label><div id="baseDiscountFields" ${p?.compare_at_price?'':'hidden'}>${field('fcompare','السعر قبل التخفيض (د.ع)',p?.compare_at_price,'number','min="1" max="2147483647" step="1"')}<p class="note">السعر بعد التخفيض هو سعر البيع المكتوب أعلاه.</p></div></section>
   <section class="post-card"><label for="productCondition">حالة المادة</label><select id="productCondition"><option value="new" ${p?.attributes?._selling?.condition!=='used'?'selected':''}>جديد</option><option value="used" ${p?.attributes?._selling?.condition==='used'?'selected':''}>مستعمل</option></select><div id="productSaleBox" ${p?.attributes?._selling?.condition==='used'?'hidden':''}><label for="productSale">طريقة البيع</label><select id="productSale"><option value="retail" ${!p?.attributes?._selling?.sale_mode||p?.attributes?._selling?.sale_mode==='retail'?'selected':''}>مفرد</option><option value="wholesale" ${p?.attributes?._selling?.sale_mode==='wholesale'?'selected':''}>جملة</option><option value="both" ${p?.attributes?._selling?.sale_mode==='both'?'selected':''}>مفرد وجملة</option></select></div></section>
+  <fieldset class="post-card pe-return" id="returnChoice"><legend>هل هذا المنتج قابل للإرجاع؟</legend><p class="note">يظهر جوابك للزبون قبل الشراء، ويُسمح له بطلب الإرجاع فقط إذا كان المنتج قابلاً للإرجاع.</p><div class="pe-return-options"><label><input type="radio" name="productReturnable" value="yes" ${p?.attributes?._returnable===true?'checked':''}><span>↩ نعم، قابل للإرجاع</span></label><label><input type="radio" name="productReturnable" value="no" ${p?.attributes?._returnable===false?'checked':''}><span>✕ لا، غير قابل للإرجاع</span></label></div></fieldset>
   <section class="post-card" id="variantEditor"></section>
   <section class="post-card">${field('fs','المخزون',p?.stock??0,'number','required min="0" max="2147483647" step="1" inputmode="numeric"')}<p class="note">عند تفعيل النسخ، تُدخل كمية كل نسخة أعلاه؛ هذا مجموع المتاح للبيع.</p></section>
   <section class="post-card"><label class="va-check"><input id="advancedEnabled" type="checkbox">الخيارات المتقدمة</label><div id="productAdvanced" hidden>
@@ -1495,17 +1546,30 @@ function orderProgress(o){
  </ol></section>`;
 }
 function ordCard(o,m){
-  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}${!m&&o.st<3?`<p class="delivery-queue-note">يصل اليوم · ${esc(STAGES[o.tracking?.stage]||ST[o.st])}${o.tracking?.queue_rank?' · ترتيب التوصيل: '+o.tracking.queue_rank:''}</p>`:''}${o.customer_action?.request_kind?'<p class="note">↩ '+(o.customer_action.request_kind==='return'?'أُرسل طلب إرجاع للمراجعة':'أُرسل طلب إلغاء للمراجعة')+(o.customer_action.reason?' · '+esc(o.customer_action.reason):'')+'</p>':''}
+  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}${!m&&o.st<3?`<p class="delivery-queue-note">يصل اليوم · ${esc(STAGES[o.tracking?.stage]||ST[o.st])}${o.tracking?.queue_rank?' · ترتيب التوصيل: '+o.tracking.queue_rank:''}</p>`:''}${o.customer_action?.request_kind?'<p class="note">↩ '+(o.customer_action.request_kind==='return'?'أُرسل طلب الإرجاع للبائع وسيتواصل معك لترتيبه':'أُرسل طلب إلغاء للمراجعة')+(o.customer_action.reason?' · '+esc(o.customer_action.reason):'')+'</p>':''}
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m&&o.driver_id&&o.cust.phone?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
   ${m?`<small>📍 ${esc(o.cust.addr)}</small>${o.st===1&&!o.tracking?.ready_at?`<button class="alt" data-op="READY" data-id="${esc(o.id)}">الطلب جاهز للاستلام</button>`:''}`:''}${!m&&user?.id===o.buyer_id?customerOrderControls(o):''}${o.st<3&&m&&(o.st===0||!o.driver_id)?`<div class="acts">${m&&o.st===0?`<button class="go" data-a="st" data-v="${o.id}">قبول الطلب</button>`:''}${m?`<button data-a="cancel" data-v="${o.id}">إلغاء الطلب</button>`:''}</div>`:''}</div>`;
 }
+// The customer sees who is bringing the order: photo, name, vehicle and phone.
+let buyerContactsLoading=false;
+function buyerDriverCard(o){
+ const contact=(D.driverContacts||[]).find(c=>c.order_id===o.id);
+ if(!contact){loadBuyerContacts();return '<p class="note">جارٍ جلب معلومات سائق التوصيل…</p>';}
+ return driverContact(contact,esc,(id,n)=>avatars.html(id,n));
+}
+async function loadBuyerContacts(){
+ if(buyerContactsLoading||!user)return;buyerContactsLoading=true;const identity=user.id;
+ try{const rows=check(await db.rpc('assigned_delivery_contacts'))||[];if(user?.id!==identity)return;const before=JSON.stringify(D.driverContacts||[]);D.driverContacts=rows;if(JSON.stringify(rows)!==before&&['orders','cartPage','chats'].includes(tab))render();}
+ catch{}finally{setTimeout(()=>{buyerContactsLoading=false},4000);}
+}
 function customerOrderControls(o){
  const hidden=!!o.customer_action?.hidden_at;
  if(hidden)return `<div class="acts"><button data-a="customerAction" data-v="${o.id}|restore">↶ إعادة إلى قائمتي</button></div>`;
- const kind=o.st===3?'return':(o.st<2&&!o.driver_id)||(o.st<3&&o.tracking?.late_reported_at)?'cancel':null,requested=o.customer_action?.request_kind===kind;
- return `${o.driver_id&&o.st<3?`<div class="acts order-chat">${chatButton('driver',o.id,o.buyer_id,'راسل السائق')}</div><p class="order-chat-hint">للموقع ووقت الوصول والتسليم</p>`:''}${o.st===3?rateBlock(o):''}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
+ const canReturn=o.st===3&&orderReturnable(o),kind=canReturn?'return':o.st===3?null:(o.st<2&&!o.driver_id)||(o.st<3&&o.tracking?.late_reported_at)?'cancel':null,requested=o.customer_action?.request_kind===kind;
+ const returnNote=o.st===3&&!canReturn&&!o.customer_action?.request_kind?((o.items||[]).length&&(o.items||[]).every(i=>returnable(prod(i.pid))===false)?'<p class="note return-note">✕ منتجات هذا الطلب غير قابلة للإرجاع حسب البائع.</p>':'<p class="note return-note">لم يحدد البائع إمكانية إرجاع هذا المنتج. للاستفسار راسل المتجر.</p>'):'';
+ return `${o.driver_id&&o.st<4?buyerDriverCard(o):''}${o.driver_id&&o.st<3?`<div class="acts order-chat">${chatButton('driver',o.id,o.buyer_id,'راسل السائق')}</div><p class="order-chat-hint">للموقع ووقت الوصول والتسليم</p>`:''}${o.st===3?rateBlock(o):''}${returnNote}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
 }
 function customerOrderHub(){
  const mine=D.o.filter(o=>user&&o.buyer_id===user.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts)),filter=D.orderFilter||'all';
@@ -1521,12 +1585,14 @@ async function loadCustomerOrders(){
   const rows=check(await withTimeout(orderRead().eq('buyer_id',identity).order('created_at',{ascending:false})));
   if(user?.id!==identity)return;
   D.o=[...D.o.filter(o=>o.buyer_id!==identity),...(rows||[]).map(o=>({...fromOrder(o),buyer_id:o.buyer_id,driver_id:o.driver_id,platform_fee:o.platform_fee||0,delivery_fee:o.delivery_fee||0}))];
+  if((rows||[]).some(o=>o.driver_id)){buyerContactsLoading=false;loadBuyerContacts();}
  }catch(e){if(user?.id===identity)D.customerOrdersError=true;}
  finally{if(D.customerOrdersLoading===identity)D.customerOrdersLoading=null;if(user?.id===identity&&['orders','cartPage','chats'].includes(tab))render();}
 }
 function orders(){ $('#view').innerHTML=customerOrderHub(); }
 function customerActionAsk(value){
  const [id,kind]=value.split('|'),o=D.o.find(o=>o.id===id&&o.buyer_id===user?.id);if(!o)return;
+ if(kind==='return'&&!orderReturnable(o)){toast('منتجات هذا الطلب غير قابلة للإرجاع');return;}
  if(kind==='cancel'&&(o.driver_id||o.st>=2)&&!o.tracking?.late_reported_at){toast('لا يمكن إلغاء الطلب بعد قبول سائق التوصيل');return;}
  const title=kind==='hide'?'إزالة من قائمتي':kind==='return'?'طلب إرجاع':'إلغاء الطلب';
  const message=kind==='hide'?'سيُخفى الطلب من قائمتك فقط، ويمكن استعادته من قسم «المزالة». هذا لا يلغي الطلب ولا يوقف توصيله.':kind==='return'?'سيُرسل طلب الإرجاع إلى البائع والإدارة للمراجعة والتواصل معك.':'سيُلغى الطلب وتُعاد كميته إلى المخزون.';
@@ -1581,6 +1647,8 @@ async function saveProduct(){
     if(name.length<2||!Number.isSafeInteger(price)||price<1||price>2147483647||!Number.isSafeInteger(stock)||stock<0||stock>2147483647||(!productEditor.hasVariants()&&val('fs')==='')||val('fthreshold')===''||!Number.isSafeInteger(+val('fthreshold'))||+val('fthreshold')<0||+val('fthreshold')>2147483647){toast('اكتب الاسم والسعر والكمية');return}
     const compare=$('#baseDiscount').checked?val('fcompare'):'',compare_at_price=compare?+compare:null;
     if(compare&&(!Number.isSafeInteger(compare_at_price)||compare_at_price<=price||compare_at_price>2147483647)){toast('السعر قبل التخفيض يجب أن يكون أكبر من سعر البيع');return}
+    const returnChoice=document.querySelector('input[name="productReturnable"]:checked')?.value;
+    if(!returnChoice){toast('حدد هل المنتج قابل للإرجاع');document.getElementById('returnChoice')?.scrollIntoView({block:'center'});return}
     const draft=cur,storeId=ownStore.id,image=draft.img;
     const f={name,price,compare_at_price,stock,category:bundle.category,description:val('fd'),store_category:val('fcCustom'),store_id:storeId,sku:val('fsku').slice(0,80),variant:val('fvariant').slice(0,120),low_stock_threshold:+val('fthreshold'),active:$('#factive').value==='true'};
     let image_path=draft.id?prod(draft.id)?.image_path:null;
@@ -1589,7 +1657,7 @@ async function saveProduct(){
       image_path=`${storeId}/${uid()}.jpg`;
       check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));
     }
-    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,condition:val('productCondition')||'new',sale_mode:val('productCondition')==='used'?null:val('productSale')||'retail',unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.expected_stock=bundle.expected_stock;
+    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,condition:val('productCondition')||'new',sale_mode:val('productCondition')==='used'?null:val('productSale')||'retail',unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.attributes._returnable=returnChoice==='yes';f.expected_stock=bundle.expected_stock;
     draft.id=check(await db.rpc('save_product_bundle',{p_id:draft.id||null,p_store:storeId,p_product:f,p_variants:bundle.variants}));
     tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
     }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent=cur?.id?'حفظ التعديلات':'إنشاء'}}
@@ -1607,7 +1675,7 @@ function productDetailBody(){
  const add=`<button type="button" class="buy pd-add ${cur.added&&!cur.adding?'added':''}" data-cart-pane="items" data-a="${cur.added?'cart':'add'}" ${!chosen||chosen.stock<1||cur.adding?'disabled':''}>${cur.adding?'<span class="flow-spinner"></span> جارٍ الإضافة…':cur.added?'✓ تمت الإضافة':!chosen?'اختر النوع':chosen.stock<1?'غير متوفر':cur.editKey?'حفظ التغيير':flowIcon('bag')+' أضف إلى السلة'}</button>`;
  const specs=specifications(p,D.catalog||[]);
  return `<div class="product-detail pd2"><div class="pd-media"><div class="tile big" id="productPhoto">${thumb(cur.photo?{...display,img:cur.photo}:display)}</div>${photos.length>1?`<div class="pd-dots" aria-label="صور المنتج">${photos.map((img,i)=>`<button data-a="productPhoto" data-v="${i}" aria-label="صورة ${i+1}" aria-pressed="${shown===img}"></button>`).join('')}</div>`:''}</div>
- <div class="pd-head"><div>${cat?`<small class="pd-cat">${esc(cat)}</small>`:''}<h1>${esc(p.name)}</h1></div>${owner?'':`<button class="pd-fav" data-a="cardFavorite" data-v="${esc(p.id)}" aria-pressed="${fav}" aria-label="${fav?'إزالة من المفضلة':'إضافة إلى المفضلة'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></button>`}</div>
+ <div class="pd-head"><div>${cat?`<small class="pd-cat">${esc(cat)}</small>`:''}<h1>${esc(p.name)}</h1>${returnBadge(p,'pd-return')}</div>${owner?'':`<button class="pd-fav" data-a="cardFavorite" data-v="${esc(p.id)}" aria-pressed="${fav}" aria-label="${fav?'إزالة من المفضلة':'إضافة إلى المفضلة'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></button>`}</div>
  ${store}
  ${owner?`<div id="productPrice" class="pd-owner-price">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${options}`+`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="pd-pick">${options||'<div></div>'}${qty}</div>`}
  ${p.desc?`<section class="pd-desc"><small>الوصف</small><p class="product-description">${esc(p.desc)}</p></section>`:''}${specs?`<details class="pd-specs"><summary>المواصفات</summary>${specs}</details>`:''}
@@ -1627,10 +1695,10 @@ async function requestRouteQuote(force=false){
  try{const quote=check(await withTimeout(db.rpc('quote_delivery_route',{p_stores:[...new Set(cartRows().map(x=>x.p?.mid).filter(Boolean))],p_lat:geoPoint.lat,p_lng:geoPoint.lon})));
  if(key!==routeInputKey())return;routeQuote=quote;routeQuoteKey=key;checkoutRequest=null;
  }catch(e){if(key===routeInputKey()){routeQuote=null;routeQuoteKey=key;routeQuoteError=e.message||'تعذّر حساب رسم التوصيل';}}
- finally{if(routeQuotePending===key)routeQuotePending='';if(key===routeInputKey()&&tab==='cartPage'&&checkoutStage==='review'){captureCheckout();csheet();}}
+ finally{if(routeQuotePending===key)routeQuotePending='';if(key===routeInputKey()&&tab==='cartPage'&&checkoutStage==='review'){if($('.co-page'))refreshCheckoutTotals();else{captureCheckout();csheet();}}}
 }
 function checkoutQuote(){const rows=cartRows(),subtotal=rows.reduce((n,x)=>n+(x.p?.price||0)*x.c.q,0),count=new Set(rows.map(x=>x.p?.mid).filter(Boolean)).size;
- if(db.preview)return window.SouqDeliveryZones.quote(deliveryZones,D.deliveryChoice,subtotal,deliverySettings.platform_fee,count);
+ if(db.preview){const q=window.SouqDeliveryZones.quote(deliveryZones,D.deliveryChoice,subtotal,deliverySettings.platform_fee,count);return geoPoint?q:{...q,ready:false};}
  const quote=routeQuoteKey===routeInputKey()?routeQuote:null,platform=deliverySettings.platform_fee*count;
  return {ready:!!quote,delivery:quote?.delivery_fee||0,platform,total:subtotal+(quote?.delivery_fee||0)+platform,route:quote,zone:null};
 }
@@ -1643,7 +1711,58 @@ function chooseCheckoutLocation(value=geoPoint){
  captureCheckout();
  window.SouqLocationPicker.show({value,sheet,head,onConfirm:point=>{geoPoint=point;A.close();csheet();toast('تم اعتماد موقع التوصيل')}});
 }
-let checkoutStage='items',customerAddresses=[],addressDraft=null,addressOwner=null;
+let checkoutStage='items',customerAddresses=[],addressDraft=null,addressOwner=null,addressMode='new',selectedAddressId=null,addressesLoading=false;
+// One checkout page. From the cart, «إتمام الشراء» opens it directly: saved addresses are picked right there,
+// a new address is typed right there, and the delivery fee appears as soon as the location is on the map.
+function freshAddressDraft(){return {name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',phone2:'',label:'',addr:'',choice:{area:'shatra',outside:'',city:''},point:null};}
+async function openCheckout(){
+ captureCheckout();if(requirePurchaseLogin())return;if(!D.cart.length)return;
+ const identity=user.id;if(addressOwner!==identity){customerAddresses=[];selectedAddressId=null;addressDraft=null;}
+ addressOwner=identity;addressDraft=addressDraft||freshAddressDraft();checkoutStage='review';cartReceipt=null;D.cartPane='items';
+ addressesLoading=!customerAddresses.length;if(addressMode==='new')syncDraftToCheckout();csheet();scrollTo(0,0);
+ try{const rows=check(await withTimeout(db.from('customer_addresses').select('*').eq('user_id',identity).order('created_at',{ascending:false})));if(user?.id!==identity)return;customerAddresses=rows||[];
+  const chosen=customerAddresses.find(a=>a.id===selectedAddressId);if(chosen)useAddress(chosen);else if(customerAddresses.length&&addressMode!=='typing'){selectAddress(customerAddresses[0]);}else addressMode='new';}
+ catch{if(!customerAddresses.length)addressMode='new';}
+ finally{addressesLoading=false;if(checkoutStage==='review'&&!cartReceipt&&user?.id===identity){if(addressMode!=='new')syncDraftToCheckout(false);csheet();}}
+}
+function selectAddress(a){selectedAddressId=a.id;addressMode='saved';useAddress(a);}
+// The new-address fields feed the same order data the confirm button sends.
+function syncDraftToCheckout(fromDraft=true){
+ if(!fromDraft||!addressDraft)return;const a=addressDraft;
+ D.cust={name:a.name,phone:a.phone,phone2:a.phone2||'',addr:a.addr,label:a.label};D.deliveryChoice={...a.choice};geoPoint=a.point?{...a.point}:null;save();
+ for(const [id,v] of [['cn',a.name],['cp',a.phone],['ca',a.addr]]){const el=$('#'+id);if(el)el.value=v;}
+}
+// What still stops the order, in plain words, shown above «تأكيد الطلب».
+function checkoutProblem(quote){
+ if(addressesLoading)return 'جارٍ تحميل عناوينك…';
+ if(addressMode==='new'){const p=addressProblem();if(p)return p;}
+ else{const u=D.cust||{};if((u.name||'').trim().length<2||!/^\d{10,11}$/.test(u.phone||'')||(u.addr||'').trim().length<3)return 'بيانات العنوان المختار ناقصة؛ اختر عنواناً آخر أو أضف عنواناً جديداً';if(!geoPoint)return 'حدّد موقعك على الخريطة';}
+ if(cartRows().some(x=>!x.p||!x.p.active||x.p.blocked||x.p.stock<x.c.q))return 'راجع المنتجات غير المتاحة في السلة';
+ if(!quote.ready)return routeQuoteError||'جارٍ حساب رسم التوصيل…';
+ return '';
+}
+// Refresh prices, the total and the button without redrawing the fields being typed in.
+function refreshCheckoutTotals(){
+ if(!$('.co-page'))return;const rows=cartRows(),tot=rows.reduce((n,x)=>n+(x.p?.price||0)*x.c.q,0),orderCount=new Set(rows.map(x=>x.p?.mid).filter(Boolean)).size,original=rows.reduce((n,x)=>n+(x.p?(x.p.compare_at_price>x.p.price?x.p.compare_at_price:x.p.price)*x.c.q:0),0),quote=checkoutQuote(),problem=checkoutProblem(quote);
+ const summary=$('.checkout-summary .co-price-rows');if(summary)summary.innerHTML=checkoutSummary(quote,tot,orderCount,original);
+ const total=$('.co-bar-total b');if(total)total.textContent=quote.ready?fmt(quote.total):'—';
+ const button=$('.co-bar [data-a="order"]');if(button)button.disabled=!!problem;const hint=$('#addressHint');if(hint)hint.textContent=problem;
+}
+function addressFormHtml(){
+ const a=addressDraft,p=a.point;
+ const map=p?`<div class="co-map-set"><iframe title="موقع التوصيل" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${p.lon-.003}%2C${p.lat-.003}%2C${p.lon+.003}%2C${p.lat+.003}&amp;layer=mapnik&amp;marker=${p.lat}%2C${p.lon}"></iframe><div><b>✓ تم تحديد موقعك</b><button type="button" class="alt" data-a="addressMap">تغيير الموقع</button></div></div>`:`<button type="button" class="co-map-pick" data-a="addressMap"><span aria-hidden="true">📍</span><b>حدّد موقع التوصيل على الخريطة</b><small>يظهر سعر التوصيل بعد تحديد الموقع</small></button>`;
+ return `<form id="addressForm" class="co-form" onsubmit="return false">${map}
+ <label for="addressName">اسم المستلم</label><input id="addressName" maxlength="120" autocomplete="name" value="${esc(a.name)}">
+ <label for="addressPhone">رقم الهاتف</label><input id="addressPhone" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" placeholder="07xxxxxxxxx" value="${esc(a.phone)}">
+ <label for="addressPhone2">رقم هاتف بديل (اختياري)</label><input id="addressPhone2" type="tel" inputmode="numeric" maxlength="11" placeholder="07xxxxxxxxx" value="${esc(a.phone2)}">
+ ${window.SouqDeliveryZones.selection(deliveryZones,a.choice,esc)}
+ <label for="addressText">العنوان التفصيلي</label><small>المنطقة وأقرب نقطة دالة · لا تكتب رقم هاتفك هنا</small><textarea id="addressText" maxlength="500" placeholder="شارع · بناية · أقرب نقطة دالة">${esc(a.addr)}</textarea>
+ <label for="addressLabel">اسم للعنوان حتى تختاره بسرعة لاحقاً (اختياري)</label><input id="addressLabel" maxlength="80" placeholder="مثال: البيت" value="${esc(a.label)}">
+ ${customerAddresses.length?'<button type="button" class="co-link" data-a="addressSaved">← اختيار عنوان محفوظ</button>':''}</form>`;
+}
+function savedAddressesHtml(){
+ return `<div class="co-addresses" role="radiogroup" aria-label="عناوينك المحفوظة">${customerAddresses.map(a=>`<button type="button" class="co-address" role="radio" aria-checked="${a.id===selectedAddressId}" data-a="addressChoose" data-v="${esc(a.id)}"><span class="co-radio" aria-hidden="true"></span><span class="co-address-text"><b>${esc(a.label||'عنوان')}</b><small>${esc(a.recipient_name)} · <span dir="ltr">${esc(a.phone)}</span></small><small>${esc(a.address)}</small></span></button>`).join('')}<button type="button" class="co-address-new" data-a="addressNew">＋ التوصيل إلى عنوان جديد</button></div>`;
+}
 function flowHeading(title){return `<div class="flow-heading"><button data-a="back" aria-label="رجوع">→</button><h1>${title}</h1><button data-a="tab" data-v="market" aria-label="الرئيسية">${flowIcon('home')}</button></div>`;}
 function renderCartStage(){
  if(checkoutStage==='addresses'){renderAddresses();return;}
@@ -1656,34 +1775,57 @@ function renderCartStage(){
 function confirmCartRemove(key){const c=D.cart.find(c=>cartKey(c)===key);if(key!=='all'&&!c)return;confirmBox(key==='all'?'إفراغ السلة؟':'حذف المنتج؟',key==='all'?'سيتم حذف كل المنتجات من سلتك.':`سيتم حذف «${esc(prod(c.pid)?.name||'المنتج')}» من سلتك.`,key==='all'?'إفراغ':'حذف',()=>A.confirmCartRemove(key),true,'تراجع');}
 async function openAddresses(){captureCheckout();if(requirePurchaseLogin())return;if(!D.cart.length)return;checkoutStage='addresses';customerAddresses=[];addressOwner=user.id;renderAddresses(true);const identity=user.id;try{const rows=check(await withTimeout(db.from('customer_addresses').select('*').eq('user_id',identity).order('created_at',{ascending:false})));if(user?.id!==identity)return;customerAddresses=rows;if(checkoutStage==='addresses')renderAddresses();}catch(e){if(user?.id===identity&&checkoutStage==='addresses')renderAddresses(false,true);error(e)}}
 function renderAddresses(loading=false,failed=false){if(addressOwner!==user?.id)customerAddresses=[];$('#view').innerHTML=flowHeading('العناوين')+`<section class="addresses-list">${loading?'<p role="status">جارٍ تحميل العناوين…</p>':failed?'<p>تعذّر تحميل العناوين المحفوظة.</p><button class="alt" data-a="checkoutAddresses">إعادة المحاولة</button>':customerAddresses.length?customerAddresses.map(a=>`<button class="saved-address" data-a="addressChoose" data-v="${esc(a.id)}">${flowIcon('pin')}<span><b>${esc(a.label)}</b><small>${esc(a.address)}</small><small>${esc(a.phone)}</small></span>${flowIcon('arrow')}</button>`).join(''):`<div class="flow-empty"><span class="empty-symbol">${flowIcon('pin')}</span><h2>لا توجد عناوين محفوظة</h2><p>أضف عنواناً لتسريع عملية الطلب</p></div>`}<button class="address-new" data-a="addressNew">＋ إضافة عنوان جديد</button></section>`;}
-function pickAddressLocation(){window.SouqLocationPicker.show({value:addressDraft.point,sheet,head,title:'حدّد الموقع',onConfirm:point=>{addressDraft.point=point;A.close();addressDetails()}});}
-function captureAddress(){if(!$('#addressForm'))return;Object.assign(addressDraft,{label:val('addressLabel'),name:val('addressName'),phone:val('addressPhone'),phone2:val('addressPhone2'),addr:val('addressText')});addressDraft.choice={area:val('checkoutArea'),outside:val('checkoutOutside'),city:''};}
-function addressValid(){const a=addressDraft;return a&&a.point&&a.label.trim().length>=2&&a.name.trim().length>=2&&/^\d{10,11}$/.test(a.phone)&&(!a.phone2||/^\d{10,11}$/.test(a.phone2))&&a.addr.trim().length>=3&&!addressContainsPhone(a.addr)&&window.SouqDeliveryZones.quote(deliveryZones,a.choice,0,0).ready;}
-function addressDetails(){const a=addressDraft,p=a.point;sheet(head('تفاصيل العنوان')+`<form id="addressForm" onsubmit="return false"><div class="address-map-preview"><iframe title="موقع العنوان" src="https://www.openstreetmap.org/export/embed.html?bbox=${p.lon-.003}%2C${p.lat-.003}%2C${p.lon+.003}%2C${p.lat+.003}&amp;layer=mapnik&amp;marker=${p.lat}%2C${p.lon}"></iframe><button class="alt" data-a="addressMap" type="button">تغيير الموقع ✎</button></div><label for="addressLabel">اسم العنوان</label><input id="addressLabel" maxlength="80" placeholder="مثال: بيت أهلي" value="${esc(a.label)}"><label for="addressName">اسم المستلم</label><input id="addressName" maxlength="120" autocomplete="name" value="${esc(a.name)}"><label for="addressPhone">رقم الهاتف</label><input id="addressPhone" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" placeholder="07xxxxxxxxx" value="${esc(a.phone)}"><label for="addressPhone2">رقم هاتف بديل (اختياري)</label><input id="addressPhone2" type="tel" inputmode="numeric" maxlength="11" placeholder="07xxxxxxxxx" value="${esc(a.phone2)}"><small>يتصل به المندوب إذا تعذّر الوصول إلى رقمك.</small>${window.SouqDeliveryZones.selection(deliveryZones,a.choice,esc)}<label for="addressText">العنوان التفصيلي</label><small>المنطقة وأقرب نقطة دالة · لا تكتب رقم هاتفك هنا</small><textarea id="addressText" maxlength="500" placeholder="شارع · بناية · أقرب نقطة دالة">${esc(a.addr)}</textarea><button class="buy" type="button" data-a="addressSave" ${addressValid()?'':'disabled'}>متابعة</button></form>`);$('#addressForm').addEventListener('input',()=>{captureAddress();const text=$('#addressText');text.setCustomValidity(addressContainsPhone(text.value)?'لا تكتب رقم هاتفك هنا':'');if(addressContainsPhone(text.value))toast('لا تكتب رقم هاتفك هنا');$('#addressForm [data-a="addressSave"]').disabled=!addressValid()});}
+function pickAddressLocation(){captureAddress();window.SouqLocationPicker.show({value:addressDraft.point,sheet,head,title:'حدّد موقع التوصيل',onConfirm:point=>{addressDraft.point=point;A.close();syncDraftToCheckout();csheet();toast('✓ تم تحديد موقعك')}});}
+function captureAddress(){if(!$('#addressForm'))return;const digits=window.SouqDigits?.toLatin||(v=>v);Object.assign(addressDraft,{label:val('addressLabel'),name:val('addressName'),phone:digits(val('addressPhone')),phone2:digits(val('addressPhone2')),addr:val('addressText')});addressDraft.choice={area:val('checkoutArea'),outside:val('checkoutOutside'),city:''};}
+// The first thing still missing, said plainly under the disabled «متابعة» button.
+function addressProblem(){const a=addressDraft;if(!a)return 'افتح نموذج العنوان من جديد';if(!a.point)return 'حدّد موقع العنوان على الخريطة';if(a.name.trim().length<2)return 'اكتب اسم المستلم';if(!/^\d{10,11}$/.test(a.phone))return 'اكتب رقم الهاتف كاملاً، مثل 07701234567';if(a.phone2&&!/^\d{10,11}$/.test(a.phone2))return 'رقم الهاتف البديل غير مكتمل، أكمله أو امسحه';if(!window.SouqDeliveryZones.quote(deliveryZones,a.choice,0,0).ready)return 'اختر هل التوصيل داخل الشطرة أم خارجها';if(a.addr.trim().length<3)return 'اكتب العنوان التفصيلي: المنطقة وأقرب نقطة دالة';if(addressContainsPhone(a.addr))return 'احذف رقم الهاتف من العنوان التفصيلي';return '';}
+function addressValid(){return !addressProblem();}
+function addressDetails(){const a=addressDraft,p=a.point;sheet(head('تفاصيل العنوان')+`<form id="addressForm" onsubmit="return false"><div class="address-map-preview"><iframe title="موقع العنوان" src="https://www.openstreetmap.org/export/embed.html?bbox=${p.lon-.003}%2C${p.lat-.003}%2C${p.lon+.003}%2C${p.lat+.003}&amp;layer=mapnik&amp;marker=${p.lat}%2C${p.lon}"></iframe><button class="alt" data-a="addressMap" type="button">تغيير الموقع ✎</button></div><label for="addressLabel">اسم العنوان</label><input id="addressLabel" maxlength="80" placeholder="مثال: بيت أهلي" value="${esc(a.label)}"><label for="addressName">اسم المستلم</label><input id="addressName" maxlength="120" autocomplete="name" value="${esc(a.name)}"><label for="addressPhone">رقم الهاتف</label><input id="addressPhone" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" placeholder="07xxxxxxxxx" value="${esc(a.phone)}"><label for="addressPhone2">رقم هاتف بديل (اختياري)</label><input id="addressPhone2" type="tel" inputmode="numeric" maxlength="11" placeholder="07xxxxxxxxx" value="${esc(a.phone2)}"><small>يتصل به المندوب إذا تعذّر الوصول إلى رقمك.</small>${window.SouqDeliveryZones.selection(deliveryZones,a.choice,esc)}<label for="addressText">العنوان التفصيلي</label><small>المنطقة وأقرب نقطة دالة · لا تكتب رقم هاتفك هنا</small><textarea id="addressText" maxlength="500" placeholder="شارع · بناية · أقرب نقطة دالة">${esc(a.addr)}</textarea><p id="addressHint" class="note address-hint" aria-live="polite">${esc(addressProblem())}</p><button class="buy" type="button" data-a="addressSave" ${addressValid()?'':'disabled'}>متابعة</button></form>`);$('#addressForm').addEventListener('input',()=>{captureAddress();const text=$('#addressText');text.setCustomValidity(addressContainsPhone(text.value)?'لا تكتب رقم هاتفك هنا':'');if(addressContainsPhone(text.value))toast('لا تكتب رقم هاتفك هنا');$('#addressForm [data-a="addressSave"]').disabled=!addressValid();const hint=$('#addressHint');if(hint)hint.textContent=addressProblem();});}
 function useAddress(a){D.cust={name:a.recipient_name,phone:a.phone,phone2:a.phone_secondary||'',addr:a.address,label:a.label};D.deliveryChoice=a.zone_id==='shatra'?{area:'shatra',outside:'',city:''}:{area:'outside',outside:a.zone_id,city:''};geoPoint={lat:Number(a.latitude),lon:Number(a.longitude)};save();}
+// A new address typed on the checkout page is kept for next time; a failure here never blocks the order.
+async function rememberTypedAddress(){const a=addressDraft;if(!a||!user)return;const identity=user.id;try{const row=check(await withTimeout(db.from('customer_addresses').insert({user_id:identity,label:a.label.trim()||'عنواني',recipient_name:a.name,phone:a.phone,phone_secondary:a.phone2||null,address:a.addr,zone_id:window.SouqDeliveryZones.zoneId(a.choice),latitude:a.point.lat,longitude:a.point.lon}).select('*').single()));if(user?.id!==identity||!row)return;customerAddresses.unshift(row);selectedAddressId=row.id;addressMode='saved';addressDraft=freshAddressDraft();}catch{}}
 async function saveAddress(button){captureAddress();if(button.disabled||!addressValid()||!user)return;const identity=user.id,a=addressDraft;button.disabled=true;button.textContent='جارٍ حفظ العنوان…';try{const row=check(await withTimeout(db.from('customer_addresses').insert({user_id:identity,label:a.label,recipient_name:a.name,phone:a.phone,phone_secondary:a.phone2||null,address:a.addr,zone_id:window.SouqDeliveryZones.zoneId(a.choice),latitude:a.point.lat,longitude:a.point.lon}).select('*').single()));if(user?.id!==identity)return;customerAddresses.unshift(row);useAddress(row);A.close();checkoutStage='review';csheet();scrollTo(0,0);}finally{if(button.isConnected){button.disabled=false;button.textContent='متابعة'}}}
 
+// Below «طلباتي»: products like the ones this customer already ordered (same category first, then the same
+// stores), so a returning customer finds something to add. New customers see the newest and discounted items.
+function similarProducts(limit=8){
+ const {products}=publicMarketplace(),mine=D.o.filter(o=>user&&o.buyer_id===user.id),ordered=new Set(mine.flatMap(o=>(o.items||[]).map(i=>i.pid)));
+ const inCart=new Set((D.cart||[]).map(c=>c.pid)),known=[...ordered].map(prod).filter(Boolean),cats=new Set(known.map(p=>p.cat)),stores=new Set(mine.map(o=>o.mid));
+ const score=p=>(cats.has(p.cat)?4:0)+(stores.has(p.mid)?2:0)+(p.compare_at_price>p.price?1:0)+(p.stock>0?1:0);
+ const fresh=products.filter(p=>!ordered.has(p.id)&&!inCart.has(p.id)).sort((a,b)=>score(b)-score(a)||new Date(b.created_at||0)-new Date(a.created_at||0));
+ // Few new matches: also offer what they bought before, to order again.
+ const again=fresh.length<4?products.filter(p=>ordered.has(p.id)&&!inCart.has(p.id)):[];
+ const list=[...fresh,...again].slice(0,limit);
+ if(!list.length)return '';
+ const ui=window.SouqFigmaUI||window.SouqMarketplace,title=known.length?'منتجات مشابهة لطلباتك':'قد يعجبك أيضاً';
+ return `<section class="similar-products" aria-labelledby="similarTitle"><div class="section-title"><h2 id="similarTitle">${title}</h2><button data-a="tab" data-v="market">عرض الكل</button></div>${ui.productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()})}</section>`;
+}
 function cartNavigation(){return `<div class="buyer-cart-heading"><h1>السلة</h1><button data-a="tab" data-v="market">السوق ‹</button></div><div class="chips"><button class="chip" data-a="cartPane" data-v="orders" aria-pressed="${D.cartPane==='orders'}">▣ الطلبات والمتابعة</button><button class="chip" data-a="cartPane" data-v="items" aria-pressed="${D.cartPane==='items'}">🛒 مواد بانتظار الإرسال (${D.cart.reduce((n,c)=>n+c.q,0)})</button></div>`;}
-function checkoutSummary(quote,tot,orderCount){return `<div class="row"><span>سعر المنتجات بعد التخفيضات</span><b>${fmt(tot)}</b></div><div class="row"><span>رسم التوصيل للمسار كاملًا</span><b>${quote.ready?fmt(quote.delivery):'—'}</b></div>${quote.route?`<p class="note">مسافة المسار ${Number(quote.route.route_km).toFixed(2)} كم · ${orderCount} متاجر</p>`:!db.preview?`<p role="status">${esc(routeQuoteError||'جارٍ حساب رسم التوصيل…')}</p>${routeQuoteError?'<button class="alt" data-a="retryRouteQuote">إعادة الحساب</button>':''}`:''}${quote.route?.high_fee?'<p class="delivery-route-warning">رسم التوصيل مرتفع؛ يمكنك تقسيم الطلب إلى طلبات أصغر، أو المتابعة.</p>':''}${quote.platform?`<div class="row"><span>حصة التطبيق</span><b>${fmt(quote.platform)}</b></div>`:''}<div class="row buyer-total"><b>المبلغ الإجمالي</b><b>${quote.ready?fmt(quote.total):'—'}</b></div>`;}
+function checkoutSummary(quote,tot,orderCount,original=tot){const saved=Math.max(0,original-tot);return `${saved?`<div class="row"><span>سعر المنتجات الأصلي</span><b><s>${fmt(original)}</s></b></div><div class="row co-saving"><span>التخفيض</span><b>− ${fmt(saved)}</b></div>`:''}<div class="row"><span>${saved?'سعر المنتجات بعد التخفيض':'سعر المنتجات'}</span><b>${fmt(tot)}</b></div><div class="row"><span>رسم التوصيل</span><b>${quote.ready?fmt(quote.delivery):'—'}</b></div>${!geoPoint?'<p class="note co-fee-wait">📍 حدّد موقعك على الخريطة ليظهر سعر التوصيل</p>':quote.route?`<p class="note">مسافة المسار ${Number(quote.route.route_km).toFixed(2)} كم · ${orderCount} متاجر</p>`:!db.preview?`<p role="status">${esc(routeQuoteError||'جارٍ حساب رسم التوصيل…')}</p>${routeQuoteError?'<button class="alt" data-a="retryRouteQuote">إعادة الحساب</button>':''}`:''}${quote.route?.high_fee?'<p class="delivery-route-warning">رسم التوصيل مرتفع؛ يمكنك تقسيم الطلب إلى طلبات أصغر، أو المتابعة.</p>':''}<div class="row buyer-total"><b>المبلغ الإجمالي</b><b>${quote.ready?fmt(quote.total):'—'}</b></div>`;}
 function csheet(){
  if(checkoutStage==='review'&&!cartReceipt)requestRouteQuote();
  if(D.cartPane==='items'&&!cartReceipt&&checkoutStage!=='review'){renderCartStage();return;}
- if(D.cartPane==='orders'&&!cartReceipt){$('#view').innerHTML=cartNavigation()+customerOrderHub();return;}
- const heading=cartNavigation()+'<div class="buyer-cart-heading"><h1>مراجعة الطلب</h1><button data-a="checkoutAddresses">تغيير العنوان</button></div>';
- if(cartReceipt){$('#view').innerHTML=heading+`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">✓</div><h2>تم تأكيد طلبك</h2><p>في انتظار موافقة البائع وسائق التوصيل</p><p class="note">رقم الطلب ${cartReceipt.map(esc).join('، ')} · الدفع عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button></section>`;return;}
+ if(D.cartPane==='orders'&&!cartReceipt){$('#view').innerHTML=cartNavigation()+customerOrderHub()+similarProducts();return;}
+ const heading=cartNavigation();
+ if(cartReceipt){$('#view').innerHTML=`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">✓</div><h2>تم تأكيد طلبك</h2><p>في انتظار موافقة البائع وسائق التوصيل</p><p class="note">رقم الطلب ${cartReceipt.map(esc).join('، ')} · الدفع نقداً عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button><button class="alt" data-a="tab" data-v="market">متابعة التسوق</button></section>`;return;}
   const it=cartRows(),tot=it.reduce((s,x)=>s+(x.p?.price||0)*x.c.q,0);
   if(!it.length){$('#view').innerHTML=heading+'<section class="buyer-checkout-card empty"><h2>سلتك فارغة</h2><p>اختر مشترياتك من السوق لتظهر هنا.</p><button class="buy" data-a="tab" data-v="market">تصفح المنتجات</button></section>';return}
   const quote=checkoutQuote();
   const u={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',addr:D.cust.addr||''},orderCount=new Set(it.map(x=>x.p?.mid).filter(Boolean)).size;
-  $('#view').innerHTML=heading+'<div class="buyer-checkout-layout"><section class="buyer-checkout-card"><h2>مشترياتك</h2>'+it.map(x=>`<div class="row figma-cart-item"><div class="figma-cart-image">${x.p?thumb(x.p):''}</div><div><b>${esc(x.p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small class="note" style="display:block;margin:0">${esc(x.p?.selectedVariant?.label||x.p?.variant||'')} · ${x.p?esc(mname(x.p.mid))+' · '+fmt(x.p.price):'هذه النسخة غير متاحة؛ أزلها من السلة'}</small>${x.p?`<small class="checkout-discount">${x.p.compare_at_price>x.p.price?'قبل التخفيض '+fmt(x.p.compare_at_price)+' · التخفيض '+fmt(x.p.compare_at_price-x.p.price):'لا يوجد تخفيض'}</small>`:''}${x.p&&(!x.p.active||x.p.blocked||x.p.stock<x.c.q)?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><div class="qty"><button data-a="cq" data-v="${cartKey(x.c)}|-1" aria-label="أقل">−</button><b>${x.c.q}</b><button data-a="cq" data-v="${cartKey(x.c)}|1" aria-label="أكثر">+</button><button data-a="cartRemove" data-v="${cartKey(x.c)}" aria-label="إزالة">×</button></div></div>`).join('')+
-  `
-  </section><section class="buyer-checkout-card"><h2>بيانات استلام الطلب</h2><p>${esc(D.cust.label||'عنوان التوصيل')}${D.cust.phone2?' · رقم بديل: '+esc(D.cust.phone2):''}</p><label for="cn">الاسم</label><input id="cn" value="${esc(u.name)}" autocomplete="name">
-  <label for="cp">رقم الهاتف</label><input id="cp" type="tel" inputmode="numeric" value="${esc(u.phone)}" placeholder="07xxxxxxxxx" autocomplete="tel">
-  ${window.SouqDeliveryZones.selection(deliveryZones,D.deliveryChoice,esc)}
-  <label for="ca">عنوان التوصيل</label><input id="ca" value="${esc(u.addr)}" placeholder="المنطقة، الحي، أقرب نقطة دالة"><div class="checkout-location"><button class="alt" data-a="geolocate" type="button">📍 ${geoPoint?'تعديل الموقع على الخريطة':'اختيار الموقع على الخريطة'}</button>${user?'<button class="alt" data-a="useProfileLocation" type="button">📍 استخدام الموقع المحفوظ</button>':''}</div>${checkoutLocationCard()}<small id="geoStatus" class="note">${geoPoint?'تم اعتماد الموقع وسيُرفق بالطلب.':'اختر موقع التوصيل ثم اضغط موافق، واكتب العنوان ورقم الهاتف أيضًا.'}</small>
-  <label for="cno">ملاحظات (اختياري)</label><input id="cno" value="${esc(checkoutNote)}">
-  <section class="checkout-summary" aria-live="polite">${checkoutSummary(quote,tot,orderCount)}</section>
-  <button class="buy" data-a="order" ${quote.ready?'':'disabled'}>تأكيد الطلب · الدفع عند الاستلام</button></section></div>`;
+  // One page for everything: what you buy, where it goes (picked or typed right here), and what you pay.
+  // #cn/#cp/#ca stay as hidden fields because the order action reads them.
+  const original=it.reduce((n,x)=>n+(x.p?(x.p.compare_at_price>x.p.price?x.p.compare_at_price:x.p.price)*x.c.q:0),0);
+  const zoneName=deliveryZones.find(z=>z.id===window.SouqDeliveryZones.zoneId(D.deliveryChoice))?.name||'',zone=D.deliveryChoice?.area==='shatra'?'داخل الشطرة':'خارج الشطرة'+(zoneName?' · '+zoneName:'');
+  const count=it.reduce((n,x)=>n+x.c.q,0),problem=checkoutProblem(quote);
+  const item=x=>{const p=x.p,off=p&&p.compare_at_price>p.price,bad=p&&(!p.active||p.blocked||p.stock<x.c.q),variant=p?.selectedVariant?.label||p?.variant||'';return `<li class="co-item"><div class="co-thumb">${p?thumb(p):''}</div><div class="co-item-info"><b>${esc(p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small>${[variant,p?mname(p.mid):''].filter(Boolean).map(esc).join(' · ')}</small>${p?`<span class="co-unit">${x.c.q} × ${fmt(p.price)}</span>${off?`<span class="co-was">السعر الأصلي <s>${fmt(p.compare_at_price)}</s></span>`:''}${returnBadge(prod(x.c.pid)||p,'co-return')}`:'<small class="va-unavailable">هذه النسخة غير متاحة؛ أزلها من السلة</small>'}${bad?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><strong class="co-line-total">${p?fmt(p.price*x.c.q):'—'}</strong></li>`;};
+  $('#view').innerHTML=`<div class="co-page"><header class="co-head"><button type="button" data-a="cartPane" data-v="items" aria-label="الرجوع إلى السلة">→</button><h1>تأكيد الطلب</h1><span aria-hidden="true"></span></header>
+  <section class="co-card" aria-labelledby="coItems"><div class="co-card-head"><h2 id="coItems">المنتجات <small>(${count})</small></h2><button type="button" data-a="cartPane" data-v="items">تعديل</button></div><ul class="co-items">${it.map(item).join('')}</ul></section>
+  <section class="co-card" aria-labelledby="coTo"><div class="co-card-head"><h2 id="coTo">التوصيل إلى</h2></div>
+  ${addressesLoading?'<p role="status" class="note">جارٍ تحميل عناوينك…</p>':addressMode==='new'?addressFormHtml():savedAddressesHtml()}
+  <input type="hidden" id="cn" value="${esc(u.name)}"><input type="hidden" id="cp" value="${esc(u.phone)}"><input type="hidden" id="ca" value="${esc(u.addr)}">
+  <label for="cno">ملاحظة للتاجر أو السائق (اختياري)</label><input id="cno" value="${esc(checkoutNote)}" placeholder="مثال: اتصل قبل الوصول"></section>
+  <section class="co-card checkout-summary" aria-labelledby="coPrice" aria-live="polite"><h2 id="coPrice">تفاصيل السعر</h2><div class="co-price-rows">${checkoutSummary(quote,tot,orderCount,original)}</div><p class="co-pay">💵 الدفع نقداً عند الاستلام</p></section>
+  <div class="co-bar"><p id="addressHint" class="co-hint" aria-live="polite">${esc(problem)}</p><div class="co-bar-total"><small>الإجمالي</small><b>${quote.ready?fmt(quote.total):'—'}</b></div><button class="buy" data-a="order" ${problem?'disabled':''}>تأكيد الطلب</button></div></div>`;
 }
 function isInvalidPasswordLogin(error){
  return error?.code==='invalid_credentials'||(!error?.code&&/invalid login credentials|invalid credentials/i.test(error?.message||''));
@@ -1922,7 +2064,7 @@ function filterSheet(){
  $('#sheet').classList.add('compact-filter');
 }
 function infoSheet(){
-  const seller=[['من يستطيع البيع؟','البيع متاح للتجار الذين تعتمدهم إدارة سوق الشطرة بعد التواصل والتحقق من بياناتهم.'],['كيف أنشر منتجًا؟','اضغط على إنشاء حساب بائع، ثم سجّل بياناتك وتواصل مع إدارة سوق الشطرة للموافقة. بعد الاعتماد يمكنك نشر منتجاتك.'],['هل توجد نسبة من البيع؟','يعرض التطبيق سعر المنتج، وأجرة التوصيل وحصة التطبيق قبل إرسال الطلب.']];
+  const seller=[['من يستطيع البيع؟','البيع متاح للتجار الذين تعتمدهم إدارة سوق الشطرة بعد التواصل والتحقق من بياناتهم.'],['كيف أنشر منتجًا؟','اضغط على إنشاء حساب بائع، ثم سجّل بياناتك وتواصل مع إدارة سوق الشطرة للموافقة. بعد الاعتماد يمكنك نشر منتجاتك.'],['هل توجد نسبة من البيع؟','يعرض التطبيق للزبون سعر المنتج وأجرة التوصيل قبل إرسال الطلب. أي اتفاق على نسبة يكون مباشرة بينك وبين إدارة سوق الشطرة.']];
   const buyer=[['ما فائدة هذا التطبيق؟','يجمع لك سوق الشطرة داخل هاتفك.'],['ما مميزات سوق الشطرة؟','يجعلك تتابع المحلات المفضلة لديك ومبيعاتهم وعروضهم أولًا بأول، وتستطيع شراء المنتجات والإعجاب بها وإضافتها إلى المفضلة.'],['ما الذي يميز التطبيق عن التطبيقات الأخرى؟','يوفر لك السوق ويوفر لك التوصيل.'],['هل أستطيع البيع أيضًا؟','نعم. سجّل كبائع واعرض المنتج الذي تملكه حتى لو لم يكن لديك متجر.']];
   const rows=infoRole==='seller'?seller:buyer;
   sheet(head('عن سوق الشطرة')+`<p class="note">سوق محلي يعرض منتجات المتاجر والأفراد في الشطرة.</p><div class="info-tabs"><button data-a="inforole" data-v="seller" aria-pressed="${infoRole==='seller'}">للبائع</button><button data-a="inforole" data-v="buyer" aria-pressed="${infoRole==='buyer'}">للمشتري</button></div><div class="faq">${rows.map(([title,body])=>`<details><summary>${title}</summary><p>${body}</p></details>`).join('')}</div>`);
@@ -2032,15 +2174,16 @@ const A={
    }finally{storeSaveBusy=false;if(button?.isConnected)button.disabled=false}
   }),
   registerDriver:()=>driverWorkspace.application(),
-  claimAsk:v=>ask('هل توافق على توصيل هذا الطلب؟ يبدأ الاستلام بعد موافقة البائع.','claimOrder',v),
-  claimOrder:v=>act(async()=>{check(await db.rpc('claim_route_delivery',{p_order:v}));A.close();await refresh();driverWorkspace.assigned(1);toast('أُسند إليك الطلب')}),
+  // One tap accepts: no confirmation dialog. A second tap while the first is still sending is ignored.
+  claimAsk:v=>A.claimOrder(v),
+  claimOrder:v=>{if(claimBusy)return;claimBusy=true;document.querySelectorAll(`[data-a="claimAsk"][data-v="${CSS.escape(v)}"]`).forEach(b=>{b.disabled=true;b.textContent='جارٍ القبول…'});return act(async()=>{check(await db.rpc('claim_route_delivery',{p_order:v}));A.close();await refresh();driverWorkspace.assigned(1);toast('✓ قبلت الطلب، وصار ضمن «بانتظار توصيلي»')}).finally(()=>{claimBusy=false;render();});},
   ignoreOffer:v=>act(async()=>{check(await db.rpc('decline_delivery',{p_order:v}));deliveryOffers=deliveryOffers.filter(o=>o.order_id!==v);driverPage();toast('لن يظهر لك هذا الطلب مرة أخرى')}),
   driverStepAsk:v=>{const [id,status]=v.split('|');ask(status==='delivered'?'هل سلّمت المنتج وقبضت المبلغ كاملًا؟':'هل دفعت ثمن المنتج واستلمته من البائع؟','driverStep',v)},
   driverStep:(v,button)=>act(async()=>{const [id,status]=v.split('|');if(button?.disabled)return;if(button)button.disabled=true;try{check(await withTimeout(db.rpc('delivery_step',{p_order:id,p_status:status})));D.o=D.o.map(o=>o.id===id?{...o,st:status==='delivered'?3:2}:o);A.close();driverWorkspace.assigned(status==='delivered'?3:2);toast(status==='delivered'?'تم تأكيد تسليم الطلب وإبلاغ الزبون':'تم تحديث الطلب');refresh().catch(error);}finally{if(button?.isConnected)button.disabled=false;}}),
   paySheet:()=>sheet(head('إثبات تحويل المستحقات')+`<p>حوّل إلى رقم Qi: <b dir="ltr">${esc(deliverySettings.qi_number||'لم يُحدد بعد')}</b></p><label for="payAmount">المبلغ المحوّل بالدينار</label><input id="payAmount" type="number" min="1" value="${driverAccount?.amount_due||''}"><label for="payRef">رقم العملية أو تفاصيل الوصل</label><input id="payRef" maxlength="400"><p class="note">لا يُخصم المبلغ حتى يتحقق المدير من وصوله ويؤكد الاستلام.</p><button class="buy" data-a="sendPayment">إرسال طلب التأكيد</button>`),
   sendPayment:()=>act(async()=>{const amount=+val('payAmount'),receipt=val('payRef');if(!Number.isInteger(amount)||amount<1||receipt.length<3){toast('أدخل المبلغ ورقم العملية');return}check(await db.rpc('submit_delivery_payment',{p_amount:amount,p_receipt:receipt}));A.close();await refresh();toast('أُرسل طلب المراجعة إلى المدير')}),
   approveDriver:v=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;check(await db.rpc('admin_approve_driver',{p_driver:v,p_approved:!w.approved}));A.close();await refresh();toast('تم تحديث عامل التوصيل')}),
-  deliveryConfig:()=>sheet(head('إعداد التوصيل')+`<h3>أجور المناطق والمدن</h3>${deliveryZones.map(z=>`<div class="row"><span>${esc(z.name)} · ${fmt(z.fee)} ${z.enabled?'':'(غير متاحة)'}</span><button class="alt" data-a="deliveryZoneEdit" data-v="${esc(z.id)}">تعديل</button></div>`).join('')}<button class="alt" data-a="deliveryZoneEdit" data-v="">إضافة مدينة وأجرة توصيلها</button><hr><label>حصة التطبيق لكل طلب (د.ع)</label><input id="cfgFee" type="number" min="0" value="${deliverySettings.platform_fee}"><input id="cfgDelivery" type="hidden" min="0" value="${deliverySettings.delivery_fee}"><label>رقم Qi المخصص للتطبيق</label><input id="cfgQi" value="${esc(deliverySettings.qi_number)}"><button class="buy" data-a="saveDeliveryConfig">حفظ</button>`),
+  deliveryConfig:()=>sheet(head('إعداد التوصيل')+`<h3>أجور المناطق والمدن</h3>${deliveryZones.map(z=>`<div class="row"><span>${esc(z.name)} · ${fmt(z.fee)} ${z.enabled?'':'(غير متاحة)'}</span><button class="alt" data-a="deliveryZoneEdit" data-v="${esc(z.id)}">تعديل</button></div>`).join('')}<button class="alt" data-a="deliveryZoneEdit" data-v="">إضافة مدينة وأجرة توصيلها</button><hr><label>رسم يُضاف على الزبون لكل طلب (د.ع)</label><p class="note">لا يظهر للزبون كسطر منفصل، لكنه يُضاف لمبلغه. اتركه 0 إذا كانت حصتك باتفاق خاص مع التجار.</p><input id="cfgFee" type="number" min="0" value="${deliverySettings.platform_fee}"><input id="cfgDelivery" type="hidden" min="0" value="${deliverySettings.delivery_fee}"><label>رقم Qi المخصص للتطبيق</label><input id="cfgQi" value="${esc(deliverySettings.qi_number)}"><button class="buy" data-a="saveDeliveryConfig">حفظ</button>`),
   deliveryZoneEdit:v=>{if(profile?.role!=='admin'||profile.disabled)return;const z=deliveryZones.find(z=>z.id===v);sheet(head(z?'تعديل أجرة المنطقة':'إضافة مدينة أخرى')+`<label for="zoneName">اسم المدينة / المنطقة</label><input id="zoneName" maxlength="80" value="${esc(z?.name||'')}"><label for="zoneFee">أجرة التوصيل لكل متجر (د.ع)</label><input id="zoneFee" type="number" min="0" max="100000" value="${z?.fee??''}"><label><input id="zoneEnabled" type="checkbox" ${z?.enabled!==false?'checked':''}> التوصيل متاح لهذه المنطقة</label><button class="buy" data-a="saveDeliveryZone" data-v="${esc(v)}">حفظ</button>`);},
   saveDeliveryZone:v=>act(async()=>{if(profile?.role!=='admin'||profile.disabled)return;const name=val('zoneName'),feeText=val('zoneFee'),fee=Number(feeText);if(name.length<2||!feeText||!Number.isInteger(fee)||fee<0||fee>100000){toast('أدخل اسم المدينة وأجرة صحيحة');return}check(await db.rpc('admin_set_delivery_zone',{p_id:v,p_name:name,p_fee:fee,p_enabled:$('#zoneEnabled').checked}));A.close();await refresh();A.deliveryConfig();toast('تم حفظ أجرة المدينة للطلبات الجديدة');}),
   saveDeliveryConfig:()=>act(async()=>{const fee=+val('cfgFee'),delivery=+val('cfgDelivery');if(!Number.isInteger(fee)||!Number.isInteger(delivery)||fee<0||delivery<0){toast('أدخل مبالغ صحيحة');return}check(await db.rpc('admin_set_delivery_settings',{p_platform_fee:fee,p_delivery_fee:delivery,p_qi_number:val('cfgQi')}));A.close();await refresh();toast('تم حفظ الأسعار للطلبات الجديدة')}),
@@ -2136,10 +2279,11 @@ const A={
     const own=live.filter(x=>x.img===img),bare=img===cur.p.img?live.filter(x=>!x.img):[],base=bare.find(x=>x.id===cur.p.attributes?._base_variant_id);const match=own.length?own.sort((a,b)=>(b.stock>0)-(a.stock>0))[0]:base||(bare.length===1?bare[0]:null);if(match&&match.id!==cur.vid){cur.vid=match.id;cur.options={...match.attributes};cur.n=1;cur.added=false}
     updateProductDetail()},
   cartEdit:v=>{const c=D.cart.find(c=>cartKey(c)===v);if(!c)return;A.prod(c.pid);cur.vid=c.vid;cur.n=c.q;cur.options={...c.attributes};cur.editKey=v;updateProductDetail()},
-  checkoutAddresses:()=>act(openAddresses),
-  addressNew:()=>{addressDraft={name:D.cust.name||profile?.full_name||'',phone:D.cust.phone||profile?.phone||'',phone2:'',label:'',addr:'',choice:{area:'shatra',outside:'',city:''},point:null};pickAddressLocation()},
+  checkoutAddresses:()=>act(openCheckout),
+  addressSaved:()=>{captureAddress();const a=customerAddresses.find(a=>a.id===selectedAddressId)||customerAddresses[0];if(a){selectAddress(a);csheet();}},
+  addressNew:()=>{addressMode='new';addressDraft=freshAddressDraft();syncDraftToCheckout();csheet();$('#addressName')?.focus({preventScroll:true});},
   addressMap:()=>{captureAddress();pickAddressLocation()},
-  addressChoose:v=>{const a=customerAddresses.find(a=>a.id===v);if(!a)return;useAddress(a);checkoutStage='review';csheet();scrollTo(0,0)},
+  addressChoose:v=>{const a=customerAddresses.find(a=>a.id===v);if(!a)return;selectAddress(a);csheet();},
   addressSave:(_,b)=>act(()=>saveAddress(b)),
   confirmCartRemove:v=>{const previous=D.cart;D.cart=v==='all'?[]:D.cart.filter(c=>cartKey(c)!==v);if(!save()){D.cart=previous;return}A.close();checkoutStage='items';render()},
   cartMenu:(_,button)=>{const menu=button?.nextElementSibling;if(!menu)return;menu.hidden=!menu.hidden;button.setAttribute('aria-expanded',String(!menu.hidden))},
@@ -2164,14 +2308,15 @@ const A={
     if(addressContainsPhone(addr)||addressContainsPhone(note)){toast('لا تكتب رقم هاتفك هنا');return}
     if(!geoPoint){toast('حدد موقعك على الخريطة');return}
     const quote=checkoutQuote();if(!quote.ready){toast('انتظر حساب رسم التوصيل أو أعد المحاولة');return}
+    if(addressMode==='new'){captureAddress();const problem=addressProblem();if(problem){toast(problem);return}await rememberTypedAddress();}
     if(!D.cart.length){toast('السلة فارغة');return}if(cartRows().some(x=>!x.p||!x.p.active||x.p.blocked||x.p.stock<x.c.q)){toast('راجع النسخ والكمية غير المتاحة في السلة');csheet();return}
     const groups=new Map();for(const c of D.cart){const p=prod(c.pid);if(!p)throw Error('product unavailable');if(!groups.has(p.mid))groups.set(p.mid,[]);groups.get(p.mid).push({id:p.id,variant_id:c.vid||null,quantity:c.q})}
     let created;
-    if(db.preview){created=[];for(const [store,lines] of groups)created.push(check(await db.rpc('place_order',{p_store:store,p_lines:lines,p_name:name,p_phone:phone,p_address:addr,p_note:note})));}
+    if(db.preview){created=[];const fullNote=note+(D.cust.phone2?' | رقم هاتف بديل: '+D.cust.phone2:'')+' | موقع الزبون: https://www.google.com/maps?q='+geoPoint.lat+','+geoPoint.lon;/* same note as place_route_order on the server */for(const [store,lines] of groups)created.push(check(await db.rpc('place_order',{p_store:store,p_lines:lines,p_name:name,p_phone:phone,p_address:addr,p_note:fullNote})));}
     else {const requestKey=JSON.stringify([[...groups],name,phone,D.cust.phone2,addr,note,geoPoint,quote.delivery]);if(checkoutRequestKey!==requestKey){checkoutRequest=uid();checkoutRequestKey=requestKey;}checkoutRequest=checkoutRequest||uid();try{created=check(await db.rpc('place_route_order',{p_groups:[...groups].map(([store,lines])=>({store,lines})),p_name:name,p_phone:phone,p_phone2:D.cust.phone2||'',p_address:addr,p_note:note,p_lat:geoPoint.lat,p_lng:geoPoint.lon,p_expected_fee:quote.delivery,p_fingerprint:quote.route.fingerprint,p_platform_fee:deliverySettings.platform_fee,p_request:checkoutRequest}));}
     catch(e){if(e?.message?.includes('delivery fee changed')){routeQuoteKey='';await requestRouteQuote(true);deliverySettings=check(await db.from('delivery_settings').select('*').limit(1).single());toast('تغيرت أجور التوصيل. راجع الإجمالي ثم أكد من جديد');csheet();return}throw e;}}
     const ids=created.map(id=>'#'+id.slice(-4).toUpperCase());D.cart=[];checkoutRequest=null;routeQuote=null;routeQuoteKey='';save();
-    D.cust={name,phone,addr};geoPoint=null;checkoutNote='';save();cartReceipt=ids;await refresh();
+    D.cust={name,phone,addr};geoPoint=null;checkoutNote='';selectedAddressId=null;save();cartReceipt=ids;await refresh();
 
     tab='cartPage';render();scrollTo(0,0);
   }),
@@ -2226,7 +2371,7 @@ const A={
 const storeExplorer=createStoreExplorer({esc,ready:()=>dataReady,stores:()=>publicMarketplace().stores,products:()=>publicMarketplace().products,ratings:()=>storeRatings,rating:id=>storeRatings.get(id),productCards:list=>(window.SouqFigmaUI||window.SouqMarketplace).productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()})});
 const productEditor=createProductEditor({categories:()=>D.catalog||[],getProduct:prod,toast,base:()=>({price:Number(val('fpr'))||0,compare_at_price:$('#baseDiscount')?.checked?Number(val('fcompare')):null}),upload:async file=>{const blob=await prepareStoreImage(file),path=`${ownStore.id}/${uid()}.jpg`;check(await db.storage.from('products').upload(path,blob,{contentType:'image/jpeg'}));return path;}});
 const catalogManager=createCatalogAdmin({categories:()=>D.catalog||[],db,check,sheet,head,toast,refresh,render});
-const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,when,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell(),canReset}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.replaceState(history.state,'',url);render();scrollTo(0,0)}});
+const workspace=createSellerWorkspace({rating:id=>ratingBadge(id),db,esc,fmt,when,exactWhen,thumb,status:ST,bell:bellIcon,editProduct:fsheet,inventoryVariants:p=>inventoryVariants(p,fmt),stockMovements:()=>D.stockMovements||[],driverContact:c=>driverContact(c,esc,(id,n)=>avatars.html(id,n)),check,sheet,head,toast,refresh,render,run:act,close:()=>A.close(),tab:v=>{tab=v;render();scrollTo(0,0)},buyerAccount:buyerAccountLogin,get:()=>({store:ownStore,data:D,dataReady,profile,filters:filt,category:cat,mode:viewMode,canSell:canSell(),canReset}),publicStore:id=>{publicStoreId=id;tab=id?'market':viewMode==='seller'?'account':'stores';const url=new URL('preview.html',location.href);if(id)url.searchParams.set('store',id);else if(tab==='stores')url.searchParams.set('view','stores');history.replaceState(history.state,'',url);render();scrollTo(0,0)}});
 // Messages: the thread title, the store/driver names and who is the driver come from loaded data.
 function chatThread(t){
  if(t.kind==='used'){const l=(D.used||[]).find(x=>x.id===t.ref);return {title:l?'محادثة عن «'+l.title+'»':'محادثة عن غرض مستعمل',subtitle:l?fmt(l.price)+' · عاين الغرض قبل الدفع':'',names:{}}}
@@ -2240,17 +2385,17 @@ const chatButton=(kind,ref,buyer,label)=>`<button type="button" class="chat-open
 async function paintInbox(){
  const box=$('#chatInbox');if(!box||!user)return;const list=await chat.threads().catch(()=>null);if(!$('#chatInbox'))return;
  if(!list){box.innerHTML='';return}
- box.innerHTML=`<h3>رسائلي</h3>${list.length?list.slice(0,12).map(t=>{const info=chatThread(t);return `<button class="chat-thread" data-a="chatOpen" data-v="${esc(t.kind+':'+t.ref+':'+t.buyer)}"><b>${esc(info.title)}</b><small>${esc((t.last.sender_id===user.id?'أنت: ':'')+t.last.body)}</small><time>${esc(when(t.last.created_at))}</time></button>`}).join(''):'<p class="note">لا توجد محادثات بعد. راسل صاحب غرض مستعمل أو المتجر والسائق من صفحة طلباتك.</p>'}`;
+ box.innerHTML=`<h3>رسائلي</h3>${list.length?list.slice(0,12).map(t=>{const info=chatThread(t);return `<button class="chat-thread" data-a="chatOpen" data-v="${esc(t.kind+':'+t.ref+':'+t.buyer)}"><b>${esc(info.title)}</b><small>${esc((t.last.sender_id===user.id?'أنت: ':'')+t.last.body)}</small><time>${when(t.last.created_at)}</time></button>`}).join(''):'<p class="note">لا توجد محادثات بعد. راسل صاحب غرض مستعمل أو المتجر والسائق من صفحة طلباتك.</p>'}`;
 }
 const activity=createActivityCenter({chat:v=>chat.open(v),db,esc,fmt,when,check,error,ordersChanged:syncNotifiedOrders,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
-const driverWorkspace=createDriverWorkspace({db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments,canReset})});
+const driverWorkspace=createDriverWorkspace({avatar:(id,name)=>avatars.html(id,name),db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments,canReset})});
 const deliveryOps=createDeliveryOperations({db,esc,fmt,check,sheet,head,toast,refresh,error,reloadOrders:loadCustomerOrders,get:()=>({user,profile,store:ownStore,data:D})});
-db.preview?.init({sheet,close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
+db.preview?.init({sheet,refresh:()=>{refresh().catch(()=>{});activity.poll?.()?.catch?.(()=>{});},close:()=>A.close(),role:role=>{refreshId++;dataReady=false;user=null;profile=null;ownStore=null;driverAccount=null;driverProfile=null;D.cart=[];D.o=[];activity.close();viewMode=role||'guest';rememberMode(viewMode);publicStoreId=null;tab=role==='buyer'?'market':'account';history.replaceState(null,'',new URL('preview.html',location.href));A.close();render();refresh().catch(error);},navigate:url=>{publicStoreId=url.searchParams.get('store');tab=publicStoreId?'market':url.searchParams.get('view')==='stores'?'stores':'market';cat=url.searchParams.get('category')||'all';q=url.searchParams.get('q')||'';const route=new URL('preview.html',location.href);route.search=url.search;history.pushState(null,'',route);A.close();render();scrollTo(0,0);}});
 async function showOrderNotice(id){
  const row=check(await orderRead().eq('id',id).single()),o={...fromOrder(row),buyer_id:row.buyer_id,driver_id:row.driver_id,platform_fee:row.platform_fee||0,delivery_fee:row.delivery_fee||0};
  const contacts=check(await db.rpc('assigned_delivery_contacts'))||[];D.driverContacts=contacts;
  if(viewMode==='driver'){await refresh();driverWorkspace.assigned(o.st);return;}
- sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc));
+ sheet(head('تفاصيل الطلب '+sid(o))+ordCard(o,ownStore?.id===o.mid)+driverContact(contacts.find(c=>c.order_id===id),esc,(i,n)=>avatars.html(i,n)));
 }
 document.addEventListener('change',e=>{if(e.target.id==='filterCondition'){$('#filterSaleBox').hidden=e.target.value!=='new';return}if(e.target.id==='productCondition'){$('#productSaleBox').hidden=e.target.value==='used';return}if(e.target.id==='baseDiscount'){$('#baseDiscountFields').hidden=!e.target.checked;return;}if(e.target.dataset.variantType==='true'){A.chooseVariantOption(null,{disabled:false,dataset:{axis:e.target.dataset.axis,option:e.target.value}});return;}if(e.target.id==='funit'){$('#customUnitBox').hidden=e.target.value!=='أخرى';return;}if(e.target.id==='advancedEnabled'){$('#productAdvanced').hidden=!e.target.checked;return;}if(e.target.id==='buyerVariant'){cur.vid=e.target.value||null;cur.n=1;updateProductDetail();return}const prefix=e.target.dataset.location;if(!prefix)return;const online=!!e.target.value&&e.target.value!=='physical';document.getElementById(prefix+'LocationLabel').textContent=online?'عنوان استلام البضاعة للسائق':'عنوان المحل أو المتجر';document.getElementById(prefix+'LocationNote').textContent=online?'عنوان الاستلام خاص بك وبالسائق المكلّف، ولا يظهر للزبائن.':'عنوان المحل إلزامي ويظهر للزبائن والسائق.';});
 {let sx=null;document.addEventListener('touchstart',e=>{sx=e.target.closest?.('#productPhoto')?e.touches[0].clientX:null},{passive:true});document.addEventListener('touchend',e=>{if(sx===null||!cur?.p)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)<40)return;const photos=productPhotos(cur.p),now=photos.indexOf(cur.photo||selectedProduct(cur.p,cur.vid)?.img||cur.p.img);if(photos.length<2)return;A.productPhoto((now+(dx<0?1:-1)+photos.length)%photos.length)},{passive:true});}
@@ -2263,9 +2408,13 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',async e=>{
   if(e.target.id==='avatarInput'&&e.target.files[0]){
-    if(!user)return;const id=user.id,file=e.target.files[0];if(!file.type.startsWith('image/')){toast('اختر صورة فقط');return}
-    const url=URL.createObjectURL(file),im=new Image();im.onload=()=>{URL.revokeObjectURL(url);if(user?.id!==id)return;const scale=Math.min(1,160/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*scale));c.height=Math.max(1,Math.round(im.height*scale));c.getContext('2d').drawImage(im,0,0,c.width,c.height);try{localStorage.setItem('souq-shatra-avatar-'+id,c.toDataURL('image/jpeg',.72));render();toast('تم حفظ صورتك على هذا الجهاز')}catch{toast('تعذّر حفظ الصورة. اختر صورة أصغر')}};im.onerror=()=>{URL.revokeObjectURL(url);toast('تعذّر قراءة الصورة')};im.src=url;return
+    if(!user)return;const id=user.id,file=e.target.files[0];e.target.value='';
+    const token=window.SouqLoading?.begin();
+    try{await avatars.save(id,file);if(user?.id===id){render();toast('✓ تم حفظ صورتك، وتظهر بشكل دائري للآخرين');}}
+    catch(err){toast(err?.message||'تعذّر حفظ الصورة')}finally{window.SouqLoading?.end(token)}
+    return;
   }
+
   if(e.target.id!=='pimg'||!e.target.files[0])return;
   const im=new Image();im.onload=()=>{const s=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cur.img=c.toDataURL('image/jpeg',.72);$('#pv').innerHTML=`<img src="${cur.img}" alt="">`;updatePostProgress()};
   im.src=URL.createObjectURL(e.target.files[0]);
@@ -2286,13 +2435,15 @@ document.addEventListener('change',e=>{
   const fields=$('#checkoutZoneFields');
   if(fields){const template=document.createElement('template');template.innerHTML=window.SouqDeliveryZones.selection(deliveryZones,choice,esc);fields.replaceChildren(...template.content.firstElementChild.childNodes);$('#checkoutArea')?.focus({preventScroll:true});}
  }
- if(inAddress){$('#addressForm [data-a="addressSave"]').disabled=!addressValid();return;}
+ if(inAddress){if($('.co-page')){syncDraftToCheckout();refreshCheckoutTotals();}else $('#addressForm [data-a="addressSave"]')&&($('#addressForm [data-a="addressSave"]').disabled=!addressValid());return;}
  save();const quote=checkoutQuote(),rows=cartRows(),tot=rows.reduce((n,x)=>n+(x.p?.price||0)*x.c.q,0),orderCount=new Set(rows.map(x=>x.p?.mid).filter(Boolean)).size;
  const summary=$('.checkout-summary');if(summary)summary.innerHTML=checkoutSummary(quote,tot,orderCount);
  const confirm=$('[data-a="order"]');if(confirm)confirm.disabled=!quote.ready;
 });
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;publicStoreId=null;if(!['stores','market','catalog'].includes(tab))tab='market';clearTimeout(A.searchTimer);A.searchTimer=setTimeout(()=>render(),150);}if(['fn','fpr','fs','fd'].includes(e.target.id))updatePostProgress()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q'){e.preventDefault();A.searchapply();return}if(e.key==='Escape'){if(document.querySelector('.product-delete-confirm')){A.cancelProductDelete();return}closeAccountMenu();if(ADMIN_PORTAL)A.close();else A.back()}});
+// Typing a new address on the checkout page: keep the order data, the hint and the button current.
+document.addEventListener('input',e=>{if(!e.target.closest?.('.co-page #addressForm'))return;captureAddress();syncDraftToCheckout();const text=$('#addressText');if(text){const bad=addressContainsPhone(text.value);text.setCustomValidity(bad?'لا تكتب رقم هاتفك هنا':'');if(bad&&e.target===text)toast('لا تكتب رقم هاتفك هنا');}refreshCheckoutTotals();});
 document.addEventListener('input',e=>{if(!['ca','cno'].includes(e.target.id))return;const invalid=addressContainsPhone(e.target.value);e.target.setCustomValidity(invalid?'لا تكتب رقم هاتفك هنا':'');if(invalid)toast('لا تكتب رقم هاتفك هنا');});
 document.addEventListener('submit',e=>{if(e.target.id==='customerPhoneForm'){e.preventDefault();A.saveCustomerPhone();return}if(e.target.id==='buyerSearch'){e.preventDefault();clearTimeout(A.searchTimer);A.searchapply();return}if(e.target.id==='authForm'){e.preventDefault();A.dologin(e.target.dataset.mode)}});
 function updateBanner(){if(window.SouqFigmaUI?.featuredBanner)return;const banner=$('.banner');if(!banner)return;banner.querySelector('img').src=BANNERS[bannerIndex][0];banner.querySelector('.banner-caption').textContent=BANNERS[bannerIndex][1];document.querySelectorAll('.banner-dots button').forEach((b,i)=>b.setAttribute('aria-current',String(i===bannerIndex)))}

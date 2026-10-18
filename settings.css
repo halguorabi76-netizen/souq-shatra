@@ -1,0 +1,37 @@
+/* الإعدادات: grouped rows like a phone's own settings, in the site's indigo. Follows day and night mode. */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-page{--st-card:var(--surface,var(--card,#fff));--st-soft:var(--surface-2,var(--tile,#edf2f8));--st-ink:var(--ink,#0d1834);--st-mut:var(--ink-soft,var(--mut,#4e5d78));--st-line:var(--line,#dce3ee);--st-accent:#3547a5;--st-danger:#c0283f;display:flex;flex-direction:column;gap:18px;max-width:640px;margin:0 auto;padding:8px 16px 120px;color:var(--st-ink)}
+:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .st-page{--st-accent:#9cacfa;--st-danger:#ff8c9e}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-title h1{margin:4px 0 0;font-size:28px;font-weight:800;color:var(--st-ink)}
+/* Who you are */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-profile{display:flex;align-items:center;gap:14px;width:100%;margin:0;padding:16px;border-radius:22px;border:1px solid var(--st-line);background:radial-gradient(120% 140% at 100% 0%,rgba(91,111,209,.16),transparent 60%),var(--st-card);color:var(--st-ink);text-align:start;box-shadow:0 10px 30px rgba(13,24,52,.06)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-profile .st-avatar{--av:64px;box-shadow:0 0 0 3px var(--st-card),0 0 0 5px rgba(91,111,209,.35)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-profile .st-text b{font-size:18px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-profile em{align-self:flex-start;margin-top:4px;padding:2px 10px;border-radius:999px;background:var(--st-soft);color:var(--st-accent);font-size:11.5px;font-style:normal;font-weight:800}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-guest{flex-wrap:wrap}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-guest .buy{width:100%;margin:4px 0 0;min-height:48px;border-radius:14px}
+/* Groups */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-group h2{margin:0 6px 8px;font-size:13px;font-weight:800;letter-spacing:0;color:var(--st-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-list{overflow:hidden;border-radius:20px;border:1px solid var(--st-line);background:var(--st-card)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-row{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;margin:0;padding:10px 14px;border:0;border-radius:0;background:none;color:var(--st-ink);text-align:start;box-shadow:none;cursor:pointer}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-row+.st-row{border-top:1px solid var(--st-line)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body button.st-row:active{background:var(--st-soft)}
+@media (hover:hover){:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body button.st-row:hover{background:var(--st-soft)}}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-static{cursor:default}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-text{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-text b{font-size:15px;font-weight:800;color:var(--st-ink)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-text small{font-size:12.5px;color:var(--st-mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-chevron{flex:none;font-style:normal;font-size:22px;line-height:1;color:var(--st-mut);opacity:.7}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;color:#fff;background:linear-gradient(135deg,#5b6fd1,#3547a5)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-bag,:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-box{background:linear-gradient(135deg,#2f9e8f,#1f6f7a)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-heart{background:linear-gradient(135deg,#e2607a,#b8324f)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-sun{background:linear-gradient(135deg,#f0a93b,#d9792b)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-help,:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-chat{background:linear-gradient(135deg,#7a8bdc,#4b5bb8)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-out{background:var(--st-soft);color:var(--st-danger)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-danger .st-text b{color:var(--st-danger)}
+/* Day / night switch */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-segment{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 14px 14px;padding:4px;border-radius:14px;background:var(--st-soft)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-segment button{margin:0;min-height:42px;border:0;border-radius:11px;background:none;color:var(--st-mut);font:inherit;font-size:14px;font-weight:800;box-shadow:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-segment button[aria-checked=true]{background:var(--st-card);color:var(--st-accent);box-shadow:0 2px 8px rgba(13,24,52,.12)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-foot{margin:4px 0 0;text-align:center;font-size:12px;color:var(--st-mut)}
+/* Relative times keep their numbers left-to-right inside Arabic text. */
+.rel-time{unicode-bidi:isolate;white-space:nowrap}
