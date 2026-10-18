@@ -631,7 +631,10 @@ body.starting{overflow:hidden}
   if(themeMeta)themeMeta.content='#3547a5';
   // Leave only when the first real screen (customer, seller or driver) is ready, never onto a loading screen.
   let leaving=false;const began=Date.now();
-  const leave=fade=>{if(done||leaving)return;const root=document.documentElement;if(root.dataset.appReady||Date.now()-began>20000){leaving=true;splash.classList.add('leaving');setTimeout(finish,fade)}else setTimeout(()=>leave(fade),120)};
+  // A tap is a clear wish to go in: merchants and drivers wait on their own workspace data, so after a tap the
+  // splash leaves within half a second even if that data is still coming (their workspace shows its own loading).
+  let tappedAt=0;
+  const leave=fade=>{if(done||leaving)return;const root=document.documentElement,now=Date.now();if(root.dataset.appReady||(tappedAt&&now-tappedAt>500)||now-began>20000){leaving=true;splash.classList.add('leaving');setTimeout(finish,fade)}else setTimeout(()=>leave(fade),120)};
   // River 0.6–1.8s, then the name is written while the pin drops (1.9–3.3s); the page follows at 4s.
   const play=()=>{
     splash.classList.remove('play','leaving');void splash.offsetWidth;splash.classList.add('play');playing=true;
@@ -642,8 +645,9 @@ body.starting{overflow:hidden}
   window.addEventListener('load',start,{once:true});
   setTimeout(start,2500);
   // A tap skips the animation and opens the site at once, for people who open the app many times a day.
-  const skip=()=>{if(done)return;clearTimeout(timer);leave(180)};
-  splash.addEventListener('click',skip);
+  const skip=()=>{if(done)return;tappedAt||=Date.now();clearTimeout(timer);leave(180)};
+  // pointerdown as well as click: on iPad a tap during the opening animation must never be lost.
+  splash.addEventListener('pointerdown',skip);splash.addEventListener('click',skip);
   setTimeout(finish,24000);
   window.addEventListener('pageshow',event=>{if(event.persisted)finish()});
 })();
