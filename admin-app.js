@@ -3,7 +3,7 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=182";
+import {createSellerWorkspace} from "./seller-workspace.js?v=183";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=178";
@@ -480,6 +480,7 @@ function postPage(){
   </section>
   <section class="post-card"><label class="va-check"><input id="baseDiscount" type="checkbox" ${p?.compare_at_price?'checked':''}>هل يوجد تخفيض للنسخة الأساسية؟</label><div id="baseDiscountFields" ${p?.compare_at_price?'':'hidden'}>${field('fcompare','السعر قبل التخفيض (د.ع)',p?.compare_at_price,'number','min="1" max="2147483647" step="1"')}<p class="note">السعر بعد التخفيض هو سعر البيع المكتوب أعلاه.</p></div></section>
   <section class="post-card"><label for="productCondition">حالة المادة</label><select id="productCondition"><option value="new" ${p?.attributes?._selling?.condition!=='used'?'selected':''}>جديد</option><option value="used" ${p?.attributes?._selling?.condition==='used'?'selected':''}>مستعمل</option></select><div id="productSaleBox" ${p?.attributes?._selling?.condition==='used'?'hidden':''}><label for="productSale">طريقة البيع</label><select id="productSale"><option value="retail" ${!p?.attributes?._selling?.sale_mode||p?.attributes?._selling?.sale_mode==='retail'?'selected':''}>مفرد</option><option value="wholesale" ${p?.attributes?._selling?.sale_mode==='wholesale'?'selected':''}>جملة</option><option value="both" ${p?.attributes?._selling?.sale_mode==='both'?'selected':''}>مفرد وجملة</option></select></div></section>
+  <fieldset class="post-card pe-return" id="returnChoice"><legend>هل هذا المنتج قابل للإرجاع؟</legend><p class="note">يظهر جوابك للزبون قبل الشراء، ويُسمح له بطلب الإرجاع فقط إذا كان المنتج قابلاً للإرجاع.</p><div class="pe-return-options"><label><input type="radio" name="productReturnable" value="yes" ${p?.attributes?._returnable===true?'checked':''}><span>↩ نعم، قابل للإرجاع</span></label><label><input type="radio" name="productReturnable" value="no" ${p?.attributes?._returnable===false?'checked':''}><span>✕ لا، غير قابل للإرجاع</span></label></div></fieldset>
   <section class="post-card" id="variantEditor"></section>
   <section class="post-card">${field('fs','المخزون',p?.stock??0,'number','required min="0" max="2147483647" step="1" inputmode="numeric"')}<p class="note">عند تفعيل النسخ، تُدخل كمية كل نسخة أعلاه؛ هذا مجموع المتاح للبيع.</p></section>
   <section class="post-card"><label class="va-check"><input id="advancedEnabled" type="checkbox">الخيارات المتقدمة</label><div id="productAdvanced" hidden>
@@ -696,6 +697,8 @@ async function saveProduct(){
     if(name.length<2||!Number.isSafeInteger(price)||price<1||price>2147483647||!Number.isSafeInteger(stock)||stock<0||stock>2147483647||(!productEditor.hasVariants()&&val('fs')==='')||val('fthreshold')===''||!Number.isSafeInteger(+val('fthreshold'))||+val('fthreshold')<0||+val('fthreshold')>2147483647){toast('اكتب الاسم والسعر والكمية');return}
     const compare=$('#baseDiscount').checked?val('fcompare'):'',compare_at_price=compare?+compare:null;
     if(compare&&(!Number.isSafeInteger(compare_at_price)||compare_at_price<=price||compare_at_price>2147483647)){toast('السعر قبل التخفيض يجب أن يكون أكبر من سعر البيع');return}
+    const returnChoice=document.querySelector('input[name="productReturnable"]:checked')?.value;
+    if(!returnChoice){toast('حدد هل المنتج قابل للإرجاع');document.getElementById('returnChoice')?.scrollIntoView({block:'center'});return}
     const draft=cur,storeId=ownStore.id,image=draft.img;
     const f={name,price,compare_at_price,stock,category:bundle.category,description:val('fd'),store_category:val('fcCustom'),store_id:storeId,sku:val('fsku').slice(0,80),variant:val('fvariant').slice(0,120),low_stock_threshold:+val('fthreshold'),active:$('#factive').value==='true'};
     let image_path=draft.id?prod(draft.id)?.image_path:null;
@@ -704,7 +707,7 @@ async function saveProduct(){
       image_path=`${storeId}/${uid()}.jpg`;
       check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));
     }
-    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,condition:val('productCondition')||'new',sale_mode:val('productCondition')==='used'?null:val('productSale')||'retail',unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.expected_stock=bundle.expected_stock;
+    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,condition:val('productCondition')||'new',sale_mode:val('productCondition')==='used'?null:val('productSale')||'retail',unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.attributes._returnable=returnChoice==='yes';f.expected_stock=bundle.expected_stock;
     draft.id=check(await db.rpc('save_product_bundle',{p_id:draft.id||null,p_store:storeId,p_product:f,p_variants:bundle.variants}));
     tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
     }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent=cur?.id?'حفظ التعديلات':'إنشاء'}}

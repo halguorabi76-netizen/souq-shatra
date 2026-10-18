@@ -560,7 +560,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
  else if(/^[0-9a-f-]{36}$/i.test(id||''))document.documentElement.dataset.accountResume='true';
 }catch{}})();
 </script>
-<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=21"><link rel="stylesheet" href="checkout-review.css?v=1"><link rel="stylesheet" href="seller-dashboard.css?v=3">
+<link rel="stylesheet" href="market-refinement.css?v=137"><link rel="stylesheet" href="visual-identity.css?v=142"><link rel="stylesheet" href="figma-ui.css?v=163"><link rel="stylesheet" href="monochrome.css?v=21"><link rel="stylesheet" href="checkout-review.css?v=1"><link rel="stylesheet" href="returns.css?v=1"><link rel="stylesheet" href="seller-dashboard.css?v=3">
 <style>
 html #startupSplash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;gap:0;overflow:hidden;background:linear-gradient(180deg,#6f82e0 0%,#3547a5 35%,#16245a 75%,#070c1f 100%)!important;transition:opacity .35s ease}
 html #startupSplash[hidden]{display:none!important}
@@ -648,7 +648,7 @@ import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=182";
+import {createSellerWorkspace} from "./seller-workspace.js?v=183";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=173";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=178";
@@ -878,6 +878,10 @@ const mname=id=>id==='owner'?(ownStore?.name||'سوق الشطرة'):mrec(id).na
 const mok=id=>id==='owner'||!!mrec(id).ok&&!mrec(id).removed;
 const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${esc(p.img)}" loading="lazy" decoding="async" alt="">`:CI[CATS.indexOf(p.cat)]||'📦';
 const prod=id=>D.p.find(x=>x.id===id);
+// The merchant answers «قابل للإرجاع؟» on every product. Older products have no answer yet (null).
+const returnable=p=>typeof p?.attributes?._returnable==='boolean'?p.attributes._returnable:null;
+const returnBadge=(p,cls='')=>{const r=returnable(p);return r===null?'':`<span class="return-badge ${r?'is-yes':'is-no'} ${cls}">${r?'↩ قابل للإرجاع':'✕ غير قابل للإرجاع'}</span>`;};
+const orderReturnable=o=>(o.items||[]).some(i=>returnable(prod(i.pid))===true);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
 const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'short'});
 let publicStoreId=new URLSearchParams(location.search).get('store');
@@ -1316,6 +1320,7 @@ function postPage(){
   </section>
   <section class="post-card"><label class="va-check"><input id="baseDiscount" type="checkbox" ${p?.compare_at_price?'checked':''}>هل يوجد تخفيض للنسخة الأساسية؟</label><div id="baseDiscountFields" ${p?.compare_at_price?'':'hidden'}>${field('fcompare','السعر قبل التخفيض (د.ع)',p?.compare_at_price,'number','min="1" max="2147483647" step="1"')}<p class="note">السعر بعد التخفيض هو سعر البيع المكتوب أعلاه.</p></div></section>
   <section class="post-card"><label for="productCondition">حالة المادة</label><select id="productCondition"><option value="new" ${p?.attributes?._selling?.condition!=='used'?'selected':''}>جديد</option><option value="used" ${p?.attributes?._selling?.condition==='used'?'selected':''}>مستعمل</option></select><div id="productSaleBox" ${p?.attributes?._selling?.condition==='used'?'hidden':''}><label for="productSale">طريقة البيع</label><select id="productSale"><option value="retail" ${!p?.attributes?._selling?.sale_mode||p?.attributes?._selling?.sale_mode==='retail'?'selected':''}>مفرد</option><option value="wholesale" ${p?.attributes?._selling?.sale_mode==='wholesale'?'selected':''}>جملة</option><option value="both" ${p?.attributes?._selling?.sale_mode==='both'?'selected':''}>مفرد وجملة</option></select></div></section>
+  <fieldset class="post-card pe-return" id="returnChoice"><legend>هل هذا المنتج قابل للإرجاع؟</legend><p class="note">يظهر جوابك للزبون قبل الشراء، ويُسمح له بطلب الإرجاع فقط إذا كان المنتج قابلاً للإرجاع.</p><div class="pe-return-options"><label><input type="radio" name="productReturnable" value="yes" ${p?.attributes?._returnable===true?'checked':''}><span>↩ نعم، قابل للإرجاع</span></label><label><input type="radio" name="productReturnable" value="no" ${p?.attributes?._returnable===false?'checked':''}><span>✕ لا، غير قابل للإرجاع</span></label></div></fieldset>
   <section class="post-card" id="variantEditor"></section>
   <section class="post-card">${field('fs','المخزون',p?.stock??0,'number','required min="0" max="2147483647" step="1" inputmode="numeric"')}<p class="note">عند تفعيل النسخ، تُدخل كمية كل نسخة أعلاه؛ هذا مجموع المتاح للبيع.</p></section>
   <section class="post-card"><label class="va-check"><input id="advancedEnabled" type="checkbox">الخيارات المتقدمة</label><div id="productAdvanced" hidden>
@@ -1456,7 +1461,7 @@ function orderProgress(o){
  </ol></section>`;
 }
 function ordCard(o,m){
-  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}${!m&&o.st<3?`<p class="delivery-queue-note">يصل اليوم · ${esc(STAGES[o.tracking?.stage]||ST[o.st])}${o.tracking?.queue_rank?' · ترتيب التوصيل: '+o.tracking.queue_rank:''}</p>`:''}${o.customer_action?.request_kind?'<p class="note">↩ '+(o.customer_action.request_kind==='return'?'أُرسل طلب إرجاع للمراجعة':'أُرسل طلب إلغاء للمراجعة')+(o.customer_action.reason?' · '+esc(o.customer_action.reason):'')+'</p>':''}
+  return `<div class="ord" data-order-id="${esc(o.id)}"><div class="r"><b>${sid(o)} · ${esc(m?o.cust.name:mname(o.mid))}</b><span class="pill s${o.st}">${ST[o.st]}</span></div>${m&&o.st>0&&o.st<4?'<p class="note">✓ تم قبول الطلب من قبل البائع</p>':''}<small>${when(o.ts)}</small>${!m?orderProgress(o):''}${!m&&o.st<3?`<p class="delivery-queue-note">يصل اليوم · ${esc(STAGES[o.tracking?.stage]||ST[o.st])}${o.tracking?.queue_rank?' · ترتيب التوصيل: '+o.tracking.queue_rank:''}</p>`:''}${o.customer_action?.request_kind?'<p class="note">↩ '+(o.customer_action.request_kind==='return'?'أُرسل طلب الإرجاع للبائع وسيتواصل معك لترتيبه':'أُرسل طلب إلغاء للمراجعة')+(o.customer_action.reason?' · '+esc(o.customer_action.reason):'')+'</p>':''}
   ${o.items.map(i=>`<div class="r"><span>${esc(i.name)} × ${i.q}</span><span>${fmt(i.price*i.q)}</span></div>`).join('')}
   <div class="r"><b>الإجمالي</b><b>${fmt(o.total)}</b></div>
   ${m&&o.driver_id&&o.cust.phone?`<small>📞 <a href="tel:${esc(o.cust.phone)}">${esc(o.cust.phone)}</a> · 📍 ${esc(o.cust.addr)}${o.cust.note?' · '+esc(o.cust.note):''}</small>`:''}
@@ -1465,8 +1470,9 @@ function ordCard(o,m){
 function customerOrderControls(o){
  const hidden=!!o.customer_action?.hidden_at;
  if(hidden)return `<div class="acts"><button data-a="customerAction" data-v="${o.id}|restore">↶ إعادة إلى قائمتي</button></div>`;
- const kind=o.st===3?'return':(o.st<2&&!o.driver_id)||(o.st<3&&o.tracking?.late_reported_at)?'cancel':null,requested=o.customer_action?.request_kind===kind;
- return `${o.driver_id&&o.st<3?`<div class="acts order-chat">${chatButton('driver',o.id,o.buyer_id,'راسل السائق')}</div><p class="order-chat-hint">للموقع ووقت الوصول والتسليم</p>`:''}${o.st===3?rateBlock(o):''}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
+ const canReturn=o.st===3&&orderReturnable(o),kind=canReturn?'return':o.st===3?null:(o.st<2&&!o.driver_id)||(o.st<3&&o.tracking?.late_reported_at)?'cancel':null,requested=o.customer_action?.request_kind===kind;
+ const returnNote=o.st===3&&!canReturn&&!o.customer_action?.request_kind?((o.items||[]).length&&(o.items||[]).every(i=>returnable(prod(i.pid))===false)?'<p class="note return-note">✕ منتجات هذا الطلب غير قابلة للإرجاع حسب البائع.</p>':'<p class="note return-note">لم يحدد البائع إمكانية إرجاع هذا المنتج. للاستفسار راسل المتجر.</p>'):'';
+ return `${o.driver_id&&o.st<3?`<div class="acts order-chat">${chatButton('driver',o.id,o.buyer_id,'راسل السائق')}</div><p class="order-chat-hint">للموقع ووقت الوصول والتسليم</p>`:''}${o.st===3?rateBlock(o):''}${returnNote}<div class="acts customer-order-controls">${o.driver_id&&o.st<3?`<button data-op="help" data-id="${esc(o.id)}">أحتاج مساعدة</button>${o.st<3&&o.can_report_late&&!o.tracking?.late_reported_at?`<button data-op="lateAsk" data-id="${esc(o.id)}">هل تأخر الطلب؟</button>`:''}`:''}${kind&&!requested?`<button data-a="customerAsk" data-v="${o.id}|${kind}">${kind==='return'?'↩ طلب إرجاع':'✕ إلغاء الطلب'}</button>`:''}<button data-a="customerAsk" data-v="${o.id}|hide">▣ إزالة من قائمتي</button></div>`;
 }
 function customerOrderHub(){
  const mine=D.o.filter(o=>user&&o.buyer_id===user.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts)),filter=D.orderFilter||'all';
@@ -1488,6 +1494,7 @@ async function loadCustomerOrders(){
 function orders(){ $('#view').innerHTML=customerOrderHub(); }
 function customerActionAsk(value){
  const [id,kind]=value.split('|'),o=D.o.find(o=>o.id===id&&o.buyer_id===user?.id);if(!o)return;
+ if(kind==='return'&&!orderReturnable(o)){toast('منتجات هذا الطلب غير قابلة للإرجاع');return;}
  if(kind==='cancel'&&(o.driver_id||o.st>=2)&&!o.tracking?.late_reported_at){toast('لا يمكن إلغاء الطلب بعد قبول سائق التوصيل');return;}
  const title=kind==='hide'?'إزالة من قائمتي':kind==='return'?'طلب إرجاع':'إلغاء الطلب';
  const message=kind==='hide'?'سيُخفى الطلب من قائمتك فقط، ويمكن استعادته من قسم «المزالة». هذا لا يلغي الطلب ولا يوقف توصيله.':kind==='return'?'سيُرسل طلب الإرجاع إلى البائع والإدارة للمراجعة والتواصل معك.':'سيُلغى الطلب وتُعاد كميته إلى المخزون.';
@@ -1542,6 +1549,8 @@ async function saveProduct(){
     if(name.length<2||!Number.isSafeInteger(price)||price<1||price>2147483647||!Number.isSafeInteger(stock)||stock<0||stock>2147483647||(!productEditor.hasVariants()&&val('fs')==='')||val('fthreshold')===''||!Number.isSafeInteger(+val('fthreshold'))||+val('fthreshold')<0||+val('fthreshold')>2147483647){toast('اكتب الاسم والسعر والكمية');return}
     const compare=$('#baseDiscount').checked?val('fcompare'):'',compare_at_price=compare?+compare:null;
     if(compare&&(!Number.isSafeInteger(compare_at_price)||compare_at_price<=price||compare_at_price>2147483647)){toast('السعر قبل التخفيض يجب أن يكون أكبر من سعر البيع');return}
+    const returnChoice=document.querySelector('input[name="productReturnable"]:checked')?.value;
+    if(!returnChoice){toast('حدد هل المنتج قابل للإرجاع');document.getElementById('returnChoice')?.scrollIntoView({block:'center'});return}
     const draft=cur,storeId=ownStore.id,image=draft.img;
     const f={name,price,compare_at_price,stock,category:bundle.category,description:val('fd'),store_category:val('fcCustom'),store_id:storeId,sku:val('fsku').slice(0,80),variant:val('fvariant').slice(0,120),low_stock_threshold:+val('fthreshold'),active:$('#factive').value==='true'};
     let image_path=draft.id?prod(draft.id)?.image_path:null;
@@ -1550,7 +1559,7 @@ async function saveProduct(){
       image_path=`${storeId}/${uid()}.jpg`;
       check(await db.storage.from('products').upload(image_path,blob,{contentType:'image/jpeg'}));
     }
-    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,condition:val('productCondition')||'new',sale_mode:val('productCondition')==='used'?null:val('productSale')||'retail',unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.expected_stock=bundle.expected_stock;
+    f.image_path=image_path;f.catalog_category_id=bundle.catalog_category_id;f.attributes=bundle.attributes;const unit=val('funit')==='أخرى'?val('funitCustom'):val('funit');if(!unit||unit.length>80){toast('اكتب وحدة البيع');return;}f.attributes.sale_unit=unit;f.attributes._selling={...f.attributes._selling,condition:val('productCondition')||'new',sale_mode:val('productCondition')==='used'?null:val('productSale')||'retail',unit,store_code:val('fstoreCode'),barcode:val('fbarcode')};f.attributes._returnable=returnChoice==='yes';f.expected_stock=bundle.expected_stock;
     draft.id=check(await db.rpc('save_product_bundle',{p_id:draft.id||null,p_store:storeId,p_product:f,p_variants:bundle.variants}));
     tab='listings';await refresh();A.close();render();toast('تم حفظ المنتج');
     }finally{productSaveBusy=false;if(button?.isConnected){button.disabled=false;button.textContent=cur?.id?'حفظ التعديلات':'إنشاء'}}
@@ -1568,7 +1577,7 @@ function productDetailBody(){
  const add=`<button type="button" class="buy pd-add ${cur.added&&!cur.adding?'added':''}" data-cart-pane="items" data-a="${cur.added?'cart':'add'}" ${!chosen||chosen.stock<1||cur.adding?'disabled':''}>${cur.adding?'<span class="flow-spinner"></span> جارٍ الإضافة…':cur.added?'✓ تمت الإضافة':!chosen?'اختر النوع':chosen.stock<1?'غير متوفر':cur.editKey?'حفظ التغيير':flowIcon('bag')+' أضف إلى السلة'}</button>`;
  const specs=specifications(p,D.catalog||[]);
  return `<div class="product-detail pd2"><div class="pd-media"><div class="tile big" id="productPhoto">${thumb(cur.photo?{...display,img:cur.photo}:display)}</div>${photos.length>1?`<div class="pd-dots" aria-label="صور المنتج">${photos.map((img,i)=>`<button data-a="productPhoto" data-v="${i}" aria-label="صورة ${i+1}" aria-pressed="${shown===img}"></button>`).join('')}</div>`:''}</div>
- <div class="pd-head"><div>${cat?`<small class="pd-cat">${esc(cat)}</small>`:''}<h1>${esc(p.name)}</h1></div>${owner?'':`<button class="pd-fav" data-a="cardFavorite" data-v="${esc(p.id)}" aria-pressed="${fav}" aria-label="${fav?'إزالة من المفضلة':'إضافة إلى المفضلة'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></button>`}</div>
+ <div class="pd-head"><div>${cat?`<small class="pd-cat">${esc(cat)}</small>`:''}<h1>${esc(p.name)}</h1>${returnBadge(p,'pd-return')}</div>${owner?'':`<button class="pd-fav" data-a="cardFavorite" data-v="${esc(p.id)}" aria-pressed="${fav}" aria-label="${fav?'إزالة من المفضلة':'إضافة إلى المفضلة'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></button>`}</div>
  ${store}
  ${owner?`<div id="productPrice" class="pd-owner-price">${window.SouqMarketplace.price(display,fmt)} <small>/ ${esc(unit)}</small></div>${options}`+`<section class="item owner-product"><h2>إدارة منتجي</h2><div class="acts"><button data-a="pform" data-v="${p.id}">تعديل</button><button data-a="archiveProduct" data-v="${p.id}">${p.active?'أرشفة':'إعادة نشر'}</button><button data-a="pdel" data-v="${p.id}">حذف</button></div>${inventoryVariants(p,fmt)}</section>`:`<div class="pd-pick">${options||'<div></div>'}${qty}</div>`}
  ${p.desc?`<section class="pd-desc"><small>الوصف</small><p class="product-description">${esc(p.desc)}</p></section>`:''}${specs?`<details class="pd-specs"><summary>المواصفات</summary>${specs}</details>`:''}
@@ -1644,7 +1653,7 @@ function csheet(){
   const original=it.reduce((n,x)=>n+(x.p?(x.p.compare_at_price>x.p.price?x.p.compare_at_price:x.p.price)*x.c.q:0),0);
   const zoneName=deliveryZones.find(z=>z.id===window.SouqDeliveryZones.zoneId(D.deliveryChoice))?.name||'',zone=D.deliveryChoice?.area==='shatra'?'داخل الشطرة':'خارج الشطرة'+(zoneName?' · '+zoneName:'');
   const count=it.reduce((n,x)=>n+x.c.q,0),hasDetails=u.name.length>=2&&/^\d{10,11}$/.test(u.phone)&&u.addr.trim().length>=3;
-  const item=x=>{const p=x.p,off=p&&p.compare_at_price>p.price,bad=p&&(!p.active||p.blocked||p.stock<x.c.q),variant=p?.selectedVariant?.label||p?.variant||'';return `<li class="co-item"><div class="co-thumb">${p?thumb(p):''}</div><div class="co-item-info"><b>${esc(p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small>${[variant,p?mname(p.mid):''].filter(Boolean).map(esc).join(' · ')}</small>${p?`<span class="co-unit">${x.c.q} × ${fmt(p.price)}</span>${off?`<span class="co-was">السعر الأصلي <s>${fmt(p.compare_at_price)}</s></span>`:''}`:'<small class="va-unavailable">هذه النسخة غير متاحة؛ أزلها من السلة</small>'}${bad?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><strong class="co-line-total">${p?fmt(p.price*x.c.q):'—'}</strong></li>`;};
+  const item=x=>{const p=x.p,off=p&&p.compare_at_price>p.price,bad=p&&(!p.active||p.blocked||p.stock<x.c.q),variant=p?.selectedVariant?.label||p?.variant||'';return `<li class="co-item"><div class="co-thumb">${p?thumb(p):''}</div><div class="co-item-info"><b>${esc(p?.name||prod(x.c.pid)?.name||'منتج غير متاح')}</b><small>${[variant,p?mname(p.mid):''].filter(Boolean).map(esc).join(' · ')}</small>${p?`<span class="co-unit">${x.c.q} × ${fmt(p.price)}</span>${off?`<span class="co-was">السعر الأصلي <s>${fmt(p.compare_at_price)}</s></span>`:''}${returnBadge(prod(x.c.pid)||p,'co-return')}`:'<small class="va-unavailable">هذه النسخة غير متاحة؛ أزلها من السلة</small>'}${bad?'<small class="va-unavailable">الكمية المطلوبة غير متاحة حاليًا</small>':''}</div><strong class="co-line-total">${p?fmt(p.price*x.c.q):'—'}</strong></li>`;};
   $('#view').innerHTML=`<div class="co-page"><header class="co-head"><button type="button" data-a="cartPane" data-v="items" aria-label="الرجوع إلى السلة">→</button><h1>تأكيد الطلب</h1><span aria-hidden="true"></span></header>
   <section class="co-card" aria-labelledby="coItems"><div class="co-card-head"><h2 id="coItems">المنتجات <small>(${count})</small></h2><button type="button" data-a="cartPane" data-v="items">تعديل</button></div><ul class="co-items">${it.map(item).join('')}</ul></section>
   <section class="co-card" aria-labelledby="coTo"><div class="co-card-head"><h2 id="coTo">التوصيل إلى</h2><button type="button" data-a="checkoutAddresses">تغيير</button></div>

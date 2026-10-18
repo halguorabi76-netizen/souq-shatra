@@ -55,9 +55,11 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  assert.match(nodes.get('#view').innerHTML,/productCreateForm|إضافة صورة/);
  const values={fn:'قميص محدّث',fpr:'11000',fs:'20',fthreshold:'5',funit:'قطعة',fcompare:'',factive:'true',fd:'وصف جديد',fcCustom:'وصل حديثًا',fsku:'SH-1'};
  for(const [id,value] of Object.entries(values))document.querySelector('#'+id).value=value;
+ nodes.set('input[name="productReturnable"]:checked',{value:'no'});
  await vm.runInContext('saveProduct()',context);
  assert.equal(vm.runInContext('workspace.productCost(D.p[0].id)',context),7000);
  assert.equal(vm.runInContext('D.p[0].name',context),'قميص محدّث');
+ assert.equal(vm.runInContext('D.p[0].attributes._returnable',context),false);
  const productResult=await vm.runInContext("db.from('products').select('*')",context);
  const workspaceResult=await vm.runInContext("db.from('seller_workspace_settings').select('*')",context);
  const saved={products:productResult.data,seller_workspace_settings:workspaceResult.data};

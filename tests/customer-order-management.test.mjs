@@ -4,10 +4,24 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {createPreviewModel} from '../preview-lab.js';
 const html=fs.readFileSync('index.html','utf8');
-function context(){const view={innerHTML:''},c={D:{o:[],orderFilter:'all'},user:{id:'buyer',email:'buyer@example.invalid'},profile:{},esc:s=>String(s),ordCard:o=>`<article>${o.id}</article>`,chatButton:()=>'',rateBlock:()=>'',$:()=>view};vm.createContext(c);vm.runInContext(html.slice(html.indexOf('function customerOrderControls('),html.indexOf('async function loadCustomerOrders(')),c);return c;}
+const helpers=html.slice(html.indexOf('const returnable='),html.indexOf('const orderReturnable='))+html.slice(html.indexOf('const orderReturnable='),html.indexOf('\n',html.indexOf('const orderReturnable=')));
+const PRODUCTS=[{id:'shirt',attributes:{_returnable:true}},{id:'dates',attributes:{_returnable:false}},{id:'old',attributes:{}}];
+function context(){const view={innerHTML:''},c={D:{o:[],p:PRODUCTS,orderFilter:'all'},prod:id=>PRODUCTS.find(p=>p.id===id),user:{id:'buyer',email:'buyer@example.invalid'},profile:{},esc:s=>String(s),ordCard:o=>`<article>${o.id}</article>`,chatButton:()=>'',rateBlock:()=>'',$:()=>view};vm.createContext(c);vm.runInContext(helpers.replace(/^const /gm,'var ').replace(/;const /g,';var '),c);vm.runInContext(html.slice(html.indexOf('function customerOrderControls('),html.indexOf('async function loadCustomerOrders(')),c);return c;}
 test('customer controls distinguish unassigned cancellation, hidden assigned cancellation, delivered return and hidden restoration',()=>{
- const c=context(),control=(st,driver_id=null,customer_action=null)=>c.customerOrderControls({id:'order',st,driver_id,customer_action});
+ const c=context(),control=(st,driver_id=null,customer_action=null,pid='shirt')=>c.customerOrderControls({id:'order',st,driver_id,customer_action,items:[{pid,q:1}]});
  assert.match(control(0),/>✕ إلغاء الطلب</);for(const st of [0,1,2])assert.doesNotMatch(control(st,'driver'),/\|cancel|طلب إلغاء|إلغاء الطلب/);assert.match(control(1),/>✕ إلغاء الطلب</);assert.doesNotMatch(control(2),/\|cancel/);assert.match(control(3),/طلب إرجاع/);assert.doesNotMatch(control(4),/\|cancel|\|return/);assert.match(control(3,null,{hidden_at:'now'}),/\|restore/);assert.doesNotMatch(control(3,null,{request_kind:'return'}),/data-v="order\|return"/);
+});
+test('return is offered only for products the merchant marked returnable',()=>{
+ const c=context(),control=pid=>c.customerOrderControls({id:'order',st:3,items:[{pid,q:1}]});
+ assert.match(control('shirt'),/data-v="order\|return"/);
+ assert.doesNotMatch(control('dates'),/\|return/);assert.match(control('dates'),/غير قابلة للإرجاع/);
+ assert.doesNotMatch(control('old'),/\|return/);assert.match(control('old'),/لم يحدد البائع/);
+ assert.match(c.returnBadge(PRODUCTS[0]),/قابل للإرجاع/);assert.match(c.returnBadge(PRODUCTS[1]),/غير قابل للإرجاع/);assert.equal(c.returnBadge(PRODUCTS[2]),'');
+});
+test('merchant must answer «قابل للإرجاع؟» before saving a product',()=>{
+ assert.match(html,/name="productReturnable" value="yes"/);assert.match(html,/name="productReturnable" value="no"/);
+ assert.match(html,/if\(!returnChoice\)\{toast\('حدد هل المنتج قابل للإرجاع'\)/);assert.match(html,/f\.attributes\._returnable=returnChoice==='yes'/);
+ assert.match(html,/returnBadge\(p,'pd-return'\)/);assert.match(html,/returnBadge\(prod\(x\.c\.pid\)\|\|p,'co-return'\)/);
 });
 test('history contains completed and cancelled orders by default, is account-specific and hidden orders remain restorable',()=>{
  const c=context();c.D.o=[{id:'active',buyer_id:'buyer',st:0},{id:'done',buyer_id:'buyer',st:3},{id:'cancelled',buyer_id:'buyer',st:4},{id:'hidden',buyer_id:'buyer',st:3,customer_action:{hidden_at:'now'}},{id:'other-account',buyer_id:'other',st:3}];
@@ -37,7 +51,7 @@ test('stale cancellation actions are blocked when driver assignment has already 
 test('help is available only on assigned active orders; returns open a dialog',()=>{
  const c=context();assert.match(c.customerOrderControls({id:'order',st:1,driver_id:'driver'}),/data-op="help"/);
  for(const st of [3,4])assert.doesNotMatch(c.customerOrderControls({id:'order',st,driver_id:'driver'}),/data-op="help"/);
- const calls=[];Object.assign(c,{D:{o:[{id:'order',st:3,buyer_id:'buyer',driver_id:'driver'}]},orderDialog:(title,body)=>calls.push({title,body}),sheet:()=>{throw Error('full page must not open')}});
+ const calls=[];Object.assign(c,{D:{o:[{id:'order',st:3,buyer_id:'buyer',driver_id:'driver',items:[{pid:'shirt',q:1}]}]},orderDialog:(title,body)=>calls.push({title,body}),sheet:()=>{throw Error('full page must not open')}});
  vm.runInContext(html.slice(html.indexOf('function customerActionAsk('),html.indexOf('async function performCustomerAction(')),c);
  c.customerActionAsk('order|return');assert.equal(calls[0].title,'طلب إرجاع');assert.match(calls[0].body,/customerActionReason/);
 });

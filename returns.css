@@ -1,0 +1,27 @@
+/* «قابل للإرجاع؟»: the merchant's answer on the product form, and the badge customers see before buying. */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .return-badge{display:inline-flex;align-items:center;gap:4px;width:fit-content;margin-top:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.6;border:1px solid transparent}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .return-badge.is-yes{background:#e7f6ee;color:#17663f;border-color:#bfe5cf}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .return-badge.is-no{background:#fdecee;color:#9b2335;border-color:#f3c6cd}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pd-head .return-badge{display:flex;margin-top:8px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-item-info .return-badge{display:flex;margin-top:4px;font-size:11px;padding:2px 8px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .return-note{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:var(--chip,#edf2f8);font-size:13px;line-height:1.7}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body fieldset.pe-return{border:1px solid var(--line,#dce3ee);min-width:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body fieldset.pe-return legend{float:right;width:100%;margin:0 0 2px;padding:0;font-weight:800;font-size:15px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body fieldset.pe-return legend+*{clear:both}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return .note{margin:4px 0 10px;font-size:12.5px;line-height:1.7}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return-options label{position:relative;display:block;margin:0;cursor:pointer}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return-options input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return-options span{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:8px 10px;border-radius:14px;border:1.5px solid var(--line,#dce3ee);background:var(--card,#fff);font-weight:700;font-size:13.5px;line-height:1.5}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return-options input:focus-visible+span{outline:3px solid #5b6fd1;outline-offset:2px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return-options input[value=yes]:checked+span{border-color:#2f9e63;background:#e7f6ee;color:#17663f}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .pe-return-options input[value=no]:checked+span{border-color:#c43a4f;background:#fdecee;color:#9b2335}
+:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .return-badge.is-yes,:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .pe-return-options input[value=yes]:checked+span{background:#123826;color:#8fe0b3;border-color:#21613f}
+:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .return-badge.is-no,:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .pe-return-options input[value=no]:checked+span{background:#3b1820;color:#ffb3bf;border-color:#6e2a37}
+:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .pe-return-options span{background:#101827;border-color:#26324a;color:#f3f6ff}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .sw-return-missing{cursor:pointer;font:inherit;font-size:12px;font-weight:700;background:#fff6e0;color:#8a5a00;border:1px dashed #e0b44c}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .sw-return-request{display:flex;flex-direction:column;gap:4px;margin:10px 0;padding:12px;border-radius:14px;background:#fff6e0;border:1px solid #f0d189;color:#5c3d00}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .sw-return-request b{font-size:14px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .sw-return-request small{font-size:12.5px;line-height:1.7}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .sw-return-request a{margin-top:6px;text-align:center;text-decoration:none;padding:10px;border-radius:12px;font-weight:700}
+:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .sw-return-request,:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .sw-return-missing{background:#33270d;border-color:#6b5420;color:#ffd98a}

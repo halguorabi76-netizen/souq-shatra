@@ -6,7 +6,7 @@ if(!appModule)throw new Error('Missing application source module');
 const portalMain=main;
 const adminTemplate=await readFile('admin.html','utf8');
 const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,m=>(m.includes('?v=121')||m.includes('?v=130')||m.includes('?v=139')||m.includes('?v=156')||m.includes('?v=157')||m.includes('?v=158'))?m:m.replace(/\?v=\d+$/,'?v=110'));
-await writeFile('admin.html',admin.replace(/admin-app\.js\?v=\d+/g,'admin-app.js?v=188'));
+await writeFile('admin.html',admin.replace(/admin-app\.js\?v=\d+/g,'admin-app.js?v=189'));
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
 // Preview never imports real configuration, Supabase, or live authentication.
@@ -17,7 +17,7 @@ const preview=portalMain
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
  .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=64">')
  .replace('<script src="demo-lab.js?v=51"></script>','')
- .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient} from "./preview-lab.js?v=164";')
+ .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient} from "./preview-lab.js?v=165";')
  .replace('import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";','')
  .replace('const db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:accountSession?.storage},global:{fetch:apiFetch}});','const db=createPreviewClient();')
  .replace("const response=await apiFetch(SUPABASE_URL+'/auth/v1/settings',{headers:{apikey:SUPABASE_ANON_KEY}});","throw new Error('المعاينة تعمل بلا تسجيل دخول.');\n const response=null;")
@@ -32,7 +32,7 @@ if(preview.includes('SUPABASE_ANON_KEY')||preview.includes('import {createClient
 await writeFile('preview.html',preview);
 await mkdir('www', { recursive: true });
 for (const file of ['figma-ui.css','figma-ui.js','delivery-zones.js','delivery-operations.js','delivery-operations.css']) await copyFile(file, `www/${file}`);
-for (const file of ['monochrome.css', 'seller-dashboard.css', 'checkout-review.css', 'visual-identity.css', 'market-drawer.js', 'professional-login.js', 'whatsapp-login.js', 'chat.js', 'store-explorer.js', 'store-explorer.css', 'market-refinement.css', 'interaction-motion.js', 'account-access.js', 'index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'preview-all.js', 'admin-portal.css', 'admin-whatsapp.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-session.js', 'admin-network-loading.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-editor.js', 'product-options.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js', 'main-aurora.css', 'main-loading.js', 'page-navigation.js', 'latin-digits.js', 'location-picker.js']) await copyFile(file, `www/${file}`);
+for (const file of ['monochrome.css', 'seller-dashboard.css', 'checkout-review.css', 'returns.css', 'visual-identity.css', 'market-drawer.js', 'professional-login.js', 'whatsapp-login.js', 'chat.js', 'store-explorer.js', 'store-explorer.css', 'market-refinement.css', 'interaction-motion.js', 'account-access.js', 'index.html', 'admin.html', 'catalog.html', 'preview.html', 'preview-lab.js', 'preview-lab.css', 'preview-all.js', 'admin-portal.css', 'admin-whatsapp.css', 'admin-workspace.js', 'stable-viewport.css', 'buyer-experience.css', 'admin-hub.js', 'admin-session.js', 'admin-network-loading.js', 'admin-app.js', 'demo-lab.js', 'catalog-filter.js', 'marketplace.js', 'marketplace.css', 'activity-center.js', 'delivery-workspace.js', 'operations.css', 'config.js', 'product-variants.js', 'product-editor.js', 'product-options.js', 'product-variants.css', 'category-seeds.js', 'manifest.webmanifest', 'admin-manifest.webmanifest', 'sw.js', 'seller-workspace.js', 'seller-records.js', 'seller-workspace.css', 'site-palette.css', 'aurora-theme.css', 'app-loading.js', 'main-aurora.css', 'main-loading.js', 'page-navigation.js', 'latin-digits.js', 'location-picker.js']) await copyFile(file, `www/${file}`);
 // Include every referenced image, including temporary startup artwork.
 await cp('icons', 'www/icons', { recursive: true });
 
