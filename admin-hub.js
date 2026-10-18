@@ -6,7 +6,7 @@ export async function bootAdminHub(){
  const params=new URLSearchParams(location.search),preview=params.get('section')==='preview',all=preview&&params.get('role')==='all';
  document.body.classList.add('admin-portal');
  const header=document.createElement('header');header.id='adminTop';header.innerHTML=adminHubHeader(preview,all);document.getElementById('view').before(header);
- if(!preview){await import('./admin-app.js?v=189');return;}
+ if(!preview){await import('./admin-app.js?v=190');return;}
  document.body.classList.add('admin-preview-host');document.body.classList.remove('starting');document.getElementById('loading').hidden=true;
  header.querySelector('[data-a="toggleTheme"]').addEventListener('click',()=>window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark'));
  if(all){document.body.classList.add('admin-preview-all');const {mountPreviewAll}=await import('./preview-all.js?v=2');mountPreviewAll(document.getElementById('view'));return;}

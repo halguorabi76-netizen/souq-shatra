@@ -12,7 +12,7 @@ for(const loginIdentifier of ['seller@example.invalid','@seller_test'])test('pro
  vm.createContext(context);
  const strip=code=>code.replace(/^import .*;$/gm,'').replace(/^export \{.*\} from .*;$/gm,'').replace(/export /g,'');
  for(const file of ['product-options.js','product-variants.js','product-editor.js']){const code=readFileSync(new URL('../'+file,import.meta.url),'utf8'),names=[...code.matchAll(/export (?:const|function|async function) ([a-zA-Z0-9_]+)/g)].map(m=>m[1]);vm.runInContext('{'+strip(code)+';Object.assign(globalThis,{'+names.join(',')+'});}',context);}
- for(const file of ['delivery-operations.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js','chat.js','store-explorer.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
+ for(const file of ['delivery-operations.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js','chat.js','store-explorer.js','avatars.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
 
  let releaseStores,releaseLogin;const storesWait=new Promise(r=>releaseStores=r),loginWait=new Promise(r=>releaseLogin=r);let firstStores=true;
  const model=context.createPreviewModel(context.localStorage,()=>context.crypto.randomUUID());
@@ -37,7 +37,7 @@ test('production cold boot never paints buyer layout for a saved seller even wit
  vm.createContext(context);
  const strip=code=>code.replace(/^import .*;$/gm,'').replace(/^export \{.*\} from .*;$/gm,'').replace(/export /g,'');
  for(const file of ['product-options.js','product-variants.js','product-editor.js']){const code=readFileSync(new URL('../'+file,import.meta.url),'utf8'),names=[...code.matchAll(/export (?:const|function|async function) ([a-zA-Z0-9_]+)/g)].map(m=>m[1]);vm.runInContext('{'+strip(code)+';Object.assign(globalThis,{'+names.join(',')+'});}',context);}
- for(const file of ['delivery-operations.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js','chat.js','store-explorer.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
+ for(const file of ['delivery-operations.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js','chat.js','store-explorer.js','avatars.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
 
  let releaseIdentity;const identityWait=new Promise(r=>releaseIdentity=r),model=context.createPreviewModel(context.localStorage,()=>context.crypto.randomUUID());model.setRole('seller');
  const client={rpc:model.rpc,storage:{from:()=>({getPublicUrl:()=>({data:{publicUrl:''}})})},auth:model.auth,from:table=>{const query=model.from(table);if(table==='profiles'||table==='stores'){const then=query.then.bind(query);query.then=async(resolve,reject)=>{await identityWait;return then(resolve,reject);};}return query;}};

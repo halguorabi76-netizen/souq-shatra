@@ -48,5 +48,34 @@
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar-total b{font-size:19px;font-weight:800;color:var(--co-ink);font-variant-numeric:tabular-nums}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar .buy{width:auto;flex:1.2;margin:0;min-height:52px;border-radius:16px;font-size:16px;font-weight:800}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar .buy:disabled{opacity:.55}
+/* The delivery form lives on this page: map first, then the fields, then the price. */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar{flex-wrap:wrap;row-gap:6px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-hint{flex-basis:100%;margin:0;font-size:12.5px;font-weight:700;color:var(--co-warn);text-align:center;line-height:1.6}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-hint:empty{display:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-form{display:flex;flex-direction:column;gap:6px;margin:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-form label{margin:8px 0 0;font-size:13px;font-weight:700;color:var(--co-ink)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-form small{font-size:12px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-form input,:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-form textarea,:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-form select{margin:0;min-height:46px;border-radius:12px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-form textarea{min-height:76px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-pick{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;margin:0 0 4px;padding:18px 14px;border-radius:16px;border:1.5px dashed var(--co-accent);background:var(--co-soft);color:var(--co-ink);text-align:center;box-shadow:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-pick span{font-size:28px;line-height:1}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-pick b{font-size:15px;color:var(--co-accent)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-pick small{font-size:12px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-set{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin:0 0 4px;padding:8px;border-radius:16px;border:1px solid var(--co-line);background:var(--co-soft)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-set iframe{grid-column:1/-1;width:100%;height:130px;border:0;border-radius:12px;pointer-events:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-set div{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-set b{font-size:14px;color:var(--co-good)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-map-set .alt{width:auto;margin:0;min-height:38px;padding:6px 12px;font-size:13px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-link{align-self:flex-start;margin:8px 0 0;padding:6px 0;background:none;border:0;box-shadow:none;color:var(--co-accent);font-size:13px;font-weight:700}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-addresses{display:flex;flex-direction:column;gap:8px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-address{display:flex;align-items:flex-start;gap:12px;width:100%;margin:0;padding:12px;border-radius:16px;border:1.5px solid var(--co-line);background:var(--co-card);color:var(--co-ink);text-align:start;box-shadow:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-address[aria-checked=true]{border-color:var(--co-accent);background:var(--co-soft)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-radio{flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;border:2px solid var(--co-line);background:var(--co-card)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-address[aria-checked=true] .co-radio{border-color:var(--co-accent);box-shadow:inset 0 0 0 4px var(--co-card);background:var(--co-accent)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-address-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-address-text b{font-size:15px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-address-text small{font-size:12.5px;color:var(--co-mut);overflow-wrap:anywhere}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-address-new{width:100%;margin:0;min-height:46px;border-radius:14px;border:1.5px dashed var(--co-line);background:none;color:var(--co-accent);font-weight:800;box-shadow:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-fee-wait{color:var(--co-accent)!important;font-weight:700}
 /* Nothing floats over the confirm bar on this page. */
 body:has(.co-page) #buyerFloating,body:has(.co-page) .app>.tabs{display:none!important}

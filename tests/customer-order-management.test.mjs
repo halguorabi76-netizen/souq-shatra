@@ -6,10 +6,15 @@ import {createPreviewModel} from '../preview-lab.js';
 const html=fs.readFileSync('index.html','utf8');
 const helpers=html.slice(html.indexOf('const returnable='),html.indexOf('const orderReturnable='))+html.slice(html.indexOf('const orderReturnable='),html.indexOf('\n',html.indexOf('const orderReturnable=')));
 const PRODUCTS=[{id:'shirt',attributes:{_returnable:true}},{id:'dates',attributes:{_returnable:false}},{id:'old',attributes:{}}];
-function context(){const view={innerHTML:''},c={D:{o:[],p:PRODUCTS,orderFilter:'all'},prod:id=>PRODUCTS.find(p=>p.id===id),user:{id:'buyer',email:'buyer@example.invalid'},profile:{},esc:s=>String(s),ordCard:o=>`<article>${o.id}</article>`,chatButton:()=>'',rateBlock:()=>'',$:()=>view};vm.createContext(c);vm.runInContext(helpers.replace(/^const /gm,'var ').replace(/;const /g,';var '),c);vm.runInContext(html.slice(html.indexOf('function customerOrderControls('),html.indexOf('async function loadCustomerOrders(')),c);return c;}
+function context(){const view={innerHTML:''},c={D:{o:[],p:PRODUCTS,orderFilter:'all'},prod:id=>PRODUCTS.find(p=>p.id===id),driverContact:(c)=>c?`<div class="dw-driver-contact">${c.full_name} ${c.phone}</div>`:'',avatars:{html:()=>''},db:{rpc:async()=>({data:[],error:null})},check:r=>r.data,tab:'orders',render:()=>{},setTimeout:()=>0,user:{id:'buyer',email:'buyer@example.invalid'},profile:{},esc:s=>String(s),ordCard:o=>`<article>${o.id}</article>`,chatButton:()=>'',rateBlock:()=>'',$:()=>view};vm.createContext(c);vm.runInContext(helpers.replace(/^const /gm,'var ').replace(/;const /g,';var '),c);vm.runInContext(html.slice(html.indexOf('let buyerContactsLoading='),html.indexOf('async function loadCustomerOrders(')),c);return c;}
 test('customer controls distinguish unassigned cancellation, hidden assigned cancellation, delivered return and hidden restoration',()=>{
  const c=context(),control=(st,driver_id=null,customer_action=null,pid='shirt')=>c.customerOrderControls({id:'order',st,driver_id,customer_action,items:[{pid,q:1}]});
  assert.match(control(0),/>✕ إلغاء الطلب</);for(const st of [0,1,2])assert.doesNotMatch(control(st,'driver'),/\|cancel|طلب إلغاء|إلغاء الطلب/);assert.match(control(1),/>✕ إلغاء الطلب</);assert.doesNotMatch(control(2),/\|cancel/);assert.match(control(3),/طلب إرجاع/);assert.doesNotMatch(control(4),/\|cancel|\|return/);assert.match(control(3,null,{hidden_at:'now'}),/\|restore/);assert.doesNotMatch(control(3,null,{request_kind:'return'}),/data-v="order\|return"/);
+});
+test('customer sees the assigned driver with photo, name and phone',()=>{
+ const c=context();c.D.driverContacts=[{order_id:'order',driver_id:'d1',full_name:'علي السائق',phone:'07700000000'}];
+ const html=c.customerOrderControls({id:'order',st:1,driver_id:'d1',items:[]});assert.match(html,/علي السائق 07700000000/);
+ assert.doesNotMatch(c.customerOrderControls({id:'order',st:1,driver_id:null,items:[]}),/dw-driver-contact/);
 });
 test('return is offered only for products the merchant marked returnable',()=>{
  const c=context(),control=pid=>c.customerOrderControls({id:'order',st:3,items:[{pid,q:1}]});
