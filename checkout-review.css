@@ -1,0 +1,52 @@
+/* سوق الشطرة — «تأكيد الطلب»: one page for products, delivery details and price, with a fixed confirm bar.
+ * Uses the site's own tokens (figma-ui.css), so day and night modes follow the rest of the site. */
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page{--co-card:var(--surface,var(--card,#fff));--co-soft:var(--surface-2,var(--tile,#edf2f8));--co-ink:var(--ink,#0d1834);--co-mut:var(--ink-soft,var(--mut,#4e5d78));--co-line:var(--line,#dce3ee);--co-accent:var(--indigo,#3547a5);--co-good:#1f7a4d;--co-warn:#a24a16;display:flex;flex-direction:column;gap:14px;padding:6px 0 calc(110px + env(safe-area-inset-bottom,0px));color:var(--co-ink)}
+:is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .co-page{--co-accent:#9cacfa;--co-good:#7bd3a2;--co-warn:#f2b07f}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-head{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-head h1{margin:0;text-align:center;font-size:20px;font-weight:800;color:var(--co-ink)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-head button{width:44px;height:44px;border-radius:14px;border:1px solid var(--co-line);background:var(--co-card);color:var(--co-ink);font-size:20px;display:grid;place-items:center;box-shadow:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-card{background:var(--co-card);border:1px solid var(--co-line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:none;margin:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-card h2{margin:0;font-size:16px;font-weight:800;color:var(--co-ink)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-card h2 small{font-weight:600;color:var(--co-mut);font-size:13px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-card-head button{min-height:36px;padding:6px 14px;border-radius:12px;border:1px solid var(--co-line);background:var(--co-soft);color:var(--co-accent);font-size:13px;font-weight:700;box-shadow:none}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-item{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--co-line)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-item:first-child{border-top:0;padding-top:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-thumb{width:56px;height:56px;border-radius:14px;background:var(--co-soft);display:grid;place-items:center;overflow:hidden;font-size:26px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-thumb img{width:100%;height:100%;object-fit:cover}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-item-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-item-info b{font-size:15px;color:var(--co-ink);overflow-wrap:anywhere}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-item-info small{font-size:12px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-unit{font-size:13px;color:var(--co-mut);font-variant-numeric:tabular-nums}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-was{font-size:12px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-was s,:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary s{color:var(--co-mut);opacity:.85;white-space:nowrap}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-pay{margin:4px 0 0;padding:10px 12px;border-radius:12px;background:var(--co-soft);font-size:13px;font-weight:700;color:var(--co-ink);text-align:center}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-line-total{font-size:15px;font-weight:800;color:var(--co-ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details{margin:0;display:flex;flex-direction:column}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details>div{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--co-line);align-items:baseline}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details>div:first-child{border-top:0;padding-top:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details dt{font-size:13px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details dd{margin:0;font-size:14px;font-weight:600;color:var(--co-ink);overflow-wrap:anywhere}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details dd[dir=ltr]{text-align:right}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details a{color:var(--co-accent);font-weight:700;margin-inline-start:6px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-details .alt{width:auto;margin:0;min-height:38px;padding:6px 12px;font-size:13px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-warning{margin:0;padding:10px 12px;border-radius:12px;background:var(--co-soft);color:var(--co-warn);font-size:13px;font-weight:700}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page label[for=cno]{margin:4px 0 0;font-size:13px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page #cno{margin:0;min-height:44px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary{background:var(--co-card)!important}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--co-line);font-size:14px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary h2+.row{border-top:0;padding-top:0}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary .row b{color:var(--co-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary .co-saving b{color:var(--co-good)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary .buyer-total{font-size:16px;color:var(--co-ink);padding-top:12px}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary .buyer-total b{font-size:18px;font-weight:800}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary .note,:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .checkout-summary [role=status]{margin:0;font-size:12px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar{position:fixed;inset:auto 0 0 0;z-index:40;display:flex;align-items:center;gap:12px;margin:0 auto;max-width:560px;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:var(--co-card);border-top:1px solid var(--co-line);box-shadow:0 -8px 24px rgba(13,24,52,.08)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar-total{display:flex;flex-direction:column;min-width:0;flex:1}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar-total small{font-size:11px;color:var(--co-mut)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar-total b{font-size:19px;font-weight:800;color:var(--co-ink);font-variant-numeric:tabular-nums}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar .buy{width:auto;flex:1.2;margin:0;min-height:52px;border-radius:16px;font-size:16px;font-weight:800}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .co-page .co-bar .buy:disabled{opacity:.55}
+/* Nothing floats over the confirm bar on this page. */
+body:has(.co-page) #buyerFloating,body:has(.co-page) .app>.tabs{display:none!important}
