@@ -20,6 +20,7 @@ Framework skills (React, Next.js, Tailwind, Vercel deploy) do not apply to this 
 
 ## Rules
 - Keep every existing feature, and keep Supabase data, users, orders, stock and permissions intact.
-- Keep the brand: navy `#3547a5` / `#101f48`, sand `#d7b890`, Tajawal for the UI, Aref Ruqaa for the wordmark only. The full identity is in the design-system artifact.
+- Keep the brand «ليل الشطرة الليزري»: indigo only, no brown or sand. Night `#0b1230`, cards `#141d45`, laser `#4f46e5`/`#6c63ff`, glow `#8f88ff`, light indigo `#a5b4ff` for the used market; tokens live in `laser-theme.css`. Glow only on what is tapped. Tajawal for the UI, Aref Ruqaa for the wordmark and section names only.
+- Used-market styles live in `used-market.css`.
 - RTL first; layouts must work on phone, iPad (portrait and landscape) and laptop.
-- Shared UI polish lives in `ui-polish.css`, which is loaded last. Bump the `?v=` query and the `sw.js` cache name when a cached file changes.
+- Shared UI polish lives in `ui-polish.css`; `laser-theme.css` and `used-market.css` load after it. Bump the `?v=` query and the `sw.js` cache name when a cached file changes.
