@@ -26,7 +26,7 @@ html:root body .pd2 .pd-dots button[aria-pressed="true"]::before{width:26px;back
 /* ---- Bottom bar: readable labels (12px, contrast above 4.5:1) ---- */
 html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button{font-size:var(--ui-text-xs)!important;color:var(--ui-quiet)!important}
 html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page]{color:var(--warm-2,var(--ink))!important}
-html[data-shatra-ui][data-theme=dark]:not([data-portal]) body .tabs button:not([aria-current=page]){color:color-mix(in srgb,#fff 72%,transparent)!important}
+html[data-shatra-ui][data-theme=dark]:not([data-portal]) body .tabs button:not([aria-current=page]){color:var(--ui-quiet,#c3c8e6)!important}
 html[data-shatra-ui]:not([data-portal]) body .tabs .tabs-cart{display:none!important}
 
 /* ---- Icons that replaced emoji ---- */

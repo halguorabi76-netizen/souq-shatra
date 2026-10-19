@@ -1,0 +1,80 @@
+/* سوق الشطرة — "ليل الشطرة الليزري": the indigo-only identity, loaded after every other theme file.
+ * One family of colour: a deep night ground, an electric indigo for whatever you tap, and a soft
+ * indigo glow on that one element. No brown or sand anywhere. Applies to the customer screens;
+ * seller, driver and admin workspaces keep their own palettes. */
+
+html[data-shatra-ui][data-theme=light]:not([data-portal]):not(#_){
+ --ink:#141b4d;--ink-soft:#4a5287;--mut:#4a5287;--navy:#101f48;
+ --paper:#f5f6ff;--bg:#f5f6ff;--scene-bg:#f5f6ff;--surface:#ffffff;--card:#ffffff;--surface-2:#eef0ff;--tile:#eef0ff;
+ --line:#dfe2fb;--mono-soft:#eef0ff;--mono-quiet:#7a82b8;--mono-btn:#4f46e5;--accent:#4f46e5;--icon-ink:#4f46e5;--indigo:#4f46e5;
+ --warm-2:#4f46e5;--warm-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3b2fd6 100%);
+ --warm-tile:linear-gradient(160deg,#f3f4ff 0%,#e4e7ff 100%);
+ --sand:#4f46e5;--ok:#17745d;--danger:#c62828;
+ --laser:#4f46e5;--laser-2:#6c63ff;--glow:0 8px 22px rgba(79,70,229,.35);--glow-soft:0 0 0 1px rgba(79,70,229,.18);
+ --ui-quiet:#4f5690;
+}
+html[data-shatra-ui][data-theme=dark]:not([data-portal]):not(#_){
+ --ink:#f3f5ff;--ink-soft:#aeb6d8;--mut:#aeb6d8;--navy:#0b1230;
+ --paper:#0b1230;--bg:#0b1230;--scene-bg:#0b1230;--surface:#141d45;--card:#141d45;--surface-2:#1b2556;--tile:#1b2556;
+ --line:#2a3570;--mono-soft:#1b2556;--mono-quiet:#8790bd;--mono-btn:#6c63ff;--accent:#8f88ff;--icon-ink:#8f88ff;--indigo:#8f88ff;
+ --warm-2:#8f88ff;--warm-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3547a5 100%);
+ --warm-tile:linear-gradient(160deg,#1b2556 0%,#141d45 100%);
+ --sand:#a5b4ff;--ok:#75d1b1;--danger:#ff8a80;
+ --laser:#6c63ff;--laser-2:#8f88ff;--glow:0 0 22px rgba(108,99,255,.55);--glow-soft:0 0 0 1px rgba(143,136,255,.28);
+ --ui-quiet:#aeb6d8;
+ color-scheme:dark;
+}
+
+/* Ground */
+html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace){background:var(--paper)!important}
+
+/* The one glow: primary actions */
+html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) :is(.buy,button.primary,.btn-primary,.figma-primary,.figma-add,.buyer-floating,.pd-add,.mc-checkout):not(#_){background:var(--warm-btn)!important;color:#fff!important;box-shadow:var(--glow)!important;border-color:transparent!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) :is(.buy,button.primary,.btn-primary,.figma-primary,.figma-add,.pd-add):disabled{box-shadow:none!important;opacity:.55}
+html[data-shatra-ui][data-theme]:not([data-portal]) body .product-purchase .added:not(#_){background:linear-gradient(135deg,#17745d 0%,#0f5a48 100%)!important;box-shadow:none!important}
+
+/* Selected chips and variants: a laser edge instead of a heavy fill */
+html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) :is(.chip,.mp-switcher button,.va-chip,.ex-chip):is([aria-pressed=true],[aria-current],.active,.selected,.on):not(#_){background:var(--laser)!important;color:#fff!important;border-color:transparent!important;box-shadow:var(--glow)!important}
+
+/* Bottom bar and side rail: the current section glows */
+html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page]:not(#_),
+html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page] .navicon:not(#_){color:var(--laser-2)!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page] svg{filter:drop-shadow(0 0 5px rgba(108,99,255,.75))}
+html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs :is(.offers-tab,.media-placeholder) .navicon:not(#_){background:var(--warm-btn)!important;color:#fff!important;box-shadow:var(--glow)!important}
+@media (min-width:1024px){html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs :is(.offers-tab,.media-placeholder) .navicon:not(#_){background:transparent!important;box-shadow:none!important;color:inherit!important}}
+
+/* Banner: night over the river photo */
+html[data-shatra-ui][data-theme]:not([data-portal]) body .figma-hero:not(#_){background:#0b1230!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) body .figma-hero::after{background:linear-gradient(180deg,rgba(11,18,48,.2) 0%,rgba(11,18,48,.35) 45%,rgba(11,18,48,.94) 100%)!important}
+
+/* Search: a field with a faint laser rim */
+html[data-shatra-ui][data-theme]:not([data-portal]) body :is(.desktop-search,#buyerSearch):not(#_){background:var(--surface)!important;border:1px solid var(--line)!important;box-shadow:var(--glow-soft)!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) body :is(.desktop-search,#buyerSearch):focus-within{box-shadow:0 0 0 2px var(--laser),var(--glow)!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) body #buyerSearch button svg{stroke:var(--laser-2)}
+
+/* Cards: surface colour and a hairline, no shadow */
+html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) :is(.figma-product-card,.figma-store-card,.mp-store-card,.profile-card,.used-card,.my-cart .mc-item):not(#_){background:var(--surface)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) body :is(.figma-product-media,#productPhoto,.product-detail .tile.big,.figma-cart-image,.mp-store-avatar,.category-card,.product-seller-card):not(#_){background:var(--warm-tile)!important}
+
+/* Prices in the brand light */
+html[data-shatra-ui][data-theme]:not([data-portal]) body :is(.mp-price strong,.used-price,.used-detail-price,#productPrice):not(#_){color:var(--laser-2)!important}
+html[data-shatra-ui][data-theme=light]:not([data-portal]) body :is(.mp-price strong,.used-price,.used-detail-price,#productPrice):not(#_){color:var(--laser)!important}
+
+/* Counters and small badges that used sand */
+html[data-shatra-ui][data-theme]:not([data-portal]) body :is(#cc,.buyer-floating i,.detail-cart i,.tabs .tabs-cart i):not(#_){background:var(--sand)!important;color:#0b1230!important}
+html[data-shatra-ui][data-theme=light]:not([data-portal]) body :is(#cc,.buyer-floating i,.detail-cart i,.tabs .tabs-cart i):not(#_){color:#fff!important}
+
+/* Section links */
+html[data-shatra-ui][data-theme]:not([data-portal]) body .section-title :is(a,button,small,span):not(#_){color:var(--laser-2)!important}
+html[data-shatra-ui][data-theme=light]:not([data-portal]) body .section-title :is(a,button,small,span):not(#_){color:var(--laser)!important}
+
+/* Wordmark: "سوق" in indigo glow, never sand */
+html[data-shatra-ui][data-theme=dark]:not([data-portal]) body .header-brand-name{text-shadow:0 0 18px rgba(143,136,255,.55)}
+
+/* Keyboard focus in the brand colour */
+html[data-shatra-ui]:not([data-portal]) body :is(a,button,input,select,textarea,[tabindex]):focus-visible{outline:3px solid var(--laser-2)!important;outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){html[data-shatra-ui]:not([data-portal]) body *{transition-duration:.01ms!important}}
+
+/* Profile: the phone number is a button that reads as text */
+html[data-shatra-ui][data-theme]:not([data-portal]) body .buyer-phone-action:not(#_){color:var(--ink)!important;text-decoration-color:var(--laser-2)!important}
