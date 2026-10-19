@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
 import {createSellerWorkspace} from "./seller-workspace.js?v=186";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=174";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=181";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=182";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=180";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -216,7 +216,7 @@ const mok=id=>id==='owner'||!!mrec(id).ok&&!mrec(id).removed;
 const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${esc(p.img)}" loading="lazy" decoding="async" alt="">`:CI[CATS.indexOf(p.cat)]||'📦';
 const prod=id=>D.p.find(x=>x.id===id);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
-const when=t=>new Date(t).toLocaleString('ar-IQ',{dateStyle:'medium',timeStyle:'short'});
+const when=t=>new Date(t).toLocaleString('ar-IQ-u-nu-latn',{dateStyle:'medium',timeStyle:'short'});
 let publicStoreId=new URLSearchParams(location.search).get('store');
 if(!/^[0-9a-f-]{36}$/i.test(publicStoreId||''))publicStoreId=null;
 const ADMIN_PORTAL=document.documentElement.dataset.portal==='admin';

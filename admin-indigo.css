@@ -1,0 +1,148 @@
+/* سوق الشطرة — admin site in the «ليل الشطرة الليزري» identity (laser-theme.css) with the merchant workspace's layout:
+ * indigo only, a deep night ground (#0b1230, cards #141d45), laser indigo (#4f46e5/#6c63ff) with a glow only on what you tap, the Aref Ruqaa wordmark, rounded cards and line icons.
+ * Presentation only; every button keeps the data-a actions admin-app.js already handles. Loaded last. */
+html[lang][dir] body.admin-portal{
+ --ad-bg:#f5f6ff;--ad-card:#FFFFFF;--ad-ink:#141b4d;--ad-mut:#4a5287;--ad-line:#dfe2fb;--ad-soft:#eef0ff;
+ --ad-primary:#4f46e5;--ad-on-primary:#FFFFFF;--ad-accent-2:#6c63ff;--ad-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3b2fd6 100%);--ad-glow:0 8px 22px rgba(79,70,229,.35);
+ --ad-hero:linear-gradient(135deg,#6c63ff 0%,#4f46e5 40%,#2a2a9e 75%,#101f48 100%);
+ --ad-page:radial-gradient(120% 55% at 100% 0%,rgba(108,99,255,.15) 0%,transparent 62%),radial-gradient(90% 45% at 0% 38%,rgba(79,70,229,.08) 0%,transparent 66%),radial-gradient(110% 50% at 100% 100%,rgba(165,180,255,.18) 0%,transparent 62%),linear-gradient(180deg,#f1f2ff 0%,#f7f8ff 100%);
+ --ad-bar:rgba(245,246,255,.84);--ad-shadow:0 10px 30px rgba(20,27,77,.06);
+ --ad-green:#17745d;--ad-green-bg:#e2f3ec;--ad-amber:#a8641b;--ad-amber-bg:#fbefdc;--ad-red:#c62828;--ad-red-bg:#fbe5e5;--ad-blue:#4f46e5;--ad-blue-bg:#eceaff;
+ --bg:var(--ad-bg)!important;--card:var(--ad-card)!important;--ink:var(--ad-ink)!important;--mut:var(--ad-mut)!important;--line:var(--ad-line)!important;--tile:var(--ad-soft)!important;--navy:var(--ad-primary)!important;
+ background:var(--ad-page)!important;background-attachment:scroll!important;color:var(--ad-ink)!important;font-family:'Tajawal','IBM Plex Sans Arabic',sans-serif!important}
+html[lang][dir][data-theme=dark] body.admin-portal{
+ --ad-bg:#0b1230;--ad-card:#141d45;--ad-ink:#f3f5ff;--ad-mut:#aeb6d8;--ad-line:#2a3570;--ad-soft:#1b2556;
+ --ad-primary:#8f88ff;--ad-on-primary:#FFFFFF;--ad-accent-2:#a5b4ff;--ad-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3547a5 100%);--ad-glow:0 0 22px rgba(108,99,255,.55);
+ --ad-hero:linear-gradient(135deg,#4f46e5 0%,#3b2fd6 35%,#1d2366 70%,#0b1230 100%);
+ --ad-page:radial-gradient(110% 50% at 100% 0%,rgba(108,99,255,.22) 0%,transparent 60%),radial-gradient(90% 45% at 0% 70%,rgba(79,70,229,.12) 0%,transparent 65%),#0b1230;
+ --ad-bar:rgba(11,18,48,.84);--ad-shadow:0 10px 30px rgba(0,0,0,.3);
+ --ad-green:#75d1b1;--ad-green-bg:#173a35;--ad-amber:#e9b862;--ad-amber-bg:#3a2e1a;--ad-red:#ff8a80;--ad-red-bg:#3e2028;--ad-blue:#a5b4ff;--ad-blue-bg:#232c66}
+html[lang][dir] body.admin-portal :is(button,input,select,textarea,h1,h2,h3,p,small,b,strong,span,a,dt,dd,td,th,label){font-family:'Tajawal','IBM Plex Sans Arabic',sans-serif!important}
+html[lang][dir] body.admin-portal .app{background:transparent!important}
+
+/* Top bar: wordmark on the right, tabs, then round icon buttons. Sticky and lightly blurred. */
+html[lang][dir] body.admin-portal #adminTop{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:10px max(20px,env(safe-area-inset-right,0px)) 10px max(20px,env(safe-area-inset-left,0px));background:var(--ad-bar)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--ad-line)!important;box-shadow:none!important;color:var(--ad-ink)!important}
+html[lang][dir] body.admin-portal #adminTop .admin-wordmark{display:flex;align-items:center;gap:10px;text-decoration:none}
+html[lang][dir] body.admin-portal #adminTop .admin-mark{display:flex;align-items:baseline;gap:5px;line-height:1}
+html[lang][dir] body.admin-portal #adminTop .admin-mark small{display:inline;font-family:'Aref Ruqaa',serif!important;font-size:18px;font-weight:700;color:var(--ad-accent-2)!important}
+html[lang][dir] body.admin-portal #adminTop .admin-mark b{font-family:'Aref Ruqaa',serif!important;font-size:32px;font-weight:700;color:var(--ad-primary)!important}
+html[lang][dir] body.admin-portal #adminTop .admin-role-chip{padding:3px 12px;border-radius:999px;background:var(--ad-soft);color:var(--ad-primary);font-size:12.5px;font-weight:800}
+html[lang][dir] body.admin-portal #adminTop nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+html[lang][dir] body.admin-portal #adminTop .admin-hub-tabs{display:flex;gap:4px;padding:4px;border-radius:14px;background:var(--ad-soft)}
+html[lang][dir] body.admin-portal #adminTop .admin-hub-tab{min-height:38px;display:inline-flex;align-items:center;padding:6px 14px!important;border:0!important;border-radius:11px!important;background:none!important;color:var(--ad-mut)!important;font-size:13.5px;font-weight:800;text-decoration:none;box-shadow:none!important}
+html[lang][dir] body.admin-portal #adminTop .admin-hub-tab[aria-current=page]{background:var(--ad-card)!important;color:var(--ad-primary)!important;box-shadow:0 2px 8px rgba(13,24,52,.12)!important}
+html[lang][dir] body.admin-portal #adminTop .admin-site-link{font-size:13px;font-weight:700;color:var(--ad-primary)!important;padding:6px 8px;text-decoration:none}
+html[lang][dir] body.admin-portal #adminTop .admin-icon-btn{display:grid;place-items:center;width:42px;height:42px;padding:0!important;border-radius:50%!important;border:1px solid var(--ad-line)!important;background:var(--ad-card)!important;color:var(--ad-ink)!important}
+html[lang][dir] body.admin-portal #adminTop .admin-icon-btn[hidden]{display:none!important}
+
+/* Sidebar: a soft card with line icons; the current section is filled indigo. */
+html[lang][dir] body.admin-portal .admin-layout{grid-template-columns:252px minmax(0,1fr);gap:0;max-width:1440px;margin:0 auto}
+html[lang][dir] body.admin-portal .admin-sidebar{top:64px;min-height:auto;margin:20px 20px 20px 0;padding:16px 12px;border:1px solid var(--ad-line)!important;border-radius:22px;background:var(--ad-card)!important;box-shadow:var(--ad-shadow)}
+html[lang][dir] body.admin-portal .admin-nav-label{margin:4px 10px 10px;font-size:12px;font-weight:800;color:var(--ad-mut)!important}
+html[lang][dir] body.admin-portal .admin-sidebar nav{gap:2px}
+html[lang][dir] body.admin-portal .admin-sidebar nav button{min-height:46px;padding:9px 10px!important;border:0!important;border-radius:14px!important;background:none!important;color:var(--ad-ink)!important;font-size:14.5px;font-weight:700;box-shadow:none!important}
+html[lang][dir] body.admin-portal .admin-sidebar nav button .admin-nav-icon{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:11px;background:var(--ad-soft);color:var(--ad-primary);font-size:0}
+@media (hover:hover){html[lang][dir] body.admin-portal .admin-sidebar nav button:hover{background:var(--ad-soft)!important}}
+html[lang][dir] body.admin-portal .admin-sidebar nav button[aria-current=page]{background:var(--ad-btn)!important;color:var(--ad-on-primary)!important;box-shadow:var(--ad-glow)!important}
+html[lang][dir] body.admin-portal .admin-sidebar nav button[aria-current=page] .admin-nav-icon{background:rgba(255,255,255,.18);color:var(--ad-on-primary)}
+html[lang][dir] body.admin-portal .admin-preview-tools{margin-top:16px;padding-top:14px;border-top:1px solid var(--ad-line)!important}
+html[lang][dir] body.admin-portal .admin-preview-tools a{border:1px solid var(--ad-line)!important;background:var(--ad-soft)!important;color:var(--ad-ink)!important;border-radius:14px!important;padding:10px 4px!important;font-weight:700}
+html[lang][dir] body.admin-portal .admin-preview-tools a span{color:var(--ad-primary);font-size:0}
+
+/* Main column */
+html[lang][dir] body.admin-portal .admin-main{padding:24px 24px 64px}
+html[lang][dir] body.admin-portal .admin-page-title small{color:var(--ad-mut)!important;font-size:12.5px}
+html[lang][dir] body.admin-portal .admin-page-title h1{margin:4px 0;font-size:clamp(26px,3vw,34px);font-weight:800;color:var(--ad-ink)!important}
+html[lang][dir] body.admin-portal .admin-page-title p{margin:0;color:var(--ad-mut)!important}
+html[lang][dir] body.admin-portal .admin-page-title button,html[lang][dir] body.admin-portal .admin-back{min-height:42px;padding:8px 16px!important;border-radius:14px!important;border:1px solid var(--ad-line)!important;background:var(--ad-card)!important;color:var(--ad-primary)!important;font-weight:800;box-shadow:none!important}
+
+/* «اليوم» hero card */
+html[lang][dir] body.admin-portal .admin-hero{display:flex;flex-direction:column;gap:4px;margin:0 0 16px;padding:22px;border-radius:24px;background:var(--ad-hero);color:#fff;box-shadow:0 18px 40px rgba(53,71,165,.28);position:relative;overflow:hidden}
+html[lang][dir] body.admin-portal .admin-hero::after{content:"";position:absolute;inset:auto auto -60px -40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(156,172,250,.35),transparent 70%);pointer-events:none}
+html[lang][dir] body.admin-portal .admin-hero :is(small,b,strong,span){color:#fff!important}
+html[lang][dir] body.admin-portal .admin-hero-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+html[lang][dir] body.admin-portal .admin-hero-top>small{font-size:14px;opacity:.85}
+html[lang][dir] body.admin-portal .admin-hero-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12.5px;font-weight:700}
+html[lang][dir] body.admin-portal .admin-hero-pill svg{width:16px;height:16px}
+html[lang][dir] body.admin-portal .admin-hero-value{margin-top:8px;font-size:clamp(30px,4vw,40px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+html[lang][dir] body.admin-portal .admin-hero>small{font-size:13px;opacity:.8}
+html[lang][dir] body.admin-portal .admin-hero-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;position:relative;z-index:1}
+html[lang][dir] body.admin-portal .admin-hero-row>*{display:flex;flex-direction:column;gap:2px;margin:0;padding:12px;border-radius:16px;border:0!important;background:rgba(255,255,255,.12)!important;text-align:start;box-shadow:none!important}
+html[lang][dir] body.admin-portal .admin-hero-row b{font-size:22px;font-weight:800}
+html[lang][dir] body.admin-portal .admin-hero-row small{font-size:12px;opacity:.85}
+
+/* Stat tiles */
+html[lang][dir] body.admin-portal .admin-primary-stats{gap:14px;margin-bottom:14px}
+html[lang][dir] body.admin-portal .admin-primary-stats button{border:1px solid var(--ad-line)!important;border-radius:20px!important;background:var(--ad-card)!important;color:var(--ad-ink)!important;box-shadow:var(--ad-shadow)!important;padding:18px!important}
+html[lang][dir] body.admin-portal .admin-primary-stats small{color:var(--ad-mut)!important;font-size:13.5px;font-weight:700}
+html[lang][dir] body.admin-portal .admin-primary-stats strong{color:var(--ad-ink)!important;font-size:34px;font-weight:800}
+html[lang][dir] body.admin-portal .admin-stat-icon{display:grid!important;place-items:center;width:42px!important;height:42px!important;border-radius:14px!important;background:var(--ad-blue-bg)!important;color:var(--ad-blue)!important;font-size:0}
+html[lang][dir] body.admin-portal .admin-stat-sellers .admin-stat-icon{background:var(--ad-green-bg)!important;color:var(--ad-green)!important}
+html[lang][dir] body.admin-portal .admin-stat-drivers .admin-stat-icon{background:var(--ad-amber-bg)!important;color:var(--ad-amber)!important}
+html[lang][dir] body.admin-portal .admin-stat-link{color:var(--ad-primary)!important;font-weight:800}
+html[lang][dir] body.admin-portal .admin-mini-stats{gap:12px}
+html[lang][dir] body.admin-portal .admin-mini-stats>*{border:1px solid var(--ad-line)!important;border-radius:18px!important;background:var(--ad-card)!important;color:var(--ad-ink)!important;box-shadow:none!important;text-align:start}
+html[lang][dir] body.admin-portal .admin-mini-stats small{color:var(--ad-mut)!important;font-weight:700}
+html[lang][dir] body.admin-portal .admin-mini-stats strong{color:var(--ad-ink)!important;font-size:26px;font-weight:800}
+html[lang][dir] body.admin-portal .admin-status-tiles>button{display:flex;flex-direction:column;gap:6px;padding:18px 16px 14px;cursor:pointer;background-image:linear-gradient(var(--tile-c,var(--ad-primary)),var(--tile-c,var(--ad-primary)))!important;background-size:34px 4px!important;background-repeat:no-repeat!important;background-position:right 16px top 0!important}
+html[lang][dir=ltr] body.admin-portal .admin-status-tiles>button{background-position:left 16px top 0!important}
+html[lang][dir] body.admin-portal .admin-status-tiles .is-new{--tile-c:var(--ad-blue)}
+html[lang][dir] body.admin-portal .admin-status-tiles .is-progress{--tile-c:var(--ad-amber)}
+html[lang][dir] body.admin-portal .admin-status-tiles .is-done{--tile-c:var(--ad-green)}
+html[lang][dir] body.admin-portal .admin-status-tiles .is-cancel{--tile-c:var(--ad-red)}
+html[lang][dir] body.admin-portal .admin-status-tiles strong{color:var(--tile-c)!important}
+
+/* Cards, lists, records */
+html[lang][dir] body.admin-portal :is(.admin-panel,.admin-record,.admin-order,.admin-used-row,.admin-gate){border:1px solid var(--ad-line)!important;border-radius:22px!important;background:var(--ad-card)!important;color:var(--ad-ink)!important;box-shadow:var(--ad-shadow)!important}
+html[lang][dir] body.admin-portal .admin-panel h2{font-size:18px;font-weight:800;color:var(--ad-ink)!important}
+html[lang][dir] body.admin-portal :is(.admin-action-list button,.admin-recent){min-height:52px;border:1px solid var(--ad-line)!important;border-radius:16px!important;background:var(--ad-soft)!important;color:var(--ad-ink)!important;box-shadow:none!important;font-weight:700}
+html[lang][dir] body.admin-portal .admin-action-list button b{display:inline-grid;place-items:center;min-width:34px;padding:3px 10px;border-radius:999px;background:var(--ad-card);color:var(--ad-primary)!important}
+html[lang][dir] body.admin-portal .admin-recent strong{color:var(--ad-ink)!important;font-variant-numeric:tabular-nums}
+html[lang][dir] body.admin-portal :is(.admin-finance,.admin-fields)>div{border-color:var(--ad-line)!important}
+html[lang][dir] body.admin-portal :is(.admin-finance,.admin-fields) dt{color:var(--ad-mut)!important}
+html[lang][dir] body.admin-portal :is(.admin-finance,.admin-fields) dd{color:var(--ad-ink)!important;font-weight:800}
+html[lang][dir] body.admin-portal .admin-status{padding:3px 10px;border-radius:999px;background:var(--ad-amber-bg)!important;color:var(--ad-amber)!important;font-size:12px;font-weight:800;border:0!important}
+html[lang][dir] body.admin-portal .admin-status.is-ok{background:var(--ad-green-bg)!important;color:var(--ad-green)!important}
+html[lang][dir] body.admin-portal .admin-avatar{border-radius:50%!important;background:linear-gradient(135deg,#5B6FD1,#3547A5)!important;color:#fff!important}
+html[lang][dir] body.admin-portal .admin-empty{border:1.5px dashed var(--ad-line)!important;border-radius:18px;background:transparent!important;color:var(--ad-mut)!important}
+html[lang][dir] body.admin-portal :is(.admin-search input,.admin-list-filters select,.admin-list-filters input,.admin-main input,.admin-main select,.admin-main textarea){min-height:44px;border:1px solid var(--ad-line)!important;border-radius:14px!important;background:var(--ad-card)!important;color:var(--ad-ink)!important}
+html[lang][dir] body.admin-portal .admin-table-wrap{border:1px solid var(--ad-line)!important;border-radius:18px!important;background:var(--ad-card)!important}
+html[lang][dir] body.admin-portal .admin-table-wrap th{background:var(--ad-soft)!important;color:var(--ad-mut)!important;font-weight:800}
+html[lang][dir] body.admin-portal .admin-table-wrap :is(td,th){border-color:var(--ad-line)!important;color:var(--ad-ink)}
+html[lang][dir] body.admin-portal .admin-main :is(.buy,.go){background:var(--ad-btn)!important;color:var(--ad-on-primary)!important;border:0!important;border-radius:14px!important;font-weight:800;box-shadow:var(--ad-glow)!important}
+html[lang][dir] body.admin-portal .admin-main .danger{background:var(--ad-red-bg)!important;color:var(--ad-red)!important;border:0!important;border-radius:14px!important}
+html[lang][dir] body.admin-portal .admin-main .acts button:not(.go):not(.danger):not(.buy),html[lang][dir] body.admin-portal .admin-join-actions button:not(.go):not(.danger){border:1px solid var(--ad-line)!important;background:var(--ad-card)!important;color:var(--ad-ink)!important;border-radius:14px!important}
+html[lang][dir] body.admin-portal .admin-tell{color:var(--ad-green)!important;font-weight:800}
+html[lang][dir] body.admin-portal .admin-wa-notice{border-radius:20px!important;border:1px solid var(--ad-amber)!important;background:var(--ad-amber-bg)!important;color:var(--ad-ink)!important;box-shadow:none!important}
+html[lang][dir] body.admin-portal .admin-wa-notice :is(b,small){color:var(--ad-ink)!important}
+html[lang][dir] body.admin-portal .admin-wa-notice .go{background:var(--ad-btn)!important;color:var(--ad-on-primary)!important;padding:10px 16px!important;border-radius:14px!important}
+html[lang][dir] body.admin-portal .admin-gate{max-width:520px;margin:48px auto!important;padding:32px!important;text-align:center}
+html[lang][dir] body.admin-portal .admin-gate h1{color:var(--ad-ink)!important}
+html[lang][dir] body.admin-portal .admin-gate-mark{background:var(--ad-hero)!important;color:#fff!important}
+
+/* iPad portrait and phones: the sidebar becomes one swipeable row of sections under the top bar. */
+@media (max-width:1000px){
+ html[lang][dir] body.admin-portal .admin-layout{display:block}
+ html[lang][dir] body.admin-portal .admin-sidebar{position:sticky;top:var(--ad-top,62px);z-index:30;margin:0;padding:8px 12px;border:0!important;border-bottom:1px solid var(--ad-line)!important;border-radius:0;background:var(--ad-bar)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:none}
+ html[lang][dir] body.admin-portal .admin-sidebar .admin-nav-label,html[lang][dir] body.admin-portal .admin-preview-tools{display:none!important}
+ html[lang][dir] body.admin-portal .admin-sidebar nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;padding:2px}
+ html[lang][dir] body.admin-portal .admin-sidebar nav::-webkit-scrollbar{display:none}
+ html[lang][dir] body.admin-portal .admin-sidebar nav button{flex:none;min-height:42px;padding:6px 12px 6px 8px!important;border:1px solid var(--ad-line)!important;background:var(--ad-card)!important;font-size:13.5px;white-space:nowrap;scroll-snap-align:start}
+ html[lang][dir] body.admin-portal .admin-sidebar nav button .admin-nav-icon{width:28px;height:28px;border-radius:9px}
+ html[lang][dir] body.admin-portal .admin-sidebar nav button .admin-nav-icon svg{width:17px;height:17px}
+ html[lang][dir] body.admin-portal .admin-main{padding:18px 16px 64px}
+ html[lang][dir] body.admin-portal .admin-columns{grid-template-columns:1fr!important}
+}
+@media (max-width:640px){
+ html[lang][dir] body.admin-portal #adminTop{gap:8px}
+ html[lang][dir] body.admin-portal #adminTop .admin-site-link{display:none}
+ html[lang][dir] body.admin-portal .admin-primary-stats{grid-template-columns:1fr!important}
+ html[lang][dir] body.admin-portal .admin-hero-row{grid-template-columns:1fr 1fr}
+ html[lang][dir] body.admin-portal .admin-hero-row>button{grid-column:1/-1}
+ html[lang][dir] body.admin-portal .admin-mini-stats{grid-template-columns:1fr 1fr!important}
+}
+/* Record cards fill their column; as many columns as fit. */
+html[lang][dir] body.admin-portal .admin-record-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))!important;gap:14px}
+html[lang][dir] body.admin-portal .admin-record-grid>*{width:auto!important;max-width:none!important;margin:0!important}
+html[lang][dir] body.admin-portal .admin-record{padding:16px!important}
+html[lang][dir] body.admin-portal .admin-record a,html[lang][dir] body.admin-portal .admin-record .admin-open{color:var(--ad-primary)!important;font-weight:800}
