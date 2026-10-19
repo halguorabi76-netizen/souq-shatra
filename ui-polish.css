@@ -1,0 +1,85 @@
+/* Customer interface polish, loaded after every theme file.
+ * One place for the shared scale (type, touch, contrast) and the wide-screen layouts:
+ * phone keeps the bottom bar, iPad landscape and laptops get a side rail on the right.
+ * Seller, driver and admin workspaces are left untouched. */
+:root{
+ --ui-touch:44px;
+ --ui-rail:96px;
+ --ui-text-xs:12px;
+ --ui-text-sm:13px;
+ --ui-quiet:color-mix(in srgb,var(--ink,#1d2a5a) 70%,var(--paper,#fff));
+}
+
+/* ---- Touch targets: 44px for everything the customer taps ----
+ * :not(#_) lifts specificity above the theme files' id-free !important rules. */
+html[data-shatra-ui]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) :is(#themeToggle,.topline .header-page-back,.pd-visit,.figma-button,[data-a=cartMenu],[data-a=chooseAvatar],.profile-edit,.profile-gps,.market-drawer-close):not(#_){min-width:var(--ui-touch)!important;min-height:var(--ui-touch)!important;width:auto;height:auto}
+html[data-shatra-ui]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) #buyerSearch:not(#_) :is(input,button){min-height:var(--ui-touch)!important}
+html[data-shatra-ui]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) #buyerSearch:not(#_) button{min-width:var(--ui-touch)!important;display:grid!important;place-items:center!important}
+html[data-shatra-ui]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) :is(.pd2 .va-chip,.section-title>button,[data-a=exploreSection],.buyer-phone-action,.profile-action):not(#_){min-height:var(--ui-touch)!important;display:inline-flex;align-items:center;justify-content:center}
+/* The photo dots stay small to look at but get a 24px tap area each. */
+html:root body .pd2 .pd-dots{gap:2px}
+html:root body .pd2 .pd-dots button{position:relative;width:24px!important;height:24px!important;background:transparent!important;display:grid;place-items:center}
+html:root body .pd2 .pd-dots button::before{content:'';width:8px;height:8px;border-radius:99px;background:var(--line);transition:width .2s,background .2s}
+html:root body .pd2 .pd-dots button[aria-pressed="true"]{width:34px!important}
+html:root body .pd2 .pd-dots button[aria-pressed="true"]::before{width:26px;background:var(--ink)}
+
+/* ---- Bottom bar: readable labels (12px, contrast above 4.5:1) ---- */
+html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button{font-size:var(--ui-text-xs)!important;color:var(--ui-quiet)!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page]{color:var(--warm-2,var(--ink))!important}
+html[data-shatra-ui][data-theme=dark]:not([data-portal]) body .tabs button:not([aria-current=page]){color:color-mix(in srgb,#fff 72%,transparent)!important}
+html[data-shatra-ui]:not([data-portal]) body .tabs .tabs-cart{display:none!important}
+
+/* ---- Icons that replaced emoji ---- */
+html[data-shatra-ui]:not([data-portal]) body :is(.mk-icon,.picon,.profile-edit,.profile-gps,.profile-photo button,.used-ph-add b) svg{width:22px;height:22px;display:block;margin:auto}
+html[data-shatra-ui]:not([data-portal]) body :is(.profile-link,.profile-role-actions button,.profile-logout,[data-a=usedSell]) svg{width:20px;height:20px;vertical-align:-4px;margin-inline-end:4px;flex:none}
+html[data-shatra-ui]:not([data-portal]) body .profile-logout{color:var(--danger,#c62828)!important}
+
+/* ---- Product page below 1024px: the home button shares the purchase bar's row, so it never covers the heart or the store card ---- */
+@media (max-width:1023px){
+ html:root body .pd2 .detail-home:not(#_){bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;inset-inline-end:12px!important;inset-inline-start:auto!important;left:12px!important;right:auto!important;width:56px!important;height:56px!important}
+ html:root body #sheet .pd2 .pd-bar:not(#_){inset-inline-end:80px!important;inset-inline-start:12px!important;left:80px!important;right:12px!important;margin:0!important;max-width:none!important}
+}
+@media (min-width:600px) and (max-width:1023px){
+ html:root body #sheet .pd2 .pd-bar:not(#_){left:max(80px,calc(50% - 248px))!important;right:max(12px,calc(50% - 248px))!important}
+}
+
+/* ---- iPad landscape and laptop: side rail instead of the bottom bar ---- */
+@media (min-width:1024px){
+ html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace):not(.welcome-mode){padding-inline-start:var(--ui-rail)!important}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) .app>.tabs:not([hidden]),
+ html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) .tabs:not([hidden]){
+  display:flex!important;flex-direction:column-reverse!important;justify-content:flex-end!important;align-items:stretch!important;gap:6px!important;direction:rtl!important;
+  position:fixed!important;top:0!important;bottom:0!important;inset-inline-start:0!important;inset-inline-end:auto!important;left:auto!important;right:0!important;
+  width:var(--ui-rail)!important;max-width:none!important;height:100dvh!important;min-height:0!important;margin:0!important;transform:none!important;
+  padding:calc(96px + env(safe-area-inset-top,0px)) 8px 24px!important;
+  border:0!important;border-inline-end:1px solid var(--line)!important;border-top:0!important;border-radius:0!important;box-shadow:none!important;background:var(--paper,var(--surface))!important;z-index:40!important
+ }
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;width:100%!important;flex:0 0 68px!important;min-height:68px!important;height:68px!important;padding:8px 4px!important;font-weight:600!important;border-radius:16px!important;margin:0!important;position:static!important;transform:none!important}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)!important}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page]{background:color-mix(in srgb,var(--ink) 9%,transparent)!important}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs :is(.offers-tab,.media-placeholder){width:100%!important;height:auto!important;min-height:68px!important;border-radius:16px!important;box-shadow:none!important;top:auto!important}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs :is(.offers-tab,.media-placeholder) .navicon{width:auto!important;height:auto!important;background:transparent!important;color:inherit!important;box-shadow:none!important;border:0!important;transform:none!important;position:static!important}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs .navicon svg{width:24px;height:24px}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs .navicon:not(#_){margin:0!important;padding:0!important;display:grid!important;place-items:center!important;min-height:0!important;line-height:1!important}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button:not(#_){padding:8px 4px!important;margin:0!important;top:auto!important;translate:none!important}
+ /* The cart lives in the rail on wide screens, so the floating button is not needed. */
+ html[data-shatra-ui]:not([data-portal]) body .tabs .tabs-cart{display:flex!important;position:relative!important;margin-top:auto!important;order:-1}
+ html[data-shatra-ui]:not([data-portal]) body .tabs .tabs-cart i{position:absolute;top:6px;inset-inline-end:16px;min-width:20px;height:20px;border-radius:99px;display:grid;place-items:center;font-size:12px;font-style:normal;font-weight:800;background:var(--warm-btn,var(--ink));color:#fff}
+ html[data-shatra-ui]:not([data-portal]) body .tabs .tabs-cart i[hidden]{display:none}
+ html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) #buyerFloating{display:none!important}
+ /* The product page is a full-screen sheet with its own back button, so it keeps the whole width. */
+ html:root body .pd2 .detail-home{display:none!important}
+ /* Header: brand, a search of reasonable width, theme toggle. */
+ html[data-shatra-ui]:not([data-portal]) body:not(.seller-workspace):not(.driver-workspace) :is(.desktop-search-row,.search-row){max-width:720px!important;margin-inline:auto!important}
+}
+
+/* ---- Product page on wide screens: photo on the right, details on the left ---- */
+@media (min-width:1024px){
+ html:root body .product-detail.pd2{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-auto-flow:row dense;gap:0 40px;max-width:1080px!important;align-items:start}
+ html:root body .product-detail.pd2>*{grid-column:2!important}
+ html:root body .product-detail.pd2>.pd-media{grid-column:1!important;grid-row:1 / span 20;position:sticky;top:12px;margin:4px 0 0}
+ html:root body .product-detail.pd2>.pd-bar{grid-column:auto!important}
+ html:root body .pd2 .pd-media .tile.big{width:100%!important}
+}
+
+@media (prefers-reduced-motion:reduce){html:root body .pd2 .pd-dots button::before{transition:none}}
