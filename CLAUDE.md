@@ -12,6 +12,9 @@ Arabic (RTL) local marketplace: buyers, sellers, drivers and an admin portal.
 - **ui-ux-pro-max** (account skill): design system, components, tokens, visual consistency.
 - **frontend-design** (plugin from `anthropics/claude-code`, enabled in `.claude/settings.json`): creative direction and distinctive visual identity.
 - **web-design-guidelines** (`.claude/skills/web-design-guidelines`, from `vercel-labs/agent-skills`): review of quality, usability and accessibility. It fetches its rules from `raw.githubusercontent.com` at review time.
+- **open-pinterest** (plugin from `Zuhair-01/open-pinterest`, enabled in `.claude/settings.json`): visual references from Pinterest. It needs `www.pinterest.com` and `i.pinimg.com` allowed in the environment's network access; without them say so plainly and never present references that were not actually viewed. Downloads go to `design-refs/` (git-ignored) and are inspiration only, never shipped.
+
+When designing a new screen: gather 5–10 real references, credit each by link, analyse colour, type, cards, layout, motion and UX, then design an original take in the Souq Al-Shatra identity. Show it for approval before changing the site.
 
 Framework skills (React, Next.js, Tailwind, Vercel deploy) do not apply to this stack.
 

@@ -1,3 +1,6 @@
 node_modules/
 www/
 artifacts/
+
+# Downloaded design references (Pinterest etc.): inspiration only, not licensed for the product
+design-refs/
