@@ -1,0 +1,118 @@
+/* «مستعمل الشطرة»: the used market's own page, ad sheet, sell form and my-ads list.
+ * Indigo only, from laser-theme.css tokens. Loaded after it. */
+html[data-shatra-ui]:not([data-portal]) body{--used-accent:var(--laser-2,#8f88ff);--used-ink:var(--ink);--used-card:var(--surface);--used-line:var(--line)}
+html[data-shatra-ui][data-theme=light]:not([data-portal]) body{--used-accent:var(--laser,#4f46e5)}
+
+/* Page */
+.used-page.used-v2{display:flex;flex-direction:column;gap:14px;padding:0 16px 120px;max-width:1080px;margin:0 auto}
+.used-v2 .used-hero{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 4px 22px;margin:0 -4px;overflow:hidden;background:radial-gradient(120% 100% at 90% 0%,color-mix(in srgb,var(--laser,#4f46e5) 28%,transparent) 0%,transparent 62%)}
+.used-v2 .used-hero small{display:block;font:700 20px/1 'Aref Ruqaa','Amiri',serif;color:var(--used-accent)}
+.used-v2 .used-hero h1{margin:2px 0 0;font:700 52px/.95 'Aref Ruqaa','Amiri',serif;color:var(--ink);text-shadow:0 0 18px color-mix(in srgb,var(--laser-2,#8f88ff) 55%,transparent)}
+.used-v2 .used-hero p{margin:10px 0 0;font:500 15px/1.5 Tajawal,sans-serif;color:var(--ink-soft);max-width:30ch}
+.used-v2 .used-mine-btn{flex:none;min-height:44px;padding:0 16px;border-radius:14px;border:1px solid var(--used-line);background:var(--surface);color:var(--ink);font:700 14px Tajawal,sans-serif}
+.used-v2 .used-river{position:absolute;left:0;right:0;bottom:2px;width:100%;height:24px;fill:none;stroke:var(--used-accent);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--laser-2,#8f88ff) 80%,transparent))}
+.used-v2 .used-search-wrap{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 14px;border-radius:16px;background:var(--surface);border:1px solid var(--used-line);color:var(--used-accent);box-shadow:var(--glow-soft)}
+.used-v2 .used-search-wrap:focus-within{box-shadow:0 0 0 2px var(--laser),var(--glow)}
+.used-v2 .used-search-wrap input{flex:1;min-width:0;border:0!important;outline:0;background:transparent!important;color:var(--ink);font:500 16px Tajawal,sans-serif;box-shadow:none!important;padding:0!important;min-height:48px}
+.used-v2 :is(.used-kinds,.used-zones){display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+.used-v2 :is(.used-kinds,.used-zones)::-webkit-scrollbar{display:none}
+.used-v2 :is(.used-kinds,.used-zones,.used-sort) button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:14px;border:1px solid var(--used-line);background:var(--surface);color:var(--ink);font:700 14px Tajawal,sans-serif;white-space:nowrap}
+.used-v2 .used-zones button{min-height:38px;border-radius:10px;font-size:13px}
+.used-v2 :is(.used-kinds,.used-zones,.used-sort) button[aria-pressed=true]{background:var(--laser);border-color:transparent;color:#fff;box-shadow:var(--glow)}
+
+/* Lead vehicle */
+.used-v2 .used-feature{display:block;width:100%;padding:0;text-align:inherit;border-radius:26px;overflow:hidden;background:var(--surface);border:1px solid color-mix(in srgb,var(--laser-2,#8f88ff) 45%,var(--used-line));box-shadow:0 0 26px color-mix(in srgb,var(--laser,#4f46e5) 18%,transparent);color:var(--ink)}
+.used-v2 .used-feature-img{position:relative;display:block;aspect-ratio:16/10;background:var(--warm-tile)}
+.used-v2 .used-feature-img img{width:100%;height:100%;object-fit:cover;display:block}
+.used-v2 .used-feature-body{display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px}
+.used-v2 .used-feature-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.used-v2 .used-feature-row>b:first-child{font:800 19px/1.3 Tajawal,sans-serif}
+.used-v2 .used-facts-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.used-v2 .used-facts-mini span{padding:8px;border-radius:12px;background:var(--surface-2);text-align:center}
+.used-v2 .used-facts-mini b{display:block;font:800 14px Tajawal,sans-serif}
+.used-v2 .used-facts-mini small,.used-v2 .used-feature-body>small{font:500 12px Tajawal,sans-serif;color:var(--ink-soft)}
+
+/* Grid */
+.used-v2 .used-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px}
+.used-v2 .used-list-head h2{margin:0;font:800 19px Tajawal,sans-serif;color:var(--ink)}
+.used-v2 .used-sort{display:flex;gap:6px}
+.used-v2 .used-sort button{min-height:38px;padding:0 12px;border-radius:10px;font-size:13px}
+.used-v2 .used-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+@media (min-width:768px){.used-v2 .used-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}}
+@media (min-width:1200px){.used-v2 .used-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+html[data-shatra-ui]:not([data-portal]) body .used-v2 .used-card:not(#_){display:flex;flex-direction:column;gap:6px;padding:0!important;background:transparent!important;border:0!important;text-align:inherit;color:var(--ink);min-width:0}
+.used-v2 .used-card .used-thumb{position:relative;display:block;aspect-ratio:1/1;border-radius:20px;overflow:hidden;border:1px solid var(--used-line);background:var(--warm-tile)}
+.used-v2 .used-card .used-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.used-v2 .used-noimg{display:grid;place-items:center;width:100%;height:100%;color:var(--ink-soft)}
+.used-v2 .used-noimg svg{width:34px;height:34px}
+.used-v2 .used-tag,.used-detail.used-v2 .used-tag{position:absolute;top:10px;inset-inline-start:10px;font:800 11px/1 Tajawal,sans-serif;font-style:normal;color:#fff;background:var(--laser);padding:6px 8px;border-radius:8px;box-shadow:var(--glow)}
+.used-v2 .used-count{position:absolute;bottom:8px;inset-inline-end:8px;font:700 11px/1 Tajawal,sans-serif;color:#fff;background:rgba(11,18,48,.72);padding:5px 7px;border-radius:7px}
+.used-v2 .used-title{font:800 14px/1.35 Tajawal,sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.used-v2 .used-price,.used-v2 .used-detail-price{font:800 15px/1.2 Tajawal,sans-serif;color:var(--used-accent)!important;font-variant-numeric:tabular-nums}
+.used-v2 .used-card small{font:500 12px/1.3 Tajawal,sans-serif;color:var(--ink-soft)}
+
+/* Sell button floats above the bottom bar on this page */
+.used-v2 .used-sell-fab{position:sticky;z-index:30;bottom:calc(var(--tabs-h,72px) + 18px + env(safe-area-inset-bottom,0px));align-self:flex-start;margin-top:-8px;display:inline-flex;align-items:center;gap:8px;min-height:56px;padding:0 20px;border-radius:18px;border:0;background:var(--warm-btn);color:#fff;font:800 16px Tajawal,sans-serif;box-shadow:var(--glow)}
+.used-v2 .used-sell-fab svg{width:22px;height:22px}
+@media (min-width:1024px){.used-v2 .used-sell-fab{bottom:28px}}
+body:has(.used-v2 .used-sell-fab) #buyerFloating{display:none!important}
+
+/* Ad sheet */
+.used-detail.used-v2{display:flex;flex-direction:column;gap:18px}
+.used-detail.used-v2 .used-gallery-wrap{position:relative}
+.used-detail.used-v2 .used-gallery{border-radius:24px;overflow:hidden}
+.used-detail.used-v2 .used-gallery-count{position:absolute;bottom:10px;inset-inline-end:10px;font:700 12px/1 Tajawal,sans-serif;color:#fff;background:rgba(11,18,48,.75);padding:7px 10px;border-radius:9px}
+.used-detail.used-v2 .used-detail-top{position:relative;display:flex;flex-direction:column;gap:8px}
+.used-detail.used-v2 .used-detail-top .used-tag{position:static;align-self:flex-start}
+.used-detail.used-v2 .used-detail-price{margin:0;font-size:28px;text-shadow:0 0 16px color-mix(in srgb,var(--laser-2,#8f88ff) 40%,transparent)}
+.used-detail.used-v2 .used-meta{display:flex;flex-wrap:wrap;gap:8px}
+.used-detail.used-v2 .used-meta span{min-height:32px;display:inline-flex;align-items:center;padding:0 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--used-line);font:700 13px Tajawal,sans-serif;color:var(--ink)}
+.used-detail.used-v2 .used-facts h3,.used-detail.used-v2 .used-about h3{margin:0 0 10px;font:800 17px Tajawal,sans-serif}
+.used-detail.used-v2 .used-facts>div{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.used-detail.used-v2 .used-facts>div>div{padding:12px 14px;border-radius:16px;background:var(--surface-2);border:1px solid var(--used-line)}
+.used-detail.used-v2 .used-facts small{display:block;font:500 12px Tajawal,sans-serif;color:var(--ink-soft)}
+.used-detail.used-v2 .used-facts b{display:block;margin-top:3px;font:800 16px Tajawal,sans-serif}
+.used-detail.used-v2 .used-detail-desc{font:400 16px/1.75 Tajawal,sans-serif;white-space:pre-line}
+.used-detail.used-v2 .used-safety{display:flex;gap:12px;align-items:flex-start;margin:0;padding:14px 16px;border-radius:18px;background:color-mix(in srgb,var(--ok,#17745d) 12%,transparent);border:1px solid color-mix(in srgb,var(--ok,#17745d) 45%,transparent);font:500 14px/1.6 Tajawal,sans-serif;color:var(--ink)}
+.used-detail.used-v2 .used-safety svg{flex:none;color:var(--ok,#17745d)}
+.used-detail.used-v2 .used-contact{position:sticky;bottom:0;display:flex;gap:10px;padding:12px 0 4px;background:linear-gradient(180deg,transparent,var(--surface) 30%)}
+.used-detail.used-v2 .used-contact .buy{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:56px;border-radius:18px;margin:0}
+.used-detail.used-v2 .used-contact .used-wa{flex:none;min-height:56px;padding:0 18px;border-radius:18px;border:1px solid var(--used-line);background:var(--surface-2);color:var(--ink);font:800 15px Tajawal,sans-serif}
+
+/* Sell form */
+html[data-shatra-ui]:not([data-portal]) body .used-form .used-kind:not(#_){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+html[data-shatra-ui]:not([data-portal]) body .used-form .used-kind button:not(#_){min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:16px;border:1.5px solid var(--used-line);background:var(--surface);color:var(--ink);font:800 14px Tajawal,sans-serif}
+html[data-shatra-ui]:not([data-portal]) body .used-form .used-kind button[aria-pressed=true]:not(#_){border-color:var(--laser-2);background:color-mix(in srgb,var(--laser) 18%,var(--surface));box-shadow:var(--glow)}
+.used-form .used-price-row{display:flex;gap:8px;align-items:stretch}
+.used-form .used-price-row input{flex:1;min-width:0}
+.used-form .used-free-btn{flex:none;min-height:48px;padding:0 16px;border-radius:14px;border:1px solid var(--used-line);background:var(--surface);color:var(--ink);font:800 14px Tajawal,sans-serif}
+.used-form .used-free-btn[aria-pressed=true]{background:var(--laser);border-color:transparent;color:#fff;box-shadow:var(--glow)}
+.used-form .used-ph-add{border:1.5px dashed var(--ink-soft)!important}
+
+/* My ads */
+.used-mine .used-quota{display:flex;align-items:center;gap:12px}
+.used-mine .used-ring{width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--laser-2,#8f88ff) 0 var(--p),var(--used-line) var(--p) 100%);box-shadow:0 0 14px color-mix(in srgb,var(--laser,#4f46e5) 35%,transparent)}
+.used-mine .used-ring b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font:800 14px Tajawal,sans-serif}
+.used-mine .used-mine-row{display:flex;gap:12px;padding:12px;border-radius:20px;border:1px solid var(--used-line);background:var(--surface-2);margin-top:10px}
+.used-mine .used-mine-row .used-thumb{width:86px;height:86px;flex:none;border-radius:16px;overflow:hidden;display:grid;place-items:center;background:var(--warm-tile)}
+.used-mine .used-mine-row .used-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.used-mine .used-mine-row.is-sold img{opacity:.55}
+.used-mine .used-mine-row>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.used-mine .used-mine-row .used-price{color:var(--used-accent);font:800 15px Tajawal,sans-serif}
+.used-mine .used-left{display:block;height:6px;border-radius:99px;background:var(--used-line);overflow:hidden}
+.used-mine .used-left i{display:block;height:100%;background:var(--laser-2,#8f88ff);box-shadow:0 0 8px var(--laser-2,#8f88ff)}
+.used-mine .used-mine-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.used-mine .used-mine-actions button{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--used-line);background:var(--surface);color:var(--ink);font:800 14px Tajawal,sans-serif}
+.used-mine .used-mine-actions .used-ok{color:var(--ok,#17745d);border-color:color-mix(in srgb,var(--ok,#17745d) 45%,transparent)}
+.used-mine .used-mine-actions .used-del{color:var(--danger,#c62828);border-color:color-mix(in srgb,var(--danger,#c62828) 45%,transparent)}
+
+/* Wide screens: the lead vehicle sits beside its facts instead of filling the screen */
+@media (min-width:768px){
+ .used-v2 .used-feature{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:stretch}
+ .used-v2 .used-feature-img{aspect-ratio:auto;min-height:260px;max-height:340px}
+ .used-v2 .used-feature-body{justify-content:center;padding:22px}
+ .used-v2 .used-feature-row{flex-direction:column;align-items:flex-start;gap:6px}
+ .used-v2 .used-feature-row>b:first-child{font-size:24px}
+ .used-v2 .used-feature .used-price{font-size:22px}
+}
+.used-mine .used-sell-cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;margin-top:14px;border-radius:16px;border:0;background:var(--warm-btn);color:#fff;font:800 15px Tajawal,sans-serif;box-shadow:var(--glow)}
