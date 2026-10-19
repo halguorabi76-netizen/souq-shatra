@@ -500,8 +500,12 @@ html[data-shatra-ui][data-theme] body .my-cart .mc-checkout .buy.buy{box-shadow:
 .my-cart .flow-empty .mc-orders{margin-top:18px}
 .pd2{padding-bottom:96px}
 .pd2 .pd-media{margin:4px 0 12px}
-.pd2 .pd-media .tile.big{border-radius:24px;overflow:hidden;background:var(--tile);aspect-ratio:1/1;max-height:62vh;margin:0;width:100%!important;max-width:none!important}
+/* The photo keeps the same square framing as its product card, so nothing extra is cut off; on short wide screens it shrinks as a whole square instead of being squashed. */
+.pd2 .pd-media .tile.big{border-radius:24px;overflow:hidden;background:var(--tile);aspect-ratio:1/1!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0 auto!important;width:min(100%,70vh)!important;max-width:none!important}
 .pd2 .pd-media .tile.big img{width:100%;height:100%;object-fit:cover}
+/* One centred column at every width: the theme's two-column desktop grid left the right half empty on a landscape iPad. */
+html:root body .product-detail.pd2{display:block!important;grid-template-columns:none!important;max-width:680px!important;margin-inline:auto!important;width:100%}
+html:root body .product-detail.pd2>*{grid-column:auto!important;margin-inline:0}
 .pd-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
 .pd-dots button{width:8px;height:8px;padding:0;border-radius:99px;border:0;background:var(--line);transition:width .2s,background .2s}
 .pd-dots button[aria-pressed="true"]{width:26px;background:var(--ink)}
