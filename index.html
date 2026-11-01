@@ -2065,8 +2065,19 @@ async function sendJoinRequest(openWhatsapp=true){
  const r=await db.rpc('request_professional_join',{p_phone:d.phone,p_role:d.join,p_name:d.name.trim(),p_details:details});
  if(r.error){say(/busy/.test(r.error.message)?'طلبات كثيرة الآن؛ حاول بعد قليل':'تعذّر إرسال الطلب؛ تحقق من الاتصال');return}
  say(r.data==='approved'?'✅ رقمك موافَق عليه! أكمل بياناتك واضغط «أكّد رقمك وافتح حسابك».':'✅ وصل طلبك للإدارة. ستتواصل معك الإدارة، وبعد الموافقة أكمل التسجيل من هنا.');
+ // Already approved: carry on to the WhatsApp confirmation instead of stopping at a note.
+ if(openWhatsapp&&r.data==='approved'){A.waStart();return}
  // A link the person taps themselves (opening WhatsApp after a network wait would be blocked by phones).
  if(openWhatsapp&&r.data!=='approved'&&note)note.insertAdjacentHTML('beforeend',`<a class="wa-join-wa" href="${SUPPORT_WHATSAPP}?text=${encodeURIComponent('مرحبًا، أرسلت طلب انضمام إلى سوق الشطرة '+(d.join==='seller'?'كبائع':'كسائق توصيل')+'. الاسم: '+d.name.trim()+' · رقمي: '+d.phone)}" target="_blank" rel="noopener">✆ راسل الدعم على واتساب لتسريع الموافقة</a>`);
+}
+// An approved seller or driver who tries «لدي حساب» before creating the account is sent to «حساب جديد».
+async function approvedNotRegistered(phone,role){
+ const n=String(phone||'').replace(/[^0-9]/g,''),ok=await db.rpc('professional_invite_open',{p_phone:n,p_role:role}).catch(()=>({}));
+ if(ok.error||ok.data!==true)return false;
+ if(role==='seller')render();
+ waDraft={...(waDraft||{name:profile?.full_name||'',zone:'',addr:'',point:null}),phone:n,join:role};waAccountSheet('new');
+ const note=$('#waLoginNote');if(note){note.textContent='رقمك موافَق عليه '+(role==='seller'?'كبائع':'كسائق')+'، لكن حسابك لم يُنشأ بعد. أكمل بياناتك هنا ثم اضغط «أكّد رقمك وافتح حسابك» وأرسل الرمز من واتساب.';note.hidden=false}
+ return true;
 }
 // A seller or driver approved by the admin beforehand: the account opens as a store or driver at once.
 async function waSubmitJoin(d){
@@ -2138,7 +2149,7 @@ const A={
     try{
       if(role==='seller'&&!ADMIN_PORTAL&&!db.preview){sellerEntryPending=true;sellerResume();}
       const result=await withTimeout(signInWithPhone(db,phone,password,role));
-      if(result.error){sellerEntryPending=false;say(result.error.message);if(role==='seller')render();return}
+      if(result.error){sellerEntryPending=false;if(role!=='buyer'&&result.error.code==='invalid_credentials'&&await approvedNotRegistered(phone,role))return;say(result.error.message);if(role==='seller')render();return}
       const signedIn=check(result).user;
       dataReady=false;accountResolving=true;user=signedIn;rememberMode(role);profile=null;ownStore=null;
       if(pendingPurchase){await refresh();toast('تم الدخول؛ يمكنك متابعة شراء المادة');return}
@@ -2151,7 +2162,7 @@ const A={
   waJoin:v=>{waCapture();waDraft.join=['seller','driver'].includes(v)?v:'buyer';waAccountSheet('new');$('#waStoreName,#waVehicle')?.focus()},
   waMap:()=>{waCapture();window.SouqLocationPicker.show({value:waDraft.point,sheet,head,title:'حدّد موقعك',purpose:'عنوانك',onConfirm:p=>{waDraft.point=p;waAccountSheet('new');toast('تم تحديد موقعك')}})},
   waStart:()=>act(async()=>{
-    if(waMode==='new'){waCapture();const problem=waDraftProblem(waDraft);if(problem){const note=$('#waLoginNote');if(note){note.textContent=problem[1];note.hidden=false}$('#'+problem[0])?.focus();return}
+    if(waMode==='new'){waCapture();const problem=waDraftProblem(waDraft);if(problem){const note=$('#waLoginNote');if(note){note.textContent=problem[1];note.hidden=false}toast(problem[1]);$('#'+problem[0])?.focus();return}
      if(waDraft.join&&waDraft.join!=='buyer'&&!db.preview){const ok=await db.rpc('professional_invite_open',{p_phone:waDraft.phone,p_role:waDraft.join});if(!ok.error&&ok.data!==true){const note=$('#waLoginNote');if(note){note.textContent='رقمك لم تتم الموافقة عليه بعد '+(waDraft.join==='seller'?'كبائع':'كسائق')+'. أرسلنا طلبك للإدارة؛ عند الموافقة ارجع إلى هنا وأكمل.';note.hidden=false}await sendJoinRequest(false);return}}}
     const button=$('#sheet [data-a="waStart"]');if(button?.disabled)return;if(button)button.disabled=true;
     try{
