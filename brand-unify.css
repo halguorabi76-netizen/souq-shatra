@@ -101,3 +101,28 @@ html[data-shatra-ui] body .account-shortcuts button>svg:not(#_){width:24px;heigh
 html[data-shatra-ui] body .ck>svg:not(#_){width:34px;height:34px;margin:0}
 html[data-shatra-ui][data-theme] body .sm-cats button:not(#_){display:inline-flex;align-items:center;gap:5px}
 html[data-shatra-ui][data-theme] body .sm-cats button svg{width:15px;height:15px;flex:none}
+
+/* Window title bars (sell your item, an ad, product details…): part of the window in its indigo
+ * ground instead of a black band, and they scroll away with the content instead of covering it. */
+html[data-shatra-ui][data-theme]:not([data-portal]) #sheet>.sh:not(#_){position:relative!important;top:auto!important;z-index:auto!important;background:transparent!important;box-shadow:none!important;border-bottom:1px solid var(--u-line)!important;color:var(--u-ink)!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) #sheet>.sh h2:not(#_){color:var(--u-ink)!important}
+html[data-shatra-ui][data-theme]:not([data-portal]) #sheet>.sh .x:not(#_){color:var(--u-strong)!important;background:var(--u-tint)!important;border:1px solid var(--u-line)!important;border-radius:12px}
+html[data-shatra-ui] body .used-ph-add b:not(#_){display:grid;place-items:center;width:52px;height:52px;margin:0 auto 6px;border-radius:16px;background:var(--u-tint);color:var(--u-strong)}
+html[data-shatra-ui] body .used-ph-add b>svg:not(#_){width:26px;height:26px;margin:0;vertical-align:0}
+
+/* Home «تسوّق حسب القسم»: always one row that scrolls sideways, on phone, iPad and laptop alike */
+html[data-shatra-ui] body #view .figma-section .category-cards:not(.sx-sections):not(#_){display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;overflow-x:auto!important;overflow-y:hidden!important;gap:12px!important;padding:2px 2px 10px!important;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-x:contain}
+html[data-shatra-ui] body #view .figma-section .category-cards:not(.sx-sections)::-webkit-scrollbar{display:none}
+html[data-shatra-ui] body #view .figma-section .category-cards:not(.sx-sections)>.category-card:not(#_){flex:0 0 clamp(92px,11vw,128px)!important;width:auto!important;scroll-snap-align:start}
+
+/* One search bar per page: the used market and a store's page have their own, so the main bar steps aside */
+:root:not([data-portal]) body:is([data-main-page="usedPage"],:has(#swPublicQuery)) .desktop-search-row:not(#_){display:none!important}
+/* Live suggestions under a page's own search bar */
+.used-search-wrap,.sm-search,.sw-search{position:relative}
+.live-suggest{position:absolute;inset-inline:0;top:calc(100% + 6px);z-index:30;display:grid;gap:2px;padding:6px;border-radius:16px;background:var(--u-tint);border:1px solid var(--u-line);box-shadow:0 14px 34px rgba(11,18,48,.35);max-height:min(60vh,360px);overflow:auto}
+.live-suggest button{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:6px 8px;border:0;border-radius:12px;background:transparent;color:var(--u-ink);text-align:start;font:inherit;cursor:pointer}
+.live-suggest button:hover,.live-suggest button:focus-visible{background:var(--u-tint-2);outline:none}
+.live-suggest img,.live-suggest .ls-icon{flex:none;width:40px;height:40px;border-radius:10px;object-fit:cover;display:grid;place-items:center;background:var(--u-tint-2);color:var(--u-strong)}
+.live-suggest .ls-icon svg{width:20px;height:20px}
+.ls-text{display:grid;min-width:0}.ls-text b{font-weight:800;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ls-text small{color:var(--u-soft);font-size:12.5px}
+.ls-empty{margin:0;padding:12px;color:var(--u-soft);font-size:14px;text-align:center}
