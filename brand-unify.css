@@ -304,3 +304,86 @@ html[data-shatra-ui] .topline #buyerFloating:not(#_){display:none!important}
 html[data-shatra-ui] .tabs .cart-centre{position:relative}
 html[data-shatra-ui] .tabs .cart-centre>i{position:absolute;top:-8px;left:calc(50% + 10px);min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#fff;color:#3b2fd6;font:800 11px/18px Tajawal,system-ui,sans-serif;font-style:normal;z-index:2}
 html[data-shatra-ui] .tabs .cart-centre>i[hidden]{display:none}
+
+/* ===== Seller workspace in the merchant-app style (owner's reference), indigo palette =====
+ * Glass cards on the night ground, one glow on the primary action, the same data and actions. */
+html[data-shatra-ui][data-theme] body.seller-workspace{--sx-card:color-mix(in srgb,var(--u-tint) 82%,transparent);--sx-line:color-mix(in srgb,var(--u-ice) 16%,transparent);--sx-glow:0 0 24px -4px rgba(108,99,255,.55)}
+html[data-shatra-ui][data-theme=light] body.seller-workspace{--sx-card:#ffffff;--sx-line:#dfe2fb;--sx-glow:0 8px 22px -6px rgba(79,70,229,.35)}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace :is(.sw-card,.sw-fold,.sw-order,.sw-product,.se-card-stat,.se-alert,.sw-menu):not(#_){background:var(--sx-card)!important;border:1px solid var(--sx-line)!important;border-radius:22px!important;box-shadow:none!important;backdrop-filter:blur(12px)}
+
+/* The active-store card at the top of the home page */
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card:not(#_){margin:4px 0 14px;padding:14px!important;border-radius:22px;background:var(--sx-card)!important;border:1px solid var(--sx-line)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card .sw-monogram:not(#_){width:56px!important;height:56px!important;border-radius:16px!important;border:2px solid color-mix(in srgb,var(--u-strong) 60%,transparent)!important;overflow:hidden}
+.sw-store-card small:first-child{color:var(--u-soft)!important}
+.sw-open{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:12.5px;font-weight:700;color:var(--u-soft)}
+.sw-open i{width:8px;height:8px;border-radius:50%;background:var(--u-soft)}
+.sw-open.is-open{color:var(--u-ice)}.sw-open.is-open i{background:var(--u-strong);box-shadow:0 0 10px var(--u-strong)}
+.sw-open.is-unset{font-weight:500}
+
+/* Home: 2×2 stat cards and the low-stock alert */
+.se-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 10px}
+@media (min-width:900px){.se-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .se-card-stat:not(#_){display:grid;align-content:start;gap:6px;padding:14px!important;text-align:start;color:var(--u-ink)!important;font:inherit;min-height:118px}
+.se-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.se-card-head small{color:var(--u-soft);font-size:13px;font-weight:700}
+.se-card-stat>b{font-size:24px;font-weight:800;line-height:1.2;color:var(--u-ink);font-variant-numeric:tabular-nums}
+.se-card-stat .se-sub{color:var(--u-strong);font-size:12px;font-weight:700}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace :is(.se-card-stat,.se-alert) .se-chip:not(#_){flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--u-tint-2)!important;color:var(--u-strong)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace :is(.se-card-stat,.se-alert) .se-chip svg:not(#_){width:17px!important;height:17px!important;stroke:currentColor!important;fill:none}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .se-alert:not(#_){display:flex;align-items:center;gap:12px;width:100%;margin:0 0 8px;padding:12px 14px!important;color:var(--u-ink)!important;font:inherit;text-align:start;border-color:color-mix(in srgb,var(--u-violet) 45%,transparent)!important}
+.se-alert>span:not(.se-chip){flex:1;display:grid;gap:2px}.se-alert b{font-size:14px}.se-alert small{color:var(--u-soft);font-size:12.5px}
+.se-alert em{font-style:normal;padding:6px 12px;border-radius:10px;background:var(--u-btn);color:#fff;font-weight:800;font-size:12.5px}
+
+/* Orders: status chips with counts, cards with a clear primary action */
+.sw-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 10px}
+.sw-chips::-webkit-scrollbar{display:none}
+.sw-chips button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border-radius:19px;border:1px solid var(--sx-line);background:var(--sx-card);color:var(--u-ink);font:700 13px Tajawal,system-ui,sans-serif;cursor:pointer}
+.sw-chips button b{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--u-tint-2);color:var(--u-strong);font-size:11.5px;line-height:20px}
+.sw-chips button[aria-pressed="true"]{background:var(--u-btn);color:#fff;border-color:transparent;box-shadow:var(--sx-glow)}
+.sw-chips button[aria-pressed="true"] b{background:rgba(255,255,255,.22);color:#fff}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order:not(#_){padding:14px!important;display:grid;gap:6px}
+.sw-order-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-status:not(#_){padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;background:var(--u-tint-2)!important;color:var(--u-strong)!important;border:0!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-status.status-0:not(#_){background:var(--u-btn)!important;color:#fff!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-status.status-4:not(#_){background:transparent!important;color:var(--u-soft)!important;border:1px solid var(--sx-line)!important}
+.sw-order h3{margin:4px 0 0;font-size:16px}
+.sw-order-total{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--sx-line)}
+.sw-order-total b{color:var(--u-strong);font-size:16px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions:not(#_){display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:6px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions .sw-primary:not(#_){min-height:46px;border-radius:14px!important;background:var(--u-btn)!important;color:#fff!important;border:0!important;box-shadow:var(--sx-glow)!important;font-weight:800}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions button:not(.sw-primary):not(#_){min-height:46px;border-radius:14px!important;background:transparent!important;color:var(--u-ink)!important;border:1px solid var(--sx-line)!important}
+
+/* Products: a row per product with its photo, price, stock and a publish switch */
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-products:not(.as-grid) .sw-product:not(#_){display:grid!important;grid-template-columns:84px minmax(0,1fr);gap:12px;align-items:start;padding:10px!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-products:not(.as-grid) .sw-product-image:not(#_){width:84px;height:84px;border-radius:16px;overflow:hidden}
+.sw-product-info{display:grid;gap:3px;min-width:0}
+.sw-product-info h3{margin:0;font-size:15px}
+.sw-switch{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 4px;border:0;background:none;color:var(--u-soft);font:700 12.5px Tajawal,system-ui,sans-serif;cursor:pointer}
+.sw-switch i{position:relative;width:42px;height:24px;border-radius:12px;background:var(--u-tint-2);border:1px solid var(--sx-line);transition:background .2s}
+.sw-switch i::after{content:"";position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:var(--u-soft);transition:transform .2s,background .2s}
+.sw-switch[aria-checked="true"]{color:var(--u-strong)}
+.sw-switch[aria-checked="true"] i{background:var(--u-btn);border-color:transparent;box-shadow:var(--sx-glow)}
+.sw-switch[aria-checked="true"] i::after{background:#fff;transform:translateX(-18px)}
+@media (prefers-reduced-motion:reduce){.sw-switch i,.sw-switch i::after{transition:none}}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-product .sw-actions:not(#_){display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-product .sw-actions>button:not(.sw-switch):not(#_){min-height:38px;padding:0 14px;border-radius:12px!important;background:var(--u-tint-2)!important;color:var(--u-ink)!important;border:1px solid var(--sx-line)!important;font-weight:700}
+
+/* «المزيد»: settings rows with an icon tile and a chevron */
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu:not(#_){padding:6px!important;display:grid}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu>button:not(#_){display:flex!important;align-items:center;gap:12px;min-height:56px;padding:8px 10px!important;border:0!important;border-radius:16px!important;background:transparent!important;color:var(--u-ink)!important;font-weight:700;text-align:start}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu>button+button:not(#_){border-top:1px solid var(--sx-line)!important;border-radius:0!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu>button svg:not(#_){flex:none;width:36px!important;height:36px!important;padding:8px;border-radius:11px;background:var(--u-tint-2);color:var(--u-strong);stroke:currentColor}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu>button:not(#_)::after{content:"‹";margin-inline-start:auto;color:var(--u-soft);font-size:18px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu-title:not(#_){margin:18px 4px 8px;font-size:14px;color:var(--u-soft);font-weight:800}
+
+/* Bottom bar: frosted glass with the raised «+» */
+html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav:not(#_){background:color-mix(in srgb,var(--paper,#0b1230) 86%,transparent)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--sx-line)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav button[aria-current="page"]:not(#_){color:var(--u-strong)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav .sw-fab:not(#_){background:var(--u-btn)!important;color:#fff!important;box-shadow:var(--sx-glow)!important;border:0!important}
+
+/* Notifications panel for sellers: the same glass cards */
+html[data-shatra-ui][data-theme] body.seller-workspace #activityPanel:not(#_){background:var(--paper,#0b1230)!important;border:1px solid var(--sx-line)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace #activityPanel :is(article,li,.ac-item):not(#_){background:var(--sx-card)!important;border:1px solid var(--sx-line)!important;border-radius:16px!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card:not(#_){display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:space-between;gap:12px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card .sw-store-id:not(#_){flex:1;min-width:0}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card .sw-header-actions:not(#_){flex:none;align-self:flex-start}
