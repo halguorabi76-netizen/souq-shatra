@@ -255,3 +255,26 @@ html[data-shatra-ui][data-theme] body .profile-logout svg:not(#_){width:16px!imp
 html[data-shatra-ui][data-theme] body .profile-page:has(.profile-logout){text-align:center}
 html[data-shatra-ui][data-theme] body .profile-page>:not(.profile-logout):not(.profile-delete){text-align:initial}
 .profile-id-phone{justify-self:end;padding:0;border:0;background:none;color:var(--u-soft)!important;font:500 14px Tajawal,system-ui,sans-serif;text-decoration:none!important;cursor:pointer}
+
+/* Seller workspace: indigo search bar with the filter inside, today's order counts on the orders page */
+html[data-shatra-ui][data-theme] body :is(.sw-search):not(#_){display:flex;align-items:center;gap:6px;padding:4px 6px 4px 4px!important;border-radius:16px!important;background:var(--u-tint)!important;border:1px solid var(--u-line)!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .sw-search input:not(#_){flex:1;min-width:0;border:0!important;background:transparent!important;color:var(--u-ink)!important;box-shadow:none!important;padding:0 10px!important;font-size:16px}
+html[data-shatra-ui][data-theme] body .sw-search input::placeholder{color:var(--u-soft)}
+html[data-shatra-ui][data-theme] body .sw-search button:not(#_){flex:none;width:40px!important;height:40px!important;min-width:40px;border-radius:12px!important;border:0!important;background:var(--u-tint-2)!important;color:var(--u-strong)!important;display:grid;place-items:center;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body .sw-search button svg:not(#_){width:19px!important;height:19px!important;stroke:currentColor;fill:none}
+.sw-order-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 12px}
+.sw-order-stats div{display:grid;justify-items:center;gap:2px;padding:12px 6px;border-radius:16px;background:var(--u-tint);border:1px solid var(--u-line)}
+.sw-order-stats b{font-size:20px;font-weight:800;color:var(--u-strong)}
+.sw-order-stats small{font-size:12px;color:var(--u-soft);text-align:center}
+.sw-filter-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+html[data-shatra-ui] body .sw-filter-tools button:not(#_){display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--u-line);background:var(--u-tint);color:var(--u-ink);font-weight:700}
+.sw-filter-tools svg{width:17px;height:17px}
+/* Smaller, lighter icons in the seller workspace */
+html[data-shatra-ui] body.seller-workspace :is(.sw-icon,.sw-add):not(#_){width:40px!important;height:40px!important;min-width:40px;border-radius:12px!important}
+html[data-shatra-ui] body.seller-workspace :is(.sw-icon,.sw-add) svg:not(#_){width:19px!important;height:19px!important}
+html[data-shatra-ui] body.seller-workspace .se-stat .se-chip:not(#_){width:34px;height:34px;border-radius:11px}
+html[data-shatra-ui] body.seller-workspace .se-stat .se-chip svg:not(#_){width:17px!important;height:17px!important}
+html[data-shatra-ui] body.seller-workspace .sw-fold-icon svg:not(#_){width:18px!important;height:18px!important}
+.se-stats:has(> :nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.sp-preview .sp-pager{padding:0;margin:0}
+html[data-shatra-ui][data-theme] body #sheet label:not(.sw-check):not(#_){color:var(--u-soft)!important}
