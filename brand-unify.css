@@ -139,3 +139,73 @@ html[data-shatra-ui] body #view .figma-section .category-cards:not(.sx-sections)
 html[data-shatra-ui] body.driver-mode .app>.tabs:not([hidden]):not(#_){display:grid!important}
 @media (max-width:1023px){html[data-shatra-ui] body.driver-mode .app>.tabs:not(#_){grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 html[data-shatra-ui] body.driver-mode .desktop-search-row:not(#_),html[data-shatra-ui] body.driver-mode #buyerFloating:not(#_),html[data-shatra-ui] body.driver-mode .tabs-cart:not(#_){display:none!important}
+
+/* ===== «سوق الشطرة» layout: home (used market first), materials rows, framed stores ===== */
+.sq-used{margin:14px 0 0;padding:18px 0 12px;border-top:1px solid var(--u-line);background:linear-gradient(180deg,var(--u-tint) 0%,transparent 100%)}
+.sq-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sq-title{margin:0;font:700 clamp(28px,6vw,40px)/1.1 "Aref Ruqaa","Amiri",serif;color:var(--u-ink)}
+.sq-head p{margin:6px 0 0;color:var(--u-soft);font-size:14px}
+.sq-more{flex:none;min-height:44px;padding:0 4px;background:none;border:0;color:var(--u-strong);font:800 14px Tajawal,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+.sq-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 8px;overscroll-behavior-x:contain}
+.sq-chips::-webkit-scrollbar,.sq-row::-webkit-scrollbar,.sq-stores::-webkit-scrollbar,.sq-secs::-webkit-scrollbar{display:none}
+.sq-chips button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--u-line);background:var(--u-tint);color:var(--u-ink);font:800 13.5px Tajawal,system-ui,sans-serif;cursor:pointer}
+.sq-chips button[aria-pressed="true"]{background:var(--u-btn);color:#fff;border-color:transparent;box-shadow:0 0 18px rgba(108,99,255,.45)}
+.sq-subs button[aria-pressed="true"]{background:#e4e7ff;color:#141b4d;box-shadow:none}
+.sq-row{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:4px 0 10px;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+.sq-row>.used-card,.sq-row .sq-cards>.used-card{flex:0 0 clamp(150px,40vw,200px)!important;width:auto!important;scroll-snap-align:start}
+html[data-shatra-ui] body .sq-row :is(.figma-product-grid,.sq-cards):not(#_){display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;padding:0!important;margin:0!important}
+html[data-shatra-ui] body .sq-row .figma-product-grid>*:not(#_){flex:0 0 clamp(158px,42vw,220px)!important;width:auto!important;max-width:none!important;scroll-snap-align:start}
+.sq-empty{margin:0;padding:18px 0;color:var(--u-soft);font-size:14px}
+.sq-hint{margin:4px 0 0;color:var(--u-soft);font-size:14px}
+.sq-hint .link{padding:0;border:0;background:none;color:var(--u-strong);font:inherit;font-weight:800;cursor:pointer}
+.sq-new{margin-top:26px}
+.sq-stores{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding:4px 0 12px}
+.sq-store{flex:none;width:80px;display:grid;justify-items:center;gap:6px;padding:0;border:0;background:none;color:var(--u-ink);font:inherit;text-align:center;cursor:pointer}
+.sq-logo{width:68px;height:68px;border-radius:50%;overflow:hidden;display:grid;place-items:center;border:2px solid var(--u-strong);background:linear-gradient(150deg,#6c63ff,#2a2a9e);color:#fff;font:700 28px "Aref Ruqaa","Amiri",serif}
+.sq-logo img,.sp-logo img,.sp-peek-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.sq-store b{font-size:12.5px;line-height:1.3;font-weight:700}
+
+.sq-materials{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;padding-top:6px}
+.sq-materials>*,.sq-section,.sq-used,.sp-page{min-width:0;max-width:100%}
+.sq-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:5px;border-radius:18px;background:var(--u-tint);border:1px solid var(--u-line)}
+.sq-tabs button{min-height:46px;border:0;border-radius:14px;background:transparent;color:var(--u-soft);font:800 16px Tajawal,system-ui,sans-serif;cursor:pointer}
+.sq-tabs button[aria-selected="true"]{background:var(--u-btn);color:#fff;box-shadow:0 0 18px rgba(108,99,255,.45)}
+.sq-tab-hint{margin:6px 0 0;text-align:center;color:var(--u-soft);font-size:12.5px}
+.sq-section{padding-top:18px}
+.sq-sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sq-sec-head h2{margin:0;display:flex;align-items:center;gap:8px;font:800 19px Tajawal,system-ui,sans-serif;color:var(--u-ink)}
+.sq-sec-icon{flex:none;width:34px;height:34px;border-radius:11px;background:var(--u-tint);color:var(--u-strong);display:grid;place-items:center}
+.sq-sec-icon svg{width:19px;height:19px;fill:none;stroke:currentColor}
+.sq-line{height:1px;margin:10px 0 2px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--u-strong) 45%,transparent),transparent)}
+.sq-sell{display:flex;align-items:center;gap:12px;margin:22px 0 8px;padding:16px;border-radius:20px;background:var(--u-tint);border:1px solid var(--u-line)}
+.sq-sell span{flex:1;min-width:0;color:var(--u-soft);font-size:14px;line-height:1.6}
+html[data-shatra-ui] body .sq-sell .buy:not(#_){flex:none;width:auto!important;min-height:44px;padding:0 18px;margin:0}
+
+body[data-main-page="stores"] #view{overflow-x:clip}
+.sq-secs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 0 8px}
+.sq-secs button{flex:none;width:86px;display:grid;justify-items:center;align-content:start;gap:6px;padding:10px 4px;border-radius:18px;border:1px solid var(--u-line);background:var(--u-tint);color:var(--u-ink);font:700 12px/1.3 Tajawal,system-ui,sans-serif;cursor:pointer}
+.sq-secs button>span{width:40px;height:40px;border-radius:13px;background:var(--u-tint-2);color:var(--u-strong);display:grid;place-items:center}
+.sq-secs svg{width:22px;height:22px;fill:none;stroke:currentColor}
+.sq-secs button[aria-pressed="true"]{background:var(--u-btn);color:#fff;border-color:transparent;box-shadow:0 0 18px rgba(108,99,255,.45)}
+.sq-secs button[aria-pressed="true"]>span{background:rgba(255,255,255,.18);color:#fff}
+.sp-pager{position:relative;margin:12px 0 8px;padding:0 24px;touch-action:pan-y}
+.sp-card{display:grid;justify-items:center;gap:8px;padding:18px 14px 16px;text-align:center;border-radius:30px;border:1px solid color-mix(in srgb,var(--u-strong) 42%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--u-deep) 13%,transparent) 0%,color-mix(in srgb,var(--u-tint) 50%,transparent) 42%,transparent 100%);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--u-ice) 30%,transparent),0 0 28px rgba(79,70,229,.2)}
+.sp-logo{width:108px;height:108px;border-radius:50%;overflow:hidden;display:grid;place-items:center;border:3px solid var(--u-strong);background:linear-gradient(150deg,#6c63ff,#2a2a9e);color:#fff;font:700 46px "Aref Ruqaa","Amiri",serif;box-shadow:0 0 30px rgba(108,99,255,.45)}
+.sp-card h2{margin:4px 0 0;font:800 22px Tajawal,system-ui,sans-serif;color:var(--u-ink)}
+.sp-facts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.sp-facts span{display:inline-flex;align-items:center;gap:4px;min-height:28px;padding:0 10px;border-radius:9px;background:var(--u-tint);border:1px solid var(--u-line);color:var(--u-ink);font-size:12px;font-weight:700}
+.sp-facts svg{width:14px;height:14px;stroke:var(--u-strong)}
+.sp-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px}
+html[data-shatra-ui] body .sp-actions .buy:not(#_){width:auto!important;min-height:44px;padding:0 20px;margin:0}
+.sp-actions small{color:var(--u-soft);font-weight:700;font-size:12.5px}
+.sp-products{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--u-ice) 22%,transparent)}
+@media (min-width:700px){.sp-products{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1024px){.sp-products{grid-template-columns:repeat(4,minmax(0,1fr))}.sp-pager{max-width:900px;margin-inline:auto}}
+.sp-prod{display:grid;align-content:start;gap:2px;padding:0 0 10px;border-radius:18px;border:1px solid var(--u-line);background:var(--u-tint);color:var(--u-ink);font:inherit;text-align:start;overflow:hidden;cursor:pointer}
+.sp-thumb{display:block;aspect-ratio:1;background:var(--u-tint-2);overflow:hidden}
+.sp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-prod>span:not(.sp-thumb){padding:6px 10px 0;font-weight:700;font-size:13.5px;line-height:1.35}
+.sp-prod b{padding:0 10px;color:var(--u-strong);font-weight:800}
+.sp-peek{position:absolute;top:34px;z-index:2;width:76px;height:76px;padding:0;border-radius:50%;border:2px solid var(--u-line);background:none;opacity:.75;overflow:hidden;cursor:pointer}
+.sp-prev{right:-40px}.sp-next{left:-40px}
+.sp-peek-logo{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(150deg,#3b3a9e,#1b2556);color:#e4e7ff;font:700 30px "Aref Ruqaa","Amiri",serif}
