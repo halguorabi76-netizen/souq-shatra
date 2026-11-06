@@ -1,0 +1,103 @@
+/* سوق الشطرة — one colour family on every screen (customer, seller, driver).
+ * Loaded after laser-theme.css and used-market.css. It replaces the leftover teal, green, amber,
+ * pink and beige accents with shades of indigo and blue, in the night and day themes alike.
+ * Red stays only where an action cannot be undone (deleting an account) and for error text. */
+
+:root,html[data-theme=dark]{
+ --u-ink:#f3f5ff;--u-soft:#aeb6d8;--u-tint:#1b2556;--u-tint-2:#222d66;--u-line:#2a3570;
+ --u-strong:#8f88ff;--u-deep:#6c63ff;--u-blue:#7aa2ff;--u-violet:#a99cff;--u-ice:#a5b4ff;
+ --u-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3547a5 100%);
+}
+html[data-theme=light]{
+ --u-ink:#141b4d;--u-soft:#4a5287;--u-tint:#eef0ff;--u-tint-2:#e0e4ff;--u-line:#c7cdfb;
+ --u-strong:#4f46e5;--u-deep:#3b2fd6;--u-blue:#2563eb;--u-violet:#6d5df6;--u-ice:#4f46e5;
+ --u-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3b2fd6 100%);
+}
+/* «Done» and other good news read as indigo too; errors keep their red. */
+html[data-shatra-ui][data-theme]:not([data-portal]):not(#_){--ok:var(--u-ice)}
+
+/* Settings list: every row icon from the same indigo tile */
+html[data-shatra-ui][data-theme] body .st-icon:is(.st-bag,.st-box,.st-heart,.st-sun,.st-help,.st-chat):not(#_){background:var(--u-btn)!important;color:#fff!important}
+html[data-shatra-ui][data-theme] body .st-icon.st-out:not(#_){background:var(--u-tint)!important;color:var(--u-strong)!important}
+html[data-shatra-ui][data-theme] body .st-row:has(.st-out) .st-text b:not(#_){color:var(--u-strong)!important}
+
+/* Profile page: sign out, location and role buttons */
+html[data-shatra-ui][data-theme] body .profile-logout:not(#_){color:var(--u-strong)!important;border-color:var(--u-line)!important;background:transparent!important}
+html[data-shatra-ui][data-theme] body .profile-logout svg:not(#_){stroke:currentColor!important}
+html[data-shatra-ui][data-theme] body :is(.profile-gps,.profile-role-actions button):not(#_){background:var(--u-tint)!important;color:var(--u-ink)!important;border-color:var(--u-line)!important;background-image:none!important}
+html[data-shatra-ui][data-theme] body :is(.profile-gps,.profile-role-actions button) svg:not(#_){stroke:var(--u-strong)!important}
+html[data-shatra-ui][data-theme] body .profile-delete:not(#_){background:transparent!important;color:var(--danger,#c62828)!important;border:1px solid currentColor!important}
+
+/* Orders and cart links */
+html[data-shatra-ui][data-theme] body :is(.customer-orders .dh .link,.mc-orders,.mc-orders span):not(#_){color:var(--u-strong)!important}
+html[data-shatra-ui][data-theme] body :is(.mc-orders,.customer-orders .dh .link) svg:not(#_){stroke:currentColor!important}
+html[data-shatra-ui][data-theme] body .customer-orders .dh .link:not(#_){display:inline-flex;align-items:center;gap:6px}
+html[data-shatra-ui][data-theme] body .customer-orders .dh .link svg{width:18px;height:18px}
+
+/* Category tiles: no beige behind the icon in the day theme */
+html[data-shatra-ui][data-theme] body .category-card>span:not(#_){background:var(--u-tint)!important;color:var(--u-strong)!important}
+html[data-shatra-ui][data-theme] body .category-card>span svg{stroke:currentColor}
+
+/* Product without a photo: the category icon instead of an emoji */
+.thumb-icon{display:grid;place-items:center;width:100%;height:100%;min-height:72px;color:var(--u-strong);background:var(--u-tint);border-radius:inherit}
+.thumb-icon svg{width:44%;max-width:72px;height:auto;fill:none;stroke:currentColor;stroke-width:1.6}
+
+/* Floating activity bell: the brand gradient in both themes */
+html[data-shatra-ui][data-theme] body #activityBell:not(#_),html[data-shatra-ui][data-theme] body .ac-floating:not(#_){background:var(--u-btn)!important;color:#fff!important;border:1px solid rgba(255,255,255,.22)!important;box-shadow:0 8px 22px rgba(79,70,229,.35)!important}
+
+/* Seller dashboard: stat chips in three indigo shades instead of green, amber and red */
+html[data-shatra-ui][data-theme] body .se-stat .se-chip:not(#_){background:var(--u-tint)!important;color:var(--u-strong)!important}
+html[data-shatra-ui][data-theme] body .se-stat.se-amber .se-chip:not(#_){color:var(--u-violet)!important}
+html[data-shatra-ui][data-theme] body .se-stat.se-red .se-chip:not(#_){color:var(--u-blue)!important}
+html[data-shatra-ui][data-theme] body .se-stat .se-chip svg:not(#_){stroke:currentColor!important}
+html[data-shatra-ui][data-theme] body .se-trend:not(#_),html[data-shatra-ui][data-theme] body .se-trend.down:not(#_){color:#c7cdff!important}
+html[data-shatra-ui][data-theme] body .sw-legend>div:nth-child(1)>i:not(#_){background:var(--u-ice)!important}
+html[data-shatra-ui][data-theme] body .sw-legend>div:nth-child(2)>i:not(#_){background:var(--u-deep)!important}
+html[data-shatra-ui][data-theme] body .sw-legend>div:nth-child(3)>i:not(#_){background:var(--u-blue)!important}
+html[data-shatra-ui][data-theme] body .sw-legend>div:nth-child(n+4)>i:not(#_){background:var(--u-violet)!important}
+
+/* Product return badges */
+html[data-shatra-ui][data-theme] body .return-badge:not(#_){display:inline-flex;align-items:center;gap:4px;background:var(--u-tint)!important;color:var(--u-strong)!important;border:1px solid var(--u-line)!important}
+html[data-shatra-ui][data-theme] body .return-badge.is-no:not(#_){color:var(--u-soft)!important;background:transparent!important}
+html[data-shatra-ui][data-theme] body .return-badge svg{width:13px;height:13px;stroke-width:2.2}
+
+/* Driver workspace: the top buttons and tabs were dark text on a dark tile at night */
+html[data-shatra-ui][data-theme] body :is(.dw-topnav,.dw-tabs) button:not(#_){color:var(--u-ink)!important;background:var(--u-tint)!important;border-color:var(--u-line)!important}
+html[data-shatra-ui][data-theme] body .dw-tabs button[aria-pressed=true]:not(#_){background:var(--u-btn)!important;color:#fff!important;border-color:transparent!important}
+
+/* Icons that replaced text symbols sit on the text line */
+html[data-shatra-ui][data-theme] body :is(.st-theme,[data-a="theme"],[data-a="customerReload"],[data-a="adminRefresh"]) svg{width:18px;height:18px;vertical-align:-4px;margin-inline-end:4px}
+.profile-back svg{width:22px;height:22px}
+
+/* The cart in the top bar (it used to float over the page above the bottom bar) */
+html[data-shatra-ui] .topline #buyerFloating:not(#_){position:relative!important;inset:auto!important;transform:none!important;flex:none;width:42px!important;height:42px!important;min-width:42px;border-radius:11px!important;margin:0!important;z-index:auto}
+html[data-shatra-ui] .topline #buyerFloating svg{width:22px;height:22px}
+html[data-shatra-ui] .topline #buyerFloating i:not(#_){top:-6px;right:-6px;min-width:18px;height:18px;line-height:14px;background:#fff!important;color:#3b2fd6!important;border:2px solid var(--u-deep);font-weight:800}
+.topline:has(#buyerFloating:not([hidden])) #themeToggle{margin-inline-end:0!important}
+.topline>#themeToggle+#buyerFloating{order:0}
+
+/* Notifications bell: in the seller header on every page and in the driver's top bar, never floating */
+body.seller-workspace:has(.sw-bell) #activityBell{display:none!important}
+html[data-shatra-ui] .topline #activityBell:not(#_){position:relative!important;inset:auto!important;transform:none!important;flex:none;width:42px!important;height:42px!important;border-radius:11px!important;margin:0!important;z-index:auto}
+html[data-shatra-ui] .topline #activityBell svg{width:22px;height:22px}
+html[data-shatra-ui] body .sw-header-actions:not(#_){display:flex;gap:8px;align-items:center}
+
+/* Profile page link list: readable in both themes (it was brown text with a pink divider) */
+html[data-shatra-ui][data-theme] body .profile-link:not(#_){color:var(--u-ink)!important}
+html[data-shatra-ui][data-theme] body .profile-link+.profile-link:not(#_){border-top-color:var(--u-line)!important}
+html[data-shatra-ui][data-theme] body .profile-link svg:not(#_){stroke:var(--u-strong)!important}
+
+/* Store page cards: same price colour, offer badge and add button as the home cards */
+html[data-shatra-ui][data-theme] body .sm-price:not(#_){color:var(--u-strong)!important;font-weight:800}
+html[data-shatra-ui][data-theme] body .sm-price s:not(#_){color:var(--u-soft)!important;font-weight:500;margin-inline-end:6px}
+html[data-shatra-ui][data-theme] body .sm-sale:not(#_){background:var(--u-btn)!important;color:#fff!important}
+html[data-shatra-ui][data-theme] body .sm-row .market-card-plus:not(#_){background:var(--u-btn)!important;color:#fff!important;box-shadow:0 6px 16px rgba(79,70,229,.3)}
+html[data-shatra-ui][data-theme] body .sm-facts :is(span,button):not(#_){display:inline-flex;align-items:center;gap:6px}
+html[data-shatra-ui][data-theme] body .sm-facts svg,.sm-open+svg,.seller-verified svg,.sm-verified svg,.sx-verified svg,.pd-verified svg{width:15px;height:15px;stroke:var(--u-strong)}
+
+/* Icons that replaced emoji inside text lines and buttons */
+html[data-shatra-ui] body :is(.note,.sw-muted,.mc-actions,.co-pay,.co-link,.wa-map,.alt,.wa-join-note p,.wa-join-wa,.account-shortcuts button,.customer-order-controls button,.progress-mark,.ck,.return-badge,.pe-return span,.checkout-map-card span,.co-map-pick span,.sw-return-request b,.sm-preview-bar span,.flow-heading button,small,strong,b) > svg:not(#_){width:17px;height:17px;vertical-align:-3px;margin-inline-end:5px;flex:none}
+html[data-shatra-ui] body .account-shortcuts button>svg:not(#_){width:24px;height:24px;margin:0 0 4px}
+html[data-shatra-ui] body .ck>svg:not(#_){width:34px;height:34px;margin:0}
+html[data-shatra-ui][data-theme] body .sm-cats button:not(#_){display:inline-flex;align-items:center;gap:5px}
+html[data-shatra-ui][data-theme] body .sm-cats button svg{width:15px;height:15px;flex:none}

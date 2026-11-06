@@ -33,7 +33,7 @@
    const p=point(value);if(!p||!current())return;
    session.draft=p;if(manual)session.revision++;
    if(marker)marker.setLatLng([p.lat,p.lon]);
-   else {marker=window.L.marker([p.lat,p.lon],{draggable:true,icon:window.L.divIcon({className:'delivery-map-pin',html:'<span aria-hidden="true">📍</span>',iconSize:[36,42],iconAnchor:[18,40]}),title:'الموقع المختار؛ اسحب لتعديله'}).addTo(session.map);marker.on('dragend',()=>{const p=marker.getLatLng();select({lat:p.lat,lon:p.lng})});}
+   else {marker=window.L.marker([p.lat,p.lon],{draggable:true,icon:window.L.divIcon({className:'delivery-map-pin',html:'<span aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z" fill="#4f46e5" stroke="#fff" stroke-width="1.6"/><circle cx="12" cy="10" r="2.6" fill="#fff"/></svg></span>',iconSize:[36,42],iconAnchor:[18,40]}),title:'الموقع المختار؛ اسحب لتعديله'}).addTo(session.map);marker.on('dragend',()=>{const p=marker.getLatLng();select({lat:p.lat,lon:p.lng})});}
    const external=document.getElementById('mapExternal');external.href=url(p);external.hidden=false;confirm.disabled=false;status.textContent='الموقع المختار: '+p.lat.toFixed(5)+'، '+p.lon.toFixed(5)+' — اضغط موافق لاعتماده.';
   };
   const locateNow=()=>{

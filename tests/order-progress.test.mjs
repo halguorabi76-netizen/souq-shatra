@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-const html=fs.readFileSync('index.html','utf8'),start=html.indexOf('function orderProgress('),end=html.indexOf('function ordCard(',start),ctx={};vm.createContext(ctx);vm.runInContext(html.slice(start,end),ctx);
+const html=fs.readFileSync('index.html','utf8'),start=html.indexOf('function orderProgress('),end=html.indexOf('function ordCard(',start),ctx={flowIcon:()=>''};vm.createContext(ctx);vm.runInContext(html.slice(start,end),ctx);
 const render=(st,driver_id=null)=>ctx.orderProgress({st,driver_id});
 test('seller and driver approvals update independently in either order',()=>{
  for(const [st,driver,sellerApproved,driverApproved] of [[0,null,false,false],[1,null,true,false],[0,'driver',false,true],[1,'driver',true,true]]){
