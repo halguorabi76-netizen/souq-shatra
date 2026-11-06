@@ -162,3 +162,12 @@ html[lang][dir] body.admin-portal .admin-used-row>div>b{color:var(--ad-ink)!impo
 /* Category list: the name on its own line above its details (they ran together) */
 html[lang][dir] body.admin-portal .row>div>b:has(+small){display:block;margin-bottom:2px}
 html[lang][dir] body.admin-portal .row>div>b+small{display:block;color:var(--ad-mut)!important}
+/* Phone: a compact hub header (logo, tabs and the theme button were oversized) */
+@media (max-width:600px){
+ html[lang][dir] body.admin-portal #adminTop{gap:8px;padding:6px max(12px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px))}
+ html[lang][dir] body.admin-portal #adminTop .admin-mark b{font-size:24px}
+ html[lang][dir] body.admin-portal #adminTop .admin-mark small{font-size:14px}
+ html[lang][dir] body.admin-portal #adminTop .admin-role-chip{font-size:11px;padding:2px 9px}
+ html[lang][dir] body.admin-portal #adminTop :is(.admin-hub-tab,button){min-height:36px!important;font-size:12.5px!important;padding:0 11px!important}
+ html[lang][dir] body.admin-portal #adminTop svg{width:18px!important;height:18px!important}
+}

@@ -6,3 +6,13 @@ html[data-embedded-preview] #previewToolbar>div{display:none}
 html[data-embedded-preview] #previewToolbar{padding:12px 16px}
 html[data-embedded-preview] #previewToolbar nav{justify-content:center}
 html[data-embedded-preview] .preview-home .top{display:none!important}
+/* Phone-sized preview controls: one compact row that scrolls sideways instead of a block of big buttons */
+@media (max-width:700px){
+ .preview-lab #previewToolbar{padding:8px 10px!important;background:#0e1638!important;border-bottom:1px solid #2a3570!important}
+ .preview-lab #previewToolbar b{font-size:14px}
+ .preview-lab #previewToolbar small{display:none}
+ .preview-lab #previewToolbar nav{flex-wrap:nowrap!important;overflow-x:auto;gap:6px!important;scrollbar-width:none}
+ .preview-lab #previewToolbar nav::-webkit-scrollbar{display:none}
+ .preview-lab #previewToolbar nav button,.preview-lab #previewToolbar nav a{flex:none!important;padding:0 12px!important;min-height:34px;line-height:32px;font-size:12px!important;border-radius:10px!important;border-color:#2a3570!important;white-space:nowrap}
+ .preview-lab #previewToolbar button[aria-pressed=true]{background:linear-gradient(135deg,#6c63ff,#4f46e5)!important;color:#fff!important;border-color:transparent!important}
+}
