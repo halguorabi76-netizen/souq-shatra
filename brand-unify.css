@@ -298,3 +298,9 @@ html.sp-locked,html.sp-locked body{overflow:hidden!important;overscroll-behavior
 .sp-logo-row{display:flex;align-items:center;justify-content:center;gap:18px}
 .sp-full .sp-logo{width:92px;height:92px;font-size:40px}
 .sp-full .sp-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;align-content:start;margin-top:4px}
+
+/* The cart is the centre button of the bottom bar now, so the top-bar cart steps aside */
+html[data-shatra-ui] .topline #buyerFloating:not(#_){display:none!important}
+html[data-shatra-ui] .tabs .cart-centre{position:relative}
+html[data-shatra-ui] .tabs .cart-centre>i{position:absolute;top:-8px;left:calc(50% + 10px);min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#fff;color:#3b2fd6;font:800 11px/18px Tajawal,system-ui,sans-serif;font-style:normal;z-index:2}
+html[data-shatra-ui] .tabs .cart-centre>i[hidden]{display:none}
