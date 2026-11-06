@@ -133,3 +133,9 @@ html[data-shatra-ui] body #view .figma-section .category-cards:not(.sx-sections)
 :root:not([data-portal]) body[data-main-page="market"] #view :is(.market-materials>.figma-product-grid,.market-stores>.figma-store-grid)::-webkit-scrollbar{display:none}
 :root:not([data-portal]) body[data-main-page="market"] #view .market-materials>.figma-product-grid>*:not(#_){flex:0 0 clamp(158px,42vw,220px)!important;width:auto!important;max-width:none!important;scroll-snap-align:start}
 :root:not([data-portal]) body[data-main-page="market"] #view .market-stores>.figma-store-grid>*:not(#_){flex:0 0 clamp(240px,72vw,320px)!important;width:auto!important;max-width:none!important;scroll-snap-align:start}
+
+/* Driver accounts: their own bottom bar on every page (it was hidden on the delivery home and
+ * showed the customer's bar elsewhere), no market search, no cart. */
+html[data-shatra-ui] body.driver-mode .app>.tabs:not([hidden]):not(#_){display:grid!important}
+@media (max-width:1023px){html[data-shatra-ui] body.driver-mode .app>.tabs:not(#_){grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+html[data-shatra-ui] body.driver-mode .desktop-search-row:not(#_),html[data-shatra-ui] body.driver-mode #buyerFloating:not(#_),html[data-shatra-ui] body.driver-mode .tabs-cart:not(#_){display:none!important}
