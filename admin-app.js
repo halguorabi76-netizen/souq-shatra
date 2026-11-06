@@ -3,10 +3,10 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=186";
-import {createActivityCenter,bellIcon} from "./activity-center.js?v=174";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=182";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=180";
+import {createSellerWorkspace} from "./seller-workspace.js?v=189";
+import {createActivityCenter,bellIcon} from "./activity-center.js?v=176";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=183";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=182";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
   const abort=()=>controller.abort();
@@ -208,12 +208,14 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const uid=()=>crypto.randomUUID();
 const CATS=['مواد غذائية','خضار وفواكه','تمور','ملابس','أجهزة','منزلية','أخرى'],CI=['🛒','🥬','🌴','👕','📱','🏠','📦'];
 const CP=['<path d="M4 9h20l-2 14H6L4 9Zm5-4v4m10-4v4M9 14h10m-9 5h8"/>','<path d="M16 25c-7-3-9-9-4-14 5 1 8 6 4 14Zm1-2c-2-9 3-15 11-16 1 8-3 14-11 16ZM6 10C5 6 8 4 11 5"/>','<path d="M16 27V10m0 3C10 11 7 9 5 5c6-1 10 1 11 5m0 3c4-5 8-7 12-7-1 5-5 8-12 9M11 27h10"/>','<path d="m10 5-6 4 3 6 3-2v14h12V13l3 2 3-6-6-4-4 4h-4l-4-4Z"/>','<rect x="9" y="3" width="14" height="26" rx="2"/><path d="M14 25h4M12 7h8"/>','<path d="m3 14 13-10 13 10M7 13v15h18V13M13 28v-9h6v9"/>','<path d="M4 10 16 4l12 6v16l-12 5-12-5V10Zm0 0 12 6 12-6M16 16v15"/>'];
+// The admin page has no shared icon set; these icons render only on the site.
+const flowIcon=name=>globalThis.SouqFigmaUI?.icon?.(name)||'';
 const catIcon=i=>`<svg viewBox="0 0 32 32" aria-hidden="true">${CP[i]||CP[6]}</svg>`;
 const ST=['جديد','قيد التجهيز','خرج للتوصيل','تم التسليم','ملغي'];
 const mrec=id=>D.m.find(x=>x.id===id)||{};
 const mname=id=>id==='owner'?(ownStore?.name||'سوق الشطرة'):mrec(id).name||'—';
 const mok=id=>id==='owner'||!!mrec(id).ok&&!mrec(id).removed;
-const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${esc(p.img)}" loading="lazy" decoding="async" alt="">`:CI[CATS.indexOf(p.cat)]||'📦';
+const thumb=p=>p.img&&(p.img.startsWith('data:image/')||p.img.startsWith('https://'))?`<img src="${esc(p.img)}" loading="lazy" decoding="async" alt="">`:`<span class="thumb-icon">${catIcon(Math.max(0,CATS.indexOf(p.cat)))}</span>`;
 const prod=id=>D.p.find(x=>x.id===id);
 const sid=o=>'#'+o.id.slice(-4).toUpperCase();
 const when=t=>new Date(t).toLocaleString('ar-IQ-u-nu-latn',{dateStyle:'medium',timeStyle:'short'});
@@ -470,7 +472,7 @@ function postPage(){
   const p=baseOverrides?{...original,price:variantPrice(baseVariant),compare_at_price:baseVariant.sale_price?baseVariant.price:null}:original;const sellingUnit=p?.attributes?._selling?.unit||p?.attributes?.sale_unit||'قطعة';
   const field=(id,label,value,type='text',extra='')=>`<div class="pe-field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(value??'')}" ${extra}></div>`;
   $('#view').innerHTML=`<div class="sw-shell pe-shell"><header class="pe-header"><button type="button" data-a="tab" data-v="listings" aria-label="العودة إلى المنتجات">${authIcon('back')}</button><h1>${p?'تعديل المنتج':'إضافة منتج'}</h1><span></span></header><form id="productCreateForm" class="pe-form">
-  <section class="post-card pe-images"><h2>صورة المنتج الرئيسية</h2><label class="pe-upload" for="pimg">${authIcon('image')}<span>إضافة صورة المنتج</span></label><input id="pimg" class="pe-file" type="file" accept="image/*"><div class="tile" id="pv">${p?thumb(p):'📷'}</div></section>
+  <section class="post-card pe-images"><h2>صورة المنتج الرئيسية</h2><label class="pe-upload" for="pimg">${authIcon('image')}<span>إضافة صورة المنتج</span></label><input id="pimg" class="pe-file" type="file" accept="image/*"><div class="tile" id="pv">${p?thumb(p):authIcon('image')}</div></section>
   <section class="post-card pe-basic">
   ${field('fn','اسم المنتج *',p?.name,'text','required minlength="2" maxlength="150"')}
   <label for="fd">وصف المنتج</label><textarea id="fd" rows="4" maxlength="5000">${esc(p?.desc||'')}</textarea>
@@ -480,7 +482,7 @@ function postPage(){
   </section>
   <section class="post-card"><label class="va-check"><input id="baseDiscount" type="checkbox" ${p?.compare_at_price?'checked':''}>هل يوجد تخفيض للنسخة الأساسية؟</label><div id="baseDiscountFields" ${p?.compare_at_price?'':'hidden'}>${field('fcompare','السعر قبل التخفيض (د.ع)',p?.compare_at_price,'number','min="1" max="2147483647" step="1"')}<p class="note">السعر بعد التخفيض هو سعر البيع المكتوب أعلاه.</p></div></section>
   <section class="post-card"><label for="productCondition">حالة المادة</label><select id="productCondition"><option value="new" ${p?.attributes?._selling?.condition!=='used'?'selected':''}>جديد</option><option value="used" ${p?.attributes?._selling?.condition==='used'?'selected':''}>مستعمل</option></select><div id="productSaleBox" ${p?.attributes?._selling?.condition==='used'?'hidden':''}><label for="productSale">طريقة البيع</label><select id="productSale"><option value="retail" ${!p?.attributes?._selling?.sale_mode||p?.attributes?._selling?.sale_mode==='retail'?'selected':''}>مفرد</option><option value="wholesale" ${p?.attributes?._selling?.sale_mode==='wholesale'?'selected':''}>جملة</option><option value="both" ${p?.attributes?._selling?.sale_mode==='both'?'selected':''}>مفرد وجملة</option></select></div></section>
-  <fieldset class="post-card pe-return" id="returnChoice"><legend>هل هذا المنتج قابل للإرجاع؟</legend><p class="note">يظهر جوابك للزبون قبل الشراء، ويُسمح له بطلب الإرجاع فقط إذا كان المنتج قابلاً للإرجاع.</p><div class="pe-return-options"><label><input type="radio" name="productReturnable" value="yes" ${p?.attributes?._returnable===true?'checked':''}><span>↩ نعم، قابل للإرجاع</span></label><label><input type="radio" name="productReturnable" value="no" ${p?.attributes?._returnable===false?'checked':''}><span>✕ لا، غير قابل للإرجاع</span></label></div></fieldset>
+  <fieldset class="post-card pe-return" id="returnChoice"><legend>هل هذا المنتج قابل للإرجاع؟</legend><p class="note">يظهر جوابك للزبون قبل الشراء، ويُسمح له بطلب الإرجاع فقط إذا كان المنتج قابلاً للإرجاع.</p><div class="pe-return-options"><label><input type="radio" name="productReturnable" value="yes" ${p?.attributes?._returnable===true?'checked':''}><span>${flowIcon('undo')}نعم، قابل للإرجاع</span></label><label><input type="radio" name="productReturnable" value="no" ${p?.attributes?._returnable===false?'checked':''}><span>${flowIcon('close')}لا، غير قابل للإرجاع</span></label></div></fieldset>
   <section class="post-card" id="variantEditor"></section>
   <section class="post-card">${field('fs','المخزون',p?.stock??0,'number','required min="0" max="2147483647" step="1" inputmode="numeric"')}<p class="note">عند تفعيل النسخ، تُدخل كمية كل نسخة أعلاه؛ هذا مجموع المتاح للبيع.</p></section>
   <section class="post-card"><label class="va-check"><input id="advancedEnabled" type="checkbox">الخيارات المتقدمة</label><div id="productAdvanced" hidden>

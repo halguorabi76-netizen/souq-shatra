@@ -28,14 +28,23 @@
   card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
   sparkle:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
   recycle:'<path d="M7 19H4l3-5M17 19h3l-3-5M12 4l-2 3.5M12 4l2 3.5M8 12l-2.5-4.5h5M16 12l2.5-4.5h-5"/><path d="M7 19h10"/>',
-  logout:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>'
+  logout:'<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.5-4.5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16"/><path d="M20 20v-4h-4"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+  close:'<path d="M18 6 6 18M6 6l12 12"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  chat:'<path d="M4 5h16v11H8l-4 4z"/>',
+  send:'<path d="M21 3 3 10l7 3 3 7z"/><path d="m10 13 4-4"/>'
  };
  const icon=name=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name==='stores'?'store':name]||paths.grid}</svg>`;
  function productCards(products,{esc,fmt,thumb,mname,favorites=[]}){
   return `<div class="grid mp-products figma-product-grid">${products.map(p=>`<article class="mp-product figma-product-card">${base.favoriteButton(p,esc,favorites)}<button class="figma-product-media" data-a="prod" data-v="${esc(p.id)}" aria-label="عرض ${esc(p.name)}">${thumb(p)}${base.badge(p)}</button><div class="figma-product-info"><a class="figma-store-link" href="./?store=${encodeURIComponent(p.mid)}" data-a="visitStore" data-v="${esc(p.mid)}">${esc(mname(p.mid))}</a><button class="figma-product-name" data-a="prod" data-v="${esc(p.id)}">${esc(p.name)}</button><div class="figma-product-row">${base.price(p,fmt)}<button class="figma-add" data-a="quickAdd" data-v="${esc(p.id)}" aria-label="إضافة ${esc(p.name)} إلى السلة" ${base.forSale(p)?'':'disabled'}>${icon('plus')}</button></div></div></article>`).join('')}</div>`;
  }
  function storeCards(stores,products,{esc}){
-  return `<div class="mp-stores figma-store-grid">${stores.map(m=>{const count=products.filter(p=>p.mid===m.id&&p.active&&!p.blocked).length;return `<a class="mp-store-card figma-store-card" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">${base.avatar(m,esc)}<div><h3>${esc(m.name)}</h3>${m.username?`<small dir="ltr">@${esc(m.username)}</small>`:''}<p>${esc(m.description||m.address||'متجر في سوق الشطرة')}</p><small>${count} منتج${m.verified?' · ✓ موثّق':''}</small></div>${icon('arrow')}</a>`;}).join('')}</div>`;
+  return `<div class="mp-stores figma-store-grid">${stores.map(m=>{const count=products.filter(p=>p.mid===m.id&&p.active&&!p.blocked).length;return `<a class="mp-store-card figma-store-card" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${esc(m.id)}">${base.avatar(m,esc)}<div><h3>${esc(m.name)}</h3>${m.username?`<small dir="ltr">@${esc(m.username)}</small>`:''}<p>${esc(m.description||m.address||'متجر في سوق الشطرة')}</p><small>${count} منتج${m.verified?' · '+icon('check')+'موثّق':''}</small></div>${icon('arrow')}</a>`;}).join('')}</div>`;
  }
  // Search, stock/variant eligibility and discount math stay owned by the app.
  const storeMatches=(rows,options)=>rows.map(({store:m,products})=>`<section class="mp-search-store"><div class="section-title"><a class="figma-store-link" href="./?store=${encodeURIComponent(m.id)}" data-a="visitStore" data-v="${options.esc(m.id)}"><h2>${options.esc(m.name)}</h2></a><small>${products.length} مادة مطابقة</small></div>${products.length?productCards(products,options):'<p class="note">لا توجد مواد متوفرة حاليًا.</p>'}</section>`).join('');
