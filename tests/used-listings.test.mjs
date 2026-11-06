@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const sql=readFileSync(new URL('../supabase/migrations/20261017100000_used_listings.sql',import.meta.url),'utf8');
-test('«بِع غرضك» is advertised with its price (0 د.ع now) on the home page, its own page and the profile',()=>{
+test('the used market leads the home page; «بِع غرضك» with its price is on its own page and the profile',()=>{
  assert.match(html,/بِع غرضك بـ \$\{usedPriceLabel\(\)\}/);
- assert.match(html,/marketKinds\(\)\+ui\.switcher\('home'\)/);
+ assert.match(html,/homeUsedBlock\(\)\+ui\.switcher\('home'\)/);
  assert.match(html,/offers:offersPage,usedPage,/);
  assert.match(html,/\$\{usedMine\(\)\}<button class="profile-logout"/);
 });

@@ -627,7 +627,7 @@ body.starting{overflow:hidden}
 </style>
 <link rel="stylesheet" href="ui-polish.css?v=3">
 <link rel="stylesheet" href="laser-theme.css?v=2">
-<link rel="stylesheet" href="used-market.css?v=4"><link rel="stylesheet" href="brand-unify.css?v=5">
+<link rel="stylesheet" href="used-market.css?v=4"><link rel="stylesheet" href="brand-unify.css?v=6">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><svg class="ss-logo" viewBox="0 0 573 779" xmlns="http://www.w3.org/2000/svg" aria-label="الشطرة"> <defs> <mask id="ssCut"> <path d="M200 0 L191 3 L186 9 L181 27 L181 41 L177 50 L153 72 L152 83 L161 102 L161 110 L158 117 L151 124 L135 129 L127 137 L124 145 L122 171 L131 187 L130 203 L133 210 L133 226 L142 244 L135 288 L125 301 L112 305 L69 306 L54 295 L45 292 L36 295 L32 299 L30 304 L32 328 L29 335 L21 343 L4 350 L0 355 L0 484 L4 489 L10 491 L22 488 L33 491 L42 502 L43 517 L47 526 L47 534 L44 541 L37 548 L22 553 L7 569 L5 574 L7 585 L12 590 L35 602 L42 609 L48 628 L66 649 L86 654 L104 668 L109 669 L122 666 L133 669 L141 677 L144 685 L158 698 L174 729 L179 734 L191 739 L199 747 L209 771 L213 775 L222 778 L231 775 L245 763 L276 756 L281 750 L285 732 L298 719 L300 714 L300 693 L302 689 L300 677 L296 673 L248 651 L241 644 L238 637 L238 629 L241 622 L248 615 L259 612 L314 623 L376 639 L402 648 L425 660 L437 661 L446 655 L451 642 L460 633 L462 628 L461 619 L452 609 L449 602 L450 591 L459 580 L470 577 L477 579 L484 577 L502 561 L513 558 L523 560 L542 571 L553 570 L560 564 L571 544 L572 529 L570 524 L551 505 L548 498 L549 484 L560 454 L559 444 L550 434 L546 424 L546 412 L550 402 L549 393 L544 387 L535 384 L520 388 L508 386 L489 370 L486 363 L486 354 L497 338 L498 329 L496 324 L475 306 L471 295 L464 288 L461 281 L461 272 L465 261 L474 252 L494 246 L501 240 L506 228 L514 219 L515 210 L513 205 L494 191 L487 190 L475 193 L466 191 L450 174 L441 171 L431 174 L415 190 L405 194 L393 194 L381 185 L373 166 L369 162 L360 159 L351 162 L337 179 L308 192 L291 209 L280 212 L269 209 L262 202 L259 195 L259 168 L251 151 L251 143 L254 136 L269 123 L271 112 L265 103 L256 99 L249 92 L243 82 L242 64 L229 46 L223 15 L209 3Z" fill="#fff"/> <path class="ss-river" d="M-75 188 C-48 223 -17 260 5 293 C27 326 40 358 55 383 C70 408 65 428 95 441 C125 454 188 456 235 464 C282 472 337 479 375 488 C413 497 442 508 465 518 C488 528 488 532 515 548 C542 564 588 591 625 613"/> </mask> </defs> <rect class="ss-city" width="573" height="779" mask="url(#ssCut)"/> <ellipse class="ss-shadow" cx="290" cy="430" rx="34" ry="10" fill="#101f48"/> <g transform="translate(290 432) scale(1.4)"> <g class="ss-pin"> <path d="M0 0 C-12 -28 -46 -52 -46 -92 A46 46 0 1 1 46 -92 C46 -52 12 -28 0 0Z" fill="#101f48"/> <circle cx="0" cy="-92" r="17" fill="#fdfbfc"/> </g> </g> </svg><div class="ss-name">الشطرة</div></div>
@@ -1307,6 +1307,11 @@ const USED_KINDS=[['all','الكل','M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h
 const usedKindOf=l=>l.details?.vehicle||'other';
 const usedTag=l=>({car:'سيارة',motorcycle:'دراجة نارية'})[usedKindOf(l)]||'مستعمل';
 const usedSvg=(d,size=18)=>`<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+// Sideways swipes: between stores on the stores page, and between «مستعمل» and «جديد» on the
+// materials page when the swipe starts outside a row (rows keep their own sideways scroll).
+let sqSwipe=null;
+document.addEventListener('pointerdown',e=>{const pager=e.target.closest?.('[data-sp-pager]'),mats=e.target.closest?.('[data-sq-swipe]');if(!pager&&!mats){sqSwipe=null;return}if(mats&&e.target.closest('.sq-row,.sq-chips,.sq-tabs'))return void(sqSwipe=null);sqSwipe={x:e.clientX,y:e.clientY,kind:pager?'store':'mat',target:e.target.closest('.sp-products')?'products':''}});
+document.addEventListener('pointerup',e=>{const s=sqSwipe;sqSwipe=null;if(!s)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return;if(s.kind==='store')A.storeGo(dx>0?storeIdx+1:storeIdx-1);else A.matTab(dx>0?'new':'used')});
 // Live suggestions for a page's own search bar (used market, a store's page): as soon as a letter is
 // typed, the matching names on that page appear under the bar; tapping one opens it.
 const suggestNorm=t=>String(t||'').toLowerCase().replace(/[ً-ْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي');
@@ -1525,11 +1530,35 @@ function syncMarketSearch(){
  if(!panel)return;const {stores,products}=publicMarketplace(),items=window.SouqMarketplace.suggestions(products,stores,q,tab);
  panel.innerHTML=items.map(x=>'<button type="button" data-a="searchSuggestion" data-v="'+esc(x.label)+'">'+window.SouqMarketplace.icon(x.kind==='store'?'stores':'materials')+'<span><b>'+esc(x.label)+'</b><small>'+esc(x.kind==='store'?'متجر':x.seller)+'</small></span></button>').join('');panel.hidden=!items.length||document.activeElement!==input;
 }
+// «سوق الشطرة» layout (owner-approved design): the used market first on the home page, the
+// materials page as stacked rows under «مستعمل» / «جديد», and the stores page as one framed store
+// at a time with its neighbours peeking at the screen edges. Same data, nothing new in the database.
+var homeUsedKind='all',matTab='used',storeSub='all',storeIdx=0;
+function sqSection(title,icon,items,more){return `<section class="sq-section"><div class="sq-sec-head"><h2><span class="sq-sec-icon" aria-hidden="true">${icon}</span>${esc(title)}</h2>${more?`<button type="button" class="sq-more" ${more}>الكل ‹</button>`:''}</div><div class="sq-line" aria-hidden="true"></div><div class="sq-row">${items}</div></section>`}
+function homeUsedBlock(){
+ const live=(D.used||[]).filter(usedLive),list=live.filter(l=>homeUsedKind==='all'||usedKindOf(l)===homeUsedKind).slice(0,12);
+ return `<section class="sq-used" aria-labelledby="sqUsedTitle"><div class="sq-head"><div><h2 id="sqUsedTitle" class="sq-title">سوق المستعمل</h2><p>مستعمل قريب منك، من بيوت الشطرة</p></div><button type="button" class="sq-more" data-a="tab" data-v="usedPage">ادخل السوق ‹</button></div><div class="sq-chips" role="group" aria-label="نوع الغرض">${USED_KINDS.map(([k,t,d])=>`<button type="button" data-a="homeUsedKind" data-v="${k}" aria-pressed="${homeUsedKind===k}">${usedSvg(d,17)}${t}</button>`).join('')}</div><div class="sq-row used-v2">${list.length?list.map(usedCard).join(''):`<p class="sq-empty">${live.length?'لا توجد إعلانات من هذا النوع الآن.':'لا توجد إعلانات بعد. كن أول من يعرض غرضًا من بيته.'}</p>`}</div><p class="sq-hint">عندك غرض ما تحتاجه؟ <button type="button" class="link" data-a="usedSell">اعرضه في السوق</button></p></section>`;
+}
+function storeCircles(stores){return `<div class="sq-stores">${stores.map(m=>`<button type="button" class="sq-store" data-a="visitStore" data-v="${esc(m.id)}"><span class="sq-logo">${m.image_url?`<img src="${esc(m.image_url)}" width="68" height="68" alt="" loading="lazy">`:esc((m.name||'').trim().slice(0,1))}</span><b>${esc(m.name)}</b></button>`).join('')}</div>`}
+function materialsHome(stores,products,cards){
+ const tabs=`<div class="sq-tabs" role="tablist" aria-label="نوع المواد"><button type="button" role="tab" data-a="matTab" data-v="used" aria-selected="${matTab==='used'}">مستعمل</button><button type="button" role="tab" data-a="matTab" data-v="new" aria-selected="${matTab==='new'}">جديد</button></div><p class="sq-tab-hint">${matTab==='used'?'أغراض من بيوت الشطرة':'بضاعة جديدة من محلات الشطرة'}</p>`;
+ let body='';
+ if(matTab==='used'){const live=(D.used||[]).filter(usedLive);body=USED_KINDS.slice(1).map(([k,t,d])=>{const ads=live.filter(l=>usedKindOf(l)===k);return ads.length?sqSection(t,usedSvg(d,19),`<div class="used-v2 sq-cards">${ads.slice(0,16).map(usedCard).join('')}</div>`,'data-a="tab" data-v="usedPage"'):''}).join('')||`<p class="sq-empty">لا توجد إعلانات مستعملة بعد.</p>`;body+=`<div class="sq-sell"><span>عندك غرض ما تحتاجه؟ صوّره واكتب وصفه، ويظهر هنا لأهل الشطرة.</span><button type="button" class="buy" data-a="usedSell">بِع غرضك</button></div>`;}
+ else body=CATS.map((c,i)=>{const ps=products.filter(p=>p.cat===c);return ps.length?sqSection(c,catIcon(i),cards(ps.slice(0,16)),`data-a="pickcat" data-v="${esc(c)}"`):''}).join('')||`<p class="sq-empty">${!dataReady?'':'تظهر هنا منتجات المحلات المعتمدة.'}</p>`;
+ return `<div class="sq-materials" data-sq-swipe>${tabs}${body}</div>`;
+}
+function storePager(list,products){
+ storeIdx=Math.max(0,Math.min(storeIdx,list.length-1));const m=list[storeIdx],prev=list[storeIdx-1],next=list[storeIdx+1];
+ const logo=(x,cls)=>`<span class="${cls}">${x.image_url?`<img src="${esc(x.image_url)}" alt="" loading="lazy">`:esc((x.name||'').trim().slice(0,1))}</span>`;
+ const own=products.filter(p=>p.mid===m.id&&(storeSub==='all'||p.cat===storeSub||p.attributes?.subcategory===storeSub)),kind=(STORE_KINDS.find(k=>k[0]===m.store_kind)||[])[1];
+ return `<div class="sp-pager" data-sp-pager>${prev?`<button type="button" class="sp-peek sp-prev" data-a="storeGo" data-v="${storeIdx-1}" aria-label="المتجر السابق: ${esc(prev.name)}">${logo(prev,'sp-peek-logo')}</button>`:''}${next?`<button type="button" class="sp-peek sp-next" data-a="storeGo" data-v="${storeIdx+1}" aria-label="المتجر التالي: ${esc(next.name)}">${logo(next,'sp-peek-logo')}</button>`:''}<article class="sp-card" aria-label="${esc(m.name)}">${logo(m,'sp-logo')}<h2>${esc(m.name)}</h2><div class="sp-facts">${kind?`<span>${esc(kind.split(' (')[0])}</span>`:''}${m.address?`<span>${flowIcon('pin')}${esc(m.address)}</span>`:''}<span>${own.length} منتج</span></div><div class="sp-actions"><button type="button" class="buy" data-a="visitStore" data-v="${esc(m.id)}">زيارة المتجر</button><small>${storeIdx+1} من ${list.length}${list.length>1?' · اسحب للمتجر الآخر':''}</small></div><div class="sp-products">${own.length?own.slice(0,12).map(p=>`<button type="button" class="sp-prod" data-a="prod" data-v="${esc(p.id)}"><span class="sp-thumb">${thumb(p)}</span><span>${esc(p.name)}</span><b>${fmt(p.price)}</b></button>`).join(''):'<p class="sq-empty">لا توجد منتجات معروضة في هذا القسم.</p>'}</div></article></div>`;
+}
 function market(){
  const ui=window.SouqFigmaUI||window.SouqMarketplace,{stores,products}=publicMarketplace();
  const filtered=window.SouqCatalog.select(products,{category:cat,query:'',min:filt.min,max:filt.max,sort:filt.sort,condition:filt.condition,saleMode:filt.condition==='new'?filt.saleMode:'all'});
  const l=ui.searchProducts(filtered,stores,q),cards=items=>ui.productCards(items,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()});
  const results=tab==='catalog'||cat!=='all'||!!q;
+ if(tab==='catalog'&&cat==='all'&&!q){$('#view').innerHTML=materialsHome(stores,products,cards);return}
  if(results){
   const matchedStores=q?stores.filter(m=>Number.isFinite(ui.searchRank(m.name,q))):[],grouped=matchedStores.map(store=>({store,products:l.filter(p=>p.mid===store.id)})).filter(x=>x.products.length),groupIds=new Set(grouped.map(x=>x.store.id)),other=l.filter(p=>!groupIds.has(p.mid));
   const materialResults=(grouped.length?ui.storeMatches(grouped,{esc,fmt,thumb,mname}):'')+(other.length?cards(other):'');
@@ -1538,16 +1567,19 @@ function market(){
   $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h1>'+esc(title)+'</h1><span class="note" role="status">'+l.length+' مادة</span></div>'+(materialResults||'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة متوفرة حاليًا.')+'</div>')+'</section>'+(storeResults.length?'<section class="market-stores"><div class="section-title"><h2>المتاجر المطابقة</h2></div>'+ui.storeMatches(storeResults,{esc,fmt,thumb,mname})+'</section>':'');
   return;
  }
- $('#view').innerHTML=bannerHtml()+`<div class="figma-trust"><span>${ui.icon('stores')} متاجر الشطرة</span><span>${ui.icon('truck')} توصيل محلي</span><span>${ui.icon('cart')} الدفع عند الاستلام</span></div>`+marketKinds()+ui.switcher('home')+
- '<section class="figma-section"><div class="section-title"><div><h2>تسوّق حسب القسم</h2><p>كل ما تحتاجه من أسواق مدينتك</p></div><button data-a="tab" data-v="categories">كل الأقسام ‹</button></div>'+materialCategories()+'</section>'+
- '<section class="market-materials"><div class="section-title"><div><h2>مختارات اليوم</h2><p>'+l.length+' مادة من التجار المعتمدين</p></div><button data-a="marketSection" data-v="materials">عرض الكل ‹</button></div>'+(l.length?cards(l.slice(0,8)):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
- '<section class="market-stores"><div class="section-title"><div><h2>متاجر من الشطرة</h2><p>'+stores.length+' متجر · تسوّق من محلات مدينتك</p></div><button data-a="marketSection" data-v="stores">كل المتاجر ‹</button></div>'+(stores.length?ui.storeCards(stores.slice(0,3),products,{esc}):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>';
+ const offers=products.filter(p=>p.compare_at_price>p.price),pick=(offers.length?offers:l).slice(0,12);
+ $('#view').innerHTML=homeUsedBlock()+ui.switcher('home')+
+ '<section class="sq-new"><div class="sq-head"><div><h2 class="sq-title">جديد من محلات الشطرة</h2><p>بضاعة جديدة وتوصيل للبيت</p></div></div>'+bannerHtml()+
+ '<section class="figma-section"><div class="section-title"><div><h2>تسوّق حسب القسم</h2></div><button data-a="tab" data-v="categories">كل الأقسام ‹</button></div>'+materialCategories()+'</section>'+
+ '<section class="market-materials"><div class="section-title"><div><h2>'+(offers.length?'عروض اليوم':'أحدث المواد')+'</h2></div><button data-a="marketSection" data-v="materials">الكل ‹</button></div>'+(pick.length?cards(pick):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
+ '<section class="market-stores"><div class="section-title"><div><h2>متاجر الشطرة</h2></div><button data-a="marketSection" data-v="stores">كل المتاجر ‹</button></div>'+(stores.length?storeCircles(stores.slice(0,16)):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section></section>';
 }
 function storesPage(){
  const ui=window.SouqFigmaUI||window.SouqMarketplace,{stores:approved,products:published}=publicMarketplace(),categories=CATS.filter(c=>c!=='تمور'&&published.some(p=>p.cat===c)),products=window.SouqCatalog.select(published,{category:cat,...filt,saleMode:filt.condition==='new'?filt.saleMode:'all'}),eligible=approved.filter(m=>cat==='all'&&filt.condition==='all'&&filt.min===''&&filt.max===''||products.some(p=>p.mid===m.id)),rows=ui.searchStores(eligible,products,q);
- // The stores page lists stores only; its category chips row was removed at the owner's request.
- const sections='';
- $('#view').innerHTML=sections+'<section class="market-stores"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+rows.length+' متجر</span></div>'+(rows.length?(q?ui.storeMatches(rows,{esc,fmt,thumb,mname}):ui.storeCards(rows.map(x=>x.store),published,{esc})):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر مطابقة لهذا القسم أو البحث.')+'</div>')+'</section>';
+ if(q){$('#view').innerHTML='<section class="market-stores"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+rows.length+' متجر</span></div>'+(rows.length?ui.storeMatches(rows,{esc,fmt,thumb,mname}):'<div class="empty">لا توجد متاجر مطابقة لهذا البحث.</div>')+'</section>';return}
+ const secs=CATS.filter(c=>approved.some(m=>published.some(p=>p.mid===m.id&&p.cat===c))),parent=(D.catalog||[]).find(c=>!c.parent_id&&c.name===cat),subs=parent?(D.catalog||[]).filter(c=>c.active&&c.parent_id===parent.id):[];
+ const list=rows.map(x=>x.store);
+ $('#view').innerHTML='<section class="sp-page"><div class="section-title"><h1>المتاجر</h1><span class="note" role="status">'+list.length+' متجر</span></div><div class="sq-secs" role="group" aria-label="أقسام المتاجر"><button type="button" data-a="storeSec" data-v="all" aria-pressed="'+(cat==='all')+'"><span aria-hidden="true">'+flowIcon('grid')+'</span>الكل</button>'+secs.map(c=>'<button type="button" data-a="storeSec" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+catIcon(Math.max(0,CATS.indexOf(c)))+'</span>'+esc(c)+'</button>').join('')+'</div>'+(subs.length?'<div class="sq-chips sq-subs" role="group" aria-label="فئات القسم"><button type="button" data-a="storeSub" data-v="all" aria-pressed="'+(storeSub==='all')+'">الكل</button>'+subs.map(c=>'<button type="button" data-a="storeSub" data-v="'+esc(c.name)+'" aria-pressed="'+(storeSub===c.name)+'">'+esc(c.name)+'</button>').join('')+'</div>':'')+(list.length?storePager(list,published):'<div class="empty">'+(!dataReady?'':'لا توجد متاجر في هذا القسم بعد.')+'</div>')+'</section>';
 }
 function marketSection(section){
  publicStoreId=null;cat='all';q='';filt.min='';filt.max='';filt.sort='newest';filt.condition='all';filt.saleMode='all';tab=section==='stores'?'stores':section==='materials'?'catalog':'market';
@@ -2148,6 +2180,11 @@ function infoSheet(){
 /* ===== الإجراءات ===== */
 const A={
   marketSection,
+  homeUsedKind:v=>{homeUsedKind=v||'all';const box=$('#view .sq-used');if(box)box.outerHTML=homeUsedBlock();else render()},
+  matTab:v=>{matTab=v==='new'?'new':'used';render();scrollTo(0,0)},
+  storeSec:v=>{cat=v||'all';storeSub='all';storeIdx=0;render()},
+  storeSub:v=>{storeSub=v||'all';storeIdx=0;render()},
+  storeGo:v=>{storeIdx=Math.max(0,Number(v)||0);render()},
   visitStore:id=>{if(!/^[0-9a-f-]{36}$/i.test(id||''))return;closeAccountMenu();A.close();publicStoreId=id;tab='market';const url=new URL(db.preview?'preview.html':'./',location.href);url.searchParams.set('store',id);history.replaceState(history.state,'',url);render();scrollTo(0,0)},
   chooseSellerLocation,
   submitSellerJoin:()=>act(submitSellerApplication),
