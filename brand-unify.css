@@ -209,3 +209,30 @@ html[data-shatra-ui] body .sp-actions .buy:not(#_){width:auto!important;min-heig
 .sp-peek{position:absolute;top:34px;z-index:2;width:76px;height:76px;padding:0;border-radius:50%;border:2px solid var(--u-line);background:none;opacity:.75;overflow:hidden;cursor:pointer}
 .sp-prev{right:-40px}.sp-next{left:-40px}
 .sp-peek-logo{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(150deg,#3b3a9e,#1b2556);color:#e4e7ff;font:700 30px "Aref Ruqaa","Amiri",serif}
+
+/* Stores: section tiles as a full screen, then one framed store with its products one under another */
+.sp-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:6px 0 12px}
+@media (min-width:700px){.sp-sections{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1024px){.sp-sections{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.sp-section{display:grid;justify-items:center;gap:8px;padding:18px 10px;border-radius:22px;border:1px solid color-mix(in srgb,var(--u-strong) 35%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--u-deep) 12%,transparent),var(--u-tint));color:var(--u-ink);font:inherit;text-align:center;cursor:pointer}
+.sp-section>span{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:var(--u-tint-2);color:var(--u-strong)}
+.sp-section svg{width:28px;height:28px;fill:none;stroke:currentColor}
+.sp-section b{font-size:15px;font-weight:800}.sp-section small{color:var(--u-soft);font-size:12.5px}
+.sp-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sp-top h1{margin:0;font:800 22px Tajawal,system-ui,sans-serif;color:var(--u-ink)}
+.sp-rate .rating-badge{color:var(--u-strong)!important;font-size:14px}
+.sp-facts .sp-open{background:var(--u-btn)!important;color:#fff!important;border-color:transparent!important}
+.sp-facts .sp-closed{color:var(--u-soft)!important}
+.sp-count{color:var(--u-soft);font-weight:700;font-size:12.5px}
+.sp-groups{width:100%;justify-content:center;flex-wrap:wrap;margin-top:4px}
+.sp-list{width:100%;display:grid;gap:10px;margin-top:6px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--u-ice) 22%,transparent)}
+.sp-item{display:flex;align-items:stretch;gap:12px;width:100%;padding:8px;border-radius:18px;border:1px solid var(--u-line);background:var(--u-tint);color:var(--u-ink);font:inherit;text-align:start;cursor:pointer}
+.sp-item .sp-thumb{flex:none;width:96px;height:96px;aspect-ratio:auto;border-radius:14px}
+.sp-text{display:grid;align-content:center;gap:4px;min-width:0}
+.sp-text b{font-size:15.5px;font-weight:800;line-height:1.35}
+.sp-text small{color:var(--u-soft);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sp-text em{font-style:normal;color:var(--u-strong);font-weight:800;font-size:14.5px}
+.sq-join{margin:26px 0 8px;text-align:right;color:var(--u-soft);font-size:13px}
+.sq-join .link{padding:0;border:0;background:none;color:var(--u-strong);font:inherit;font-weight:800;cursor:pointer}
+html[data-shatra-ui][data-theme] body .account-popover:not(#_){background:var(--u-tint)!important;color:var(--u-ink)!important;border:1px solid var(--u-line)!important;box-shadow:0 14px 34px rgba(11,18,48,.35)!important}
+html[data-shatra-ui][data-theme] body .account-popover .sq-join:not(#_){margin:10px 0 0;font-size:12.5px}
