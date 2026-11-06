@@ -278,3 +278,23 @@ html[data-shatra-ui] body.seller-workspace .sw-fold-icon svg:not(#_){width:18px!
 .se-stats:has(> :nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))!important}
 .sp-preview .sp-pager{padding:0;margin:0}
 html[data-shatra-ui][data-theme] body #sheet label:not(.sw-check):not(#_){color:var(--u-soft)!important}
+
+/* A section's store fills the whole screen: its photo, arrows and details stay put and only the
+ * product list scrolls, so the pointer or finger never moves the store itself. */
+html.sp-locked,html.sp-locked body{overflow:hidden!important;overscroll-behavior:none}
+.sp-full{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;gap:8px;margin:0;background:var(--paper,#0b1230);padding:calc(env(safe-area-inset-top,0px) + 8px) max(14px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 10px) max(14px,env(safe-area-inset-left,0px));max-width:none!important}
+@media (min-width:1024px){.sp-full{padding-inline:max(14px,calc((100vw - 900px)/2))}}
+.sp-full .sp-top{flex:none;display:flex;align-items:center;gap:10px}
+.sp-full .sp-top h1{font-size:20px}
+.sp-full .sp-top .note{margin-inline-start:auto;color:var(--u-soft)}
+.sp-back,.sp-arrow{flex:none;width:44px;height:44px;padding:0;border-radius:50%;border:1px solid var(--u-line);background:var(--u-tint);color:var(--u-strong);display:grid;place-items:center;cursor:pointer}
+.sp-back{border-radius:13px}
+.sp-back svg,.sp-arrow svg{width:22px;height:22px}
+.sp-next svg{transform:scaleX(-1)}
+.sp-arrow-gap{flex:none;width:44px;height:44px}
+.sp-full .sq-subs{flex:none}
+.sp-full .sp-card{flex:1;min-height:0;display:flex!important;flex-direction:column;gap:8px;padding:14px 12px 10px}
+.sp-head{flex:none;display:grid;justify-items:center;gap:6px;text-align:center;touch-action:pan-y}
+.sp-logo-row{display:flex;align-items:center;justify-content:center;gap:18px}
+.sp-full .sp-logo{width:92px;height:92px;font-size:40px}
+.sp-full .sp-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;align-content:start;margin-top:4px}
