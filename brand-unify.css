@@ -126,3 +126,10 @@ html[data-shatra-ui] body #view .figma-section .category-cards:not(.sx-sections)
 .live-suggest .ls-icon svg{width:20px;height:20px}
 .ls-text{display:grid;min-width:0}.ls-text b{font-weight:800;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ls-text small{color:var(--u-soft);font-size:12.5px}
 .ls-empty{margin:0;padding:12px;color:var(--u-soft);font-size:14px;text-align:center}
+
+/* Home is a showcase: «مختارات اليوم» and «متاجر من الشطرة» are each one row that scrolls sideways,
+ * like the categories row (the full products and stores pages keep their grids). */
+:root:not([data-portal]) body[data-main-page="market"] #view :is(.market-materials>.figma-product-grid,.market-stores>.figma-store-grid):not(#_){display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;overflow-x:auto!important;overflow-y:hidden;gap:12px!important;padding:2px 2px 12px!important;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-x:contain}
+:root:not([data-portal]) body[data-main-page="market"] #view :is(.market-materials>.figma-product-grid,.market-stores>.figma-store-grid)::-webkit-scrollbar{display:none}
+:root:not([data-portal]) body[data-main-page="market"] #view .market-materials>.figma-product-grid>*:not(#_){flex:0 0 clamp(158px,42vw,220px)!important;width:auto!important;max-width:none!important;scroll-snap-align:start}
+:root:not([data-portal]) body[data-main-page="market"] #view .market-stores>.figma-store-grid>*:not(#_){flex:0 0 clamp(240px,72vw,320px)!important;width:auto!important;max-width:none!important;scroll-snap-align:start}
