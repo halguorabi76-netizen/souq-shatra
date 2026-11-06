@@ -7,7 +7,7 @@ html[lang][dir] body.admin-portal{
  --ad-hero:linear-gradient(135deg,#6c63ff 0%,#4f46e5 40%,#2a2a9e 75%,#101f48 100%);
  --ad-page:radial-gradient(120% 55% at 100% 0%,rgba(108,99,255,.15) 0%,transparent 62%),radial-gradient(90% 45% at 0% 38%,rgba(79,70,229,.08) 0%,transparent 66%),radial-gradient(110% 50% at 100% 100%,rgba(165,180,255,.18) 0%,transparent 62%),linear-gradient(180deg,#f1f2ff 0%,#f7f8ff 100%);
  --ad-bar:rgba(245,246,255,.84);--ad-shadow:0 10px 30px rgba(20,27,77,.06);
- --ad-green:#17745d;--ad-green-bg:#e2f3ec;--ad-amber:#a8641b;--ad-amber-bg:#fbefdc;--ad-red:#c62828;--ad-red-bg:#fbe5e5;--ad-blue:#4f46e5;--ad-blue-bg:#eceaff;
+ --ad-green:#3b2fd6;--ad-green-bg:#e4e7ff;--ad-amber:#6d5df6;--ad-amber-bg:#efeaff;--ad-red:#c62828;--ad-red-bg:#fbe5e5;--ad-blue:#4f46e5;--ad-blue-bg:#eceaff;
  --bg:var(--ad-bg)!important;--card:var(--ad-card)!important;--ink:var(--ad-ink)!important;--mut:var(--ad-mut)!important;--line:var(--ad-line)!important;--tile:var(--ad-soft)!important;--navy:var(--ad-primary)!important;
  background:var(--ad-page)!important;background-attachment:scroll!important;color:var(--ad-ink)!important;font-family:'Tajawal','IBM Plex Sans Arabic',sans-serif!important}
 html[lang][dir][data-theme=dark] body.admin-portal{
@@ -16,7 +16,7 @@ html[lang][dir][data-theme=dark] body.admin-portal{
  --ad-hero:linear-gradient(135deg,#4f46e5 0%,#3b2fd6 35%,#1d2366 70%,#0b1230 100%);
  --ad-page:radial-gradient(110% 50% at 100% 0%,rgba(108,99,255,.22) 0%,transparent 60%),radial-gradient(90% 45% at 0% 70%,rgba(79,70,229,.12) 0%,transparent 65%),#0b1230;
  --ad-bar:rgba(11,18,48,.84);--ad-shadow:0 10px 30px rgba(0,0,0,.3);
- --ad-green:#75d1b1;--ad-green-bg:#173a35;--ad-amber:#e9b862;--ad-amber-bg:#3a2e1a;--ad-red:#ff8a80;--ad-red-bg:#3e2028;--ad-blue:#a5b4ff;--ad-blue-bg:#232c66}
+ --ad-green:#a5b4ff;--ad-green-bg:#1f2a66;--ad-amber:#a99cff;--ad-amber-bg:#2a2466;--ad-red:#ff8a80;--ad-red-bg:#3e2028;--ad-blue:#a5b4ff;--ad-blue-bg:#232c66}
 html[lang][dir] body.admin-portal :is(button,input,select,textarea,h1,h2,h3,p,small,b,strong,span,a,dt,dd,td,th,label){font-family:'Tajawal','IBM Plex Sans Arabic',sans-serif!important}
 html[lang][dir] body.admin-portal .app{background:transparent!important}
 
@@ -146,3 +146,19 @@ html[lang][dir] body.admin-portal .admin-record-grid{grid-template-columns:repea
 html[lang][dir] body.admin-portal .admin-record-grid>*{width:auto!important;max-width:none!important;margin:0!important}
 html[lang][dir] body.admin-portal .admin-record{padding:16px!important}
 html[lang][dir] body.admin-portal .admin-record a,html[lang][dir] body.admin-portal .admin-record .admin-open{color:var(--ad-primary)!important;font-weight:800}
+
+/* One colour family: «done» and «in progress» use indigo shades (the tokens above), cancelled orders
+ * use blue; red stays only on actions that delete or reject. Alerts in tables read violet. */
+html[lang][dir] body.admin-portal{--bad:var(--ad-amber)!important}
+html[lang][dir] body.admin-portal .admin-status-tiles .is-cancel{--tile-c:var(--ad-blue)}
+html[lang][dir] body.admin-portal .admin-main .post-card{background:var(--ad-card)!important;background-image:none!important;border:1px solid var(--ad-line)!important}
+html[lang][dir] body.admin-portal .admin-table-wrap td button:not(.danger){color:var(--ad-primary)!important}
+html[lang][dir] body.admin-portal .admin-join-row :is(a,b){color:var(--ad-green)!important}
+/* The notifications bell sits in the admin top bar beside «sign out», never over the cards */
+html[lang][dir] body.admin-portal #activityBell{background:var(--ad-btn)!important;color:#fff!important;border:0!important;box-shadow:var(--ad-glow)!important}
+html[lang][dir] body.admin-portal #adminTop #activityBell{position:relative!important;inset:auto!important;transform:none!important;width:42px!important;height:42px!important;min-width:42px;border-radius:12px!important;margin:0!important;flex:none;z-index:auto}
+html[lang][dir] body.admin-portal #adminTop #activityBell svg{width:21px;height:21px}
+html[lang][dir] body.admin-portal .admin-used-row>div>b{color:var(--ad-ink)!important}
+/* Category list: the name on its own line above its details (they ran together) */
+html[lang][dir] body.admin-portal .row>div>b:has(+small){display:block;margin-bottom:2px}
+html[lang][dir] body.admin-portal .row>div>b+small{display:block;color:var(--ad-mut)!important}
