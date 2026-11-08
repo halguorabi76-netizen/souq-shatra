@@ -531,3 +531,8 @@ html[data-shatra-ui][data-theme] body.seller-workspace .pe-images .tile svg:not(
 .sw-order-group .sw-orders{display:grid;gap:10px}
 .sw-older{text-align:center;margin:10px 0 0}
 .sw-switch span{font-size:12px}
+/* Support: just the two known icons, small and side by side */
+.cd-support .cd-lead{text-align:center}
+.cd-social{display:flex!important;justify-content:center;gap:14px}
+.cd-social a{display:grid!important;place-items:center;padding:0!important;width:auto;background:none!important;border:0!important;border-radius:14px}
+.cd-social svg{width:44px!important;height:44px!important;padding:10px!important;border-radius:14px!important}
