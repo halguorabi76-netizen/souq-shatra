@@ -544,3 +544,7 @@ html[data-shatra-ui][data-theme] body.seller-workspace .pe-images .tile svg:not(
 .cd-social{gap:12px!important}
 .cd-social a{border-radius:50%!important}
 .cd-social svg{width:36px!important;height:36px!important;padding:8px!important;border-radius:50%!important}
+/* Sign-out above delete-store: two small stacked boxes at the very end, smaller than the menu rows */
+.sw-account-foot{flex-direction:column!important;align-items:stretch!important;gap:8px!important;width:min(100%,240px);margin:30px auto 8px!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .sw-account-foot button:not(#_){display:flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 14px;border-radius:12px!important;background:var(--sx-card)!important;border:1px solid var(--sx-line)!important;color:var(--u-soft)!important;font:600 12.5px Tajawal,system-ui,sans-serif;opacity:1}
+html[data-shatra-ui][data-theme] body.seller-workspace .sw-account-foot button svg:not(#_){width:15px;height:15px;stroke:currentColor;fill:none}
