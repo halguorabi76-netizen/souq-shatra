@@ -636,3 +636,17 @@ html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-wallet:not(#_){padd
 .dw-wallet-grid>div{display:grid;gap:3px;padding:10px;border-radius:16px;background:var(--u-tint-2)}
 .dw-wallet-grid small{color:var(--u-soft);font-size:11.5px}.dw-wallet-grid b{font-size:16px;color:var(--u-strong)}.dw-wallet-grid span{font-size:11px;color:var(--u-soft)}
 .dw-wallet-note{color:var(--u-soft);font-size:11.5px}
+/* Driver: open the route in Google Maps or Waze */
+.dw-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-nav .dw-map-link:not(#_){justify-content:center;min-height:44px;padding:0 10px;border-radius:14px;background:var(--u-tint-2);border:1px solid var(--dv-line);color:var(--u-ink);font-size:12.5px;text-align:center;text-decoration:none}
+.dw-nav .dw-map-link svg{width:20px;height:20px;flex:none}
+.dw-nav [data-nav=g]:only-child{grid-column:1/-1}
+.cd-wide{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;margin-top:12px;border:0;border-radius:14px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:#fff;font:800 15px Tajawal,system-ui,sans-serif;cursor:pointer;box-shadow:0 8px 20px -8px rgba(108,99,255,.7)}
+.cd-wide svg{width:18px;height:18px}
+.dw-nav{grid-template-columns:1fr!important}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-nav .dw-map-link:not(#_){font-size:13.5px;white-space:nowrap}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .chat-open:not(#_){display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:14px!important;background:transparent!important;color:var(--u-strong)!important;border:1px solid var(--dv-line)!important;font-weight:700}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .chat-open svg:not(#_){width:18px;height:18px;stroke:currentColor}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-nav:not(#_){gap:8px!important}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-nav .dw-map-link:not(#_){margin:0!important}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-route a[href^="tel:"]:not(#_){color:var(--u-strong)!important;font-weight:700}
