@@ -36,7 +36,7 @@ export function createChat(ctx){
   const body=String(text||'').trim();if(!body||busy||!current)return;busy=true;const input=document.getElementById('chatInput');
   try{const r=await ctx.db.rpc('send_chat_message',{p_kind:current.kind,p_ref:current.ref,p_buyer:current.buyer,p_body:body});
    if(r.error){ctx.toast(/too many/.test(r.error.message)?'أرسلت رسائل كثيرة؛ انتظر دقيقة':/item unavailable/.test(r.error.message)?'هذا الغرض لم يعد معروضًا':'تعذّر إرسال الرسالة');return;}
-   if(input&&input.value.trim()===body)input.value='';await load();const box=document.getElementById('chatLog');if(box)box.scrollTop=box.scrollHeight;}
+   if(input&&input.value.trim()===body)input.value='';ctx.toast?.('تم إرسال الرسالة');await load();const box=document.getElementById('chatLog');if(box)box.scrollTop=box.scrollHeight;}
   finally{busy=false;}
  }
  // Threads the user takes part in, newest first: [{kind,ref,buyer,last}]

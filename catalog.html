@@ -698,7 +698,7 @@ import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=184";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=185";
 import {createAvatars} from "./avatars.js?v=1";
-import {createChat} from "./chat.js?v=5";
+import {createChat} from "./chat.js?v=6";
 import {createStoreExplorer} from "./store-explorer.js?v=2";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -2481,7 +2481,7 @@ const A={
     const ids=created.map(id=>'#'+id.slice(-4).toUpperCase());D.cart=[];checkoutRequest=null;routeQuote=null;routeQuoteKey='';save();
     D.cust={name,phone,addr};geoPoint=null;checkoutNote='';selectedAddressId=null;save();cartReceipt=ids;await refresh();
 
-    tab='cartPage';render();scrollTo(0,0);
+    tab='cartPage';render();scrollTo(0,0);toast('تم إرسال طلبك إلى المتجر');
   }),
   login:v=>lsheet(v),
   dologin:m=>act(async()=>{
