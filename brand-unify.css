@@ -650,3 +650,9 @@ html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .chat-open svg:not(#_){
 html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-nav:not(#_){gap:8px!important}
 html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-nav .dw-map-link:not(#_){margin:0!important}
 html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-route a[href^="tel:"]:not(#_){color:var(--u-strong)!important;font-weight:700}
+/* Directions: one button; the chooser window offers the phone's map apps */
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-order>.dw-map-link:not(#_){display:flex;justify-content:center;align-items:center;gap:8px;min-height:46px;margin:0;border-radius:14px;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:#fff!important;font-weight:800;font-size:14.5px;text-decoration:none;box-shadow:0 8px 20px -8px rgba(108,99,255,.7)}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-order>.dw-map-link svg:not(#_){width:18px;height:18px;stroke:currentColor}
+.dw-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dw-pick a{display:grid;justify-items:center;gap:8px;padding:14px 8px;border-radius:18px;background:rgba(108,99,255,.1);border:1px solid rgba(165,180,255,.22);color:inherit;text-decoration:none;font-weight:700;font-size:14px}
+.dw-pick svg{width:34px;height:34px}
