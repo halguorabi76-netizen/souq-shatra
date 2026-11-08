@@ -536,3 +536,11 @@ html[data-shatra-ui][data-theme] body.seller-workspace .pe-images .tile svg:not(
 .cd-social{display:flex!important;justify-content:center;gap:14px}
 .cd-social a{display:grid!important;place-items:center;padding:0!important;width:auto;background:none!important;border:0!important;border-radius:14px}
 .cd-social svg{width:44px!important;height:44px!important;padding:10px!important;border-radius:14px!important}
+/* «المزيد»: sign-out and deletions as quiet small links at the very end of the page */
+.sw-account-foot{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:4px 0;margin:34px 0 8px;padding-bottom:8px}
+.sw-account-foot button{background:none!important;border:0!important;box-shadow:none!important;min-height:32px;padding:0 12px;color:var(--u-soft)!important;font:500 12px Tajawal,system-ui,sans-serif;opacity:.75;cursor:pointer}
+.sw-account-foot button+button{border-inline-start:1px solid var(--sx-line,rgba(165,180,255,.2))!important}
+.sw-account-foot button:active{opacity:1}
+.cd-social{gap:12px!important}
+.cd-social a{border-radius:50%!important}
+.cd-social svg{width:36px!important;height:36px!important;padding:8px!important;border-radius:50%!important}
