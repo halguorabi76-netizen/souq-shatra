@@ -7,7 +7,7 @@ test('the used market leads the home page; «بِع غرضك» with its price is
  assert.match(html,/بِع غرضك بـ \$\{usedPriceLabel\(\)\}/);
  assert.match(html,/homeUsedBlock\(\)\+ui\.switcher\('home'\)/);
  assert.match(html,/offers:offersPage,usedPage,/);
- assert.match(html,/\$\{usedMine\(\)\}<button class="profile-logout"/);
+ assert.match(html,/\$\{usedMine\(\)\}<nav class="profile-foot"/);
 });
 test('the seller number is shown only after sign-in, and the monthly limit points to opening a store',()=>{
  assert.match(html,/usedContact:v=>\{const \[mode,id\]=String\(v\)\.split\(':'\);if\(!user\)\{[^}]*waAccountSheet\('new'\)/);
