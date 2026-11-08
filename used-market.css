@@ -146,3 +146,25 @@ html[data-shatra-ui]:not([data-portal]) body .market-doors small:not(#_){font:50
 html[data-theme=light] .used-nego{background:#eef0ff;color:#4f46e5}
 .used-nego-opt{display:flex;align-items:center;gap:8px;margin:8px 2px 0;font-size:14px;cursor:pointer}
 .used-nego-opt input{width:20px;height:20px;accent-color:#6c63ff}
+/* «لقطة»: a full-width tile on the home page and a gold tag on bargain cards */
+.sq-bargain{display:flex;align-items:center;gap:14px;width:100%;margin:6px 0 14px;padding:14px 16px;border-radius:22px;border:1px solid rgba(251,191,36,.45);background:linear-gradient(120deg,rgba(251,191,36,.18),rgba(108,99,255,.16) 60%,rgba(20,29,69,.6));color:inherit;font:inherit;text-align:start;cursor:pointer;box-shadow:0 10px 26px -14px rgba(251,191,36,.55)}
+html[data-theme=light] .sq-bargain{background:linear-gradient(120deg,#fff7e0,#eef0ff 65%);border-color:#f6d27a}
+.sq-bargain-star{flex:none;width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 8px 18px -8px rgba(245,158,11,.8)}
+.sq-bargain-star svg{width:26px;height:26px;fill:#fff}
+.sq-bargain-text{flex:1;display:grid;gap:2px;min-width:0}
+.sq-bargain-text b{font:400 26px/1.1 "Aref Ruqaa",Tajawal,serif;color:#fbbf24}
+html[data-theme=light] .sq-bargain-text b{color:#b45309}
+.sq-bargain-text small{font-size:13px;opacity:.8}
+.sq-bargain-go{flex:none;font-size:22px;color:#fbbf24}
+.sq-bargain:active{transform:scale(.99)}
+.used-bargain{position:absolute;top:8px;left:8px;padding:2px 9px;border-radius:999px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1f1300;font:800 11px/1.6 Tajawal,system-ui,sans-serif;font-style:normal;box-shadow:0 4px 10px -4px rgba(245,158,11,.8)}
+.used-kinds button[data-v="bargain"][aria-pressed="true"]{background:linear-gradient(135deg,#fbbf24,#f59e0b)!important;color:#1f1300!important}
+.admin-used-acts{display:flex;gap:8px;flex:none}
+/* «لقطة» in the brand's laser indigo (no gold) */
+.sq-bargain{border-color:rgba(143,136,255,.55)!important;background:linear-gradient(120deg,rgba(108,99,255,.32),rgba(20,29,69,.7) 70%)!important;box-shadow:0 0 26px -8px rgba(108,99,255,.7)!important}
+html[data-theme=light] .sq-bargain{background:linear-gradient(120deg,#e3e5ff,#f6f7ff 70%)!important;border-color:#c7cbf5!important;box-shadow:0 10px 24px -14px rgba(79,70,229,.5)!important}
+.sq-bargain-star{background:linear-gradient(135deg,#8f88ff,#4f46e5)!important;box-shadow:0 0 18px -2px rgba(108,99,255,.8)!important}
+.sq-bargain-text b,.sq-bargain-go{color:#a5b4ff!important}
+html[data-theme=light] .sq-bargain-text b,html[data-theme=light] .sq-bargain-go{color:#4f46e5!important}
+.used-bargain{background:linear-gradient(135deg,#8f88ff,#4f46e5)!important;color:#fff!important;box-shadow:0 0 12px -2px rgba(108,99,255,.9)!important}
+.used-kinds button[data-v="bargain"][aria-pressed="true"]{background:linear-gradient(135deg,#8f88ff,#4f46e5)!important;color:#fff!important}
