@@ -656,3 +656,7 @@ html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-order>.dw-map-link 
 .dw-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .dw-pick a{display:grid;justify-items:center;gap:8px;padding:14px 8px;border-radius:18px;background:rgba(108,99,255,.1);border:1px solid rgba(165,180,255,.22);color:inherit;text-decoration:none;font-weight:700;font-size:14px}
 .dw-pick svg{width:34px;height:34px}
+/* Customer and driver «حسابي»: sign-out and delete as plain underlined words, like the seller */
+html[data-shatra-ui][data-theme] .profile-foot:not(#_){display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:28px;margin:30px auto 10px;padding:0;background:none;border:0}
+html[data-shatra-ui][data-theme] .profile-foot button:not(#_){display:inline;min-height:32px;width:auto;padding:0!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--u-soft,#9aa3d9)!important;font:500 13px Tajawal,system-ui,sans-serif;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px;text-decoration-color:color-mix(in srgb,var(--u-soft,#9aa3d9) 55%,transparent);cursor:pointer}
+html[data-shatra-ui] .profile-page section.profile-card:not(.chat-inbox):not(:has(*)):not(#_){display:none!important}
