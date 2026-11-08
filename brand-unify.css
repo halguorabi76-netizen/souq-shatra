@@ -387,3 +387,71 @@ html[data-shatra-ui][data-theme] body.seller-workspace #activityPanel :is(articl
 html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card:not(#_){display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:space-between;gap:12px}
 html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card .sw-store-id:not(#_){flex:1;min-width:0}
 html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-store-card .sw-header-actions:not(#_){flex:none;align-self:flex-start}
+
+/* ===== Notices: a small pill at the top centre, green check for success, red mark for a problem ===== */
+html[data-shatra-ui] body #toast:not(#_){position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 14px)!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;z-index:1000!important;display:flex;align-items:center;gap:10px;width:max-content;max-width:min(92vw,420px);min-height:46px;margin:0!important;padding:8px 16px 8px 10px!important;border-radius:14px!important;background:var(--u-deep,#141d45)!important;color:#fff!important;border:1px solid color-mix(in srgb,var(--u-ice,#a5b4ff) 22%,transparent)!important;box-shadow:0 12px 30px -10px rgba(0,0,0,.55)!important;font:700 14px/1.4 Tajawal,system-ui,sans-serif;text-align:start;animation:toastIn .22s ease-out}
+html[data-shatra-ui][data-theme=light] body #toast:not(#_){background:#fff!important;color:#141d45!important;border-color:#dfe2fb!important;box-shadow:0 12px 30px -12px rgba(79,70,229,.35)!important}
+html[data-shatra-ui] body #toast[hidden]:not(#_){display:none!important}
+html[data-shatra-ui] body #toast:not(#_)::before{content:"";flex:none;width:26px;height:26px;border-radius:50%;background:#22c55e url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat}
+html[data-shatra-ui] body #toast[data-kind=error]:not(#_)::before{background:#ef4444 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M12 6v8M12 18.5v.01'/%3E%3C/svg%3E") center/16px no-repeat}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){html[data-shatra-ui] body #toast:not(#_){animation:none}}
+
+/* Seller top bar: mode, preview, messages and the bell share one indigo look */
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-sitebar .sw-icon:not(#_){position:relative;background:var(--sx-card)!important;color:var(--u-strong)!important;border:1px solid var(--sx-line)!important;box-shadow:none!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-sitebar .sw-icon svg:not(#_){stroke:currentColor!important;fill:none!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-sitebar .sw-icon:active:not(#_){box-shadow:var(--sx-glow)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .sw-bell [data-notice-count]:not([hidden]){position:absolute;top:-5px;left:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--u-btn);color:#fff;font:800 11px/18px Tajawal,system-ui,sans-serif}
+
+/* Orders as full-width strips: number, customer and address, items, then the action */
+.sw-order-no{font-size:15px;color:var(--u-strong)}
+.sw-order-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+@media (max-width:520px){.sw-order-body{grid-template-columns:minmax(0,1fr)}}
+.sw-order-who p{display:flex;align-items:center;gap:6px;margin:4px 0 0;color:var(--u-soft);font-size:13.5px}
+.sw-order-who p svg{width:15px;height:15px;flex:none}
+.sw-order-items{list-style:none;margin:0;padding:8px 10px;border-radius:14px;background:var(--u-tint-2);display:grid;gap:4px;font-size:13.5px}
+.sw-order-items li{display:flex;justify-content:space-between;gap:8px}.sw-order-items b{color:var(--u-strong)}
+.sw-order-foot{display:grid;gap:8px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions.sw-actions-one:not(#_){grid-template-columns:1fr}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions .sw-muted:not(#_){display:flex;align-items:center;gap:6px;font-size:13px}
+.sw-order .sw-actions svg,.sw-order .sw-muted svg{width:16px;height:16px;vertical-align:-3px;margin-inline-end:4px}
+.se-latest{display:grid;gap:10px;margin-bottom:12px;scroll-margin-top:80px}
+.sw-stock-summary button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;display:grid;justify-items:center;gap:2px;padding:6px;border-radius:12px}
+.sw-stock-summary button:active{box-shadow:var(--sx-glow)}
+
+/* Products grouped by category: a heading per category and a sideways row of its products */
+.sw-cat{margin:14px 0 4px}
+.sw-cat-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 4px}
+.sw-cat-head h2{margin:0;font-size:16px;font-weight:800}.sw-cat-head small{color:var(--u-soft)}
+.sw-cat-line{height:1px;margin:6px 4px 10px;background:linear-gradient(90deg,transparent,var(--sx-line,var(--u-line)),transparent)}
+.sw-cat-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:2px 2px 8px}
+.sw-cat-row::-webkit-scrollbar{display:none}
+.sw-ptile{flex:0 0 150px;scroll-snap-align:start;display:grid;gap:4px;padding:8px;border-radius:18px;background:var(--sx-card,var(--u-tint));border:1px solid var(--sx-line,var(--u-line));min-width:0}
+.sw-ptile-img{padding:0;border:0;background:var(--u-tint-2);border-radius:13px;overflow:hidden;aspect-ratio:1;display:grid;place-items:center;cursor:pointer}
+.sw-ptile-img img{width:100%;height:100%;object-fit:cover}
+.sw-ptile>b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw-ptile .sw-status{justify-self:start}
+.sw-ptile-actions{display:flex;align-items:center;justify-content:space-between}
+html[data-shatra-ui] body.seller-workspace .sw-ptile-actions .sw-icon:not(#_){width:36px!important;height:36px!important;min-width:36px}
+
+/* «المزيد»: delete-store row in the same style, its icon in a soft red */
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu>button.sw-danger-row:not(#_){color:#f87171!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-menu>button.sw-danger-row svg:not(#_){background:color-mix(in srgb,#ef4444 14%,transparent)!important;color:#f87171!important}
+html[data-shatra-ui][data-theme=light] body.seller-workspace.seller-workspace .sw-menu>button.sw-danger-row:not(#_){color:#dc2626!important}
+
+/* Add/edit product and every seller dialog: indigo glass instead of white */
+html[data-shatra-ui][data-theme] body.seller-workspace :is(.post-card,.sw-dialog,.sheet .pe-section,.sheet .pe-card):not(#_){background:var(--sx-card,var(--u-tint))!important;color:var(--u-ink)!important;border-color:var(--sx-line,var(--u-line))!important}
+html[data-shatra-ui][data-theme] body.seller-workspace :is(.post-card,.sw-dialog,.sheet) :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=file]):not(#_){background:var(--u-tint-2)!important;color:var(--u-ink)!important;border:1px solid var(--sx-line,var(--u-line))!important;border-radius:12px!important}
+html[data-shatra-ui][data-theme] body.seller-workspace :is(.post-card,.sw-dialog,.sheet) :is(label,legend,h2,h3,p,small,span):not(.sw-status):not(#_){color:inherit}
+html[data-shatra-ui][data-theme] body.seller-workspace :is(.post-card,.sw-dialog,.sheet) :is(small,.hint,.muted):not(#_){color:var(--u-soft)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace :is(.post-card,.sw-dialog,.sheet) ::placeholder{color:var(--u-soft);opacity:.85}
+/* The assigned driver inside a seller order: indigo glass, not a white box */
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-contact:not(#_){display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px!important;border-radius:16px!important;background:var(--u-tint-2)!important;border:1px solid var(--sx-line)!important;box-shadow:none!important;color:var(--u-ink)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-info:not(#_){flex:1;display:grid;gap:1px;min-width:0}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-info :is(b,small):not(#_){color:inherit!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-info small:not(#_){color:var(--u-soft)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-call:not(#_){display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:12px!important;background:transparent!important;color:var(--u-strong)!important;border:1px solid var(--sx-line)!important;box-shadow:none!important;font-weight:800;font-size:13px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-call svg:not(#_){width:16px;height:16px}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-call:not(#_){flex-basis:100%;justify-content:center}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions:not(.sw-actions-one):not(#_){grid-template-columns:1.5fr 1fr}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions button:not(#_){white-space:nowrap}
