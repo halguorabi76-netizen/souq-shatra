@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
 import {createSellerWorkspace} from "./seller-workspace.js?v=197";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=184";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=185";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=186";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -933,6 +933,7 @@ const A={
   usedAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const n=id=>Math.round(Number(val(id)));const limit=n('usedLimit'),days=n('usedDays'),price=n('usedPrice');
     if(!(limit>=0&&limit<=100)||!(days>=1&&days<=90)||!(price>=0&&price<=1000000)){toast('تحقق من الأرقام: الأغراض 0–100، الأيام 1–90');return}
     check(await db.rpc('admin_set_used_settings',{p_limit:limit,p_days:days,p_price:price}));usedAdmin=null;await loadUsedAdmin();toast('تم حفظ إعدادات «بِع غرضك»')}),
+  usedAdminBargain:v=>act(async()=>{const [id,on]=String(v).split(':');check(await db.rpc('set_used_bargain',{p_id:id,p_on:on==='1'}));usedAdmin=null;await loadUsedAdmin();toast(on==='1'?'أُضيف إلى «لقطة»':'أُزيل من «لقطة»')}),
   usedAdminRemove:v=>{confirmBox('تأكيد','إزالة هذا الغرض من السوق؟','نعم',()=>act(async()=>{check(await db.rpc('used_listing_action',{p_id:v,p_action:'delete'}));usedAdmin=null;await loadUsedAdmin();toast('أُزيل الغرض')}),true)},
   waAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const number=val('waNumber'),secret=val('waSecret').trim(),token=val('waToken').trim(),digits=number.replace(/\D/g,'');if(token&&(token.length<40||/[•●*\s]/.test(token))){toast('رمز الإرسال غير صحيح؛ انسخه كاملًا من Meta (يبدأ بـ EAA)');$('#waToken')?.focus();return}if(digits&&digits.length<10){toast('رقم واتساب غير مكتمل؛ اكتبه مثل 07xxxxxxxxx أو اتركه فارغًا الآن');$('#waNumber')?.focus();return}if(/[•●*]/.test(secret)){toast('هذه نقاط الإخفاء وليست المفتاح؛ اضغط «إظهار» في Meta أولًا ثم انسخ النص الطويل');$('#waSecret')?.focus();return}if(secret&&secret.length<16){toast('المفتاح السري قصير؛ اضغط «إظهار» في Meta ثم انسخه كاملًا (حوالي 32 حرفًا)');$('#waSecret')?.focus();return}if(!digits&&!secret&&!token){toast('الصق App secret أو اكتب رقم واتساب ثم اضغط حفظ');$('#waSecret')?.focus();return}waAdmin=check(await db.rpc('admin_save_whatsapp_login',{p_number:number,p_app_secret:secret||null,...(token?{p_access_token:token}:{})}));admin();toast(waAdmin.enabled?'تم الحفظ — الدخول عبر واتساب مفعّل':waAdmin.has_secret&&!waAdmin.number?'تم حفظ المفتاح السري ✓ — أضف رقم واتساب بعد تسجيله في Meta':'تم الحفظ')}),
   adminRefresh:()=>act(async()=>{await refresh();toast('تم تحديث البيانات')}),
