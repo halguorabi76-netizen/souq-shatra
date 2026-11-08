@@ -2372,7 +2372,7 @@ const A={
   usedAct:v=>{const [action,id]=String(v).split(':');const run=()=>act(async()=>{check(await db.rpc('used_listing_action',{p_id:id,p_action:action}));await loadUsed();render();toast(action==='sold'?'مبروك! أُغلق إعلان الغرض':action==='renew'?'تم تجديد عرض الغرض':'تم حذف الغرض')});
     if(action==='delete')confirmBox('حذف الغرض','سيختفي الغرض من السوق. حذف الغرض لا يعيد لك فرصة من حدك الشهري.','احذف',run,true);else run()},
   changeaccount:()=>confirmBox('تسجيل الخروج','هل تريد تسجيل الخروج من حسابك؟ يمكنك العودة لاحقًا من «لدي حساب» برقم هاتفك وكلمة السر.','موافق',()=>A.out('profilePage')),
-  deleteAccountAsk:()=>confirmBox('حذف الحساب نهائيًا','الحذف نهائي ولا يمكن التراجع عنه. ستُحذف بياناتك وعناوينك ولن تستطيع الدخول بهذا الحساب مرة أخرى.','احذف حسابي',()=>act(async()=>{const r=await deleteMyAccount(db);if(r.error)throw r.error;try{await db.auth.signOut({scope:'local'})}catch{}await A.out('profilePage','تم حذف حسابك نهائيًا')}),true),
+  deleteAccountAsk:()=>confirmBox('حذف الحساب نهائيًا','الحذف نهائي ولا يمكن التراجع عنه. ستُحذف بياناتك وعناوينك ولن تستطيع الدخول بهذا الحساب مرة أخرى.','نعم، احذف',()=>act(async()=>{const r=await deleteMyAccount(db);if(r.error)throw r.error;try{await db.auth.signOut({scope:'local'})}catch{}await A.out('profilePage','تم حذف حسابك نهائيًا')}),true),
   geolocate:()=>chooseCheckoutLocation(),
   roleExisting:v=>act(()=>existingRole(v)),
   roleRequest:v=>act(()=>requestRole(v)),
@@ -2508,7 +2508,6 @@ const A={
   cancel:v=>ask('إلغاء هذا الطلب؟','cancel2',v),
   handover:v=>act(async()=>{const r=await db.rpc('set_order_status',{p_order:v,p_status:'delivery'});if(r.error&&/transition|invalid/i.test(r.error.message||''))return toast('تعذّر التسليم الآن، تأكد أن المندوب استلم الطلب');check(r);await refresh();render();toast('تم تسليم الطلب للمندوب')}),
   outAsk:()=>confirmBox('تسجيل الخروج','هل تريد تسجيل الخروج من حسابك؟','نعم، اخرج',()=>A.out(),false,'تراجع'),
-  sellerAccountDeleteAsk:()=>confirmBox('حذف حسابي','حساب البائع مرتبط بمتجرك وطلباته، لذلك يتم حذفه عبر خدمة العملاء بعد تسوية الطلبات والمبالغ. هل تريد إرسال طلب الحذف الآن؟','نعم، أرسل الطلب',()=>open(SUPPORT_WHATSAPP+'?text='+encodeURIComponent('أريد حذف حسابي في سوق الشطرة (متجر «'+(ownStore?.name||'')+'»)'),'_blank'),true,'تراجع'),
   storeDeleteAsk:()=>confirmBox('حذف المتجر','سيُحذف متجرك ومنتجاته نهائياً. يتم الحذف عبر خدمة العملاء للتأكد من تسوية الطلبات والمبالغ. هل تريد إرسال طلب الحذف الآن؟','نعم، أرسل الطلب',()=>open(SUPPORT_WHATSAPP+'?text='+encodeURIComponent('أريد حذف متجري «'+(ownStore?.name||'')+'» من سوق الشطرة'),'_blank'),true,'تراجع'),
   cancel2:v=>act(async()=>{check(await db.rpc('set_order_status',{p_order:v,p_status:'cancelled'}));await refresh();A.close();render()}),
   mok:v=>act(async()=>{const m=mrec(v);check(await db.rpc('approve_store',{p_store:v,p_approved:!m.ok}));await refresh()}),
