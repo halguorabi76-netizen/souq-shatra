@@ -467,3 +467,67 @@ html[data-shatra-ui] body #toast.is-leaving:not(#_){animation:toastLift .26s eas
 @keyframes toastDrop{from{opacity:0;transform:translate(-50%,-130%)}to{opacity:1;transform:translate(-50%,0)}}
 @keyframes toastLift{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-130%)}}
 @media (prefers-reduced-motion:reduce){html[data-shatra-ui] body #toast:not(#_),html[data-shatra-ui] body #toast.is-leaving:not(#_){animation:none}}
+
+/* ===== Centred windows (confirm, store link, support): themed glass, never white over white text ===== */
+html[data-shatra-ui] .confirm-modal:not(#_){background:rgba(6,9,26,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+html[data-shatra-ui] .confirm-card:not(#_){width:min(100%,360px);background:#141d45;color:#eef0ff;border:1px solid rgba(165,180,255,.22);border-radius:24px;padding:20px 18px 18px;box-shadow:0 24px 60px -18px rgba(0,0,0,.7),0 0 0 1px rgba(79,70,229,.12);animation:cardPop .22s cubic-bezier(.2,1.2,.4,1)}
+html[data-shatra-ui][data-theme=light] .confirm-card:not(#_){background:#fff;color:#141d45;border-color:#dfe2fb;box-shadow:0 24px 60px -20px rgba(49,46,129,.35)}
+html[data-shatra-ui] .confirm-card h2:not(#_){color:inherit;font-size:18px;font-weight:800}
+html[data-shatra-ui] .confirm-card p:not(#_){color:inherit;opacity:.82}
+html[data-shatra-ui] .confirm-actions button:not(#_){min-height:46px;padding:10px 8px;border-radius:14px;font:700 15px Tajawal,system-ui,sans-serif;cursor:pointer}
+html[data-shatra-ui] .confirm-ok:not(#_){background:linear-gradient(135deg,#6c63ff,#4f46e5);color:#fff;border:0;box-shadow:0 8px 20px -8px rgba(108,99,255,.7)}
+html[data-shatra-ui] .confirm-ok.danger:not(#_){background:#dc2626;box-shadow:0 8px 20px -8px rgba(220,38,38,.6)}
+html[data-shatra-ui] .confirm-no:not(#_){background:transparent;color:inherit;border:1px solid rgba(165,180,255,.3)}
+html[data-shatra-ui][data-theme=light] .confirm-no:not(#_){border-color:#c7cbf5}
+@keyframes cardPop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html[data-shatra-ui] .confirm-card:not(#_){animation:none}}
+.center-card{text-align:start!important}
+.cd-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.cd-head h2{margin:0!important}
+.cd-close{flex:none;width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(165,180,255,.25);background:rgba(108,99,255,.12);color:inherit;cursor:pointer}
+.cd-close svg,.cd-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cd-lead{margin:0 0 14px!important;font-size:14.5px;line-height:1.7;opacity:.85}
+.cd-link{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 6px;border-radius:16px;background:rgba(108,99,255,.12);border:1px solid rgba(165,180,255,.22)}
+.cd-link input{flex:1;min-width:0;height:40px;padding:0 10px;border:0!important;background:transparent!important;color:inherit!important;font:600 13.5px/1 system-ui,sans-serif;outline:none;text-overflow:ellipsis}
+.cd-link>span{flex:none;padding-inline-start:8px;opacity:.6;font:600 13px system-ui,sans-serif}
+.cd-icon{flex:none;width:38px;height:38px;padding:0;display:grid;place-items:center;border-radius:12px;border:0;background:linear-gradient(135deg,#6c63ff,#4f46e5);color:#fff;cursor:pointer;box-shadow:0 6px 16px -8px rgba(108,99,255,.8)}
+.cd-label{display:block;margin:16px 2px 6px;font-size:13px;font-weight:700;opacity:.8}
+.cd-hint{margin:6px 2px 0!important;font-size:12px!important;opacity:.6!important}
+.cd-social{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cd-social a{display:grid;justify-items:center;gap:8px;padding:16px 8px 12px;border-radius:18px;text-decoration:none;color:inherit;background:rgba(108,99,255,.1);border:1px solid rgba(165,180,255,.2);font-weight:700;font-size:14px}
+.cd-social svg{width:46px;height:46px;padding:10px;border-radius:15px;color:#fff}
+.cd-wa svg{background:#22c55e;box-shadow:0 8px 18px -8px rgba(34,197,94,.8)}
+.cd-ig svg{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285aeb 90%);box-shadow:0 8px 18px -8px rgba(214,36,159,.8)}
+.cd-social a:active{transform:scale(.97)}
+
+/* ===== Back buttons: a soft round button with the arrow truly centred ===== */
+html[data-shatra-ui] :is(#sheet .sh .x,.pe-header>button,.sm-back,.sp-back,.sw-back):not(#_){width:42px!important;height:42px!important;min-width:42px;padding:0!important;display:grid!important;place-items:center!important;border-radius:50%!important;background:rgba(108,99,255,.14)!important;color:var(--u-strong,#8f88ff)!important;border:1px solid rgba(165,180,255,.24)!important;box-shadow:none!important;outline-offset:2px;line-height:0}
+html[data-shatra-ui][data-theme=light] :is(#sheet .sh .x,.pe-header>button,.sm-back,.sp-back,.sw-back):not(#_){background:#eef0ff!important;color:#4f46e5!important;border-color:#dfe2fb!important}
+html[data-shatra-ui] :is(#sheet .sh .x,.pe-header>button,.sm-back,.sp-back,.sw-back) svg:not(#_){width:20px!important;height:20px!important;margin:0!important;display:block}
+html[data-shatra-ui] :is(#sheet .sh .x,.pe-header>button,.sm-back,.sp-back,.sw-back):active:not(#_){transform:scale(.94);box-shadow:0 0 18px -4px rgba(108,99,255,.7)!important}
+
+/* ===== Add / edit product: compact, indigo, actions at the end of the form (nothing hidden, no gap) ===== */
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-shell:not(#_){padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-actions:not(#_){position:static!important;max-width:none;margin:18px 0 0!important;padding:0!important;background:transparent!important;border:0!important;display:grid!important;grid-template-columns:2fr 1fr;gap:10px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-actions button:not(#_){min-height:46px!important;border-radius:14px!important;font:700 15px Tajawal,system-ui,sans-serif!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-actions .buy:not(#_){background:linear-gradient(135deg,#6c63ff,#4f46e5)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px -8px rgba(108,99,255,.7)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-actions .alt:not(#_){background:transparent!important;color:var(--u-ink)!important;border:1px solid var(--sx-line)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-header:not(#_){display:flex;align-items:center;gap:12px;margin:6px 0 12px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-header h1:not(#_){flex:1;margin:0;font-size:20px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-form .post-card:not(#_){padding:14px!important;border-radius:20px!important;margin-bottom:12px!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-form :is(h2,h3,legend):not(#_){font-size:15px!important;margin:0 0 8px!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-form label:not(#_){font-size:13.5px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-form :is(input,select):not([type=checkbox]):not([type=radio]):not([type=file]):not(#_){min-height:44px!important;height:auto;font-size:15px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-form textarea:not(#_){min-height:88px!important}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-form .pe-field:not(#_){margin-bottom:10px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-form input[type=checkbox]:not(#_){width:20px;height:20px;accent-color:#6c63ff}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-upload:not(#_){padding:9px 16px!important;font-size:14px;border-color:var(--u-strong)!important;color:var(--u-strong)!important;margin-top:4px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-upload svg:not(#_){width:18px;height:18px}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-images .tile:not(#_){width:96px;height:96px;margin-top:10px;background:var(--u-tint-2)!important;border:1px dashed var(--sx-line)!important;color:var(--u-soft)}
+html[data-shatra-ui][data-theme] body.seller-workspace .pe-images .tile svg:not(#_){width:24px;height:24px}
+
+/* Orders grouped by state; switches show their word */
+.sw-order-group{margin:6px 0 10px}
+.sw-order-group .sw-orders{display:grid;gap:10px}
+.sw-older{text-align:center;margin:10px 0 0}
+.sw-switch span{font-size:12px}
