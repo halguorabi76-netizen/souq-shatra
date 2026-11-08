@@ -551,3 +551,88 @@ html[data-shatra-ui][data-theme] body.seller-workspace .sw-account-foot button s
 /* Sign-out and delete-store: plain words side by side, a thin underline, no box, no icon */
 html[data-shatra-ui][data-theme] body.seller-workspace .sw-account-foot.sw-foot-links:not(#_){flex-direction:row!important;justify-content:center!important;align-items:center!important;gap:28px!important;width:auto;margin:34px auto 10px!important}
 html[data-shatra-ui][data-theme] body.seller-workspace .sw-foot-links button:not(#_){display:inline;min-height:32px;padding:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--u-soft)!important;font:500 13px Tajawal,system-ui,sans-serif;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px;text-decoration-color:color-mix(in srgb,var(--u-soft) 55%,transparent)}
+
+/* ===== Driver app (indigo): home with tasks and new orders, trips, wallet; four tabs ===== */
+@media (max-width:1023px){html[data-shatra-ui] body.driver-mode .app>.tabs:not(#_){grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+html[data-shatra-ui][data-theme] body.driver-mode{--dv-card:color-mix(in srgb,var(--u-tint) 82%,transparent);--dv-line:color-mix(in srgb,var(--u-ice) 16%,transparent);--dv-glow:0 0 24px -6px rgba(108,99,255,.6)}
+html[data-shatra-ui][data-theme=light] body.driver-mode{--dv-card:#fff;--dv-line:#dfe2fb;--dv-glow:0 8px 22px -8px rgba(79,70,229,.4)}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2:not(#_){display:grid;gap:12px;padding-bottom:110px}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-header:not(#_){display:flex;align-items:center;gap:12px;padding:14px;border-radius:22px;background:var(--dv-card);border:1px solid var(--dv-line);box-shadow:none}
+.dw-v2 .dw-who{flex:1;min-width:0;display:grid;gap:2px}
+.dw-v2 .dw-who small{color:var(--u-soft);font-size:12px}
+.dw-v2 .dw-who h1{margin:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-status:not(#_){justify-self:start;padding:2px 10px;border-radius:999px;background:var(--u-tint-2);color:var(--u-strong);font-size:11.5px;font-weight:800;border:0}
+.dw-v2 .dw-today{flex:none;padding:6px 10px;border-radius:12px;background:var(--u-tint-2);color:var(--u-strong);font-size:12px;font-weight:700}
+.dw-v2 .dw-today b{font-size:15px}
+.dw-v2 .dw-title{display:flex;align-items:baseline;gap:8px;margin:8px 4px 0;font-size:16px;font-weight:800}
+.dw-v2 .dw-title small{min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:var(--u-tint-2);color:var(--u-strong);font-size:12px;line-height:22px;text-align:center}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 :is(.dw-order,.dw-card,.dw-trip,.dw-wallet):not(#_){background:var(--dv-card)!important;border:1px solid var(--dv-line)!important;border-radius:22px!important;box-shadow:none!important;color:var(--u-ink)!important}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-empty:not(#_){padding:18px;border-radius:18px;border:1px dashed var(--dv-line);background:transparent;color:var(--u-soft);text-align:center;font-size:13.5px}
+/* Radar pulse while waiting for orders */
+.dw-radar{display:grid;justify-items:center;gap:12px}
+.dw-radar span{position:relative;width:14px;height:14px;border-radius:50%;background:var(--u-strong);box-shadow:0 0 12px var(--u-strong)}
+.dw-radar span::before,.dw-radar span::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--u-strong);animation:dwRadar 2.6s cubic-bezier(.2,.6,.35,1) infinite}
+.dw-radar span::after{animation-delay:1.3s}
+@keyframes dwRadar{from{transform:scale(1);opacity:.8}to{transform:scale(4.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){.dw-radar span::before,.dw-radar span::after{animation:none}}
+/* New order card */
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-offer:not(#_){padding:14px!important;display:grid;gap:10px;border:1.5px solid color-mix(in srgb,var(--u-strong) 55%,transparent)!important;box-shadow:var(--dv-glow)!important}
+.dw-offer-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--dv-line)}
+.dw-offer-head small{color:var(--u-soft);font-size:12px}
+.dw-new{padding:3px 10px;border-radius:9px;background:var(--u-btn);color:#fff;font-size:12px;font-weight:800}
+.dw-leg{display:flex;align-items:flex-start;gap:10px}
+.dw-leg>div{display:grid;gap:1px;min-width:0}
+.dw-leg small{color:var(--u-soft);font-size:11.5px}.dw-leg b{font-size:14px}
+.dw-leg-ic{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:11px;background:var(--u-tint-2);color:var(--u-strong)}
+.dw-leg-ic.is-cust{color:#ec4899;background:color-mix(in srgb,#ec4899 14%,transparent)}
+.dw-leg-ic svg{width:17px;height:17px}
+.dw-money{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;border-radius:16px;background:var(--u-tint-2)}
+.dw-money>div{display:grid;gap:2px}.dw-money>div+div{border-inline-start:1px solid var(--dv-line);padding-inline-start:10px}
+.dw-money small{color:var(--u-soft);font-size:11.5px}.dw-money b{font-size:16px;font-weight:800;color:var(--u-strong)}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-actions:not(#_){display:grid;grid-template-columns:2fr 1fr;gap:8px}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 :is(.dw-actions,.delivery-queue,.dw-order) .buy:not(#_){min-height:46px;border-radius:14px!important;background:linear-gradient(135deg,#6c63ff,#4f46e5)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px -8px rgba(108,99,255,.7)!important;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 :is(.dw-actions,.delivery-queue,.dw-order,.dw-card) .alt:not(#_){min-height:44px;border-radius:14px!important;background:transparent!important;color:var(--u-ink)!important;border:1px solid var(--dv-line)!important}
+.dw-v2 .dw-actions svg,.dw-v2 .buy svg{width:17px;height:17px}
+/* Current task: a step badge above the order */
+.dw-task{display:grid;gap:0}
+.dw-step{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:18px 18px 0 0;background:var(--u-btn);color:#fff;font-size:13px}
+.dw-step b{flex:1}.dw-step span{font-weight:800}
+.dw-step i{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.25)}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-task .dw-order:not(#_){border-radius:0 0 22px 22px!important;border-top:0!important;padding:14px!important}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-prices:not(#_){display:grid;gap:6px;padding:10px;border-radius:16px;background:var(--u-tint-2)}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-prices b:not(#_){color:var(--u-strong)}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-route:not(#_){display:grid;gap:10px}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-map-link:not(#_){display:inline-flex;align-items:center;gap:6px;color:var(--u-strong);font-weight:700;font-size:13.5px}
+/* Balance strip */
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-debt:not(#_){padding:12px 14px!important;display:grid;gap:6px}
+.dw-debt .dw-order-head{display:flex;justify-content:space-between;align-items:center}
+.dw-debt .dw-order-head span{font-size:13px;color:var(--u-soft)}.dw-debt .dw-order-head b{font-size:16px}
+.dw-debt small{color:var(--u-soft);font-size:12px}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-debt.is-locked:not(#_){border-color:rgba(248,113,113,.5)!important}
+/* Trips */
+.dw-trips-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px}
+.dw-trips-head h2{margin:0;font-size:17px}.dw-trips-head small{color:var(--u-soft);font-size:12px}
+.dw-trips-head>b{padding:6px 12px;border-radius:12px;background:var(--u-tint-2);color:var(--u-strong);font-size:14px}
+.dw-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.dw-chips::-webkit-scrollbar{display:none}
+.dw-chips button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border-radius:19px;border:1px solid var(--dv-line);background:var(--dv-card);color:var(--u-ink);font:700 13px Tajawal,system-ui,sans-serif;cursor:pointer}
+.dw-chips button b{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--u-tint-2);color:var(--u-strong);font-size:11.5px;line-height:20px}
+.dw-chips button[aria-pressed="true"]{background:var(--u-btn);color:#fff;border-color:transparent;box-shadow:var(--dv-glow)}
+.dw-chips button[aria-pressed="true"] b{background:rgba(255,255,255,.22);color:#fff}
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-trip:not(#_){padding:12px 14px!important;display:grid;gap:8px}
+.dw-trip-head{display:flex;align-items:center;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--dv-line)}
+.dw-trip-head small{flex:1;color:var(--u-soft);font-size:12px}
+.dw-done{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#22c55e 16%,transparent);color:#22c55e;font-size:11.5px;font-weight:800}
+.dw-done svg{width:13px;height:13px}
+.dw-trip-body{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.dw-trip-body p{margin:0;font-size:13.5px;font-weight:600}.dw-trip-body small{color:var(--u-soft);font-size:12px}
+.dw-trip-money{display:grid;justify-items:end;gap:2px;flex:none}
+.dw-trip-money b{color:var(--u-strong);font-size:14.5px}
+/* Wallet */
+html[data-shatra-ui][data-theme] body.driver-mode .dw-v2 .dw-wallet:not(#_){padding:16px!important;display:grid;gap:12px;background:linear-gradient(140deg,color-mix(in srgb,#4f46e5 34%,transparent),var(--dv-card) 70%)!important}
+.dw-wallet-top small{color:var(--u-soft);font-size:12.5px}
+.dw-wallet-top b{display:block;margin-top:2px;font-size:28px;font-weight:800;color:var(--u-ink)}
+.dw-wallet-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px;border-top:1px solid var(--dv-line)}
+.dw-wallet-grid>div{display:grid;gap:3px;padding:10px;border-radius:16px;background:var(--u-tint-2)}
+.dw-wallet-grid small{color:var(--u-soft);font-size:11.5px}.dw-wallet-grid b{font-size:16px;color:var(--u-strong)}.dw-wallet-grid span{font-size:11px;color:var(--u-soft)}
+.dw-wallet-note{color:var(--u-soft);font-size:11.5px}

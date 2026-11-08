@@ -627,7 +627,7 @@ body.starting{overflow:hidden}
 </style>
 <link rel="stylesheet" href="ui-polish.css?v=3">
 <link rel="stylesheet" href="laser-theme.css?v=2">
-<link rel="stylesheet" href="used-market.css?v=4"><link rel="stylesheet" href="brand-unify.css?v=22">
+<link rel="stylesheet" href="used-market.css?v=4"><link rel="stylesheet" href="brand-unify.css?v=23">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><svg class="ss-logo" viewBox="0 0 573 779" xmlns="http://www.w3.org/2000/svg" aria-label="الشطرة"> <defs> <mask id="ssCut"> <path d="M200 0 L191 3 L186 9 L181 27 L181 41 L177 50 L153 72 L152 83 L161 102 L161 110 L158 117 L151 124 L135 129 L127 137 L124 145 L122 171 L131 187 L130 203 L133 210 L133 226 L142 244 L135 288 L125 301 L112 305 L69 306 L54 295 L45 292 L36 295 L32 299 L30 304 L32 328 L29 335 L21 343 L4 350 L0 355 L0 484 L4 489 L10 491 L22 488 L33 491 L42 502 L43 517 L47 526 L47 534 L44 541 L37 548 L22 553 L7 569 L5 574 L7 585 L12 590 L35 602 L42 609 L48 628 L66 649 L86 654 L104 668 L109 669 L122 666 L133 669 L141 677 L144 685 L158 698 L174 729 L179 734 L191 739 L199 747 L209 771 L213 775 L222 778 L231 775 L245 763 L276 756 L281 750 L285 732 L298 719 L300 714 L300 693 L302 689 L300 677 L296 673 L248 651 L241 644 L238 637 L238 629 L241 622 L248 615 L259 612 L314 623 L376 639 L402 648 L425 660 L437 661 L446 655 L451 642 L460 633 L462 628 L461 619 L452 609 L449 602 L450 591 L459 580 L470 577 L477 579 L484 577 L502 561 L513 558 L523 560 L542 571 L553 570 L560 564 L571 544 L572 529 L570 524 L551 505 L548 498 L549 484 L560 454 L559 444 L550 434 L546 424 L546 412 L550 402 L549 393 L544 387 L535 384 L520 388 L508 386 L489 370 L486 363 L486 354 L497 338 L498 329 L496 324 L475 306 L471 295 L464 288 L461 281 L461 272 L465 261 L474 252 L494 246 L501 240 L506 228 L514 219 L515 210 L513 205 L494 191 L487 190 L475 193 L466 191 L450 174 L441 171 L431 174 L415 190 L405 194 L393 194 L381 185 L373 166 L369 162 L360 159 L351 162 L337 179 L308 192 L291 209 L280 212 L269 209 L262 202 L259 195 L259 168 L251 151 L251 143 L254 136 L269 123 L271 112 L265 103 L256 99 L249 92 L243 82 L242 64 L229 46 L223 15 L209 3Z" fill="#fff"/> <path class="ss-river" d="M-75 188 C-48 223 -17 260 5 293 C27 326 40 358 55 383 C70 408 65 428 95 441 C125 454 188 456 235 464 C282 472 337 479 375 488 C413 497 442 508 465 518 C488 528 488 532 515 548 C542 564 588 591 625 613"/> </mask> </defs> <rect class="ss-city" width="573" height="779" mask="url(#ssCut)"/> <ellipse class="ss-shadow" cx="290" cy="430" rx="34" ry="10" fill="#101f48"/> <g transform="translate(290 432) scale(1.4)"> <g class="ss-pin"> <path d="M0 0 C-12 -28 -46 -52 -46 -92 A46 46 0 1 1 46 -92 C46 -52 12 -28 0 0Z" fill="#101f48"/> <circle cx="0" cy="-92" r="17" fill="#fdfbfc"/> </g> </g> </svg><div class="ss-name">الشطرة</div></div>
@@ -696,7 +696,7 @@ import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,
 import {createSellerWorkspace} from "./seller-workspace.js?v=197";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
 import {renderAdminWorkspace} from "./admin-workspace.js?v=184";
-import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=182";
+import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=183";
 import {createAvatars} from "./avatars.js?v=1";
 import {createChat} from "./chat.js?v=5";
 import {createStoreExplorer} from "./store-explorer.js?v=2";
@@ -1237,10 +1237,10 @@ function render(){
   if(dataReady)appReady();
   // Approved sellers and drivers always open in their own workspace, never as a customer.
   if(sellerAccount())viewMode='seller';
-  else if(user&&dataReady&&driverAccount?.approved&&profile?.role==='driver'&&!profile?.disabled&&viewMode!=='driver'){viewMode='driver';rememberMode('driver');if(!['account','orders','profilePage','settings','chats'].includes(tab))tab='account';}
+  else if(user&&dataReady&&driverAccount?.approved&&profile?.role==='driver'&&!profile?.disabled&&viewMode!=='driver'){viewMode='driver';rememberMode('driver');if(!['account','orders','profilePage','settings','chats','trips','wallet'].includes(tab))tab='account';}
   if(dataReady&&viewMode==='seller'&&!canSell())viewMode='buyer';
   // A driver's whole site is the delivery workspace: market, stores and products are for customers.
-  if(viewMode==='driver'&&!['account','profilePage','settings','chats'].includes(tab))tab='account';
+  if(viewMode==='driver'&&!['account','profilePage','settings','chats','trips','wallet'].includes(tab))tab='account';
   document.body.classList.toggle('driver-mode',viewMode==='driver');
   if(canSell()&&viewMode==='seller'&&ownStore){if(publicStoreId&&publicStoreId!==ownStore.id)publicStoreId=null;if(!['account','market','listings','chats','settings','profilePage','postPage','orders','messages'].includes(tab))tab='account';}
   window.SouqTheme.set(window.SouqTheme.get(),false);
@@ -1257,14 +1257,14 @@ function render(){
   document.body.classList.toggle('profile-mode',tab==='profilePage');
   $('.tabs').hidden=tab==='welcome';
   const sellerView=canSell()&&viewMode==='seller';
-  if(viewMode==='driver'){$('.tabs').innerHTML=`<button data-a="tab" data-v="profilePage"><span class="navicon">${flowIcon('user')}</span>حسابي</button><button data-a="tab" data-v="settings"><span class="navicon">${flowIcon('settings')}</span>الإعدادات</button><button data-a="tab" data-v="account"><span class="navicon">${flowIcon('home')}</span>الرئيسية</button>`;}
+  if(viewMode==='driver'){$('.tabs').innerHTML=`<button data-a="tab" data-v="profilePage"><span class="navicon">${flowIcon('user')}</span>حسابي</button><button data-a="tab" data-v="wallet"><span class="navicon">${flowIcon('card')}</span>المحفظة</button><button data-a="tab" data-v="trips"><span class="navicon">${flowIcon('truck')}</span>الرحلات</button><button data-a="tab" data-v="account"><span class="navicon">${flowIcon('home')}</span>الرئيسية</button>`;}
   else if(!sellerView){$('.tabs').innerHTML=`<button data-a="tab" data-v="profilePage"><span class="navicon">${flowIcon('user')}</span>حسابي</button><button data-a="marketSection" data-v="materials"><span class="navicon">${flowIcon('grid')}</span>الفئات</button><button class="media-placeholder offers-tab cart-centre" type="button" data-a="cart" aria-label="السلة"><span class="navicon">${flowIcon('cart')}</span>السلة<i ${n?'':'hidden'}>${n}</i></button><button data-a="marketSection" data-v="stores"><span class="navicon">${flowIcon('store')}</span>المتاجر</button><button data-a="tab" data-v="market"><span class="navicon">${flowIcon('home')}</span>الرئيسية</button>`;}
   let floating=$('#buyerFloating');if(!floating){floating=document.createElement('button');floating.id='buyerFloating';floating.className='buyer-floating';$('.app').append(floating)}
   // The cart sits in the top bar beside the theme button, so it never covers page content.
   const themeButton=$('#themeToggle');if(typeof themeButton?.after==='function'&&floating.previousElementSibling!==themeButton)themeButton.after(floating);floating.hidden=sellerView||viewMode==='driver'||tab==='welcome';floating.dataset.a='cart';floating.setAttribute('aria-label','فتح السلة');floating.innerHTML=flowIcon('cart')+`<i id="cc" ${n?'':'hidden'}>${n}</i>`;
   document.querySelectorAll('.tabs button[data-v]').forEach(b=>b.dataset.v===(viewMode==='driver'?tab:['account','profilePage','settings'].includes(tab)?'profilePage':tab==='catalog'?'materials':tab)?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
   const offersTab=document.querySelector('.tabs .offers-tab');if(offersTab){if(['cartPage','myMarket'].includes(tab))offersTab.setAttribute('aria-current','page');else offersTab.removeAttribute?.('aria-current')}
-  ({explorer:()=>storeExplorer.render(cat),welcome,market,catalog:market,stores:storesPage,offers:offersPage,usedPage,orders,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
+  ({explorer:()=>storeExplorer.render(cat),welcome,market,catalog:market,stores:storesPage,offers:offersPage,usedPage,orders,trips:driverPage,wallet:driverPage,account,chats,listings,admin,categories,myMarket,cartPage:csheet,searchPage,postPage,settings,profilePage,sellerJoin:sellerJoinPage})[tab]();
   if(viewMode==='seller'&&canSell()&&ownStore)($('#view .sw-shell')||$('#view')).insertAdjacentHTML('afterbegin',workspace.chrome());
   activity.sync();pageBackbar();
 }
@@ -1624,7 +1624,7 @@ function chats(){
 }
 function driverPage(){
  if(!dataReady){$('#view').innerHTML='<div class="dw-shell" '+(D.driverError?'data-driver-recovery':'')+'><h1>مساحة سائق التوصيل</h1><p role="status">'+esc(D.driverError||'جارٍ تحميل حساب التوصيل…')+'</p>'+(D.driverError?'<button class="buy" data-a="refreshAccount">إعادة المحاولة</button>':'')+'</div>';return;}
- driverWorkspace.render();
+ driverWorkspace.render(tab==='trips'||tab==='wallet'?tab:'home');
  if(D.driverError)$('#view').insertAdjacentHTML('afterbegin','<aside class="dw-card" data-driver-recovery role="alert"><p>'+esc(D.driverError)+'</p><button class="buy" data-a="refreshAccount">إعادة المحاولة</button></aside>');
 }
 
