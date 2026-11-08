@@ -455,3 +455,15 @@ html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-orde
 html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .dw-driver-call:not(#_){flex-basis:100%;justify-content:center}
 html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions:not(.sw-actions-one):not(#_){grid-template-columns:1.5fr 1fr}
 html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-order .sw-actions button:not(#_){white-space:nowrap}
+
+/* Notice pill like the owner's reference: dark, fully rounded, slides down from the top,
+ * green check inside an outlined circle. Same in both themes so it reads as a system banner. */
+html[data-shatra-ui] body #toast:not(#_){top:calc(env(safe-area-inset-top,0px) + 10px)!important;gap:12px;min-height:54px;max-width:min(92vw,460px);padding:10px 22px 10px 16px!important;border-radius:999px!important;background:rgba(20,21,40,.96)!important;color:#fff!important;border:1.5px solid rgba(143,136,255,.45)!important;box-shadow:0 14px 34px -12px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.25)!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:700 16px/1.4 Tajawal,system-ui,sans-serif;animation:toastDrop .42s cubic-bezier(.2,1.25,.4,1) both}
+html[data-shatra-ui][data-theme=light] body #toast:not(#_){background:rgba(20,21,40,.96)!important;color:#fff!important;border-color:rgba(143,136,255,.5)!important}
+html[data-shatra-ui] body #toast:not(#_)::before{width:28px;height:28px;border-radius:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M7.8 12.3l2.8 2.8 5.6-5.8'/%3E%3C/svg%3E") center/28px no-repeat}
+html[data-shatra-ui] body #toast[data-kind=error]:not(#_)::before{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M12 7.5v5.5M12 16.5v.01'/%3E%3C/svg%3E") center/28px no-repeat}
+html[data-shatra-ui] body #toast.is-tap:not(#_){cursor:pointer}
+html[data-shatra-ui] body #toast.is-leaving:not(#_){animation:toastLift .26s ease-in both}
+@keyframes toastDrop{from{opacity:0;transform:translate(-50%,-130%)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes toastLift{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-130%)}}
+@media (prefers-reduced-motion:reduce){html[data-shatra-ui] body #toast:not(#_),html[data-shatra-ui] body #toast.is-leaving:not(#_){animation:none}}
