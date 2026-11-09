@@ -179,3 +179,17 @@ html[lang][dir] body.admin-portal .row>div>b+small{display:block;color:var(--ad-
 .admin-audit-act{flex:none;min-width:52px;text-align:center;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(108,99,255,.18);color:#6c63ff}
 .admin-audit-row.act-delete .admin-audit-act{background:rgba(220,38,38,.14);color:#dc2626}
 .admin-audit-row.act-insert .admin-audit-act{background:rgba(22,163,74,.14);color:#16a34a}
+/* Admin: banners */
+.admin-banner-form{display:grid;gap:6px;max-width:560px}
+.admin-banner-form label small{opacity:.65;font-weight:400}
+.admin-banner-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.admin-banner-dates>div{display:grid;gap:6px}
+.admin-banners{display:grid;gap:10px}
+.admin-banner-row{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px;border-radius:16px;border:1px solid rgba(165,180,255,.22)}
+.admin-banner-row img{width:120px;height:60px;object-fit:cover;border-radius:10px;background:rgba(108,99,255,.1)}
+.admin-banner-row>div{display:grid;gap:2px;min-width:0}
+.admin-banner-row small{opacity:.7;font-size:12.5px}
+.admin-banner-row.is-off{opacity:.55}
+.admin-banner-acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.admin-banner-acts button{min-height:36px;padding:0 10px}
+@media (max-width:640px){.admin-banner-row{grid-template-columns:90px minmax(0,1fr)}.admin-banner-row img{width:90px;height:45px}.admin-banner-acts{grid-column:1/-1;justify-content:flex-start}}

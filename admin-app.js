@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
 import {createSellerWorkspace} from "./seller-workspace.js?v=197";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=186";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=187";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=186";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -539,7 +539,20 @@ async function loadInvites(){
  if(tab==='admin')admin();
 }
 // «بِع غرضك»: settings and live listings for the admin.
-let usedAdmin=null,usedAdminLoading=false,auditAdmin=null,auditLoading=false;
+let usedAdmin=null,usedAdminLoading=false,auditAdmin=null,auditLoading=false,bannersAdmin=null,bannersLoading=false,bannerBusy=false;
+async function loadBannersAdmin(){
+ if(bannersLoading)return;bannersLoading=true;
+ try{const r=await db.from('home_banners').select('*').order('position');bannersAdmin=r.error?{error:'تعذّر تحميل البنرات.'}:{list:r.data||[]}}
+ catch{bannersAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{bannersLoading=false}
+ if(tab==='admin')admin();
+}
+async function prepareBannerImage(file){
+ const url=URL.createObjectURL(file);
+ try{const image=new Image();await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(Error('تعذّر قراءة الصورة'));image.src=url});
+ const scale=Math.min(1,1600/image.width),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.width*scale));canvas.height=Math.max(1,Math.round(image.height*scale));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+ return await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error('تعذّر تجهيز الصورة')),'image/jpeg',.86));
+ }finally{URL.revokeObjectURL(url)}
+}
 async function loadAuditAdmin(){
  if(auditLoading)return;auditLoading=true;
  try{const r=await db.from('admin_audit').select('*').order('created_at',{ascending:false}).limit(200);auditAdmin=r.error?{error:'تعذّر تحميل السجل. إذا كانت هذه أول مرة، شغّل ملف قاعدة البيانات الخاص بسجل الإدارة.'}:{list:r.data||[]}}
@@ -559,10 +572,12 @@ function admin(){
  if(!waAdmin)loadWaAdmin();
  if(adminTab==='used'&&!usedAdmin)loadUsedAdmin();
  if(adminTab==='audit'){if(!auditAdmin)loadAuditAdmin();}else auditAdmin=null;
+ if(adminTab==='banners'&&!bannersAdmin)loadBannersAdmin();
  if(adminTab==='invites'&&!inviteAdmin)loadInvites();
- $('#view').innerHTML=renderAdminWorkspace({audit:auditAdmin,used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ $('#view').innerHTML=renderAdminWorkspace({banners:bannersAdmin,bannerUrl:p=>p?db.storage.from('banners').getPublicUrl(p).data.publicUrl:'',audit:auditAdmin,used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
  $('#waAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.waAdminSave()});
  $('#usedAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.usedAdminSave()});
+ $('#bannerForm')?.addEventListener('submit',e=>{e.preventDefault();A.bannerAdd()});
  $('#inviteForm')?.addEventListener('submit',e=>{e.preventDefault();A.inviteAdd()});$('#resetPhoneForm')?.addEventListener('submit',e=>{e.preventDefault();A.resetPhoneAdd()});
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
@@ -940,6 +955,15 @@ const A={
   usedAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const n=id=>Math.round(Number(val(id)));const limit=n('usedLimit'),days=n('usedDays'),price=n('usedPrice');
     if(!(limit>=0&&limit<=100)||!(days>=1&&days<=90)||!(price>=0&&price<=1000000)){toast('تحقق من الأرقام: الأغراض 0–100، الأيام 1–90');return}
     check(await db.rpc('admin_set_used_settings',{p_limit:limit,p_days:days,p_price:price}));usedAdmin=null;await loadUsedAdmin();toast('تم حفظ إعدادات «بِع غرضك»')}),
+  bannerAdd:()=>act(async()=>{if(bannerBusy)return;const file=$('#bnFile')?.files?.[0];if(!file||!file.type.startsWith('image/')){toast('اختر صورة البنر');return}const ext=($('#bnUrl')?.value||'').trim();if(ext&&!/^https:\/\//.test(ext)){toast('الرابط الخارجي يجب أن يبدأ بـ https://');return}
+   const start=val('bnStart'),end=val('bnEnd');if(start&&end&&end<start){toast('تاريخ النهاية قبل تاريخ البداية');return}
+   const button=$('#bannerForm button[type="submit"]');bannerBusy=true;if(button){button.disabled=true;button.textContent='جارٍ رفع البنر…'}
+   try{const path=`${crypto.randomUUID()}.jpg`;check(await db.storage.from('banners').upload(path,await prepareBannerImage(file),{contentType:'image/jpeg'}));const last=Math.max(0,...(bannersAdmin?.list||[]).map(b=>b.position||0));
+    check(await db.from('home_banners').insert({image_path:path,title:val('bnTitle')||null,subtitle:val('bnSub')||null,cta:val('bnCta')||null,link:ext||$('#bnLink')?.value||null,position:last+1,active:true,starts_at:start?new Date(start+'T00:00:00+03:00').toISOString():null,ends_at:end?new Date(end+'T23:59:59+03:00').toISOString():null}));
+    bannersAdmin=null;await loadBannersAdmin();toast('أُضيف البنر، ويظهر الآن أعلى الرئيسية')}finally{bannerBusy=false;if(button?.isConnected){button.disabled=false;button.textContent='إضافة البنر'}}}),
+  bannerMove:v=>act(async()=>{const [id,dir]=String(v).split(':'),list=(bannersAdmin?.list||[]).slice(),i=list.findIndex(b=>b.id===id),j=i+Number(dir);if(i<0||j<0||j>=list.length)return;[list[i],list[j]]=[list[j],list[i]];for(let k=0;k<list.length;k++)if(list[k].position!==k+1)check(await db.from('home_banners').update({position:k+1}).eq('id',list[k].id));bannersAdmin=null;await loadBannersAdmin()}),
+  bannerToggle:v=>act(async()=>{const b=bannersAdmin?.list?.find(x=>x.id===v);if(!b)return;check(await db.from('home_banners').update({active:!b.active}).eq('id',v));bannersAdmin=null;await loadBannersAdmin();toast(b.active?'أُخفي البنر':'ظهر البنر')}),
+  bannerDelete:v=>{confirmBox('حذف البنر','سيُحذف هذا البنر وصورته نهائياً.','احذف',()=>act(async()=>{const b=bannersAdmin?.list?.find(x=>x.id===v);check(await db.from('home_banners').delete().eq('id',v));if(b?.image_path)await db.storage.from('banners').remove([b.image_path]);bannersAdmin=null;await loadBannersAdmin();toast('حُذف البنر')}),true)},
   usedAdminBargain:v=>act(async()=>{const [id,on]=String(v).split(':');check(await db.rpc('set_used_bargain',{p_id:id,p_on:on==='1'}));usedAdmin=null;await loadUsedAdmin();toast(on==='1'?'أُضيف إلى «لقطة»':'أُزيل من «لقطة»')}),
   usedAdminRemove:v=>{confirmBox('تأكيد','إزالة هذا الغرض من السوق؟','نعم',()=>act(async()=>{check(await db.rpc('used_listing_action',{p_id:v,p_action:'delete'}));usedAdmin=null;await loadUsedAdmin();toast('أُزيل الغرض')}),true)},
   waAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const number=val('waNumber'),secret=val('waSecret').trim(),token=val('waToken').trim(),digits=number.replace(/\D/g,'');if(token&&(token.length<40||/[•●*\s]/.test(token))){toast('رمز الإرسال غير صحيح؛ انسخه كاملًا من Meta (يبدأ بـ EAA)');$('#waToken')?.focus();return}if(digits&&digits.length<10){toast('رقم واتساب غير مكتمل؛ اكتبه مثل 07xxxxxxxxx أو اتركه فارغًا الآن');$('#waNumber')?.focus();return}if(/[•●*]/.test(secret)){toast('هذه نقاط الإخفاء وليست المفتاح؛ اضغط «إظهار» في Meta أولًا ثم انسخ النص الطويل');$('#waSecret')?.focus();return}if(secret&&secret.length<16){toast('المفتاح السري قصير؛ اضغط «إظهار» في Meta ثم انسخه كاملًا (حوالي 32 حرفًا)');$('#waSecret')?.focus();return}if(!digits&&!secret&&!token){toast('الصق App secret أو اكتب رقم واتساب ثم اضغط حفظ');$('#waSecret')?.focus();return}waAdmin=check(await db.rpc('admin_save_whatsapp_login',{p_number:number,p_app_secret:secret||null,...(token?{p_access_token:token}:{})}));admin();toast(waAdmin.enabled?'تم الحفظ — الدخول عبر واتساب مفعّل':waAdmin.has_secret&&!waAdmin.number?'تم حفظ المفتاح السري ✓ — أضف رقم واتساب بعد تسجيله في Meta':'تم الحفظ')}),
