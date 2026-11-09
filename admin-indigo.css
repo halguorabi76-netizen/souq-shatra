@@ -193,3 +193,15 @@ html[lang][dir] body.admin-portal .row>div>b+small{display:block;color:var(--ad-
 .admin-banner-acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .admin-banner-acts button{min-height:36px;padding:0 10px}
 @media (max-width:640px){.admin-banner-row{grid-template-columns:90px minmax(0,1fr)}.admin-banner-row img{width:90px;height:45px}.admin-banner-acts{grid-column:1/-1;justify-content:flex-start}}
+
+/* The private door: nothing but the mark and «منطقة خاصة» until the agreed taps */
+body.admin-gated>*:not(#adminGate){display:none!important}
+#adminGate{position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:14px;padding:max(16px,env(safe-area-inset-top,0px)) 16px;background:#0b1230;color:#a5b0dd;text-align:center;font-family:Tajawal,system-ui,sans-serif;z-index:2000}
+#adminGate .gate-mark{display:grid;justify-items:center;line-height:1;padding:18px 26px;border:0;border-radius:28px;background:transparent;color:#eef0ff;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+#adminGate .gate-mark small{font:400 22px "Aref Ruqaa",serif;opacity:.8}
+#adminGate .gate-mark b{font:700 56px "Aref Ruqaa",serif;text-shadow:0 0 28px rgba(108,99,255,.55)}
+#adminGate .gate-mark:focus-visible{outline:2px solid #8f88ff;outline-offset:4px}
+#adminGate .gate-mark.tap{animation:gateTap .18s ease-out}
+#adminGate p{margin:0;font-size:14px;letter-spacing:0;opacity:.75}
+@keyframes gateTap{50%{transform:scale(.96)}}
+@media (prefers-reduced-motion:reduce){#adminGate .gate-mark.tap{animation:none}}
