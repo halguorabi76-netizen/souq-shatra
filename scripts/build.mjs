@@ -6,7 +6,7 @@ if(!appModule)throw new Error('Missing application source module');
 const portalMain=main;
 const adminTemplate=await readFile('admin.html','utf8');
 const admin=adminTemplate.replace(/(product-variants\.(?:js|css)|seller-workspace\.js|delivery-workspace\.js)\?v=\d+/g,m=>(m.includes('?v=121')||m.includes('?v=130')||m.includes('?v=139')||m.includes('?v=156')||m.includes('?v=157')||m.includes('?v=158'))?m:m.replace(/\?v=\d+$/,'?v=110'));
-await writeFile('admin.html',admin.replace(/admin-app\.js\?v=\d+/g,'admin-app.js?v=210'));
+await writeFile('admin.html',admin.replace(/admin-app\.js\?v=\d+/g,'admin-app.js?v=211'));
 await writeFile('catalog.html',main.replace('<title>سوق الشطرة</title>','<title>أقسام وبحث سوق الشطرة</title>'));
 // Reuse the exact production interfaces, but replace their client at build time.
 // Preview never imports real configuration, Supabase, or live authentication.
@@ -39,3 +39,17 @@ await cp('icons', 'www/icons', { recursive: true });
 await cp('vendor', 'www/vendor', { recursive: true });
 
 
+
+// The phone app (www/) is for customers, sellers and drivers only: the admin portal,
+// the preview lab and the demo tools stay on the private web address and never ship in the store build.
+import { rm } from 'node:fs/promises';
+const APP_EXCLUDED=['admin.html','admin-app.js','admin-hub.js','admin-session.js','admin-network-loading.js','admin-portal.css','admin-indigo.css','admin-whatsapp.css','admin-manifest.webmanifest','preview.html','preview-lab.js','preview-lab.css','preview-all.js','demo-lab.js'];
+for (const file of APP_EXCLUDED) await rm(`www/${file}`, { force: true });
+const appIndex=(await readFile('www/index.html','utf8'))
+ .replace(/<script src="demo-lab\.js\?v=\d+"><\/script>/,'').replace(/<link rel="stylesheet" href="admin-portal\.css\?v=\d+">/,'')
+ .replace(/import \{renderAdminWorkspace\} from "\.\/admin-workspace\.js\?v=\d+";/,'const renderAdminWorkspace=()=>"";');
+if(/demo-lab\.js|admin-workspace\.js|admin-portal\.css/.test(appIndex))throw new Error('The app build must not load admin or demo code');
+await writeFile('www/index.html',appIndex);
+await rm('www/admin-workspace.js',{force:true});
+const appWorker=(await readFile('www/sw.js','utf8')).replace(/const CORE = \[[^\]]*\]/,core=>core.replace(/,?\s*'\.\/(?:admin[^']*|preview[^']*|demo-lab[^']*)'/g,'').replace('[,','['));
+await writeFile('www/sw.js',appWorker);

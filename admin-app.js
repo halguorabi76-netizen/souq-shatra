@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
 import {createSellerWorkspace} from "./seller-workspace.js?v=197";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=185";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=186";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=186";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -539,7 +539,13 @@ async function loadInvites(){
  if(tab==='admin')admin();
 }
 // «بِع غرضك»: settings and live listings for the admin.
-let usedAdmin=null,usedAdminLoading=false;
+let usedAdmin=null,usedAdminLoading=false,auditAdmin=null,auditLoading=false;
+async function loadAuditAdmin(){
+ if(auditLoading)return;auditLoading=true;
+ try{const r=await db.from('admin_audit').select('*').order('created_at',{ascending:false}).limit(200);auditAdmin=r.error?{error:'تعذّر تحميل السجل. إذا كانت هذه أول مرة، شغّل ملف قاعدة البيانات الخاص بسجل الإدارة.'}:{list:r.data||[]}}
+ catch{auditAdmin={error:'تعذّر الاتصال. تحقق من الإنترنت.'}}finally{auditLoading=false}
+ if(tab==='admin')admin();
+}
 async function loadUsedAdmin(){
  if(usedAdminLoading)return;usedAdminLoading=true;
  try{const [cfg,list]=await Promise.all([db.from('platform_settings').select('used_monthly_limit,used_listing_days,used_listing_price').limit(1).maybeSingle(),db.from('used_listings').select('*').eq('status','active').order('created_at',{ascending:false}).limit(500)]);
@@ -552,8 +558,9 @@ function admin(){
  if(profile?.disabled||profile?.role!=='admin')return;
  if(!waAdmin)loadWaAdmin();
  if(adminTab==='used'&&!usedAdmin)loadUsedAdmin();
+ if(adminTab==='audit'){if(!auditAdmin)loadAuditAdmin();}else auditAdmin=null;
  if(adminTab==='invites'&&!inviteAdmin)loadInvites();
- $('#view').innerHTML=renderAdminWorkspace({used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ $('#view').innerHTML=renderAdminWorkspace({audit:auditAdmin,used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
  $('#waAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.waAdminSave()});
  $('#usedAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.usedAdminSave()});
  $('#inviteForm')?.addEventListener('submit',e=>{e.preventDefault();A.inviteAdd()});$('#resetPhoneForm')?.addEventListener('submit',e=>{e.preventDefault();A.resetPhoneAdd()});
