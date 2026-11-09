@@ -5,11 +5,11 @@ export function adminHubHeader(preview=false,all=false){
  return `<a href="index.html" class="admin-brand admin-wordmark" aria-label="سوق الشطرة، الإدارة"><span class="admin-mark"><small>سوق</small><b>الشطرة</b></span><span class="admin-role-chip">الإدارة</span></a><nav aria-label="الإدارة والمعاينة"><div class="admin-hub-tabs"><a class="admin-hub-tab" href="admin.html" ${!preview?'aria-current="page"':''}>الإدارة</a><a class="admin-hub-tab" href="admin.html?section=preview" ${preview&&!all?'aria-current="page"':''}>المعاينة</a><a class="admin-hub-tab" href="admin.html?section=preview&amp;role=all" ${all?'aria-current="page"':''}>الواجهات معاً</a></div><a class="admin-site-link" href="index.html">فتح الموقع ‹</a><button class="admin-icon-btn" data-a="toggleTheme" aria-label="تغيير المظهر" title="الوضع النهاري / الليلي">${moon}</button><button class="admin-icon-btn" data-a="out" hidden aria-label="تسجيل الخروج" title="تسجيل الخروج">${out}</button></nav>`;
 }
 // The private door: the page shows only the logo and «منطقة خاصة». Three taps on the logo
-// (the agreed secret) open it for this browser tab. Real protection stays on the server:
+// (the agreed secret) open it, and this device remembers it. Real protection stays on the server:
 // without an admin account the database still refuses every admin request.
 const ADMIN_GATE='souq-admin-gate';
 function adminGate(){
- try{if(sessionStorage.getItem(ADMIN_GATE)==='1')return Promise.resolve()}catch{}
+ try{if(localStorage.getItem(ADMIN_GATE)==='1')return Promise.resolve()}catch{}
  return new Promise(resolve=>{
   document.body.classList.add('admin-gated');document.body.classList.remove('starting');
   const loading=document.getElementById('loading');if(loading)loading.hidden=true;
@@ -21,7 +21,7 @@ function adminGate(){
    taps++;clearTimeout(timer);timer=setTimeout(()=>{taps=0},1200);
    mark.classList.remove('tap');void mark.offsetWidth;mark.classList.add('tap');
    if(taps<3)return;
-   try{sessionStorage.setItem(ADMIN_GATE,'1')}catch{}
+   try{localStorage.setItem(ADMIN_GATE,'1')}catch{}
    gate.remove();document.body.classList.remove('admin-gated');resolve();
   });
  });
@@ -31,7 +31,7 @@ export async function bootAdminHub(){
  document.body.classList.add('admin-portal');
  await adminGate();
  const header=document.createElement('header');header.id='adminTop';header.innerHTML=adminHubHeader(preview,all);document.getElementById('view').before(header);
- if(!preview){await import('./admin-app.js?v=212');return;}
+ if(!preview){await import('./admin-app.js?v=213');return;}
  document.body.classList.add('admin-preview-host');document.body.classList.remove('starting');document.getElementById('loading').hidden=true;
  header.querySelector('[data-a="toggleTheme"]').addEventListener('click',()=>window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark'));
  if(all){document.body.classList.add('admin-preview-all');const {mountPreviewAll}=await import('./preview-all.js?v=2');mountPreviewAll(document.getElementById('view'));return;}
