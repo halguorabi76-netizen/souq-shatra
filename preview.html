@@ -627,7 +627,7 @@ body.starting{overflow:hidden}
 </style>
 <link rel="stylesheet" href="ui-polish.css?v=3">
 <link rel="stylesheet" href="laser-theme.css?v=2">
-<link rel="stylesheet" href="used-market.css?v=6"><link rel="stylesheet" href="brand-unify.css?v=28">
+<link rel="stylesheet" href="used-market.css?v=6"><link rel="stylesheet" href="brand-unify.css?v=29">
 </head>
 <body>
 <div id="startupSplash" class="startup-splash" hidden role="status" aria-label="جارٍ فتح سوق الشطرة"><svg class="ss-logo" viewBox="0 0 573 779" xmlns="http://www.w3.org/2000/svg" aria-label="الشطرة"> <defs> <mask id="ssCut"> <path d="M200 0 L191 3 L186 9 L181 27 L181 41 L177 50 L153 72 L152 83 L161 102 L161 110 L158 117 L151 124 L135 129 L127 137 L124 145 L122 171 L131 187 L130 203 L133 210 L133 226 L142 244 L135 288 L125 301 L112 305 L69 306 L54 295 L45 292 L36 295 L32 299 L30 304 L32 328 L29 335 L21 343 L4 350 L0 355 L0 484 L4 489 L10 491 L22 488 L33 491 L42 502 L43 517 L47 526 L47 534 L44 541 L37 548 L22 553 L7 569 L5 574 L7 585 L12 590 L35 602 L42 609 L48 628 L66 649 L86 654 L104 668 L109 669 L122 666 L133 669 L141 677 L144 685 L158 698 L174 729 L179 734 L191 739 L199 747 L209 771 L213 775 L222 778 L231 775 L245 763 L276 756 L281 750 L285 732 L298 719 L300 714 L300 693 L302 689 L300 677 L296 673 L248 651 L241 644 L238 637 L238 629 L241 622 L248 615 L259 612 L314 623 L376 639 L402 648 L425 660 L437 661 L446 655 L451 642 L460 633 L462 628 L461 619 L452 609 L449 602 L450 591 L459 580 L470 577 L477 579 L484 577 L502 561 L513 558 L523 560 L542 571 L553 570 L560 564 L571 544 L572 529 L570 524 L551 505 L548 498 L549 484 L560 454 L559 444 L550 434 L546 424 L546 412 L550 402 L549 393 L544 387 L535 384 L520 388 L508 386 L489 370 L486 363 L486 354 L497 338 L498 329 L496 324 L475 306 L471 295 L464 288 L461 281 L461 272 L465 261 L474 252 L494 246 L501 240 L506 228 L514 219 L515 210 L513 205 L494 191 L487 190 L475 193 L466 191 L450 174 L441 171 L431 174 L415 190 L405 194 L393 194 L381 185 L373 166 L369 162 L360 159 L351 162 L337 179 L308 192 L291 209 L280 212 L269 209 L262 202 L259 195 L259 168 L251 151 L251 143 L254 136 L269 123 L271 112 L265 103 L256 99 L249 92 L243 82 L242 64 L229 46 L223 15 L209 3Z" fill="#fff"/> <path class="ss-river" d="M-75 188 C-48 223 -17 260 5 293 C27 326 40 358 55 383 C70 408 65 428 95 441 C125 454 188 456 235 464 C282 472 337 479 375 488 C413 497 442 508 465 518 C488 528 488 532 515 548 C542 564 588 591 625 613"/> </mask> </defs> <rect class="ss-city" width="573" height="779" mask="url(#ssCut)"/> <ellipse class="ss-shadow" cx="290" cy="430" rx="34" ry="10" fill="#101f48"/> <g transform="translate(290 432) scale(1.4)"> <g class="ss-pin"> <path d="M0 0 C-12 -28 -46 -52 -46 -92 A46 46 0 1 1 46 -92 C46 -52 12 -28 0 0Z" fill="#101f48"/> <circle cx="0" cy="-92" r="17" fill="#fdfbfc"/> </g> </g> </svg><div class="ss-name">الشطرة</div></div>
@@ -693,9 +693,9 @@ import {createPreviewClient} from "./preview-lab.js?v=166";
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=197";
+import {createSellerWorkspace} from "./seller-workspace.js?v=198";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=188";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=189";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=186";
 import {createAvatars} from "./avatars.js?v=1";
 import {createChat} from "./chat.js?v=6";
@@ -891,7 +891,7 @@ async function refresh(){
   D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,prep_time_min:m.prep_time_min,open_time:m.open_time,close_time:m.close_time,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,pickup_latitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.latitude,pickup_longitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.longitude,username:m.username,verified:m.verified,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:{...(m.storefront_settings||{}),cover_url:/^[0-9a-f-]{36}\/[\w.-]+$/i.test(m.storefront_settings?.cover_path||'')?db.storage.from('products').getPublicUrl(m.storefront_settings.cover_path).data.publicUrl:''}}));
   if(typeof linkSlug==='string'&&linkSlug&&!publicStoreId){const hit=D.m.find(m=>(m.username||'').toLowerCase()===linkSlug);if(hit)publicStoreId=hit.id;}
   const variantsByProduct=new Map();for(const v of D.variants||[]){let rows=variantsByProduct.get(v.product_id);if(!rows)variantsByProduct.set(v.product_id,rows=[]);rows.push({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''});}
-  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:variantsByProduct.get(p.id)||[]}));
+  D.p=products.map(p=>({review_status:p.review_status||'approved',pending_changes:p.pending_changes||null,review_hold:!!p.review_hold,id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:variantsByProduct.get(p.id)||[]}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
 
   if(id!==refreshId)return;
@@ -1410,7 +1410,7 @@ function usedMine(){
  if(viewMode==='driver')return '';
  if(!user)return '';
  const mine=(D.used||[]).filter(l=>l.owner_id===user.id&&l.status!=='removed'),q=usedQuota,left=q?Math.max(0,q.limit-q.used):null,days=q?.days||15;
- const state=l=>l.status==='sold'?'تم البيع':usedLive(l)?'ينتهي بعد '+usedDaysLeft(l)+' يوم':'انتهت مدة العرض';
+ const state=l=>l.status==='pending'?'بانتظار موافقة الإدارة':l.status==='rejected'?'لم تتم الموافقة عليه':l.status==='sold'?'تم البيع':usedLive(l)?'ينتهي بعد '+usedDaysLeft(l)+' يوم':'انتهت مدة العرض';
  const bar=l=>l.status==='active'&&usedLive(l)?Math.round(Math.min(1,usedDaysLeft(l)/days)*100):0;
  return `<section class="profile-card used-mine"><h3>أغراضي للبيع</h3>${q?`<p class="used-quota"><span class="used-ring" style="--p:${Math.round((q.limit?q.used/q.limit:0)*100)}%"><b>${q.used}/${q.limit}</b></span><span>بقي لك <b>${left}</b> من ${q.limit} هذا الشهر</span></p>`:''}${mine.map(l=>`<div class="used-mine-row${l.status==='sold'?' is-sold':''}"><span class="used-thumb">${l.image_path?`<img src="${esc(usedImg(l.image_path))}" width="400" height="400" loading="lazy" decoding="async" alt="">`:flowIcon('camera')}</span><div><b>${esc(l.title)}</b><span class="used-price">${esc(usedPriceText(l))}</span><small>${state(l)}</small><span class="used-left" aria-hidden="true"><i style="width:${bar(l)}%"></i></span><div class="used-mine-actions">${l.status==='active'?`<button class="used-ok" data-a="usedAct" data-v="sold:${esc(l.id)}">تم البيع</button><button data-a="usedAct" data-v="renew:${esc(l.id)}">تجديد</button>`:''}<button class="used-del" data-a="usedAct" data-v="delete:${esc(l.id)}">حذف</button></div></div></div>`).join('')}<button type="button" class="used-sell-cta" data-a="usedSell">＋ بِع غرضك بـ ${usedPriceLabel()}</button></section>`;
 }
@@ -2387,7 +2387,7 @@ const A={
       const paths=[];for(const ph of usedPhotos){const path=`${user.id}/${uid()}.jpg`;check(await db.storage.from('used-items').upload(path,await prepareStoreImage(ph.file),{contentType:'image/jpeg'}));paths.push(path)}
       const r=await db.rpc('create_used_listing_simple',{p_description:desc,p_price:price,p_images:paths,p_details:details});
       if(r.error){if(/monthly_limit/.test(r.error.message)){await loadUsed();usedSellSheet();return}throw r.error}
-      usedPhotos=[];await loadUsed();A.close();tab='usedPage';render();scrollTo(0,0);toast('تم نشر غرضك في سوق المستعمل');
+      usedPhotos=[];await loadUsed();A.close();tab='usedPage';render();scrollTo(0,0);toast('أُرسل غرضك للمراجعة، ويظهر في السوق بعد موافقة الإدارة');
     }finally{if(button?.isConnected){button.disabled=false;button.textContent='انشر الغرض'}}
   }),
   usedContact:v=>{const [mode,id]=String(v).split(':');if(!user){A.close();toast('سجّل الدخول لترى رقم صاحب الغرض');waAccountSheet('new');return}

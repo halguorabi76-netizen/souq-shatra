@@ -225,3 +225,22 @@ html[lang][dir] body.admin-portal .admin-queue-acts button{min-height:38px;paddi
 @media (max-width:560px){.admin-queue-row{flex-wrap:wrap}.admin-queue-acts{width:100%}.admin-queue-acts button{flex:1}}
 .admin-cancel-reason{margin:6px 0 0;padding:8px 10px;border-radius:12px;background:rgba(220,38,38,.08);color:inherit;font-size:13.5px}
 .admin-cancel-reason b{color:#dc2626}
+.admin-queue-kind.is-product{background:rgba(22,163,74,.14);color:#15803d}
+.admin-queue-kind.is-used{background:rgba(236,72,153,.13);color:#be185d}
+.admin-queue-img{flex:none;width:44px;height:44px;border-radius:10px;object-fit:cover;background:rgba(108,99,255,.1)}
+.admin-queue-held{flex:none;padding:3px 9px;border-radius:999px;background:rgba(234,179,8,.18);color:#a16207;font-size:11.5px;font-weight:800}
+.admin-queue-wa{flex:none;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:#22c55e;color:#fff;box-shadow:0 6px 14px -6px rgba(34,197,94,.8)}
+.admin-queue-wa svg{width:20px;height:20px}
+html[lang][dir] body.admin-portal .admin-queue-acts button.hold{background:rgba(234,179,8,.16)!important;color:#a16207!important;border:1px solid rgba(234,179,8,.4)!important}
+.admin-used-detail{display:grid;gap:10px}
+.admin-used-detail img{width:100%;max-height:360px;object-fit:contain;border-radius:14px;background:rgba(108,99,255,.06)}
+.admin-used-price{font-size:20px;font-weight:800}
+/* Admin notices: the same pill as the market, green / amber / red */
+html[lang][dir] body.admin-portal #toast:not(#_){position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 10px)!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;z-index:3000!important;display:flex;align-items:center;gap:12px;width:max-content;max-width:min(92vw,460px);min-height:52px;margin:0!important;padding:10px 22px 10px 16px!important;border-radius:999px!important;background:rgba(20,21,40,.96)!important;color:#fff!important;border:1.5px solid rgba(143,136,255,.45)!important;box-shadow:0 14px 34px -12px rgba(0,0,0,.6)!important;font:700 15px/1.4 Tajawal,system-ui,sans-serif;animation:adToast .4s cubic-bezier(.2,1.25,.4,1) both}
+html[lang][dir] body.admin-portal #toast[hidden]:not(#_){display:none!important}
+html[lang][dir] body.admin-portal #toast:not(#_)::before{content:"";flex:none;width:26px;height:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M7.8 12.3l2.8 2.8 5.6-5.8'/%3E%3C/svg%3E") center/26px no-repeat}
+html[lang][dir] body.admin-portal #toast[data-kind=warn]:not(#_)::before{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23facc15' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M12 7v5.5l3 2'/%3E%3C/svg%3E") center/26px no-repeat}
+html[lang][dir] body.admin-portal #toast[data-kind=error]:not(#_)::before{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f87171' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M9 9l6 6M15 9l-6 6'/%3E%3C/svg%3E") center/26px no-repeat}
+@keyframes adToast{from{opacity:0;transform:translate(-50%,-130%)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){html[lang][dir] body.admin-portal #toast:not(#_){animation:none}}
+html[lang][dir] body.admin-portal .admin-queue-acts button{white-space:nowrap;font-size:14px}

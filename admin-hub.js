@@ -33,7 +33,7 @@ export async function bootAdminHub(){
  const header=document.createElement('header');header.id='adminTop';header.innerHTML=adminHubHeader(preview,all);document.getElementById('view').before(header);
  // The sections bar sticks right under the top bar, whatever height the top bar wraps to.
  const fit=()=>document.body.style.setProperty('--ad-top',Math.ceil(header.getBoundingClientRect().height)+'px');fit();if(typeof ResizeObserver==='function')new ResizeObserver(fit).observe(header);
- if(!preview){await import('./admin-app.js?v=214');return;}
+ if(!preview){await import('./admin-app.js?v=215');return;}
  document.body.classList.add('admin-preview-host');document.body.classList.remove('starting');document.getElementById('loading').hidden=true;
  header.querySelector('[data-a="toggleTheme"]').addEventListener('click',()=>window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark'));
  if(all){document.body.classList.add('admin-preview-all');const {mountPreviewAll}=await import('./preview-all.js?v=2');mountPreviewAll(document.getElementById('view'));return;}
