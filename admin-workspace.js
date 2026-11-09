@@ -1,5 +1,5 @@
 // Read-only presentation of records already authorized by the database policies.
-export const ADMIN_SECTIONS=[['overview','الرئيسية','▦'],['customers','الزبائن','♙'],['sellers','التجار','▤'],['drivers','سائقو التوصيل','◇'],['invites','موافقة بائع أو سائق','✚'],['activity','الطلبات','≡'],['products','المنتجات','□'],['catalog','الفئات والخصائص','▧'],['inventory','المخزون','▥'],['notifications','الموافقات والتسويات','✓'],['whatsapp','الدخول عبر واتساب','✆'],['used','بِع غرضك','♻']];
+export const ADMIN_SECTIONS=[['overview','الرئيسية','▦'],['customers','الزبائن','♙'],['sellers','التجار','▤'],['drivers','سائقو التوصيل','◇'],['invites','موافقة بائع أو سائق','✚'],['activity','الطلبات','≡'],['products','المنتجات','□'],['catalog','الفئات والخصائص','▧'],['inventory','المخزون','▥'],['notifications','الموافقات والتسويات','✓'],['whatsapp','الدخول عبر واتساب','✆'],['used','بِع غرضك','♻'],['audit','سجل الإدارة','☰']];
 // Line icons for the sidebar and stat tiles (the third ADMIN_SECTIONS entry stays as a text fallback).
 const ADMIN_ICONS={
  overview:'<path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"/>',customers:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/>',
@@ -7,7 +7,7 @@ const ADMIN_ICONS={
  invites:'<circle cx="10" cy="8" r="4"/><path d="M2 21c1-5 4-7 8-7 1.5 0 2.8.3 4 .9M18 14v6M15 17h6"/>',activity:'<path d="M6 8h12l-1 12H7zM9 8a3 3 0 0 1 6 0"/>',
  products:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',catalog:'<path d="M4 6h16M4 12h16M4 18h10"/>',
  inventory:'<path d="M3 21V9l9-5 9 5v12M7 21v-8h10v8M7 17h10"/>',notifications:'<path d="M20 6 9 17l-5-5"/>',
- whatsapp:'<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c.5 2 2 3.6 4.5 4.5l1.2-1.2 2 .8-.5 1.9c-3.5.3-7.6-3.6-7.7-7.4l1.9-.4.8 2z"/>',used:'<path d="M7 7h10l3 4-8 9-8-9z"/><path d="M4 11h16M12 20 9 11l3-4 3 4z"/>',
+ whatsapp:'<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c.5 2 2 3.6 4.5 4.5l1.2-1.2 2 .8-.5 1.9c-3.5.3-7.6-3.6-7.7-7.4l1.9-.4.8 2z"/>',used:'<path d="M7 7h10l3 4-8 9-8-9z"/><path d="M4 11h16M12 20 9 11l3-4 3 4z"/>',audit:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
  buyer:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/>',seller:'<path d="M4 10h16l-1.5-5h-13zM5 10v9h14v-9"/>',driver:'<circle cx="7" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M7 17h5l3-7h3M10 7h4"/>',
  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',cash:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>'
 };
@@ -108,6 +108,12 @@ export function renderAdminWorkspace(ctx){
   else if(v.error)h+=section('الأرقام الموافق عليها',`<p class="admin-alert">${E(v.error)}</p>${btn('invitesReload','','إعادة المحاولة')}`);
   else h+=section('الأرقام الموافق عليها ('+num(v.list.length)+')',v.list.length?`<div class="admin-action-list">${v.list.map(i=>`<div class="admin-used-row"><div><b dir="ltr">${E(i.phone)}</b> · ${i.role==='seller'?'بائع':'سائق'}<small>${i.used_at?'سجّل: '+E(i.used_name||'')+' · '+date(i.used_at):'بانتظار التسجيل'}${i.note?' · '+E(i.note):''}</small></div>${i.used_at?'':btn('inviteRemove',i.id,'إلغاء','danger')}</div>`).join('')}</div>`:empty('لم توافق على أي رقم بعد.'));
   if(v&&!v.error)h+=section('أرقام التجربة (تصفير الواجهة)',`<p class="note">حساب البائع أو السائق على هذه الأرقام يظهر له زر «تصفير الواجهة» ليحذف كل طلباته ومنتجاته ويبدأ من جديد. رقمك أنت (رقم الإدارة) مسموح دائمًا. لا تضف أرقام بائعين حقيقيين.</p><form id="resetPhoneForm" class="admin-wa-form"><label for="resetPhone">رقم حساب التجربة</label><input id="resetPhone" type="tel" dir="ltr" inputmode="tel" placeholder="07xxxxxxxxx"><button class="buy" type="submit">إضافة</button></form>${v.resetPhones?.length?`<div class="admin-action-list">${v.resetPhones.map(p=>`<div class="admin-used-row"><b dir="ltr">${E(p)}</b>${btn('resetPhoneRemove',p,'إزالة','danger')}</div>`).join('')}</div>`:''}`);
+ }
+ else if(s.tab==='audit'){
+  const a=ctx.audit,TABLES={stores:'المتاجر',products:'المنتجات',product_variants:'نسخ المنتجات',used_listings:'المستعمل',profiles:'الحسابات',platform_settings:'إعدادات المنصة',delivery_settings:'إعدادات التوصيل',delivery_config:'إعدادات المسار',delivery_zones:'مناطق التوصيل',delivery_workers:'السائقون',driver_profiles:'ملفات السائقين',home_banners:'البنرات',catalog_categories:'الفئات',professional_invites:'الدعوات',orders:'الطلبات',delivery_payments:'التسويات',workspace_reset_phones:'أرقام التجربة'},ACT={INSERT:'إضافة',UPDATE:'تعديل',DELETE:'حذف'};
+  if(!a)h+=empty('جارٍ تحميل السجل…');
+  else if(a.error)h+=empty(a.error);
+  else h+=section('آخر عمليات الإدارة ('+num(a.list.length)+')',a.list.length?`<div class="admin-audit">${a.list.map(r=>{const keys=r.action==='UPDATE'?Object.keys(r.changes||{}).slice(0,6).join('، '):'';return `<div class="admin-audit-row act-${E(r.action.toLowerCase())}"><span class="admin-audit-act">${ACT[r.action]||E(r.action)}</span><div><b>${E(TABLES[r.table_name]||r.table_name)}</b><small>${E(r.actor_name||'مدير')} · ${date(r.created_at)}${keys?' · '+E(keys):''}</small></div></div>`}).join('')}</div>`:empty('لم تُسجَّل أي عملية بعد. كل إضافة أو تعديل أو حذف من الإدارة سيظهر هنا.'));
  }
  else if(s.tab==='used'){
   const u=ctx.used;

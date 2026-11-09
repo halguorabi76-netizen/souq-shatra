@@ -171,3 +171,11 @@ html[lang][dir] body.admin-portal .row>div>b+small{display:block;color:var(--ad-
  html[lang][dir] body.admin-portal #adminTop :is(.admin-hub-tab,button){min-height:36px!important;font-size:12.5px!important;padding:0 11px!important}
  html[lang][dir] body.admin-portal #adminTop svg{width:18px!important;height:18px!important}
 }
+/* Admin activity log */
+.admin-audit{display:grid;gap:8px}
+.admin-audit-row{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid rgba(165,180,255,.2);background:rgba(108,99,255,.06)}
+.admin-audit-row>div{display:grid;gap:2px;min-width:0}
+.admin-audit-row small{opacity:.75;font-size:12.5px;overflow-wrap:anywhere}
+.admin-audit-act{flex:none;min-width:52px;text-align:center;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(108,99,255,.18);color:#6c63ff}
+.admin-audit-row.act-delete .admin-audit-act{background:rgba(220,38,38,.14);color:#dc2626}
+.admin-audit-row.act-insert .admin-audit-act{background:rgba(22,163,74,.14);color:#16a34a}
