@@ -4,23 +4,23 @@
  * seller, driver and admin workspaces keep their own palettes. */
 
 html[data-shatra-ui][data-theme=light]:not([data-portal]):not(#_){
- --ink:#141b4d;--ink-soft:#4a5287;--mut:#4a5287;--navy:#101f48;
- --paper:#f5f6ff;--bg:#f5f6ff;--scene-bg:#f5f6ff;--surface:#ffffff;--card:#ffffff;--surface-2:#eef0ff;--tile:#eef0ff;
- --line:#dfe2fb;--mono-soft:#eef0ff;--mono-quiet:#7a82b8;--mono-btn:#4f46e5;--accent:#4f46e5;--icon-ink:#4f46e5;--indigo:#4f46e5;
- --warm-2:#4f46e5;--warm-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3b2fd6 100%);
- --warm-tile:linear-gradient(160deg,#f3f4ff 0%,#e4e7ff 100%);
- --sand:#4f46e5;--ok:#17745d;--danger:#c62828;
- --laser:#4f46e5;--laser-2:#6c63ff;--glow:0 8px 22px rgba(79,70,229,.35);--glow-soft:0 0 0 1px rgba(79,70,229,.18);
- --ui-quiet:#4f5690;
+ --ink:#0b1533;--ink-soft:#5b6785;--mut:#5b6785;--navy:#101f48;
+ --paper:#ffffff;--bg:#ffffff;--scene-bg:#ffffff;--surface:#ffffff;--card:#ffffff;--surface-2:#f1f5ff;--tile:#f1f5ff;
+ --line:#e3e8f5;--mono-soft:#f1f5ff;--mono-quiet:#7a87a8;--mono-btn:#0034cc;--accent:#0034cc;--icon-ink:#0034cc;--indigo:#0034cc;
+ --warm-2:#0034cc;--warm-btn:linear-gradient(135deg,#0a52e6 0%,#0034cc 55%,#00229e 100%);
+ --warm-tile:linear-gradient(160deg,#f4f7ff 0%,#e3ebff 100%);
+ --sand:#0034cc;--ok:#17745d;--danger:#c62828;
+ --laser:#0034cc;--laser-2:#0a52e6;--glow:0 8px 22px rgba(0,52,204,.35);--glow-soft:0 0 0 1px rgba(0,52,204,.18);
+ --ui-quiet:#4b5778;
 }
 html[data-shatra-ui][data-theme=dark]:not([data-portal]):not(#_){
  --ink:#f3f5ff;--ink-soft:#aeb6d8;--mut:#aeb6d8;--navy:#0b1230;
  --paper:#0b1230;--bg:#0b1230;--scene-bg:#0b1230;--surface:#141d45;--card:#141d45;--surface-2:#1b2556;--tile:#1b2556;
- --line:#2a3570;--mono-soft:#1b2556;--mono-quiet:#8790bd;--mono-btn:#6c63ff;--accent:#8f88ff;--icon-ink:#8f88ff;--indigo:#8f88ff;
- --warm-2:#8f88ff;--warm-btn:linear-gradient(135deg,#6c63ff 0%,#4f46e5 55%,#3547a5 100%);
+ --line:#2a3570;--mono-soft:#1b2556;--mono-quiet:#8790bd;--mono-btn:#0a52e6;--accent:#3d7bff;--icon-ink:#3d7bff;--indigo:#3d7bff;
+ --warm-2:#3d7bff;--warm-btn:linear-gradient(135deg,#0a52e6 0%,#0034cc 55%,#001a8c 100%);
  --warm-tile:linear-gradient(160deg,#1b2556 0%,#141d45 100%);
- --sand:#a5b4ff;--ok:#75d1b1;--danger:#ff8a80;
- --laser:#6c63ff;--laser-2:#8f88ff;--glow:0 0 22px rgba(108,99,255,.55);--glow-soft:0 0 0 1px rgba(143,136,255,.28);
+ --sand:#5b8cff;--ok:#75d1b1;--danger:#ff8a80;
+ --laser:#0a52e6;--laser-2:#3d7bff;--glow:0 0 22px rgba(10,82,230,.55);--glow-soft:0 0 0 1px rgba(61,123,255,.28);
  --ui-quiet:#aeb6d8;
  color-scheme:dark;
 }
@@ -39,7 +39,7 @@ html[data-shatra-ui][data-theme]:not([data-portal]) body:not(.seller-workspace):
 /* Bottom bar and side rail: the current section glows */
 html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page]:not(#_),
 html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page] .navicon:not(#_){color:var(--laser-2)!important}
-html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page] svg{filter:drop-shadow(0 0 5px rgba(108,99,255,.75))}
+html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs button[aria-current=page] svg{filter:drop-shadow(0 0 5px rgba(10,82,230,.75))}
 html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs :is(.offers-tab,.media-placeholder) .navicon:not(#_){background:var(--warm-btn)!important;color:#fff!important;box-shadow:var(--glow)!important}
 @media (min-width:1024px){html[data-shatra-ui][data-theme]:not([data-portal]) body .tabs :is(.offers-tab,.media-placeholder) .navicon:not(#_){background:transparent!important;box-shadow:none!important;color:inherit!important}}
 
@@ -69,7 +69,7 @@ html[data-shatra-ui][data-theme]:not([data-portal]) body .section-title :is(a,bu
 html[data-shatra-ui][data-theme=light]:not([data-portal]) body .section-title :is(a,button,small,span):not(#_){color:var(--laser)!important}
 
 /* Wordmark: "سوق" in indigo glow, never sand */
-html[data-shatra-ui][data-theme=dark]:not([data-portal]) body .header-brand-name{text-shadow:0 0 18px rgba(143,136,255,.55)}
+html[data-shatra-ui][data-theme=dark]:not([data-portal]) body .header-brand-name{text-shadow:0 0 18px rgba(61,123,255,.55)}
 
 /* Keyboard focus in the brand colour */
 html[data-shatra-ui]:not([data-portal]) body :is(a,button,input,select,textarea,[tabindex]):focus-visible{outline:3px solid var(--laser-2)!important;outline-offset:2px}

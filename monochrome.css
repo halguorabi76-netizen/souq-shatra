@@ -165,18 +165,18 @@ html[data-shatra-ui][data-theme] body .tabs{background:var(--surface)!important}
 /* ---------- Indigo (requested): the site's earlier indigo replaces the beige/brown tones. Layout unchanged. ---------- */
 html[data-shatra-ui][data-theme=light]{
  --ink:#0d1834;--ink-soft:#4e5d78;--mut:#4e5d78;--navy:#101f48;--paper:#f7f8fc;--bg:#f7f8fc;--scene-bg:#f7f8fc;--surface:#ffffff;--card:#ffffff;
- --surface-2:#edf2f8;--line:#dce3ee;--mono-soft:#edf2f8;--mono-quiet:#8a96b0;--mono-btn:#3547a5;--accent:#3547a5;--icon-ink:#3547a5;
- --warm-2:#3547a5;--warm-btn:linear-gradient(135deg,#3547a5 0%,#24357f 55%,#101f48 100%);--warm-tile:linear-gradient(160deg,#f1f4fb 0%,#e2e8f6 100%)
+ --surface-2:#edf2f8;--line:#dce3ee;--mono-soft:#edf2f8;--mono-quiet:#8a96b0;--mono-btn:#001a8c;--accent:#001a8c;--icon-ink:#001a8c;
+ --warm-2:#001a8c;--warm-btn:linear-gradient(135deg,#001a8c 0%,#24357f 55%,#101f48 100%);--warm-tile:linear-gradient(160deg,#f1f4fb 0%,#e2e8f6 100%)
 }
 html[data-shatra-ui][data-theme=dark]{
  --ink:#f3f6ff;--ink-soft:#b1bdd2;--mut:#b1bdd2;--paper:#080d1a;--bg:#080d1a;--scene-bg:#080d1a;--surface:#101827;--card:#101827;
  --surface-2:#172135;--line:#26324a;--mono-soft:#172135;--mono-quiet:#7d8aa6;--accent:#9cacfa;--icon-ink:#9cacfa;
- --warm-2:#9cacfa;--warm-btn:linear-gradient(135deg,#5b6fd1 0%,#3547a5 100%);--warm-tile:linear-gradient(160deg,#172135 0%,#101827 100%)
+ --warm-2:#9cacfa;--warm-btn:linear-gradient(135deg,#5b6fd1 0%,#001a8c 100%);--warm-tile:linear-gradient(160deg,#172135 0%,#101827 100%)
 }
 html[data-shatra-ui][data-theme] body .figma-hero{background:#101f48!important}
 html[data-shatra-ui][data-theme] body .figma-hero::after{background:linear-gradient(180deg,rgba(53,71,165,.3) 0%,rgba(36,53,127,.5) 45%,rgba(16,31,72,.9) 100%)!important}
 html[data-shatra-ui][data-theme] body :is(.buy,button.primary,.btn-primary,.figma-primary,.figma-add,.buyer-floating,.mp-discount){color:#fff!important}
-html[data-shatra-ui][data-theme] body .product-purchase .added,html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added{background:linear-gradient(135deg,#5b6fd1 0%,#3547a5 100%)!important}
+html[data-shatra-ui][data-theme] body .product-purchase .added,html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added{background:linear-gradient(135deg,#5b6fd1 0%,#001a8c 100%)!important}
 html[data-shatra-ui][data-theme] body .tabs button[aria-current=page],html[data-shatra-ui][data-theme] body .tabs button[aria-current=page] .navicon{color:var(--warm-2)!important}
 
 /* ---------- Compact header, calligraphy wordmark, compact cards, store squares (requested) ---------- */
@@ -244,18 +244,18 @@ html[data-shatra-ui][data-theme=light]{--ink:#1e2d6b;--ink-soft:#56648f;--mut:#5
 /* «سوٯ» (dotless qaf) sits above «الشطرة», as in the calligraphy logo */
 html[data-shatra-ui][data-theme] body .header-brand-name{flex-direction:column!important;align-items:flex-start!important;gap:0!important}
 html[data-shatra-ui][data-theme] body .header-brand-name::before{content:'سوق'!important;font-family:'Aref Ruqaa','Amiri',serif!important;font-size:17px!important;line-height:1!important;transform:none!important;margin:0 4px -5px 0;color:#5b6fd1!important}
-html[data-shatra-ui][data-theme] body .header-brand-name::after{color:#3547a5!important;font-family:'Aref Ruqaa','Amiri',serif!important}
+html[data-shatra-ui][data-theme] body .header-brand-name::after{color:#001a8c!important;font-family:'Aref Ruqaa','Amiri',serif!important}
 html[data-shatra-ui][data-theme=dark] body .header-brand-name::before{color:#b8c3ff!important}
 html[data-shatra-ui][data-theme=dark] body .header-brand-name::after{color:#9cacfa!important}
 /* Section titles («تسوّق حسب القسم» …) and page headings in indigo */
-html[data-shatra-ui][data-theme=light] body :is(.section-title h2,.section-title h3,.section-title strong,main h1,main h2,.flow-heading h1,.flow-heading h2,.flow-heading strong){color:#3547a5!important}
+html[data-shatra-ui][data-theme=light] body :is(.section-title h2,.section-title h3,.section-title strong,main h1,main h2,.flow-heading h1,.flow-heading h2,.flow-heading strong){color:#001a8c!important}
 html[data-shatra-ui][data-theme=dark] body :is(.section-title h2,.section-title h3,.section-title strong,main h1,main h2,.flow-heading h1,.flow-heading h2,.flow-heading strong){color:#b8c3ff!important}
 html[data-shatra-ui][data-theme] body .figma-hero :is(h1,h2){color:#fff!important}
 
 /* Cart button on the left; «العروض» in the middle of the bottom bar (requested) */
 html[data-shatra-ui][data-theme] body .buyer-floating{inset-inline-start:auto!important;inset-inline-end:auto!important;left:16px!important;right:auto!important}
 html[data-shatra-ui][data-theme] body .tabs .offers-tab{color:var(--accent)!important;font-weight:700;cursor:pointer}
-html[data-shatra-ui][data-theme] body .tabs .offers-tab .navicon{display:grid!important;place-items:center;width:46px!important;height:46px!important;margin:-20px auto 2px!important;border-radius:50%!important;background:linear-gradient(135deg,#5b6fd1 0%,#3547a5 55%,#101f48 100%)!important;color:#fff!important;box-shadow:0 6px 16px rgba(53,71,165,.35)!important;transition:transform .18s cubic-bezier(.3,1.6,.5,1)}
+html[data-shatra-ui][data-theme] body .tabs .offers-tab .navicon{display:grid!important;place-items:center;width:46px!important;height:46px!important;margin:-20px auto 2px!important;border-radius:50%!important;background:linear-gradient(135deg,#5b6fd1 0%,#001a8c 55%,#101f48 100%)!important;color:#fff!important;box-shadow:0 6px 16px rgba(53,71,165,.35)!important;transition:transform .18s cubic-bezier(.3,1.6,.5,1)}
 html[data-shatra-ui][data-theme] body .tabs .offers-tab:active .navicon{transform:scale(.9)}
 html[data-shatra-ui][data-theme] body .tabs .offers-tab .navicon svg{width:24px;height:24px}
 html[data-shatra-ui][data-theme] body .offers-note{margin:0 0 12px;color:var(--ink-soft);font-size:13px}
@@ -336,5 +336,5 @@ html,body{overscroll-behavior-x:none}
 html[data-shatra-ui][data-theme] body .app{overflow-x:clip}
 @media (prefers-reduced-motion:reduce){html[data-shatra-ui][data-theme] body #view.page-in-left,html[data-shatra-ui][data-theme] body #view.page-in-right{animation:none}}
 html[data-shatra-ui][data-theme] body .offers-page .section-title{margin-top:4px}
-html[data-shatra-ui][data-theme]:not([data-portal="admin"]) body .tabs button.offers-tab.offers-tab[aria-current="page"] .navicon{display:grid!important;background:linear-gradient(135deg,#5b6fd1 0%,#3547a5 55%,#101f48 100%)!important;color:#fff!important;box-shadow:0 6px 16px rgba(53,71,165,.45),0 0 0 3px rgba(91,111,209,.25)!important}
+html[data-shatra-ui][data-theme]:not([data-portal="admin"]) body .tabs button.offers-tab.offers-tab[aria-current="page"] .navicon{display:grid!important;background:linear-gradient(135deg,#5b6fd1 0%,#001a8c 55%,#101f48 100%)!important;color:#fff!important;box-shadow:0 6px 16px rgba(53,71,165,.45),0 0 0 3px rgba(91,111,209,.25)!important}
 html[data-shatra-ui][data-theme] body .tabs .offers-tab[aria-current="page"]::before{display:none!important}
