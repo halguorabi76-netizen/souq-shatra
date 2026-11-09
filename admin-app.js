@@ -5,7 +5,7 @@ import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
 import {createSellerWorkspace} from "./seller-workspace.js?v=197";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=187";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=188";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=186";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -48,7 +48,7 @@ function error(e){if(e?.name==='TimeoutError'||e?.name==='TypeError')window.Souq
 import {readOrders,addressContainsPhone,STAGES,createDeliveryOperations} from './delivery-operations.js?v=172';
 function orderRead(){return readOrders(db)}
 const STCODE=['new','accepted','delivery','delivered','cancelled'];
-const fromOrder=o=>({id:o.id,mid:o.store_id,tracking:o.tracking||{},can_report_late:!!o.can_report_late,delivery_batch_id:o.delivery_batch_id,route_km:o.route_km,customer_lat:o.customer_lat,customer_lng:o.customer_lng,internal:o.internal,customer_action:Array.isArray(o.order_customer_actions)?o.order_customer_actions[0]:o.order_customer_actions,items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone||'',addr:o.address,note:o.note}});
+const fromOrder=o=>({id:o.id,mid:o.store_id,tracking:o.tracking||{},can_report_late:!!o.can_report_late,delivery_batch_id:o.delivery_batch_id,route_km:o.route_km,customer_lat:o.customer_lat,customer_lng:o.customer_lng,internal:o.internal,customer_action:Array.isArray(o.order_customer_actions)?o.order_customer_actions[0]:o.order_customer_actions,cancel_reason:o.cancel_reason||'',items:(o.order_items||[]).map(i=>({pid:i.product_id,name:i.product_name,price:i.price,q:i.quantity,vid:i.variant_id,variant_snapshot:i.variant_snapshot||{}})),total:o.total,st:Math.max(0,STCODE.indexOf(o.status)),ts:o.created_at,cust:{name:o.customer_name,phone:o.customer_phone||'',addr:o.address,note:o.note}});
 function unavailableSession(e){
  return ['refresh_token_not_found','refresh_token_already_used','session_not_found','user_not_found'].includes(e?.code);
 }
@@ -978,6 +978,7 @@ const A={
   adminDriverAsk:v=>{if(profile?.role!=='admin'||profile?.disabled)return;const w=D.drivers.find(x=>x.user_id===v);if(!w)return;ask(w.approved?'إيقاف السائق عن قبول طلبات جديدة؟ ستبقى طلباته السابقة محفوظة.':'الموافقة على تسجيل هذا السائق؟','approveDriver',v)},
   adminStat:v=>{if(profile?.role!=='admin'||profile?.disabled)return;adminSearch='';adminTab=v==='pending'?'sellers':v==='accounts'?'customers':'activity';adminFilter=v==='accounts'?'all':v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   adminListFilter:v=>{adminFilter=v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
+  adminOrdersOpen:v=>{adminTab='activity';adminFilter=v||'all';admin();scrollTo(0,0)},
   cat:v=>{cat=v;tab='catalog';render()},
   pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
   storeCategory:v=>{cat=v;render();},

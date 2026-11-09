@@ -676,3 +676,8 @@ html[data-shatra-ui] .profile-page section.profile-card:not(.chat-inbox):not(:ha
 .hb-dots i.on{width:20px;border-radius:4px;background:var(--u-strong,#6c63ff)}
 @media (min-width:900px){.hb-slide{aspect-ratio:3/1}}
 @media (prefers-reduced-motion:reduce){.hb-dots i{transition:none}}
+/* Cancel-order window: quick reasons and a free note */
+.cancel-reasons{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.cancel-chip{padding:7px 12px;border-radius:999px;border:1px solid rgba(165,180,255,.3);background:rgba(108,99,255,.1);color:inherit;font:600 13px Tajawal,system-ui,sans-serif;cursor:pointer}
+.cd-cancel textarea{width:100%;min-height:80px;padding:10px 12px;border-radius:14px;border:1px solid rgba(165,180,255,.3);background:rgba(108,99,255,.08);color:inherit;font:15px Tajawal,system-ui,sans-serif;resize:vertical}
+.cd-wide.cancel-go{background:#dc2626;box-shadow:0 8px 20px -8px rgba(220,38,38,.6)}
