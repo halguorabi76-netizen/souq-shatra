@@ -60,6 +60,11 @@ async function clearUnavailableAccount(){
  D.me=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.driverContacts=[];D.pickups=[];D.stockMovements=[];D.o=[];
  deliveryOffers=[];deliveryPayments=[];publicStoreId=null;tab='market';A.close();render();
 }
+// This device last opened the panel as the admin: show the panel at once while the server re-checks.
+// The hint only decides what to draw first; every dataset still loads under the server's own checks.
+const ADMIN_HINT='souq-admin-device';
+const adminHint=()=>{try{return localStorage.getItem(ADMIN_HINT)==='1'}catch{return false}};
+const setAdminHint=on=>{try{on?localStorage.setItem(ADMIN_HINT,'1'):localStorage.removeItem(ADMIN_HINT)}catch{}};
 async function refreshAdmin(id,nextUser){
  if(user?.id!==nextUser?.id){
   adminAccessReady=false;dataReady=false;profile=null;ownStore=null;
@@ -70,7 +75,7 @@ async function refreshAdmin(id,nextUser){
  if(id!==refreshId)return;
  const nextProfile=check(result);
  if(nextUser&&!nextProfile){await clearUnavailableAccount();return refresh()}
- profile=nextProfile;adminAccessReady=true;
+ profile=nextProfile;adminAccessReady=true;if(typeof setAdminHint==='function')setAdminHint(!!user&&profile?.role==='admin'&&!profile?.disabled);
  if(!user||profile?.role!=='admin'||profile?.disabled){dataReady=true;render();window.SouqLoading?.recovered?.();return;}
  viewMode='buyer';D.me='owner';D.loading=!dataReady;
  // Show the authorized workspace now; independent datasets load together.
@@ -518,6 +523,7 @@ function renderAdminPortal(){
  $('#adminTop [data-a="out"]').hidden=!user;
  window.SouqTheme.set(window.SouqTheme.get(),false);
  if(adminLoadError){$('#view').innerHTML='<div class="admin-gate" data-admin-recovery role="alert"><h1>تعذّر فتح لوحة الإدارة</h1><p>لم يكتمل الاتصال للتحقق من الحساب أو تحميل بيانات الإدارة. هذا لا يعني أن حسابك بلا صلاحية.</p><small>الإصدار 154 — '+esc(typeof adminPhase==='string'?adminPhase:'التحقق من الحساب')+'</small><button class="buy" data-a="adminRetry">إعادة المحاولة</button>'+(user?'<button class="alt" data-a="out">تبديل الحساب</button>':'<button class="alt" data-a="login" data-v="m">تسجيل الدخول</button>')+'<a href="index.html">العودة إلى السوق</a></div>';return;}
+ if((!adminAccessReady||(user&&!profile))&&typeof adminHint==='function'&&adminHint()&&!adminLoadError){D.loading=true;tab='admin';admin();return}
  if(!adminAccessReady||(user&&!profile)){ $('#view').innerHTML='<div class="admin-gate"><h1>لوحة إدارة سوق الشطرة</h1><p>جارٍ التحقق من حسابك…</p><small>الإصدار 154 — '+esc(typeof adminPhase==='string'?adminPhase:'قراءة جلسة الهاتف')+'</small></div>';return}
  if(!user){$('#view').innerHTML='<div class="admin-gate"><span class="admin-gate-mark">S</span><h1>لوحة إدارة سوق الشطرة</h1><p>الدخول مخصص لحساب المالك المعتمد. تسجيل الدخول بحساب آخر لا يمنحه صلاحية الإدارة.</p><button class="buy" data-a="login" data-v="m">تسجيل الدخول</button><a href="index.html">العودة إلى السوق</a></div>';return}
  if(profile?.role!=='admin'||profile?.disabled){$('#view').innerHTML='<div class="admin-gate"><h1>هذا الحساب لا يملك صلاحية الإدارة</h1><p>الحساب المسجّل حاليًا: <b dir="ltr>'+esc(user.email||'')+'</b></p><p>استخدم حساب المدير المعتمد.</p><button class="buy" data-a="out">تبديل الحساب</button><a href="index.html">العودة إلى السوق</a></div>';return}
@@ -568,7 +574,7 @@ async function loadUsedAdmin(){
 }
 function admin(){
  if(!ADMIN_PORTAL){location.assign('admin.html');return}
- if(profile?.disabled||profile?.role!=='admin')return;
+ if(profile?profile.disabled||profile.role!=='admin':!(typeof adminHint==='function'&&adminHint()))return;
  if(!waAdmin)loadWaAdmin();
  if(adminTab==='used'&&!usedAdmin)loadUsedAdmin();
  if(adminTab==='audit'){if(!auditAdmin)loadAuditAdmin();}else auditAdmin=null;
@@ -1047,7 +1053,7 @@ const A={
     }
   }),
   register:()=>sellerRequest(),
-  out:()=>act(async()=>{check(await db.auth.signOut());clearPurchaseReturn();user=null;profile=null;ownStore=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.o=[];deliveryPayments=[];adminDetail=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
+  out:()=>act(async()=>{if(typeof setAdminHint==='function')setAdminHint(false);check(await db.auth.signOut());clearPurchaseReturn();user=null;profile=null;ownStore=null;D.people=[];D.drivers=[];D.driverProfiles=[];D.o=[];deliveryPayments=[];adminDetail=null;viewMode='guest';tab='market';dt='p';render();refresh().catch(error)}),
   dtab:v=>{dt=v;render()},
   pform:v=>{if(!canSell()){sellerRequest();return}if(viewMode!=='seller'&&profile?.role!=='admin'){toast('انتقل إلى وضع البائع من حسابي أولًا');return}closePage();fsheet(v)},
   psave:()=>act(saveProduct),
