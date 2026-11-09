@@ -3,9 +3,9 @@ const {createClient}=window.supabase;
 import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";
 import {createAdminSession} from "./admin-session.js?v=154";
 import {createProductEditor,createCatalogAdmin,catalogAdmin,categoryDefinitions,specifications,inventoryVariants,selectedProduct,variantPrice,cartKey,variantChoices,chooseVariant} from './product-variants.js?v=111';
-import {createSellerWorkspace} from "./seller-workspace.js?v=197";
+import {createSellerWorkspace} from "./seller-workspace.js?v=198";
 import {createActivityCenter,bellIcon} from "./activity-center.js?v=178";
-import {renderAdminWorkspace} from "./admin-workspace.js?v=188";
+import {renderAdminWorkspace} from "./admin-workspace.js?v=189";
 import {createDriverWorkspace,driverContact} from "./delivery-workspace.js?v=186";
 async function apiFetch(resource,init={}){
   const controller=new AbortController(),source=init.signal||resource?.signal;
@@ -102,7 +102,7 @@ async function refreshAdmin(id,nextUser){
  const sellerOnly=false,approvedStore=null;
   D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,prep_time_min:m.prep_time_min,open_time:m.open_time,close_time:m.close_time,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,pickup_latitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.latitude,pickup_longitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.longitude,username:m.username,verified:m.verified,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
   const variantsByProduct=new Map();for(const v of D.variants||[]){let rows=variantsByProduct.get(v.product_id);if(!rows)variantsByProduct.set(v.product_id,rows=[]);rows.push({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''});}
-  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:variantsByProduct.get(p.id)||[]}));
+  D.p=products.map(p=>({review_status:p.review_status||'approved',pending_changes:p.pending_changes||null,review_hold:!!p.review_hold,id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:variantsByProduct.get(p.id)||[]}));
  D.o=orders.map(o=>({...fromOrder(o),buyer_id:o.buyer_id,driver_id:o.driver_id,platform_fee:o.platform_fee||0,delivery_fee:o.delivery_fee||0}));D.people=people;
  ownStore=D.m.find(m=>m.owner_id===user.id)||null;D.loading=false;dataReady=true;
  render();window.SouqLoading?.recovered?.();
@@ -183,7 +183,7 @@ async function refresh(){
   D.publicCategories=check(cs);
   D.m=(sellerOnly?[approvedStore]:stores).map(m=>({id:m.id,prep_time_min:m.prep_time_min,open_time:m.open_time,close_time:m.close_time,name:m.name,phone:m.phone,address:m.address,store_kind:m.store_kind,pickup_address:(D.pickups||[]).find(x=>x.store_id===m.id)?.pickup_address,pickup_latitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.latitude,pickup_longitude:(D.pickups||[]).find(x=>x.store_id===m.id)?.longitude,username:m.username,verified:m.verified,ok:m.approved,removed:m.removed,owner_id:m.owner_id,created_at:m.created_at,description:m.description,image_path:m.image_path||null,image_url:m.image_path?db.storage.from('products').getPublicUrl(m.image_path).data.publicUrl:'',appearance:m.storefront_settings||{}}));
   const variantsByProduct=new Map();for(const v of D.variants||[]){let rows=variantsByProduct.get(v.product_id);if(!rows)variantsByProduct.set(v.product_id,rows=[]);rows.push({...v,img:v.image_path?db.storage.from('products').getPublicUrl(v.image_path).data.publicUrl:''});}
-  D.p=products.map(p=>({id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:variantsByProduct.get(p.id)||[]}));
+  D.p=products.map(p=>({review_status:p.review_status||'approved',pending_changes:p.pending_changes||null,review_hold:!!p.review_hold,id:p.id,mid:p.store_id,name:p.name,desc:p.description,cat:p.category,price:p.price,compare_at_price:p.compare_at_price??null,stock:p.stock,img:p.image_path?db.storage.from('products').getPublicUrl(p.image_path).data.publicUrl:'',image_path:p.image_path,active:p.active,blocked:p.blocked,sku:p.sku||'',variant:p.variant||'',threshold:p.low_stock_threshold??5,created_at:p.created_at,store_category:p.store_category||'',catalog_category_id:p.catalog_category_id,attributes:p.attributes||{},has_variants:!!p.has_variants,legacy_stock_reserve:p.legacy_stock_reserve||0,variants:variantsByProduct.get(p.id)||[]}));
   ownStore=user?D.m.find(m=>m.owner_id===user.id):null;
   let workspaceRow=null;
   if(ownStore&&canSell()){workspaceRow=check(await withTimeout(db.from('seller_workspace_settings').select('settings').eq('store_id',ownStore.id).maybeSingle()));}
@@ -275,7 +275,7 @@ function resumePurchaseAfterLogin(){
 }
 function openCatalog(){const url=new URL('catalog.html',location.href);if(cat!=='all')url.searchParams.set('category',cat);if(q)url.searchParams.set('q',q);for(const k of ['min','max'])if(filt[k]!=='')url.searchParams.set(k,filt[k]);url.searchParams.set('sort',filt.sort);location.assign(url.href)}
 
-function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+function toast(t,kind){const e=$('#toast');e.textContent=t;e.dataset.kind=kind||(/تعذّر|تعذر|فشل|خطأ|اكتب|اختر|يجب/.test(String(t))?'error':'ok');e.hidden=true;void e.offsetWidth;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2800)}
 const pageNav=window.SouqPageNavigation?.create()||null;
 const backIcon='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7M16 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function trackPage(){if(!ADMIN_PORTAL&&!db.preview)pageNav?.track({tab,dt,publicStoreId,cat,q,filt:{...filt},url:location.href,scroll:window.scrollY||0},(user?.id||'guest')+':'+viewMode);}
@@ -545,6 +545,12 @@ async function loadInvites(){
  if(tab==='admin')admin();
 }
 // «بِع غرضك»: settings and live listings for the admin.
+let usedReview=null,usedReviewLoading=false;
+async function loadUsedReview(){
+ if(usedReviewLoading)return;usedReviewLoading=true;
+ try{const r=await db.from('used_listings').select('*').eq('status','pending').order('created_at');usedReview=r.error?[]:(r.data||[])}catch{usedReview=[]}finally{usedReviewLoading=false}
+ if(tab==='admin'&&adminTab==='overview')admin();
+}
 let usedAdmin=null,usedAdminLoading=false,auditAdmin=null,auditLoading=false,bannersAdmin=null,bannersLoading=false,bannerBusy=false;
 async function loadBannersAdmin(){
  if(bannersLoading)return;bannersLoading=true;
@@ -579,8 +585,9 @@ function admin(){
  if(adminTab==='used'&&!usedAdmin)loadUsedAdmin();
  if(adminTab==='audit'){if(!auditAdmin)loadAuditAdmin();}else auditAdmin=null;
  if(adminTab==='banners'&&!bannersAdmin)loadBannersAdmin();
+ if(adminTab==='overview'&&!usedReview)loadUsedReview();
  if(adminTab==='invites'&&!inviteAdmin)loadInvites();
- $('#view').innerHTML=renderAdminWorkspace({banners:bannersAdmin,bannerUrl:p=>p?db.storage.from('banners').getPublicUrl(p).data.publicUrl:'',audit:auditAdmin,used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
+ $('#view').innerHTML=renderAdminWorkspace({usedReview:usedReview||[],usedImg:p=>p?db.storage.from('used-items').getPublicUrl(p).data.publicUrl:'',banners:bannersAdmin,bannerUrl:p=>p?db.storage.from('banners').getPublicUrl(p).data.publicUrl:'',audit:auditAdmin,used:usedAdmin,invites:inviteAdmin,data:D,esc,fmt,when,sid,status:ST,storeName:mname,payments:deliveryPayments,settings:deliverySettings,catalog:()=>catalogAdmin(D.catalog||[]),inventoryVariants:p=>inventoryVariants(p,fmt),whatsapp:waAdmin,webhookUrl:SUPABASE_URL+'/functions/v1/whatsapp-login',state:{tab:adminTab,search:adminSearch,filter:adminFilter,detail:adminDetail}});
  $('#waAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.waAdminSave()});
  $('#usedAdminForm')?.addEventListener('submit',e=>{e.preventDefault();A.usedAdminSave()});
  $('#bannerForm')?.addEventListener('submit',e=>{e.preventDefault();A.bannerAdd()});
@@ -961,6 +968,15 @@ const A={
   usedAdminSave:()=>act(async()=>{if(profile?.role!=='admin'||profile?.disabled)return;const n=id=>Math.round(Number(val(id)));const limit=n('usedLimit'),days=n('usedDays'),price=n('usedPrice');
     if(!(limit>=0&&limit<=100)||!(days>=1&&days<=90)||!(price>=0&&price<=1000000)){toast('تحقق من الأرقام: الأغراض 0–100، الأيام 1–90');return}
     check(await db.rpc('admin_set_used_settings',{p_limit:limit,p_days:days,p_price:price}));usedAdmin=null;await loadUsedAdmin();toast('تم حفظ إعدادات «بِع غرضك»')}),
+  reviewDo:v=>act(async()=>{const [kind,id,decision]=String(v).split('|');
+   if(kind==='product')check(await db.rpc('review_product',{p_id:id,p_decision:decision}));
+   else if(kind==='used'){check(await db.rpc('review_used',{p_id:id,p_decision:decision}));usedReview=null;}
+   else if(decision==='hold')check(await db.rpc('set_review_hold',{p_kind:kind,p_id:id,p_on:true}));
+   else if(kind==='store'){if(decision==='approve')check(await db.rpc('approve_store',{p_store:id,p_approved:true}));else{A.storeRemoveAsk(id);return}}
+   else if(kind==='driver'){if(decision==='approve'){A.adminDriverAsk(id);return}A.driverReject(id);return}
+   await refresh();if(!usedReview)await loadUsedReview();
+   toast(decision==='approve'?'تمت الموافقة':decision==='hold'?'وُضع قيد الانتظار':'تم الرفض',decision==='approve'?'ok':decision==='hold'?'warn':'error')}),
+  reviewUsedOpen:v=>{const l=(usedReview||[]).find(x=>x.id===v);if(!l)return;const url=p=>db.storage.from('used-items').getPublicUrl(p).data.publicUrl,photos=(l.image_paths?.length?l.image_paths:[l.image_path]).filter(Boolean);sheet(head(esc(l.title))+`<div class="admin-used-detail">${photos.map(p=>`<img src="${esc(url(p))}" alt="" loading="lazy">`).join('')}<p class="admin-used-price">${l.price==null?'السعر عند التواصل':l.price===0?'مجاناً':fmt(l.price)}${l.details?.negotiable?' · قابل للتفاوض':''}</p><p>${esc(l.description||'')}</p></div>`)},
   bannerAdd:()=>act(async()=>{if(bannerBusy)return;const file=$('#bnFile')?.files?.[0];if(!file||!file.type.startsWith('image/')){toast('اختر صورة البنر');return}const ext=($('#bnUrl')?.value||'').trim();if(ext&&!/^https:\/\//.test(ext)){toast('الرابط الخارجي يجب أن يبدأ بـ https://');return}
    const start=val('bnStart'),end=val('bnEnd');if(start&&end&&end<start){toast('تاريخ النهاية قبل تاريخ البداية');return}
    const button=$('#bannerForm button[type="submit"]');bannerBusy=true;if(button){button.disabled=true;button.textContent='جارٍ رفع البنر…'}
