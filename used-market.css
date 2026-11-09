@@ -1,16 +1,16 @@
 /* «مستعمل الشطرة»: the used market's own page, ad sheet, sell form and my-ads list.
  * Indigo only, from laser-theme.css tokens. Loaded after it. */
-html[data-shatra-ui]:not([data-portal]) body{--used-accent:var(--laser-2,#8f88ff);--used-ink:var(--ink);--used-card:var(--surface);--used-line:var(--line)}
-html[data-shatra-ui][data-theme=light]:not([data-portal]) body{--used-accent:var(--laser,#4f46e5)}
+html[data-shatra-ui]:not([data-portal]) body{--used-accent:var(--laser-2,#3d7bff);--used-ink:var(--ink);--used-card:var(--surface);--used-line:var(--line)}
+html[data-shatra-ui][data-theme=light]:not([data-portal]) body{--used-accent:var(--laser,#0034cc)}
 
 /* Page */
 .used-page.used-v2{display:flex;flex-direction:column;gap:14px;padding:0 16px 120px;max-width:1080px;margin:0 auto}
-.used-v2 .used-hero{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 4px 22px;margin:0 -4px;overflow:hidden;background:radial-gradient(120% 100% at 90% 0%,color-mix(in srgb,var(--laser,#4f46e5) 28%,transparent) 0%,transparent 62%)}
+.used-v2 .used-hero{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 4px 22px;margin:0 -4px;overflow:hidden;background:radial-gradient(120% 100% at 90% 0%,color-mix(in srgb,var(--laser,#0034cc) 28%,transparent) 0%,transparent 62%)}
 .used-v2 .used-hero small{display:block;font:700 20px/1 'Aref Ruqaa','Amiri',serif;color:var(--used-accent)}
-.used-v2 .used-hero h1{margin:2px 0 0;font:700 52px/.95 'Aref Ruqaa','Amiri',serif;color:var(--ink);text-shadow:0 0 18px color-mix(in srgb,var(--laser-2,#8f88ff) 55%,transparent)}
+.used-v2 .used-hero h1{margin:2px 0 0;font:700 52px/.95 'Aref Ruqaa','Amiri',serif;color:var(--ink);text-shadow:0 0 18px color-mix(in srgb,var(--laser-2,#3d7bff) 55%,transparent)}
 .used-v2 .used-hero p{margin:10px 0 0;font:500 15px/1.5 Tajawal,sans-serif;color:var(--ink-soft);max-width:30ch}
 .used-v2 .used-mine-btn{flex:none;min-height:44px;padding:0 16px;border-radius:14px;border:1px solid var(--used-line);background:var(--surface);color:var(--ink);font:700 14px Tajawal,sans-serif}
-.used-v2 .used-river{position:absolute;left:0;right:0;bottom:2px;width:100%;height:24px;fill:none;stroke:var(--used-accent);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--laser-2,#8f88ff) 80%,transparent))}
+.used-v2 .used-river{position:absolute;left:0;right:0;bottom:2px;width:100%;height:24px;fill:none;stroke:var(--used-accent);stroke-width:2.5;stroke-linecap:round;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--laser-2,#3d7bff) 80%,transparent))}
 .used-v2 .used-search-wrap{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 14px;border-radius:16px;background:var(--surface);border:1px solid var(--used-line);color:var(--used-accent);box-shadow:var(--glow-soft)}
 .used-v2 .used-search-wrap:focus-within{box-shadow:0 0 0 2px var(--laser),var(--glow)}
 .used-v2 .used-search-wrap input{flex:1;min-width:0;border:0!important;outline:0;background:transparent!important;color:var(--ink);font:500 16px Tajawal,sans-serif;box-shadow:none!important;padding:0!important;min-height:48px}
@@ -21,7 +21,7 @@ html[data-shatra-ui][data-theme=light]:not([data-portal]) body{--used-accent:var
 .used-v2 :is(.used-kinds,.used-zones,.used-sort) button[aria-pressed=true]{background:var(--laser);border-color:transparent;color:#fff;box-shadow:var(--glow)}
 
 /* Lead vehicle */
-.used-v2 .used-feature{display:block;width:100%;padding:0;text-align:inherit;border-radius:26px;overflow:hidden;background:var(--surface);border:1px solid color-mix(in srgb,var(--laser-2,#8f88ff) 45%,var(--used-line));box-shadow:0 0 26px color-mix(in srgb,var(--laser,#4f46e5) 18%,transparent);color:var(--ink)}
+.used-v2 .used-feature{display:block;width:100%;padding:0;text-align:inherit;border-radius:26px;overflow:hidden;background:var(--surface);border:1px solid color-mix(in srgb,var(--laser-2,#3d7bff) 45%,var(--used-line));box-shadow:0 0 26px color-mix(in srgb,var(--laser,#0034cc) 18%,transparent);color:var(--ink)}
 .used-v2 .used-feature-img{position:relative;display:block;aspect-ratio:16/10;background:var(--warm-tile)}
 .used-v2 .used-feature-img img{width:100%;height:100%;object-fit:cover;display:block}
 .used-v2 .used-feature-body{display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px}
@@ -64,7 +64,7 @@ body:has(.used-v2 .used-sell-fab) #buyerFloating{display:none!important}
 .used-detail.used-v2 .used-gallery-count{position:absolute;bottom:10px;inset-inline-end:10px;font:700 12px/1 Tajawal,sans-serif;color:#fff;background:rgba(11,18,48,.75);padding:7px 10px;border-radius:9px}
 .used-detail.used-v2 .used-detail-top{position:relative;display:flex;flex-direction:column;gap:8px}
 .used-detail.used-v2 .used-detail-top .used-tag{position:static;align-self:flex-start}
-.used-detail.used-v2 .used-detail-price{margin:0;font-size:28px;text-shadow:0 0 16px color-mix(in srgb,var(--laser-2,#8f88ff) 40%,transparent)}
+.used-detail.used-v2 .used-detail-price{margin:0;font-size:28px;text-shadow:0 0 16px color-mix(in srgb,var(--laser-2,#3d7bff) 40%,transparent)}
 .used-detail.used-v2 .used-meta{display:flex;flex-wrap:wrap;gap:8px}
 .used-detail.used-v2 .used-meta span{min-height:32px;display:inline-flex;align-items:center;padding:0 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--used-line);font:700 13px Tajawal,sans-serif;color:var(--ink)}
 .used-detail.used-v2 .used-facts h3,.used-detail.used-v2 .used-about h3{margin:0 0 10px;font:800 17px Tajawal,sans-serif}
@@ -91,7 +91,7 @@ html[data-shatra-ui]:not([data-portal]) body .used-form .used-kind button[aria-p
 
 /* My ads */
 .used-mine .used-quota{display:flex;align-items:center;gap:12px}
-.used-mine .used-ring{width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--laser-2,#8f88ff) 0 var(--p),var(--used-line) var(--p) 100%);box-shadow:0 0 14px color-mix(in srgb,var(--laser,#4f46e5) 35%,transparent)}
+.used-mine .used-ring{width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--laser-2,#3d7bff) 0 var(--p),var(--used-line) var(--p) 100%);box-shadow:0 0 14px color-mix(in srgb,var(--laser,#0034cc) 35%,transparent)}
 .used-mine .used-ring b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font:800 14px Tajawal,sans-serif}
 .used-mine .used-mine-row{display:flex;gap:12px;padding:12px;border-radius:20px;border:1px solid var(--used-line);background:var(--surface-2);margin-top:10px}
 .used-mine .used-mine-row .used-thumb{width:86px;height:86px;flex:none;border-radius:16px;overflow:hidden;display:grid;place-items:center;background:var(--warm-tile)}
@@ -100,7 +100,7 @@ html[data-shatra-ui]:not([data-portal]) body .used-form .used-kind button[aria-p
 .used-mine .used-mine-row>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .used-mine .used-mine-row .used-price{color:var(--used-accent);font:800 15px Tajawal,sans-serif}
 .used-mine .used-left{display:block;height:6px;border-radius:99px;background:var(--used-line);overflow:hidden}
-.used-mine .used-left i{display:block;height:100%;background:var(--laser-2,#8f88ff);box-shadow:0 0 8px var(--laser-2,#8f88ff)}
+.used-mine .used-left i{display:block;height:100%;background:var(--laser-2,#3d7bff);box-shadow:0 0 8px var(--laser-2,#3d7bff)}
 .used-mine .used-mine-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .used-mine .used-mine-actions button{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--used-line);background:var(--surface);color:var(--ink);font:800 14px Tajawal,sans-serif}
 .used-mine .used-mine-actions .used-ok{color:var(--ok,#17745d);border-color:color-mix(in srgb,var(--ok,#17745d) 45%,transparent)}
@@ -120,9 +120,9 @@ html[data-shatra-ui]:not([data-portal]) body .used-form .used-kind button[aria-p
 /* Home: two doors and the used row */
 html[data-shatra-ui]:not([data-portal]) body .market-doors:not(#_){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 html[data-shatra-ui]:not([data-portal]) body .market-doors button:not(#_){position:relative;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:4px;padding:16px;border-radius:24px;text-align:start;color:#f3f5ff;overflow:hidden}
-html[data-shatra-ui]:not([data-portal]) body .market-doors .door-new:not(#_){background:linear-gradient(160deg,#1b2470 0%,#101a52 100%)!important;border:1px solid rgba(143,136,255,.5)!important;box-shadow:inset 0 0 28px rgba(108,99,255,.32)!important}
-html[data-shatra-ui]:not([data-portal]) body .market-doors .door-used:not(#_){background:linear-gradient(160deg,#25307e 0%,#141d45 100%)!important;border:1px solid rgba(165,180,255,.6)!important;box-shadow:inset 0 0 28px rgba(165,180,255,.25)!important}
-html[data-shatra-ui]:not([data-portal]) body .market-doors .mk-icon:not(#_){position:absolute;top:14px;inset-inline-start:14px;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.08)!important;color:#a5b4ff!important;filter:drop-shadow(0 0 6px rgba(143,136,255,.8))}
+html[data-shatra-ui]:not([data-portal]) body .market-doors .door-new:not(#_){background:linear-gradient(160deg,#1b2470 0%,#101a52 100%)!important;border:1px solid rgba(61,123,255,.5)!important;box-shadow:inset 0 0 28px rgba(10,82,230,.32)!important}
+html[data-shatra-ui]:not([data-portal]) body .market-doors .door-used:not(#_){background:linear-gradient(160deg,#25307e 0%,#141d45 100%)!important;border:1px solid rgba(91,140,255,.6)!important;box-shadow:inset 0 0 28px rgba(91,140,255,.25)!important}
+html[data-shatra-ui]:not([data-portal]) body .market-doors .mk-icon:not(#_){position:absolute;top:14px;inset-inline-start:14px;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.08)!important;color:#5b8cff!important;filter:drop-shadow(0 0 6px rgba(61,123,255,.8))}
 html[data-shatra-ui]:not([data-portal]) body .market-doors b:not(#_){font:800 22px/1.2 Tajawal,sans-serif;color:#fff!important}
 html[data-shatra-ui]:not([data-portal]) body .market-doors small:not(#_){font:500 13px/1.4 Tajawal,sans-serif;color:#c4c8ef!important}
 .used-near{margin-top:22px}
@@ -139,16 +139,16 @@ html[data-shatra-ui]:not([data-portal]) body .market-doors small:not(#_){font:50
 .used-thumbs{display:flex;gap:8px;margin:10px 0 0;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .used-thumbs::-webkit-scrollbar{display:none}
 .used-thumbs button{flex:none;width:64px;height:64px;padding:0;border-radius:14px;overflow:hidden;border:2px solid var(--line);background:var(--tile)}
-.used-thumbs button[aria-pressed="true"]{border-color:var(--laser-2,#6c63ff);box-shadow:0 0 14px rgba(108,99,255,.45)}
+.used-thumbs button[aria-pressed="true"]{border-color:var(--laser-2,#0a52e6);box-shadow:0 0 14px rgba(10,82,230,.45)}
 .used-thumbs img{display:block;width:100%;height:100%;object-fit:cover}
 /* «قابل للتفاوض»: a quiet tag beside the price */
-.used-nego{display:inline-block;margin-inline-start:6px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,#a5b4ff 18%,transparent);color:#a5b4ff;font:700 10.5px/1.6 Tajawal,system-ui,sans-serif;font-style:normal;vertical-align:middle;white-space:nowrap}
-html[data-theme=light] .used-nego{background:#eef0ff;color:#4f46e5}
+.used-nego{display:inline-block;margin-inline-start:6px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,#5b8cff 18%,transparent);color:#5b8cff;font:700 10.5px/1.6 Tajawal,system-ui,sans-serif;font-style:normal;vertical-align:middle;white-space:nowrap}
+html[data-theme=light] .used-nego{background:#f1f5ff;color:#0034cc}
 .used-nego-opt{display:flex;align-items:center;gap:8px;margin:8px 2px 0;font-size:14px;cursor:pointer}
-.used-nego-opt input{width:20px;height:20px;accent-color:#6c63ff}
+.used-nego-opt input{width:20px;height:20px;accent-color:#0a52e6}
 /* «لقطة»: a full-width tile on the home page and a gold tag on bargain cards */
-.sq-bargain{display:flex;align-items:center;gap:14px;width:100%;margin:6px 0 14px;padding:14px 16px;border-radius:22px;border:1px solid rgba(251,191,36,.45);background:linear-gradient(120deg,rgba(251,191,36,.18),rgba(108,99,255,.16) 60%,rgba(20,29,69,.6));color:inherit;font:inherit;text-align:start;cursor:pointer;box-shadow:0 10px 26px -14px rgba(251,191,36,.55)}
-html[data-theme=light] .sq-bargain{background:linear-gradient(120deg,#fff7e0,#eef0ff 65%);border-color:#f6d27a}
+.sq-bargain{display:flex;align-items:center;gap:14px;width:100%;margin:6px 0 14px;padding:14px 16px;border-radius:22px;border:1px solid rgba(251,191,36,.45);background:linear-gradient(120deg,rgba(251,191,36,.18),rgba(10,82,230,.16) 60%,rgba(20,29,69,.6));color:inherit;font:inherit;text-align:start;cursor:pointer;box-shadow:0 10px 26px -14px rgba(251,191,36,.55)}
+html[data-theme=light] .sq-bargain{background:linear-gradient(120deg,#fff7e0,#f1f5ff 65%);border-color:#f6d27a}
 .sq-bargain-star{flex:none;width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 8px 18px -8px rgba(245,158,11,.8)}
 .sq-bargain-star svg{width:26px;height:26px;fill:#fff}
 .sq-bargain-text{flex:1;display:grid;gap:2px;min-width:0}
@@ -161,10 +161,10 @@ html[data-theme=light] .sq-bargain-text b{color:#b45309}
 .used-kinds button[data-v="bargain"][aria-pressed="true"]{background:linear-gradient(135deg,#fbbf24,#f59e0b)!important;color:#1f1300!important}
 .admin-used-acts{display:flex;gap:8px;flex:none}
 /* «لقطة» in the brand's laser indigo (no gold) */
-.sq-bargain{border-color:rgba(143,136,255,.55)!important;background:linear-gradient(120deg,rgba(108,99,255,.32),rgba(20,29,69,.7) 70%)!important;box-shadow:0 0 26px -8px rgba(108,99,255,.7)!important}
-html[data-theme=light] .sq-bargain{background:linear-gradient(120deg,#e3e5ff,#f6f7ff 70%)!important;border-color:#c7cbf5!important;box-shadow:0 10px 24px -14px rgba(79,70,229,.5)!important}
-.sq-bargain-star{background:linear-gradient(135deg,#8f88ff,#4f46e5)!important;box-shadow:0 0 18px -2px rgba(108,99,255,.8)!important}
-.sq-bargain-text b,.sq-bargain-go{color:#a5b4ff!important}
-html[data-theme=light] .sq-bargain-text b,html[data-theme=light] .sq-bargain-go{color:#4f46e5!important}
-.used-bargain{background:linear-gradient(135deg,#8f88ff,#4f46e5)!important;color:#fff!important;box-shadow:0 0 12px -2px rgba(108,99,255,.9)!important}
-.used-kinds button[data-v="bargain"][aria-pressed="true"]{background:linear-gradient(135deg,#8f88ff,#4f46e5)!important;color:#fff!important}
+.sq-bargain{border-color:rgba(61,123,255,.55)!important;background:linear-gradient(120deg,rgba(10,82,230,.32),rgba(20,29,69,.7) 70%)!important;box-shadow:0 0 26px -8px rgba(10,82,230,.7)!important}
+html[data-theme=light] .sq-bargain{background:linear-gradient(120deg,#e3e5ff,#f6f7ff 70%)!important;border-color:#cfdaf5!important;box-shadow:0 10px 24px -14px rgba(0,52,204,.5)!important}
+.sq-bargain-star{background:linear-gradient(135deg,#3d7bff,#0034cc)!important;box-shadow:0 0 18px -2px rgba(10,82,230,.8)!important}
+.sq-bargain-text b,.sq-bargain-go{color:#5b8cff!important}
+html[data-theme=light] .sq-bargain-text b,html[data-theme=light] .sq-bargain-go{color:#0034cc!important}
+.used-bargain{background:linear-gradient(135deg,#3d7bff,#0034cc)!important;color:#fff!important;box-shadow:0 0 12px -2px rgba(10,82,230,.9)!important}
+.used-kinds button[data-v="bargain"][aria-pressed="true"]{background:linear-gradient(135deg,#3d7bff,#0034cc)!important;color:#fff!important}

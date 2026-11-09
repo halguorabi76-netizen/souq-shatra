@@ -3,7 +3,7 @@
  * Presentation only; every button keeps the data-a / data-s actions the app already handles. */
 :is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace{
  --se-bg:#F7F8FC;--se-card:#FFFFFF;--se-ink:#0D1834;--se-mid:#4E5D78;--se-muted:#66748F;--se-line:#DCE3EE;--se-sand:#EDF2F8;
- --se-primary:#3547A5;--se-on-primary:#FFFFFF;--se-accent:#3547A5;--se-accent-2:#5B6FD1;--se-hero:linear-gradient(135deg,#3547A5,#101F48);
+ --se-primary:#001a8c;--se-on-primary:#FFFFFF;--se-accent:#001a8c;--se-accent-2:#5B6FD1;--se-hero:linear-gradient(135deg,#001a8c,#101F48);
  --se-page:radial-gradient(120% 55% at 100% 0%,rgba(91,111,209,.17) 0%,transparent 62%),radial-gradient(90% 45% at 0% 38%,rgba(53,71,165,.09) 0%,transparent 66%),radial-gradient(110% 50% at 100% 100%,rgba(156,172,250,.16) 0%,transparent 62%),linear-gradient(180deg,#F2F4FD 0%,#F8F9FE 100%);
  --se-bar:rgba(242,244,253,.80);
  --se-green:#2F8F5B;--se-green-bg:#E3F2E9;--se-amber:#B7791F;--se-amber-bg:#FBF0DC;--se-red:#C0443A;--se-red-bg:#F8E3E1;
@@ -150,4 +150,4 @@
 @media(prefers-reduced-motion:no-preference){:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.se-stat,.sw-fab){transition:transform .15s ease}:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace :is(.se-stat,.sw-fab):active{transform:scale(.97)}}
 
 :is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-followers{display:block;margin-top:2px;font:600 13px/1.4 Tajawal,sans-serif;color:var(--ink-soft,#56648f)}
-:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-followers b{font-weight:800;color:var(--ink,#141b4d);font-variant-numeric:tabular-nums}
+:is(html[lang][dir][data-shatra-ui][data-theme],html[lang][dir]) body.seller-workspace.seller-workspace .sw-followers b{font-weight:800;color:var(--ink,#0b1533);font-variant-numeric:tabular-nums}

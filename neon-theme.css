@@ -1,0 +1,65 @@
+/* سوق الشطرة · «الأزرق النيون» (owner's circuit image, Nov 2026).
+ * White pages; the deep-to-electric blue gradient with circuit lines only on the top bars,
+ * the banner, the bargain tile and the main buttons. Loaded last on every page. Light only. */
+:root{
+ --nx-blue:#0034cc;--nx-blue-2:#0042e0;--nx-electric:#0a52e6;--nx-cyan:#00b4f5;--nx-navy:#00062a;
+ --nx-ink:#0b1533;--nx-soft:#5b6785;--nx-line:#e3e8f5;--nx-surface:#f4f7ff;
+ --nx-circuit:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 170' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%2338c8ff' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' opacity='.7'%3E%3Cpath d='M360 18H300l-14 14h-58'/%3E%3Cpath d='M360 34h-46l-12 12h-40l-10 10h-22'/%3E%3Cpath d='M360 52h-30l-16 16h-24'/%3E%3Cpath d='M330 0v10l14 14v40l12 12'/%3E%3Cpath d='M300 0v6l-10 10'/%3E%3Cpath d='M0 120h44l16-16h40'/%3E%3Cpath d='M0 136h60l14-14h54l12 12h30'/%3E%3Cpath d='M0 152h30l18 18'/%3E%3Cpath d='M20 170v-10l12-12h36'/%3E%3Cpath d='M0 104h20l10-10h22'/%3E%3C/g%3E%3Cg fill='%239ee8ff'%3E%3Ccircle cx='228' cy='32' r='3'/%3E%3Ccircle cx='230' cy='56' r='3'/%3E%3Ccircle cx='290' cy='68' r='3'/%3E%3Ccircle cx='290' cy='16' r='2.4'/%3E%3Ccircle cx='100' cy='104' r='3'/%3E%3Ccircle cx='170' cy='134' r='3'/%3E%3Ccircle cx='52' cy='94' r='2.6'/%3E%3Ccircle cx='68' cy='148' r='2.6'/%3E%3C/g%3E%3Cg fill='none' stroke='%239ee8ff' stroke-width='1.2'%3E%3Ccircle cx='356' cy='76' r='3'/%3E%3Ccircle cx='128' cy='122' r='2.6'/%3E%3C/g%3E%3Cpath d='M0 150C70 118 150 170 220 140S330 120 360 132' fill='none' stroke='%235fd6ff' stroke-width='1' opacity='.5'/%3E%3Cpath d='M0 158C80 128 150 176 225 148S330 128 360 140' fill='none' stroke='%235fd6ff' stroke-width='.8' opacity='.3'/%3E%3C/svg%3E");
+ --nx-grad:linear-gradient(125deg,#00062a 0%,#00126e 40%,#0029b8 74%,#0042e0 100%);
+ --nx-bar:var(--nx-circuit) center/cover no-repeat,radial-gradient(120% 90% at 85% 10%,rgba(0,170,240,.28),transparent 55%),var(--nx-grad);
+ --nx-btn:linear-gradient(135deg,#00137a,#0032c8 55%,#0a52e6);
+ --nx-glow:0 8px 20px -8px rgba(0,52,204,.75);
+}
+/* Light only: the night switch is gone everywhere */
+#themeToggle,[data-a="toggleTheme"],[data-s="toggleMode"],.theme-toggle{display:none!important}
+html[data-shatra-ui]{--u-strong:#0034cc;--u-deep:#00229e;--u-ice:#0042e0;--u-btn:var(--nx-btn);--sx-glow:var(--nx-glow)}
+html[data-shatra-ui] body:not(#_){background:#ffffff!important;color:var(--nx-ink)}
+
+/* Customer and driver top bar */
+html[data-shatra-ui] body .app>.top:not(#_),html[data-shatra-ui] body .app>header.top:not(#_){background:var(--nx-bar)!important;color:#fff!important;border:0!important;box-shadow:0 10px 24px -18px rgba(0,18,110,.9)!important}
+html[data-shatra-ui] body .app>.top :is(h1,.brand,.brand *,.logo,.logo *,.wordmark,.wordmark *):not(input):not(#_){color:#fff!important}
+html[data-shatra-ui] body .app>.top :is(button,a):not(.search-wrap *):not(#_){color:#fff!important;border-color:rgba(255,255,255,.25)!important;background-color:rgba(255,255,255,.12)!important}
+html[data-shatra-ui] body .app>.top svg:not(#_){stroke:currentColor}
+html[data-shatra-ui] body .app>.top img:not(#_){filter:brightness(0) invert(1) drop-shadow(0 0 10px rgba(0,180,245,.6))}
+html[data-shatra-ui] body .app>.top input:not(#_){background:#fff!important;color:var(--nx-ink)!important;border-color:transparent!important}
+
+/* Seller top bar */
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-sitebar:not(#_){background:var(--nx-bar)!important;border:0!important;border-radius:0 0 22px 22px!important;box-shadow:0 10px 24px -18px rgba(0,18,110,.9)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-sitebar .sw-icon:not(#_){background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.25)!important}
+html[data-shatra-ui][data-theme] body.seller-workspace.seller-workspace .sw-sitebar img:not(#_){filter:brightness(0) invert(1) drop-shadow(0 0 10px rgba(0,180,245,.6))}
+
+/* Admin top bar */
+html[lang][dir] body.admin-portal #adminTop:not(#_){background:var(--nx-bar)!important;border:0!important;color:#fff!important}
+html[lang][dir] body.admin-portal #adminTop :is(.admin-mark,.admin-mark *,.admin-role-chip):not(#_){color:#fff!important}
+html[lang][dir] body.admin-portal #adminTop :is(button,a.admin-hub-tab):not([aria-current]):not(#_){color:#fff!important;background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.25)!important}
+html[lang][dir] body.admin-portal #adminTop a.admin-hub-tab[aria-current]:not(#_){background:#fff!important;color:var(--nx-blue)!important}
+
+/* Bottom bars: white, the active tab blue, the centre button a glowing blue disc */
+html[data-shatra-ui] body .app>.tabs:not(#_),html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav:not(#_){background:#fff!important;border-top:1px solid var(--nx-line)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-shatra-ui] body .app>.tabs button:not(#_),html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav button:not(#_){color:var(--nx-soft)!important}
+html[data-shatra-ui] body .app>.tabs button[aria-current="page"]:not(#_),html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav button[aria-current="page"]:not(#_){color:var(--nx-blue)!important}
+html[data-shatra-ui] body .app>.tabs .cart-centre .navicon:not(#_),html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav .sw-fab:not(#_){background:radial-gradient(circle at 30% 25%,#1a5cf0,#0032c8 55%,#00106a)!important;color:#fff!important;box-shadow:0 10px 22px -8px rgba(0,52,204,.9),0 0 0 4px #fff!important}
+
+/* Main buttons: the same blue in a gradient */
+html[data-shatra-ui] body :is(.buy,.sw-primary,.cd-wide:not(.cancel-go),.figma-button,.dw-actions .buy):not(:disabled):not(#_){background:var(--nx-btn)!important;color:#fff!important;border:0!important;box-shadow:var(--nx-glow)!important}
+
+/* Banner and «لگطة» carry the circuit lines too */
+html[data-shatra-ui] body :is(.banner.figma-hero,.figma-hero):not(#_){background:var(--nx-circuit) center/cover no-repeat,var(--nx-grad)!important}
+.sq-bargain:not(#_){background:var(--nx-circuit) center/200% no-repeat,linear-gradient(130deg,#000844,#0029b8 70%,#0042e0)!important;border-color:transparent!important;color:#fff!important;box-shadow:var(--nx-glow)!important}
+.sq-bargain:not(#_) .sq-bargain-text b,.sq-bargain:not(#_) .sq-bargain-go{color:#fff!important}
+.sq-bargain:not(#_) .sq-bargain-text small{color:rgba(255,255,255,.85)}
+.sq-bargain:not(#_) .sq-bargain-star{background:rgba(255,255,255,.16)!important;box-shadow:none!important}
+
+/* The private admin door in the same identity */
+#adminGate:not(#_){background:var(--nx-bar)!important}
+/* The wordmark and the remaining night switch inside the top bars */
+[data-a="theme"]{display:none!important}
+html[data-shatra-ui] body :is(.app>.top,.sw-sitebar,#adminTop) :is(.header-brand,.header-brand-name,.header-brand-name *,.sw-brand,.sw-brand *,.admin-wordmark,.admin-wordmark *):not(#_){color:#fff!important;-webkit-text-fill-color:#fff!important;background:none!important;text-shadow:0 0 16px rgba(0,180,245,.75)!important}
+html[data-shatra-ui] body :is(.app>.top,.sw-sitebar) .header-brand:not(#_){border:0!important;box-shadow:none!important}
+html[data-shatra-ui] body #themeToggle#themeToggle:not(#_),html[data-shatra-ui] body :is([data-a="toggleTheme"],[data-a="theme"],[data-s="toggleMode"],.theme-toggle).theme-toggle:not(#_),html[data-shatra-ui] body :is([data-a="toggleTheme"],[data-a="theme"],[data-s="toggleMode"]):not(#_){display:none!important}
+
+/* Every section and page title in the Arabic display face, like «سوق المستعمل» */
+html[data-shatra-ui] body :is(.section-title h2,.sq-title,.sq-sec-head h2,.sw-card-title h2,.sw-cat-head h2,.sw-menu-title,.sw-header h1,.dw-title,.dw-trips-head h2,.used-list-head h2,.st-group>h2,.sh h2,.cd-head h2,.confirm-card h2,.sw-order-group h2,.pe-header h1,.admin-queue-head h2,.admin-section>h2,.admin-heading h1):not(#_){font-family:"Aref Ruqaa","Tajawal",serif!important;font-weight:700!important;letter-spacing:0!important}
+html[data-shatra-ui] body :is(.section-title h2,.sq-title,.sq-sec-head h2,.used-list-head h2,.dw-title,.sw-cat-head h2):not(#_){font-size:24px!important;line-height:1.35!important;color:var(--nx-ink)!important}
+html[lang][dir] body.admin-portal :is(h1,h2):not(#_){font-family:"Aref Ruqaa","Tajawal",serif!important;font-weight:700!important}
+html[data-shatra-ui] body :is(.sw-shell,.dw-shell,.profile-page,.used-page) :is(h1,h2):not(.sw-order h3):not(#_){font-family:"Aref Ruqaa","Tajawal",serif!important;font-weight:700!important}

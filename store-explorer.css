@@ -1,6 +1,6 @@
 /* Store explorer — one store in focus, neighbours peeking, products of the store in focus below.
    Brand indigo from the site; light and dark come from the page tokens. */
-.sx{--sx-accent:#3547a5;--sx-deep:#1e2d6b;--sx-card:var(--card,#fff);--sx-line:var(--line,#e3e7f1);--sx-ink:var(--ink,#1e2d6b);--sx-mut:var(--mut,#5f6e8f);--sx-tile:var(--tile,#eef1fb);--sx-card-w:86cqi;max-width:1240px;margin:0 auto;padding:0 0 28px}
+.sx{--sx-accent:#001a8c;--sx-deep:#1e2d6b;--sx-card:var(--card,#fff);--sx-line:var(--line,#e3e7f1);--sx-ink:var(--ink,#1e2d6b);--sx-mut:var(--mut,#5f6e8f);--sx-tile:var(--tile,#eef1fb);--sx-card-w:86cqi;max-width:1240px;margin:0 auto;padding:0 0 28px}
 .sx-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:10px 0 12px}
 .sx-head small{color:var(--sx-mut);font-size:13px;font-weight:700}
 html:root body .sx .sx-head h1{margin:2px 0 0;font-size:24px;line-height:1.3;color:var(--sx-ink)!important}
@@ -17,14 +17,14 @@ html:root body .sx .sx-head h1{margin:2px 0 0;font-size:24px;line-height:1.3;col
 
 .sx-card{flex:0 0 var(--sx-card-w);scroll-snap-align:center;scroll-snap-stop:always;position:relative;border-radius:26px;background:var(--sx-card);border:1px solid var(--sx-line);box-shadow:0 10px 30px #1e2d6b14;overflow:hidden;opacity:.55;transform:scale(.95);transition:opacity .28s ease,transform .28s ease;cursor:pointer}
 .sx-card.is-current{opacity:1;transform:none;cursor:default}
-.sx-cover{position:relative;aspect-ratio:16/8;overflow:hidden;background:linear-gradient(135deg,#3547a5 0%,#24357f 55%,#101f48 100%)}
+.sx-cover{position:relative;aspect-ratio:16/8;overflow:hidden;background:linear-gradient(135deg,#001a8c 0%,#24357f 55%,#101f48 100%)}
 .sx-cover img{width:100%;height:100%;object-fit:cover;display:block}
 .sx-cover .sx-cover-blur{filter:blur(18px) saturate(1.1);transform:scale(1.25);opacity:.85}
 .sx-cover-art{position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,#ffffff26 0 2px,transparent 3px) 0 0/26px 26px,radial-gradient(120% 90% at 85% 10%,#5b6fd1aa,transparent 60%)}
 .sx-info{position:relative;margin:-26px 12px 12px;padding:44px 16px 16px;border-radius:22px;background:var(--sx-card);box-shadow:0 8px 24px #1e2d6b14;text-align:center}
 .sx-logo{position:absolute;top:-38px;left:50%;transform:translateX(-50%);width:76px;height:76px;border-radius:50%;background:var(--sx-card);border:4px solid var(--sx-card);box-shadow:0 6px 18px #1e2d6b2b;overflow:hidden;display:grid;place-items:center}
 .sx-logo img{width:100%;height:100%;object-fit:cover}
-.sx-logo b{font-size:30px;color:#fff;width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#5b6fd1,#3547a5)}
+.sx-logo b{font-size:30px;color:#fff;width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#5b6fd1,#001a8c)}
 html:root body .sx .sx-info h2{margin:0;font-size:20px;line-height:1.35;color:var(--sx-ink)!important}
 .sx-verified{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--sx-accent);color:#fff;font-size:11px;font-style:normal;vertical-align:middle;margin-inline-start:4px}
 .sx-desc{margin:6px auto 0;max-width:46ch;color:var(--sx-mut);font-size:13.5px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -53,7 +53,7 @@ html:root body .sx .sx-info h2{margin:0;font-size:20px;line-height:1.35;color:va
 .sx-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;overscroll-behavior-x:contain}
 .sx-tabs::-webkit-scrollbar{display:none}
 .sx-tabs button{flex:none;min-height:42px;padding:9px 20px;border-radius:999px;border:1px solid var(--sx-line);background:var(--sx-card);color:var(--sx-mut);font-weight:700;font-size:14px;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
-.sx-tabs button[aria-selected="true"]{background:linear-gradient(135deg,#3547a5,#24357f);border-color:transparent;color:#fff;box-shadow:0 8px 18px #3547a540}
+.sx-tabs button[aria-selected="true"]{background:linear-gradient(135deg,#001a8c,#24357f);border-color:transparent;color:#fff;box-shadow:0 8px 18px #001a8c40}
 .sx-tabs button:active{transform:scale(.96)}
 .sx-products-head{display:flex;align-items:baseline;justify-content:space-between;margin:6px 0 10px}
 html:root body .sx .sx-products-head h3{margin:0;font-size:18px;color:var(--sx-ink)!important}

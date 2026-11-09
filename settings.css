@@ -1,5 +1,5 @@
 /* الإعدادات: grouped rows like a phone's own settings, in the site's indigo. Follows day and night mode. */
-:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-page{--st-card:var(--surface,var(--card,#fff));--st-soft:var(--surface-2,var(--tile,#edf2f8));--st-ink:var(--ink,#0d1834);--st-mut:var(--ink-soft,var(--mut,#4e5d78));--st-line:var(--line,#dce3ee);--st-accent:#3547a5;--st-danger:#c0283f;display:flex;flex-direction:column;gap:18px;max-width:640px;margin:0 auto;padding:8px 16px 120px;color:var(--st-ink)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-page{--st-card:var(--surface,var(--card,#fff));--st-soft:var(--surface-2,var(--tile,#edf2f8));--st-ink:var(--ink,#0d1834);--st-mut:var(--ink-soft,var(--mut,#4e5d78));--st-line:var(--line,#dce3ee);--st-accent:#001a8c;--st-danger:#c0283f;display:flex;flex-direction:column;gap:18px;max-width:640px;margin:0 auto;padding:8px 16px 120px;color:var(--st-ink)}
 :is(html[data-shatra-ui][data-theme=dark][lang],html[data-theme=dark][lang][dir]) body .st-page{--st-accent:#9cacfa;--st-danger:#ff8c9e}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-title h1{margin:4px 0 0;font-size:28px;font-weight:800;color:var(--st-ink)}
 /* Who you are */
@@ -21,7 +21,7 @@
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-text b{font-size:15px;font-weight:800;color:var(--st-ink)}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-text small{font-size:12.5px;color:var(--st-mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-chevron{flex:none;font-style:normal;font-size:22px;line-height:1;color:var(--st-mut);opacity:.7}
-:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;color:#fff;background:linear-gradient(135deg,#5b6fd1,#3547a5)}
+:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;color:#fff;background:linear-gradient(135deg,#5b6fd1,#001a8c)}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-bag,:is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-box{background:linear-gradient(135deg,#2f9e8f,#1f6f7a)}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-heart{background:linear-gradient(135deg,#e2607a,#b8324f)}
 :is(html[data-shatra-ui][data-theme][lang],html[lang][dir]) body .st-icon.st-sun{background:linear-gradient(135deg,#f0a93b,#d9792b)}

@@ -9,7 +9,7 @@
 (()=>{
  const key='souq-shatra-theme';
  const set=(mode,persist=true)=>{
-  mode=mode==='dark'?'dark':'light';document.documentElement.dataset.theme=mode;
+  mode='light';document.documentElement.dataset.theme=mode;
   if(persist)try{localStorage.setItem(key,mode)}catch{}
   const toggle=document.getElementById('themeToggle');if(toggle){const label=mode==='dark'?'تفعيل الوضع الفاتح':'تفعيل الوضع الغامق';toggle.setAttribute('aria-label',label);toggle.title=label}
   const meta=document.querySelector('meta[name="theme-color"]');
@@ -417,7 +417,7 @@ body.starting{background:#000!important}
 }catch{}})();
 </script>
 <link rel="stylesheet" href="market-refinement.css?v=137">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700;800&display=swap"><link rel="stylesheet" href="admin-indigo.css?v=10">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700;800&display=swap"><link rel="stylesheet" href="admin-indigo.css?v=10"><link rel="stylesheet" href="neon-theme.css?v=5">
 </head>
 <body>
 <div id="startupSplash" hidden class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
