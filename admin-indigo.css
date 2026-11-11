@@ -2,7 +2,7 @@
  * indigo only, a deep night ground (#0b1230, cards #141d45), laser indigo (#0034cc/#0a52e6) with a glow only on what you tap, the Aref Ruqaa wordmark, rounded cards and line icons.
  * Presentation only; every button keeps the data-a actions admin-app.js already handles. Loaded last. */
 html[lang][dir] body.admin-portal{
- --ad-bg:#ffffff;--ad-card:#FFFFFF;--ad-ink:#0b1533;--ad-mut:#5b6785;--ad-line:#e3e8f5;--ad-soft:#f1f5ff;
+ --ad-bg:#ffffff;--ad-card:#FFFFFF;--ad-ink:#050a1c;--ad-mut:#39445f;--ad-line:#e3e8f5;--ad-soft:#f1f5ff;
  --ad-primary:#0034cc;--ad-on-primary:#FFFFFF;--ad-accent-2:#0a52e6;--ad-btn:linear-gradient(135deg,#0a52e6 0%,#0034cc 55%,#00229e 100%);--ad-glow:0 8px 22px rgba(0,52,204,.35);
  --ad-hero:linear-gradient(135deg,#0a52e6 0%,#0034cc 40%,#2a2a9e 75%,#101f48 100%);
  --ad-page:radial-gradient(120% 55% at 100% 0%,rgba(10,82,230,.15) 0%,transparent 62%),radial-gradient(90% 45% at 0% 38%,rgba(0,52,204,.08) 0%,transparent 66%),radial-gradient(110% 50% at 100% 100%,rgba(91,140,255,.18) 0%,transparent 62%),linear-gradient(180deg,#f1f2ff 0%,#f7f8ff 100%);
