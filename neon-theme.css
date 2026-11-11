@@ -3,7 +3,7 @@
  * the banner, the bargain tile and the main buttons. Loaded last on every page. Light only. */
 :root{
  --nx-blue:#0034cc;--nx-blue-2:#0042e0;--nx-electric:#0a52e6;--nx-cyan:#00b4f5;--nx-navy:#00062a;
- --nx-ink:#0b1533;--nx-soft:#5b6785;--nx-line:#e3e8f5;--nx-surface:#f4f7ff;
+ --nx-ink:#050a1c;--nx-soft:#39445f;--nx-line:#e3e8f5;--nx-surface:#f4f7ff;
  --nx-circuit:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 170' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%2338c8ff' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' opacity='.7'%3E%3Cpath d='M360 18H300l-14 14h-58'/%3E%3Cpath d='M360 34h-46l-12 12h-40l-10 10h-22'/%3E%3Cpath d='M360 52h-30l-16 16h-24'/%3E%3Cpath d='M330 0v10l14 14v40l12 12'/%3E%3Cpath d='M300 0v6l-10 10'/%3E%3Cpath d='M0 120h44l16-16h40'/%3E%3Cpath d='M0 136h60l14-14h54l12 12h30'/%3E%3Cpath d='M0 152h30l18 18'/%3E%3Cpath d='M20 170v-10l12-12h36'/%3E%3Cpath d='M0 104h20l10-10h22'/%3E%3C/g%3E%3Cg fill='%239ee8ff'%3E%3Ccircle cx='228' cy='32' r='3'/%3E%3Ccircle cx='230' cy='56' r='3'/%3E%3Ccircle cx='290' cy='68' r='3'/%3E%3Ccircle cx='290' cy='16' r='2.4'/%3E%3Ccircle cx='100' cy='104' r='3'/%3E%3Ccircle cx='170' cy='134' r='3'/%3E%3Ccircle cx='52' cy='94' r='2.6'/%3E%3Ccircle cx='68' cy='148' r='2.6'/%3E%3C/g%3E%3Cg fill='none' stroke='%239ee8ff' stroke-width='1.2'%3E%3Ccircle cx='356' cy='76' r='3'/%3E%3Ccircle cx='128' cy='122' r='2.6'/%3E%3C/g%3E%3Cpath d='M0 150C70 118 150 170 220 140S330 120 360 132' fill='none' stroke='%235fd6ff' stroke-width='1' opacity='.5'/%3E%3Cpath d='M0 158C80 128 150 176 225 148S330 128 360 140' fill='none' stroke='%235fd6ff' stroke-width='.8' opacity='.3'/%3E%3C/svg%3E");
  --nx-grad:linear-gradient(125deg,#00062a 0%,#00126e 40%,#0029b8 74%,#0042e0 100%);
  --nx-bar:var(--nx-circuit) center/cover no-repeat,radial-gradient(120% 90% at 85% 10%,rgba(0,170,240,.28),transparent 55%),var(--nx-grad);
@@ -63,3 +63,16 @@ html[data-shatra-ui] body :is(.section-title h2,.sq-title,.sq-sec-head h2,.sw-ca
 html[data-shatra-ui] body :is(.section-title h2,.sq-title,.sq-sec-head h2,.used-list-head h2,.dw-title,.sw-cat-head h2):not(#_){font-size:24px!important;line-height:1.35!important;color:var(--nx-ink)!important}
 html[lang][dir] body.admin-portal :is(h1,h2):not(#_){font-family:"Aref Ruqaa","Tajawal",serif!important;font-weight:700!important}
 html[data-shatra-ui] body :is(.sw-shell,.dw-shell,.profile-page,.used-page) :is(h1,h2):not(.sw-order h3):not(#_){font-family:"Aref Ruqaa","Tajawal",serif!important;font-weight:700!important}
+
+/* Clearer text on white: body copy near-black, secondary text a dark slate (not pale grey) */
+html[data-shatra-ui]:not(#_){--ink:#050a1c;--ink-soft:#39445f;--mut:#39445f;--u-ink:#050a1c;--u-soft:#39445f;--mono-quiet:#55617d;--ui-quiet:#343f59}
+html[data-shatra-ui] body :is(p,small,label,li,span,b,h1,h2,h3,h4,input,textarea,select):not(#_){-webkit-font-smoothing:auto}
+html[data-shatra-ui] body :is(.app,.sheet,#sheet) :is(small,.note,.sw-muted,.mp-deal-note,.sq-hint,.sq-head p,.section-title p):not(.app>.top *):not(.hb-copy *):not(.sq-bargain *):not(#_){color:#39445f!important;opacity:1!important}
+html[data-shatra-ui] body ::placeholder{color:#55617d!important;opacity:1!important}
+/* Darker and slightly heavier copy so it reads clearly on white */
+html[data-shatra-ui]:not(#_){--ink:#020617;--ink-soft:#1e2a45;--mut:#1e2a45;--u-ink:#020617;--u-soft:#1e2a45;--nx-ink:#020617;--nx-soft:#1e2a45}
+html[data-shatra-ui] body:not(#_){color:#020617;font-weight:500}
+html[data-shatra-ui] body :is(.app,.sheet,#sheet) :is(p,small,li,label,.empty,.sq-empty,.note,.sw-muted,.mp-deal-note,.sq-hint,.sq-head p,.section-title p,.dw-empty,.admin-empty):not(.app>.top *):not(.hb-copy *):not(.sq-bargain *):not(.figma-hero *):not(.banner *):not(.buy):not(.sw-primary):not(#_){color:#1e2a45!important;opacity:1!important;font-weight:500}
+html[data-shatra-ui] body .app>.tabs button:not([aria-current="page"]):not(#_),html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav button:not([aria-current="page"]):not(.sw-fab):not(#_){color:#1e2a45!important}
+html[data-shatra-ui] body ::placeholder{color:#3b4763!important}
+html[lang][dir] body.admin-portal :is(p,small,label,dt,dd,li):not(#adminTop *):not(#_){color:#1e2a45;opacity:1}

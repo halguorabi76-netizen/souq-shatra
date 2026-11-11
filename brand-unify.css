@@ -9,7 +9,7 @@
  --u-btn:linear-gradient(135deg,#0a52e6 0%,#0034cc 55%,#001a8c 100%);
 }
 html[data-theme=light]{
- --u-ink:#0b1533;--u-soft:#5b6785;--u-tint:#f1f5ff;--u-tint-2:#e3ebff;--u-line:#cfdaf5;
+ --u-ink:#050a1c;--u-soft:#39445f;--u-tint:#f1f5ff;--u-tint-2:#e3ebff;--u-line:#cfdaf5;
  --u-strong:#0034cc;--u-deep:#00229e;--u-blue:#2563eb;--u-violet:#6d5df6;--u-ice:#0034cc;
  --u-btn:linear-gradient(135deg,#0a52e6 0%,#0034cc 55%,#00229e 100%);
 }
@@ -150,7 +150,7 @@ html[data-shatra-ui] body.driver-mode .desktop-search-row:not(#_),html[data-shat
 .sq-chips::-webkit-scrollbar,.sq-row::-webkit-scrollbar,.sq-stores::-webkit-scrollbar,.sq-secs::-webkit-scrollbar{display:none}
 .sq-chips button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--u-line);background:var(--u-tint);color:var(--u-ink);font:800 13.5px Tajawal,system-ui,sans-serif;cursor:pointer}
 .sq-chips button[aria-pressed="true"]{background:var(--u-btn);color:#fff;border-color:transparent;box-shadow:0 0 18px rgba(10,82,230,.45)}
-.sq-subs button[aria-pressed="true"]{background:#e3ebff;color:#0b1533;box-shadow:none}
+.sq-subs button[aria-pressed="true"]{background:#e3ebff;color:#050a1c;box-shadow:none}
 .sq-row{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:4px 0 10px;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
 .sq-row>.used-card,.sq-row .sq-cards>.used-card{flex:0 0 clamp(150px,40vw,200px)!important;width:auto!important;scroll-snap-align:start}
 html[data-shatra-ui] body .sq-row :is(.figma-product-grid,.sq-cards):not(#_){display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:12px!important;padding:0!important;margin:0!important}

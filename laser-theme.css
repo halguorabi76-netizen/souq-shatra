@@ -4,14 +4,14 @@
  * seller, driver and admin workspaces keep their own palettes. */
 
 html[data-shatra-ui][data-theme=light]:not([data-portal]):not(#_){
- --ink:#0b1533;--ink-soft:#5b6785;--mut:#5b6785;--navy:#101f48;
+ --ink:#050a1c;--ink-soft:#39445f;--mut:#39445f;--navy:#101f48;
  --paper:#ffffff;--bg:#ffffff;--scene-bg:#ffffff;--surface:#ffffff;--card:#ffffff;--surface-2:#f1f5ff;--tile:#f1f5ff;
- --line:#e3e8f5;--mono-soft:#f1f5ff;--mono-quiet:#7a87a8;--mono-btn:#0034cc;--accent:#0034cc;--icon-ink:#0034cc;--indigo:#0034cc;
+ --line:#e3e8f5;--mono-soft:#f1f5ff;--mono-quiet:#55617d;--mono-btn:#0034cc;--accent:#0034cc;--icon-ink:#0034cc;--indigo:#0034cc;
  --warm-2:#0034cc;--warm-btn:linear-gradient(135deg,#0a52e6 0%,#0034cc 55%,#00229e 100%);
  --warm-tile:linear-gradient(160deg,#f4f7ff 0%,#e3ebff 100%);
  --sand:#0034cc;--ok:#17745d;--danger:#c62828;
  --laser:#0034cc;--laser-2:#0a52e6;--glow:0 8px 22px rgba(0,52,204,.35);--glow-soft:0 0 0 1px rgba(0,52,204,.18);
- --ui-quiet:#4b5778;
+ --ui-quiet:#343f59;
 }
 html[data-shatra-ui][data-theme=dark]:not([data-portal]):not(#_){
  --ink:#f3f5ff;--ink-soft:#aeb6d8;--mut:#aeb6d8;--navy:#0b1230;
