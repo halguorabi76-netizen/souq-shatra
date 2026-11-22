@@ -147,3 +147,134 @@ const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
  return client;
 }
 
+
+// Visual treatment for the isolated marketplace preview. See the existing actions for routing.
+function mountAzurePreview() {
+ const nav=document.querySelector('.app > .tabs'), view=document.getElementById('view');
+ if(!nav||!view)return;
+ const headerActions=document.querySelector('.figma-header-actions');
+ if(headerActions){
+  const favorite=document.createElement('button');
+  favorite.type='button';favorite.className='header-icon azure-favorites';
+  favorite.dataset.a='favorites';favorite.setAttribute('aria-label','المفضلة');
+  favorite.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg>';
+  headerActions.querySelector('.header-cart')?.before(favorite);
+ }
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ const path=document.createElementNS(svg.namespaceURI,'path');
+ const disc=document.createElementNS(svg.namespaceURI,'circle');
+ svg.classList.add('azure-nav-shape'); svg.setAttribute('aria-hidden','true');
+ disc.setAttribute('cy','23');disc.setAttribute('r','20');svg.append(path,disc);
+ let center=null, frame=0;
+ function paint(x,width,height,depth=1) {
+  const y=20, a=Math.min(35,width/10), b=23, d=(Number(disc.getAttribute('cy'))+24-y)*depth;
+  svg.setAttribute('viewBox',`0 0 ${width} ${height+18}`);
+  path.setAttribute('d',`M0 ${y} H${x-a} C${x-b} ${y} ${x-b} ${y+d} ${x} ${y+d} S${x+b} ${y} ${x+a} ${y} H${width} V${height+18} H0 Z`);
+  disc.setAttribute('cx',x);
+  center=x;
+ }
+ function align() {
+  const bounds=nav.getBoundingClientRect(), button=nav.querySelector('[aria-current=page]');
+  const icon=button?.querySelector('.navicon')?.getBoundingClientRect();
+  cancelAnimationFrame(frame);
+  if(!nav.classList.contains('azure-nav')||!bounds.width)return;
+  if(svg.parentElement!==nav)nav.prepend(svg);
+  if(!icon){svg.hidden=true;return;}
+  svg.hidden=false;
+  const next=icon.left+icon.width/2-bounds.left;
+  disc.setAttribute('cy',icon.top+icon.height/2-bounds.top+18);
+  const previous=center??next, start=performance.now();
+  const moving=previous!==next&&!reduce.matches;
+  if(!moving){paint(next,bounds.width,bounds.height);return;}
+  function tick(now) {
+   const t=Math.min(1,(now-start)/365), ease=1-Math.pow(1-t,3);
+   paint(previous+(next-previous)*ease,bounds.width,bounds.height,1-.13*Math.sin(Math.PI*t));
+   if(t<1)frame=requestAnimationFrame(tick);
+  }
+  frame=requestAnimationFrame(tick);
+ }
+ function decorateNavigation() {
+  const offer=nav.querySelector('.offers-tab');
+  nav.classList.toggle('azure-nav',!!offer);
+  if(!offer)return;
+  if(offer.dataset.a!=='offers'){
+   offer.classList.remove('cart-centre','media-placeholder');
+   offer.dataset.a='offers';offer.setAttribute('aria-label','العروض');
+   const icon=offer.querySelector('.navicon');
+   icon.textContent='٪';
+   offer.replaceChildren(icon,document.createTextNode('العروض'));
+   nav.append(nav.querySelector('[data-v="market"]'),nav.querySelector('[data-v="materials"]'),nav.querySelector('[data-v="stores"]'),offer,nav.querySelector('[data-v="profilePage"]'));
+  }
+  const offersPage=!!view.querySelector('.offers-page');
+  if(offersPage)offer.setAttribute('aria-current','page');else offer.removeAttribute('aria-current');
+  align();
+ }
+ const categoryTone=[['أجهزة','tech'],['إلكترونيات','tech'],['هواتف','tech'],['ملابس','fashion'],['سيارات','gold'],['منزل','mint'],['خضار','mint'],['عطور','rose'],['تجميل','rose'],['أثاث','violet'],['رياضة','sport'],['تمور','gold']];
+ const tone=name=>categoryTone.find(([key])=>name.includes(key))?.[1]||'violet';
+ function decorateView() {
+  const isHome=!!view.querySelector('.figma-section')&&!!view.querySelector('.sq-used');
+  view.classList.toggle('azure-home',isHome);
+  for(const button of view.querySelectorAll('.category-card[data-v]'))button.dataset.azureTone=tone(button.dataset.v);
+  const title=view.querySelector('.market-materials .section-title h1');
+  view.dataset.azureTone=title?tone(title.textContent):'';
+  if(isHome) {
+   view.querySelector('.sq-used .sq-hint')?.setAttribute('hidden','');
+   const intro=view.querySelector('.sq-used .sq-head p');
+   if(intro)intro.textContent='منتجات مستعملة من أهالي الشطرة';
+   const empty=view.querySelector('.sq-used .sq-empty');
+   if(empty)empty.textContent='لا توجد إعلانات مستعملة حالياً.';
+   const stores=view.querySelector(':scope > .market-stores');
+   const shortcuts=view.querySelector(':scope > .mp-switcher');
+   if(stores&&shortcuts)stores.after(shortcuts);
+   const heading=view.querySelector('.market-materials h2.sq-title');
+   if(heading)heading.textContent='منتجات جديدة';
+   for(const btn of view.querySelectorAll('.sq-more,.section-title button[data-a]'))btn.textContent='عرض الكل';
+  }
+  if(title&&!title.textContent.startsWith('نتائج البحث')&&view.querySelector('.category-card[data-v]')) {
+   const empty=view.querySelector('.market-materials .empty');
+   if(empty?.textContent.trim()){
+    empty.textContent='لا توجد منتجات في هذه الفئة حالياً';
+    const detail=document.createElement('p');
+    detail.textContent='ستظهر المنتجات هنا فور إضافتها. يمكنك استكشاف الفئات الأخرى.';
+    empty.append(detail);
+   }
+  }
+  view.querySelectorAll('.category-card,.figma-product-card,.sq-store,.used-card,.sp-card').forEach((element,index)=>{
+   element.style.setProperty('--az-delay',Math.min(index,9)*40+'ms');
+   if(element.classList.contains('sq-store')&&!element.dataset.azureCard)element.dataset.azureCard=String(index%3);
+  });
+ }
+ let pending=false;
+ const update=()=>{
+  if(pending)return;
+  pending=true;queueMicrotask(()=>{
+   pending=false;
+   navObserver.disconnect();viewObserver.disconnect();
+   decorateView();decorateNavigation();
+   navObserver.observe(nav,{childList:true});viewObserver.observe(view,{childList:true});
+  });
+ };
+ const navObserver=new MutationObserver(update),viewObserver=new MutationObserver(update);
+ new ResizeObserver(align).observe(nav);
+ update();
+ let pauseUntil=0, last=0;
+ for(const type of ['pointerdown','wheel','focusin'])view.addEventListener(type,event=>{
+  if(event.target.closest('.sq-stores'))pauseUntil=performance.now()+4000;
+ },{passive:true});
+ function advance(now) {
+  const row=view.querySelector('.azure-home .sq-stores');
+  if(row&&!reduce.matches&&!document.hidden&&now>pauseUntil&&!row.matches(':hover,:focus-within')&&row.scrollWidth>row.clientWidth+2) {
+   const first=row.firstElementChild, step=first?.getBoundingClientRect().width+(parseFloat(getComputedStyle(row).columnGap)||0);
+   if(last&&now-last<100&&step) {
+    row._azureOffset=(row._azureOffset??Math.abs(row.scrollLeft))+(now-last)*.024;
+    if(row._azureOffset>=step) { row.append(first);row._azureOffset-=step; }
+    row.scrollLeft=-row._azureOffset;
+   }
+  }else if(row)row._azureOffset=null;
+  last=now;
+  requestAnimationFrame(advance);
+ }
+ requestAnimationFrame(advance);
+}
+if(typeof document!=='undefined')mountAzurePreview();

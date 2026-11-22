@@ -95,3 +95,115 @@ html[data-shatra-ui][data-theme][lang][dir] body .sq-bargain:not(#_) {
  background-color:var(--ta-offers)!important;background-image:none!important;color:var(--ta-ink)!important;
 }
 html[data-shatra-ui][data-theme][lang][dir] body .sq-bargain:not(#_) :is(.sq-bargain-text b,.sq-bargain-text small,.sq-bargain-go) {color:var(--ta-ink)!important}
+
+/* Marketplace identity and motion, scoped to the existing preview. */
+html[data-shatra-ui][data-theme][lang][dir] {
+ --az-used:#F0D9C0;--az-new:#DCEBFF;--az-stores:#E9DEFF;--az-picks:#FFE1E7;
+ --az-heading:#182536;
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab {background:#fff!important}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab :is(#view h1,#view h2,.sq-title) {
+ font-family:"Tajawal",system-ui,sans-serif!important;font-weight:800!important;color:var(--az-heading);
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab .figma-hero-copy h1 {color:inherit!important}
+html[data-shatra-ui][data-theme][lang][dir] .azure-home :is(.section-title h2,.sq-title) {width:fit-content}
+.azure-home :is(.section-title h2,.sq-title)::after {
+ content:"";display:block;height:5px;margin-top:5px;border-radius:100px;
+ background:linear-gradient(90deg,#0878e8,#00d8f5,#2563eb,#4f46e5,#0878e8,#00d8f5,#2563eb,#4f46e5,#0878e8);
+ background-size:200% 100%;animation:azure-gradient 5s linear infinite;
+}
+@keyframes azure-gradient {to{background-position:-200% 0}}
+html[data-shatra-ui][data-theme][lang][dir] .azure-home :is(.sq-more,.section-title button) {color:#0878e8!important}
+html[data-shatra-ui][data-theme][lang][dir] .azure-home :is(.sq-used,.market-materials,.market-stores) {
+ border:1px solid var(--az-section);border-radius:22px;background:color-mix(in srgb,var(--az-section) 43%,white)!important;padding:clamp(12px,2vw,22px);
+}
+.azure-home .sq-used,.used-page {--az-section:var(--az-used)}
+.azure-home .market-materials {--az-section:var(--az-new)}
+.azure-home .market-stores {--az-section:var(--az-stores)}
+html[data-shatra-ui][data-theme][lang][dir] body .used-page .used-hero {background:color-mix(in srgb,var(--az-used) 85%,white)!important;color:#1B3555!important}
+html[data-shatra-ui][data-theme][lang][dir] body :is(.azure-home .sq-used,.used-page) .used-card {background:#fff!important;border-color:var(--az-used)!important}
+html[data-shatra-ui][data-theme][lang][dir] .azure-home .market-materials .figma-product-card {background:#fff!important;border-color:var(--az-new)!important}
+[data-azure-tone="tech"] {--az-ring-a:#00C9FF;--az-ring-b:#2563EB;--az-category-surface:#EAF5FF}
+[data-azure-tone="fashion"] {--az-ring-a:#FFB157;--az-ring-b:#D66028;--az-category-surface:#FFE9D7}
+[data-azure-tone="gold"] {--az-ring-a:#FFE064;--az-ring-b:#C88512;--az-category-surface:#FFF4C8}
+[data-azure-tone="mint"] {--az-ring-a:#6CE9C1;--az-ring-b:#0E9274;--az-category-surface:#D5F5E8}
+[data-azure-tone="rose"] {--az-ring-a:#FFA1BC;--az-ring-b:#BD3C79;--az-category-surface:#FFE1E7}
+[data-azure-tone="violet"] {--az-ring-a:#BB93FF;--az-ring-b:#6744CD;--az-category-surface:#E9DEFF}
+[data-azure-tone="sport"] {--az-ring-a:#C2F357;--az-ring-b:#4F992E;--az-category-surface:#EDF9D6}
+html[data-shatra-ui][data-theme][lang][dir] body .azure-home .category-cards {
+ display:flex!important;overflow-x:auto!important;gap:16px!important;padding:6px 4px 12px!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body .azure-home .category-card {
+ flex:0 0 82px!important;min-width:82px!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body .azure-home .category-card>span {
+ width:66px!important;height:66px!important;border-radius:50%!important;border:3px solid transparent!important;
+ background:linear-gradient(white,white) padding-box,linear-gradient(135deg,var(--az-ring-a,#00D8F5),var(--az-ring-b,#0878E8)) border-box!important;
+ box-shadow:0 3px 11px color-mix(in srgb,var(--az-ring-a,#00D8F5) 34%,transparent)!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body .category-card:active,
+html[data-shatra-ui][data-theme][lang][dir] body .sq-store:active {scale:.97}
+#view:not(.azure-home)[data-azure-tone]:not([data-azure-tone=""]) .market-materials .section-title {
+ background:color-mix(in srgb,var(--az-category-surface) 73%,white);border-radius:14px;padding:12px;
+}
+html[data-shatra-ui][data-theme][lang][dir] body .azure-home .sq-stores {
+ display:flex!important;gap:12px;overflow-x:auto;scroll-snap-type:none;overscroll-behavior-inline:contain;
+}
+.azure-home .sq-store {
+ --az-store-card:#F0E7FF;--az-store-text:#563898;position:relative;isolation:isolate;overflow:hidden;
+ display:grid;justify-items:center;align-content:center;gap:8px;flex:0 0 145px;min-height:130px;
+ padding:12px;border-radius:16px;border:1px solid #fff;background:var(--az-store-card)!important;color:var(--az-store-text)!important;
+}
+.azure-home .sq-store[data-azure-card="1"]{--az-store-card:#DDF5EE;--az-store-text:#245F51}
+.azure-home .sq-store[data-azure-card="2"]{--az-store-card:#FFE5DB;--az-store-text:#873E32}
+.azure-home .sq-store b{color:var(--az-store-text)!important;z-index:1}
+.azure-home .sq-store::before {content:"";position:absolute;top:-35px;inset-inline-start:-25px;width:115px;height:100px;border-radius:35px;background:#fff7;transform:rotate(-26deg);z-index:-1}
+.azure-home .sq-store::after {content:"";pointer-events:none;position:absolute;inset:-45%;background:linear-gradient(135deg,transparent 43%,#ffffff55 50%,transparent 57%);transform:translate(-70%,-65%);animation:azure-shine 8s ease-in-out infinite;animation-delay:calc(var(--az-delay,0ms)*9)}
+@keyframes azure-shine {16%,100%{transform:translate(70%,65%)}}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav:not([hidden]) {
+ direction:rtl!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;overflow:visible!important;
+ background:transparent!important;border-color:transparent!important;box-shadow:none!important;isolation:isolate;
+}
+.azure-nav-shape {width:100%;height:calc(100% + 18px);position:absolute;top:-18px;left:0;overflow:visible;pointer-events:none;z-index:-1;filter:drop-shadow(0 -2px 8px #1B35551A)}
+.azure-nav-shape[hidden]{display:none}
+.azure-nav-shape path {fill:white}
+.azure-nav-shape circle {fill:#0878E8}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav>button {
+ position:relative;width:100%!important;min-height:52px!important;height:52px!important;margin:0!important;
+ background:transparent!important;box-shadow:none!important;border:0!important;transform:none!important;
+ justify-self:stretch;grid-row:1;overflow:visible!important;color:#1B3555!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav>button[aria-current=page] {color:#0878E8!important}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav>button[aria-current=page] .navicon {color:white!important}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav>button .navicon {margin-bottom:3px!important}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav:has(.azure-nav-shape[hidden]) {background:white!important}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.top :is(.desktop-search-row,.searchline) input {background:#EAF5FF!important}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.top input:focus-visible {outline:2px solid #0878E8!important;outline-offset:1px}
+html[data-shatra-ui][data-theme][lang][dir] body #buyerFloating {background:#EAF5FF!important;color:#1B3555!important}
+#view :is(.category-card,.figma-product-card,.sq-store,.used-card,.sp-card) {animation:azure-enter .27s ease-out both;animation-delay:var(--az-delay,0ms)}
+#view:not(.azure-home) :is(.section-title,.sp-head) {animation:azure-enter .25s ease-out both}
+@keyframes azure-enter {from{opacity:0;translate:0 7px}to{opacity:1;translate:0 0}}
+html[data-shatra-ui][data-theme][lang][dir] body :is(.hb-wrap,.banner-wrap) {border-radius:22px;overflow:hidden}
+.hb-slide:nth-child(3n+1){background-color:#E9DEFF}
+.hb-slide:nth-child(3n+2){background-color:#D5F5E8}
+.hb-slide:nth-child(3n){background-color:#FFE5D1}
+.figma-product-hero>img {animation:azure-product-in .65s ease-out both,azure-float 5s .65s ease-in-out infinite}
+@keyframes azure-product-in {0%{scale:.24;opacity:0}72%{scale:1.035;opacity:1}100%{scale:1}}
+@keyframes azure-float {50%{translate:0 -4px}}
+@media(prefers-reduced-motion:reduce) {
+ .azure-home :is(.section-title h2,.sq-title)::after,.azure-home .sq-store::after,#view :is(.category-card,.figma-product-card,.sq-store,.used-card,.sp-card,.section-title,.sp-head),.figma-product-hero>img {animation:none!important}
+}
+html[data-shatra-ui][data-theme][lang][dir] body .app>.top :is(.header-cart,.azure-favorites) {background:#EAF5FF!important;border-radius:50%!important}
+.azure-favorites{display:none}
+html[data-shatra-ui] .app:has(.azure-nav:not([hidden])) .azure-favorites {
+ display:grid;place-items:center;flex:none;width:34px;height:34px;padding:6px;
+}
+.azure-favorites svg {width:22px;height:22px}
+.azure-home .sq-hint[hidden] {display:none!important}
+.hb-dots i.on {overflow:hidden}
+.hb-dots i.on::after {
+ content:"";display:block;width:100%;height:100%;background:#00D8F5;
+ transform-origin:right;animation:azure-banner-progress 5s linear both;
+}
+@keyframes azure-banner-progress {from{scale:0 1}to{scale:1 1}}
+@media(prefers-reduced-motion:reduce){.hb-dots i.on::after{animation:none}}
