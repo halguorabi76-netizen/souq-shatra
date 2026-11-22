@@ -16,3 +16,38 @@ html[data-embedded-preview] .preview-home .top{display:none!important}
  .preview-lab #previewToolbar nav button,.preview-lab #previewToolbar nav a{flex:none!important;padding:0 12px!important;min-height:34px;line-height:32px;font-size:12px!important;border-radius:10px!important;border-color:#2a3570!important;white-space:nowrap}
  .preview-lab #previewToolbar button[aria-pressed=true]{background:linear-gradient(135deg,#6c63ff,#4f46e5)!important;color:#fff!important;border-color:transparent!important}
 }
+
+/* TECH AZURE: isolated to the existing preview. */
+html[data-shatra-ui][data-theme]:not(#_) {
+ --preview-accent:#0878E8;--nx-blue:#0878E8;--nx-blue-2:#2563EB;
+ --nx-electric:#2563EB;--nx-cyan:#00D8F5;--nx-navy:#1B3555;
+ --nx-ink:#1B3555;--nx-soft:#425E7D;--nx-line:#D9E7F6;--nx-surface:#F3F9FF;
+ --nx-grad:linear-gradient(125deg,#1B3555,#0878E8 58%,#4F46E5);
+ --nx-btn:linear-gradient(135deg,#2563EB,#0878E8 66%,#4F46E5);
+ --nx-glow:0 8px 20px -8px #0878E8BF;
+ --bg:#FFFFFF;--card:#FFFFFF;--ink:#1B3555;--ink-soft:#425E7D;--mut:#425E7D;
+ --line:#D9E7F6;--tile:#F3F9FF;--u-strong:#0878E8;--u-deep:#2563EB;
+ --u-ice:#00D8F5;--u-ink:#1B3555;--u-soft:#425E7D;--scene-bg:#FFFFFF;
+ --scene-gradient:var(--nx-grad);
+}
+html[data-shatra-ui][data-theme] body:not(#_) {color:#1B3555}
+html[data-shatra-ui][data-theme] body .app>.tabs .cart-centre .navicon:not(#_),
+html[data-shatra-ui][data-theme] body.seller-workspace #sellerNav .sw-fab:not(#_) {
+ background:radial-gradient(circle at 30% 25%,#00D8F5,#0878E8 55%,#4F46E5)!important;
+}
+html[data-shatra-ui][data-theme] body :focus-visible {outline-color:#0878E8}
+html[data-shatra-ui][data-theme] .preview-lab #previewToolbar {
+ background:#FFFFFF!important;color:#1B3555;border-color:#D9E7F6!important;
+}
+html[data-shatra-ui][data-theme] .preview-lab #previewToolbar nav :is(button,a) {
+ background:#F3F9FF!important;color:#1B3555!important;border-color:#D9E7F6!important;
+}
+html[data-shatra-ui][data-theme] .preview-lab #previewToolbar nav button[aria-pressed=true] {
+ background:var(--nx-btn)!important;color:#FFFFFF!important;
+}
+html[data-shatra-ui] body.starting:not(#_),html[data-shatra-ui] body #startupSplash:not(#_) {
+ background:#FFFFFF!important;
+}
+html[data-shatra-ui] body #startupSplash .ss-city {fill:#0878E8}
+html[data-shatra-ui] body #startupSplash .ss-name {color:#1B3555}
+html[data-shatra-ui] body #startupSplash :is(.ss-pin path,.ss-shadow) {fill:#1B3555}
