@@ -160,6 +160,35 @@ function mountAzurePreview() {
   favorite.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg>';
   headerActions.querySelector('.header-cart')?.before(favorite);
  }
+ const search=document.getElementById('buyerSearch'), query=document.getElementById('q');
+ if(search&&query) {
+  const app=nav.parentElement, back=document.createElement('button');
+  back.type='button';back.className='azure-search-back';back.hidden=true;
+  back.setAttribute('aria-label','العودة من البحث');
+  back.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 6 6 6-6 6M4 12h12"/></svg>';
+  search.prepend(back);
+  const filter=search.querySelector('.market-filter-trigger svg');
+  if(filter)filter.innerHTML='<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 5h18l-7 8v5l-4 2v-7z"/>';
+  function openSearch(){
+   if(!nav.classList.contains('azure-nav')||app.classList.contains('azure-search-mode'))return;
+   app.classList.add('azure-search-mode');back.hidden=false;
+   window.scrollTo({top:0,behavior:'instant'});
+  }
+  function closeSearch(){
+   if(!app.classList.contains('azure-search-mode'))return;
+   app.classList.remove('azure-search-mode');back.hidden=true;
+   const hadQuery=!!query.value;
+   query.value='';query.blur();
+   if(hadQuery)query.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  query.addEventListener('focus',openSearch);
+  query.addEventListener('click',openSearch);
+  back.addEventListener('click',closeSearch);
+  search.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeSearch();}});
+  nav.addEventListener('click',event=>{if(event.target.closest('button')&&app.classList.contains('azure-search-mode')){
+   app.classList.remove('azure-search-mode');back.hidden=true;
+  }});
+ }
  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
  const path=document.createElementNS(svg.namespaceURI,'path');
