@@ -267,3 +267,19 @@ html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:ha
  html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch {transition:none}
 }
 #previewToolbar[hidden] {display:none!important}
+
+/* The buyer header scrolls with the storefront. Search keeps the same form and results. */
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top {
+ position:relative!important;top:auto!important;
+}
+body.preview-lab .app.azure-search-mode>.top .topline {display:none!important}
+body.preview-lab .app.azure-search-mode>.top .desktop-search-row {padding-block:10px!important}
+body.preview-lab .app.azure-search-mode .azure-home>:not(.market-materials,.market-stores) {display:none!important}
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app.azure-search-mode #buyerSearch {
+ grid-template-columns:44px 38px minmax(0,1fr) 44px;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app.azure-search-mode #buyerSearch>.azure-search-back {grid-column:1}
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app.azure-search-mode #buyerSearch>button[type=submit] {grid-column:2}
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app.azure-search-mode #buyerSearch>#q {grid-column:3}
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app.azure-search-mode #buyerSearch>.market-filter-trigger {grid-column:4}
+html[data-shatra-ui] body.preview-lab #buyerSearch>.azure-search-back[hidden] {display:none!important}
