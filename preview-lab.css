@@ -526,3 +526,56 @@ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view :is(.azure-ca
   flex-basis:calc((100% - 12px)/2)!important;
  }
 }
+
+/* A compact type scale for the customer, seller, driver and admin previews. */
+html[lang][dir][data-embedded-preview] body.preview-lab {
+ font-size:13px;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(
+ h1,h2,h3,h4,h5,h6,[role="heading"],.sq-title,.sw-menu-title,.dw-title
+):not(:is(.header-brand-name,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo)):not(
+ :is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo) *
+):not(#_) {
+ font-family:Tajawal,"IBM Plex Sans Arabic",Tahoma,sans-serif!important;
+ font-weight:700!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(h1,.dw-title):not(:is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo) *):not(#_) {
+ font-size:clamp(18px,4.4vw,22px)!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(h2,.sq-title,.sw-menu-title):not(:is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo) *):not(#_) {
+ font-size:clamp(15px,3.9vw,18px)!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(h3,h4,h5,h6):not(:is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo) *):not(#_) {
+ font-size:14px!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(
+ p,label,td,th,dt,dd,.chip,.note,.empty,.mp-price,.figma-product-name,.used-name
+):not(:is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo) *):not(#_) {
+ font-size:13px!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(
+ small,.tab-label,.navlabel,.mp-discount,.mp-price del,.mp-price s
+):not(:is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo) *):not(#_) {
+ font-size:11px!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(button,a):not(
+ :is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo),
+ :is(.header-brand,.admin-mark,.admin-brand,.sw-sitebrand,.sq-logo,.welcome-logo) *,
+ .figma-product-media,.boutique-favorite,.figma-add,.chip
+):not(#_) {
+ font-size:13px!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab :is(input:not([type="checkbox"],[type="radio"]),select,textarea):not(#_) {
+ font-size:14px!important;
+}
+@supports (-webkit-touch-callout:none) {
+ html[lang][dir][data-embedded-preview] body.preview-lab :is(input:not([type="checkbox"],[type="radio"]),select,textarea):not(#_) {
+  font-size:16px!important;
+ }
+}
+html[lang][dir][data-embedded-preview] body.preview-lab .app>.tabs button:not(#_) {
+ font-size:11px!important;
+}
+html[lang][dir][data-embedded-preview] body.preview-lab .azure-cart-orders .chips>.chip:not(#_) {
+ font-size:clamp(10px,2.8vw,12px)!important;
+}
