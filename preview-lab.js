@@ -162,32 +162,42 @@ function mountAzurePreview() {
  }
  const search=document.getElementById('buyerSearch'), query=document.getElementById('q');
  if(search&&query) {
-  const app=nav.parentElement, back=document.createElement('button');
-  back.type='button';back.className='azure-search-back';back.hidden=true;
+  const app=nav.parentElement, bar=document.createElement('div'), back=document.createElement('button');
+  bar.className='azure-search-actions';bar.hidden=true;
+  back.type='button';back.className='azure-search-back';
   back.setAttribute('aria-label','العودة من البحث');
-  back.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 6 6 6-6 6M4 12h12"/></svg>';
-  search.prepend(back);
-  const filter=search.querySelector('.market-filter-trigger svg');
-  if(filter)filter.innerHTML='<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 5h18l-7 8v5l-4 2v-7z"/>';
+  back.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6M8 12h12"/></svg>';
+  bar.append(back);
+  search.parentElement.before(bar);
+  function syncQuery(){
+   app.classList.toggle('azure-search-blank',!query.value.trim());
+  }
+  function setSearchMode(open){
+   app.classList.toggle('azure-search-mode',open);
+   bar.hidden=!open;
+   if(open) syncQuery();
+   else query.blur();
+  }
   function openSearch(){
    if(!nav.classList.contains('azure-nav')||app.classList.contains('azure-search-mode'))return;
-   app.classList.add('azure-search-mode');back.hidden=false;
+   history.pushState({...history.state,azureSearch:true},'');
+   setSearchMode(true);
    window.scrollTo({top:0,behavior:'instant'});
   }
   function closeSearch(){
    if(!app.classList.contains('azure-search-mode'))return;
-   app.classList.remove('azure-search-mode');back.hidden=true;
-   const hadQuery=!!query.value;
-   query.value='';query.blur();
-   if(hadQuery)query.dispatchEvent(new Event('input',{bubbles:true}));
+   if(history.state?.azureSearch)history.back();
+   else setSearchMode(false);
   }
   query.addEventListener('focus',openSearch);
   query.addEventListener('click',openSearch);
+  query.addEventListener('input',syncQuery);
   back.addEventListener('click',closeSearch);
+  window.addEventListener('popstate',event=>setSearchMode(!!event.state?.azureSearch));
   search.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeSearch();}});
-  nav.addEventListener('click',event=>{if(event.target.closest('button')&&app.classList.contains('azure-search-mode')){
-   app.classList.remove('azure-search-mode');back.hidden=true;
-  }});
+  nav.addEventListener('click',event=>{
+   if(event.target.closest('button')&&app.classList.contains('azure-search-mode'))setSearchMode(false);
+  });
  }
  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
