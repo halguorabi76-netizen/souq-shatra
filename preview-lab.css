@@ -425,3 +425,104 @@ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab.buyer-cart-mode .ap
  background:#fff!important;
 }
 body.preview-lab.buyer-cart-mode .tabs.azure-nav:not(:has([aria-current=page])) .azure-nav-shape {display:none}
+
+/* Compact order tracking and consistent product cards in the buyer preview. */
+body.preview-lab #view .azure-cart-orders {
+ width:min(calc(100% - 24px),620px);
+ margin-inline:auto;
+ padding:8px 0 20px;
+ color:#1B3555;
+}
+html[data-shatra-ui] body.preview-lab #view .azure-cart-orders .buyer-cart-heading {
+ margin:0 0 8px!important;
+}
+body.preview-lab #view .azure-cart-orders :is(.buyer-cart-heading h1,.dh h2) {
+ font-family:Cairo,Tajawal,sans-serif;
+ font-size:20px;
+ color:#1B3555;
+}
+body.preview-lab #view .azure-cart-orders .customer-orders {
+ margin-block-start:10px;
+ padding:12px;
+ background:#F6F9FF;
+ border:1px solid #DCE8F5;
+ border-radius:16px;
+}
+body.preview-lab #view .azure-cart-orders .dh {margin:0 0 2px;padding:0}
+body.preview-lab #view .azure-cart-orders .dh h2 {margin:0}
+body.preview-lab #view .azure-cart-orders .customer-orders>.note {font-size:12px}
+body.preview-lab #view .azure-cart-orders .chips {
+ display:flex;
+ flex-wrap:nowrap;
+ align-items:center;
+ gap:3px;
+ margin:8px 0 0;
+ padding:3px;
+ overflow-x:auto;
+ border:1px solid #DCE8F5;
+ border-radius:12px;
+ background:#fff;
+}
+body.preview-lab #view .azure-cart-orders>.chips {margin:0}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-cart-orders .chips>.chip:not(#_) {
+ flex:1 0 auto;
+ white-space:nowrap;
+ margin:0;
+ padding:5px 6px;
+ min-height:38px;
+ border:0!important;
+ border-radius:8px!important;
+ box-shadow:none!important;
+ background:#fff!important;
+ color:#1B3555!important;
+ font-size:clamp(11px,3vw,14px);
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-cart-orders .chips>.chip[aria-pressed="true"]:not(#_) {
+ background:#0878E8!important;
+ color:#fff!important;
+}
+body.preview-lab #view .azure-cart-orders .chips svg {width:16px;height:16px}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-cart-orders .customer-orders>.empty:not(#_) {
+ display:grid;
+ min-height:0!important;
+ margin:8px 0 0!important;
+ padding:12px 4px!important;
+ text-align:center;
+ font-size:13px;
+}
+body.preview-lab #view .azure-cart-orders .similar-products {margin:16px 0 0;padding:12px 0 0;border-block-start:1px solid #DCE8F5}
+body.preview-lab #view .azure-cart-orders .similar-products .section-title {margin:0 0 8px}
+body.preview-lab #view .azure-cart-orders .similar-products .section-title h2 {font-size:18px}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-cart-orders .similar-products .figma-product-grid {
+ display:grid!important;
+ grid-template-columns:none!important;
+ grid-auto-columns:calc((100% - 8px)/2);
+ gap:8px!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view :is(.azure-cart-orders .similar-products,.sq-materials) .figma-product-card .figma-product-name {
+ min-height:2.9em!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view :is(.azure-cart-orders .similar-products,.sq-materials) .figma-product-card .figma-product-row {
+ min-height:42px;
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view :is(.azure-cart-orders .similar-products,.sq-materials) .figma-product-card .figma-add:not(#_) {
+ position:static!important;
+ transform:none!important;
+ flex:none;
+ margin:0;
+ box-shadow:none!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view :is(.azure-cart-orders .similar-products,.sq-materials) .figma-product-row .mp-price {
+ font-size:13px!important;
+ min-width:0;
+}
+@media(min-width:560px) {
+ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-cart-orders .similar-products .figma-product-grid {
+  grid-auto-columns:calc((100% - 16px)/3);
+ }
+}
+@media(max-width:480px) {
+ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .sq-materials .sq-row .figma-product-grid>*:not(#_) {
+  flex-basis:calc((100% - 12px)/2)!important;
+ }
+}
