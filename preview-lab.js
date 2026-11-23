@@ -317,3 +317,33 @@ function mountAzurePreview() {
  requestAnimationFrame(advance);
 }
 if(typeof document!=='undefined')mountAzurePreview();
+
+const favoritesHeart='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.6c0 4.5-8.8 9.9-8.8 9.9S3.2 13.1 3.2 8.6a4.5 4.5 0 0 1 8.8-1.3 4.5 4.5 0 0 1 8.8 1.3Z"/></svg>';
+
+export function openPreviewFavorites({sheet, activity, products, explore, cardOptions}) {
+ const root=()=>document.querySelector('#sheet .azure-favorites-page');
+ const header='<header class="azure-favorites-heading"><button type="button" data-a="back" aria-label="الرجوع"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button><h2>المفضلة '+favoritesHeart+'</h2></header>';
+ const empty='<div class="azure-favorites-empty"><div class="azure-favorites-art">'+favoritesHeart+'</div><h3>مفضلتك بانتظار اختياراتك</h3><p>احفظ المنتجات التي تعجبك لتعود إليها بسهولة في أي وقت.</p><button type="button" class="azure-favorites-explore" data-favorites-explore>استكشف المنتجات</button></div>';
+ sheet('<section class="azure-favorites-page">'+header+'<div class="azure-favorites-content" role="status"></div></section>');
+ const page=root(), content=page.querySelector('.azure-favorites-content');
+ const paint=()=>{
+  const favorites=activity.favorites(), list=products().filter(p=>p.active&&!p.blocked&&favorites.includes(p.id));
+  if(!list.length){content.innerHTML=empty;return;}
+  const count=list.length, label=count===1?'منتج واحد':count===2?'منتجان':count>=3&&count<=10?count+' منتجات':count+' منتجًا';
+  content.innerHTML='<div class="azure-favorites-info"><strong>المنتجات المحفوظة</strong><span>'+label+'</span></div>'+window.SouqMarketplace.productCards(list,{...cardOptions,favorites});
+  content.querySelectorAll('.mp-product').forEach((card,i)=>card.style.setProperty('--favorite-delay',Math.min(i,7)*40+'ms'));
+ };
+ async function load(){
+  content.innerHTML='<p class="azure-favorites-status">جارٍ تحميل المفضلة…</p>';
+  try{await activity.poll();if(page.isConnected)paint();}
+  catch{if(page.isConnected)content.innerHTML='<div class="azure-favorites-status"><p>تعذّر تحميل المفضلة.</p><button type="button" class="azure-favorites-explore" data-favorites-retry>إعادة المحاولة</button></div>';}
+ }
+ page.addEventListener('click',event=>{if(event.target.closest('[data-favorites-retry]'))load();
+  if(event.target.closest('[data-favorites-explore]'))explore();});
+ page.addEventListener('souq-favorite-removed',event=>{
+  const button=event.detail;
+  const animation=matchMedia('(prefers-reduced-motion: reduce)').matches?null:button.animate([{transform:'scale(1)'},{transform:'scale(.72)'}],{duration:120,easing:'ease-out'});
+  if(animation)animation.finished.then(paint,paint);else paint();
+ });
+ load();
+}
