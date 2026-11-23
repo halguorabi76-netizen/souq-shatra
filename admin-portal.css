@@ -25,15 +25,3 @@ body.admin-portal .admin-recent{display:flex;align-items:center;justify-content:
 @media(max-width:700px){#adminTop>nav{gap:8px;font-size:12px}#adminTop .admin-hub-tab{padding:7px 11px;font-size:12px}#adminPreviewFrame{height:calc(100svh - 128px)}}
 #adminTop .admin-brand{display:flex;align-items:center;gap:12px}
 #adminTop .admin-brand img{flex:none;width:44px;height:44px;object-fit:contain;border-radius:11px;background:#000}
-
-/* Neutral outer chrome for preview; the selected interface remains inside its frame. */
-html[lang][dir] body.admin-portal.admin-preview-host #adminTop:not(#_) {
- background:#fff!important;color:#1B3555!important;border:0!important;box-shadow:none!important;
-}
-html[lang][dir] body.admin-portal.admin-preview-host #adminTop::before,
-html[lang][dir] body.admin-portal.admin-preview-host #adminTop::after {content:none!important}
-html[lang][dir] body.admin-portal.admin-preview-host #adminTop :is(a,button,.admin-mark,.admin-mark *,.admin-role-chip) {
- color:#1B3555!important;text-shadow:none!important;
-}
-html[lang][dir] body.admin-portal.admin-preview-host.preview-immersive #adminTop {display:none!important}
-body.admin-preview-host.preview-immersive #adminPreviewFrame {height:100svh;min-height:0}
