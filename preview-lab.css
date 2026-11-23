@@ -273,6 +273,9 @@ html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:ha
  position:relative!important;top:auto!important;
 }
 body.preview-lab .app.azure-search-mode>.top .topline {display:none!important}
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app.azure-search-mode #buyerSearch {
+ flex:0 1 auto;width:94%;max-width:720px;margin-inline:auto!important;
+}
 body.preview-lab .app.azure-search-mode>.top .desktop-search-row {padding-block:10px!important}
 body.preview-lab .app.azure-search-mode .azure-home {visibility:hidden}
 body.preview-lab .app.azure-search-mode {background:#fff!important}
