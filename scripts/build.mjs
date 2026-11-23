@@ -17,7 +17,7 @@ const preview=portalMain
  .replace(/const sellerResumeHint=[^\n]*\n/,'const sellerResumeHint=false;\n')
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
- .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261128">')
+ .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261129">')
  .replace('<script src="demo-lab.js?v=51"></script>','')
  .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261128";')
  .replace('import {SUPABASE_URL,SUPABASE_ANON_KEY} from "./config.js";','')
@@ -32,6 +32,7 @@ const preview=portalMain
  .replace("if(!ADMIN_PORTAL&&!db.preview){const key=", "if(!ADMIN_PORTAL&&(!db.preview||el.querySelector('.azure-favorites-page')||h.includes('azure-favorites-page'))){const key=")
  .replace(/^  favorites:.*$/m,"  favorites:()=>act(async()=>{if(!user){A.enter('buyer');return}openPreviewFavorites({sheet,activity,products:()=>D.p,explore:()=>{A.close();A.tab('market')},cardOptions:{esc,fmt,thumb,mname}});}),")
  .replace("if(active)window.SouqMotion?.pulse(button);","if(active)window.SouqMotion?.pulse(button);else button.closest('.azure-favorites-page')?.dispatchEvent(new CustomEvent('souq-favorite-removed',{detail:button}));")
+ .replace('<h2>سلتك فارغة</h2>','<h2>سلّتك فارغة</h2>')
  .replace('location.assign(url.href)','db.preview.navigate(url)');
 if(preview.includes('SUPABASE_ANON_KEY')||preview.includes('import {createClient}'))throw new Error('Preview must not contain the production client');
 await writeFile('preview.html',preview);
