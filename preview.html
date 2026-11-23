@@ -577,7 +577,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=174"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261129">
+<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261130">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=172">
 <style>
 .seller-preflight{display:none}
@@ -1945,14 +1945,14 @@ function similarProducts(limit=8){
  const list=[...fresh,...again].slice(0,limit);
  if(!list.length)return '';
  const ui=window.SouqFigmaUI||window.SouqMarketplace,title=known.length?'منتجات مشابهة لطلباتك':'قد يعجبك أيضاً';
- return `<section class="similar-products" aria-labelledby="similarTitle"><div class="section-title"><h2 id="similarTitle">${title}</h2><button data-a="tab" data-v="market">عرض الكل</button></div>${ui.productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()})}</section>`;
+ return `<section class="similar-products" aria-labelledby="similarTitle"><div class="section-title"><h2 id="similarTitle">${title}</h2><button data-a="marketSection" data-v="materials">عرض الكل</button></div>${ui.productCards(list,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()})}</section>`;
 }
 function cartNavigation(){return `<div class="buyer-cart-heading"><h1>السلة</h1><button data-a="tab" data-v="market">السوق ‹</button></div><div class="chips"><button class="chip" data-a="cartPane" data-v="orders" aria-pressed="${D.cartPane==='orders'}">${flowIcon('orders')}الطلبات والمتابعة</button><button class="chip" data-a="cartPane" data-v="items" aria-pressed="${D.cartPane==='items'}">${flowIcon('cart')}مواد بانتظار الإرسال (${D.cart.reduce((n,c)=>n+c.q,0)})</button></div>`;}
 function checkoutSummary(quote,tot,orderCount,original=tot){const saved=Math.max(0,original-tot);return `${saved?`<div class="row"><span>سعر المنتجات الأصلي</span><b><s>${fmt(original)}</s></b></div><div class="row co-saving"><span>التخفيض</span><b>− ${fmt(saved)}</b></div>`:''}<div class="row"><span>${saved?'سعر المنتجات بعد التخفيض':'سعر المنتجات'}</span><b>${fmt(tot)}</b></div><div class="row"><span>رسم التوصيل</span><b>${quote.ready?fmt(quote.delivery):'—'}</b></div>${!geoPoint?'<p class="note co-fee-wait">'+flowIcon('pin')+'حدّد موقعك على الخريطة ليظهر سعر التوصيل</p>':quote.route?`<p class="note">مسافة المسار ${Number(quote.route.route_km).toFixed(2)} كم · ${orderCount} متاجر</p>`:!db.preview?`<p role="status">${esc(routeQuoteError||'جارٍ حساب رسم التوصيل…')}</p>${routeQuoteError?'<button class="alt" data-a="retryRouteQuote">إعادة الحساب</button>':''}`:''}${quote.route?.high_fee?'<p class="delivery-route-warning">رسم التوصيل مرتفع؛ يمكنك تقسيم الطلب إلى طلبات أصغر، أو المتابعة.</p>':''}<div class="row buyer-total"><b>المبلغ الإجمالي</b><b>${quote.ready?fmt(quote.total):'—'}</b></div>`;}
 function csheet(){
  if(checkoutStage==='review'&&!cartReceipt)requestRouteQuote();
  if(D.cartPane==='items'&&!cartReceipt&&checkoutStage!=='review'){renderCartStage();return;}
- if(D.cartPane==='orders'&&!cartReceipt){$('#view').innerHTML=cartNavigation()+customerOrderHub()+similarProducts();return;}
+ if(D.cartPane==='orders'&&!cartReceipt){$('#view').innerHTML=`<div class="azure-cart-orders">${cartNavigation()}${customerOrderHub()}${similarProducts()}</div>`;return;}
  const heading=cartNavigation();
  if(cartReceipt){$('#view').innerHTML=`<section class="buyer-checkout-card done"><div class="ck" aria-hidden="true">${flowIcon('check')}</div><h2>تم تأكيد طلبك</h2><p>في انتظار موافقة البائع وسائق التوصيل</p><p class="note">رقم الطلب ${cartReceipt.map(esc).join('، ')} · الدفع نقداً عند الاستلام.</p><button class="buy" data-a="tab" data-v="orders">متابعة طلباتي</button><button class="alt" data-a="tab" data-v="market">متابعة التسوق</button></section>`;return;}
   const it=cartRows(),tot=it.reduce((s,x)=>s+(x.p?.price||0)*x.c.q,0);
