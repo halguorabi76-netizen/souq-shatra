@@ -418,6 +418,19 @@ body.starting{background:#000!important}
 </script>
 <link rel="stylesheet" href="market-refinement.css?v=137">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700;800&display=swap"><link rel="stylesheet" href="admin-indigo.css?v=10"><link rel="stylesheet" href="neon-theme.css?v=7">
+<style>
+/* Neutral outer chrome for preview; the selected interface remains inside its frame. */
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop:not(#_) {
+ background:#fff!important;color:#1B3555!important;border:0!important;box-shadow:none!important;
+}
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop::before,
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop::after {content:none!important}
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop :is(a,button,.admin-mark,.admin-mark *,.admin-role-chip) {
+ color:#1B3555!important;text-shadow:none!important;
+}
+html[lang][dir] body.admin-portal.admin-preview-host.preview-immersive #adminTop {display:none!important}
+body.admin-preview-host.preview-immersive #adminPreviewFrame {height:100svh;min-height:0}
+</style>
 </head>
 <body>
 <div id="startupSplash" hidden class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
@@ -451,7 +464,7 @@ body.starting{background:#000!important}
 <script src="marketplace.js?v=130"></script>
 <script src="demo-lab.js?v=51"></script>
 <script src="vendor/supabase/supabase-2.117.3.js"></script>
-<script type="module">import {bootAdminHub} from "./admin-hub.js?v=185";bootAdminHub();</script>
+<script type="module">import {bootAdminHub} from "./admin-hub.js?v=20261123";bootAdminHub();</script>
 <script>
 // Keep Android users from seeing an empty page when an external module never loads.
 setTimeout(() => {

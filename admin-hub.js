@@ -39,6 +39,25 @@ export async function bootAdminHub(){
  if(all){document.body.classList.add('admin-preview-all');const {mountPreviewAll}=await import('./preview-all.js?v=2');mountPreviewAll(document.getElementById('view'));return;}
  const route=new URL('preview.html',location.href);params.delete('section');route.search=params.toString();
  const frame=document.createElement('iframe');frame.id='adminPreviewFrame';frame.title='معاينة واجهات سوق الشطرة المعزولة';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals');frame.src=route.href;
+ function setImmersive(enabled) {
+  header.hidden=enabled;
+  document.body.classList.toggle('preview-immersive',enabled);
+  const toolbar=frame.contentDocument?.getElementById('previewToolbar');
+  if(toolbar)toolbar.hidden=enabled;
+ }
+ frame.addEventListener('load',()=>{
+  const doc=frame.contentDocument;
+  if(!doc)return;
+  setImmersive(header.hidden);
+  doc.addEventListener('click',event=>{
+   if(event.target.closest?.('#previewToolbar'))return;
+   const enabled=!header.hidden;
+   requestAnimationFrame(()=>setImmersive(enabled));
+  },true);
+  doc.addEventListener('keydown',event=>{
+   if(event.key==='Escape'&&header.hidden)setImmersive(false);
+  });
+ });
  const view=document.getElementById('view');view.replaceChildren(frame);
 }
 
