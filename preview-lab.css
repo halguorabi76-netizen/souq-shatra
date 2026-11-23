@@ -204,63 +204,66 @@ html[data-shatra-ui][data-theme][lang][dir] body :is(.hb-wrap,.banner-wrap) {bor
 body.preview-lab:has(.azure-nav:not([hidden])) #previewToolbar {
  border:0!important;box-shadow:none;
 }
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top {
+ --nx-bar:#FFFFFF;
  background:#FFFFFF!important;border:0!important;box-shadow:none!important;
 }
-body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top :is(.topline,.desktop-search-row) {
+body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top :is(.topline,.desktop-search-row) {
  direction:rtl;max-width:1320px!important;padding-inline:clamp(12px,4vw,48px)!important;
 }
-html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .topline {
+html[data-shatra-ui] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .topline {
  box-shadow:none;background:none;border:0;
 }
-html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .topline::before,
-html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .topline::after {
+html[data-shatra-ui] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .topline::before,
+html[data-shatra-ui] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .topline::after {
  content:none;
 }
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .header-brand :is(.header-logo,.figma-logo-frame) {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .header-brand :is(.header-logo,.figma-logo-frame) {
  filter:none!important;box-shadow:none!important;background:none!important;
 }
-html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name * {
- text-shadow:none!important;
+html[data-shatra-ui] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name,
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name::before,
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name::after {
+ color:#1B3555!important;-webkit-text-fill-color:#1B3555!important;text-shadow:none!important;
 }
-body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .figma-header-actions {
+body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .figma-header-actions {
  display:flex;align-items:center;gap:8px;
 }
-html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top :is(#marketMenuToggle,#accountTrigger,.ac-inline) {
+html[data-shatra-ui] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top :is(#marketMenuToggle,#accountTrigger,.ac-inline) {
  display:none!important;
 }
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .figma-header-actions :is(.header-cart,.azure-favorites) {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .figma-header-actions :is(.header-cart,.azure-favorites) {
  display:grid!important;place-items:center;flex:0 0 44px;
  width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
  padding:0!important;border:0!important;border-radius:50%!important;
  background:#EAF5FF!important;color:#0878E8!important;box-shadow:none!important;
 }
 body.preview-lab .azure-favorites svg {width:22px;height:22px}
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch {
  direction:rtl;display:grid!important;grid-template-columns:44px minmax(0,1fr) 44px;
  align-items:center;gap:4px!important;min-height:48px;padding:0 4px!important;
  border:2px solid transparent!important;border-radius:16px!important;
  background:#EAF5FF!important;box-shadow:none!important;transition:border-color .15s ease;
 }
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch:has(#q:focus) {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch:has(#q:focus) {
  border-color:#0878E8!important;
 }
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>#q {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch>#q {
  grid-column:2;grid-row:1;width:100%;padding-inline:0!important;
  background:transparent!important;border:0!important;outline:none!important;box-shadow:none!important;
 }
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>button {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch>button {
  grid-row:1;justify-self:center;width:44px;
  padding:0!important;border:0!important;background:transparent!important;color:#1B3555!important;box-shadow:none!important;
 }
 body.preview-lab #buyerSearch>button[type=submit] {grid-column:1}
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>.market-filter-trigger {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch>.market-filter-trigger {
  grid-column:3;display:grid!important;position:static!important;
 }
-html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>button svg {
+html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch>button svg {
  stroke:currentColor;
 }
 @media(prefers-reduced-motion:reduce) {
- html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch {transition:none}
+ html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) #buyerSearch {transition:none}
 }
 #previewToolbar[hidden] {display:none!important}
