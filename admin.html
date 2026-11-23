@@ -30,7 +30,7 @@
 <link rel="preconnect" href="https://esm.sh" crossorigin>
 <link rel="preconnect" href="https://nbktyynshqldyerqtjrd.supabase.co" crossorigin>
 <title>سوق الشطرة</title><meta name="robots" content="noindex,nofollow">
-<link rel="stylesheet" href="admin-portal.css?v=20261123"><link rel="stylesheet" href="admin-whatsapp.css?v=5">
+<link rel="stylesheet" href="admin-portal.css?v=66"><link rel="stylesheet" href="admin-whatsapp.css?v=5">
 <style>html:has(body.starting),body.starting{background:#000!important}body.starting .app{visibility:hidden}
 .auth-login-notice{width:min(380px,calc(100vw - 32px));max-height:calc(100dvh - 48px);box-sizing:border-box;padding:24px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 40px #101a3933;text-align:right;direction:rtl;overflow:auto}
 .auth-login-notice::backdrop{background:#101a3959}
@@ -418,6 +418,19 @@ body.starting{background:#000!important}
 </script>
 <link rel="stylesheet" href="market-refinement.css?v=137">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Tajawal:wght@400;500;700;800&display=swap"><link rel="stylesheet" href="admin-indigo.css?v=10"><link rel="stylesheet" href="neon-theme.css?v=7">
+<style>
+/* Neutral outer chrome for preview; the selected interface remains inside its frame. */
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop:not(#_) {
+ background:#fff!important;color:#1B3555!important;border:0!important;box-shadow:none!important;
+}
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop::before,
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop::after {content:none!important}
+html[lang][dir] body.admin-portal.admin-preview-host #adminTop :is(a,button,.admin-mark,.admin-mark *,.admin-role-chip) {
+ color:#1B3555!important;text-shadow:none!important;
+}
+html[lang][dir] body.admin-portal.admin-preview-host.preview-immersive #adminTop {display:none!important}
+body.admin-preview-host.preview-immersive #adminPreviewFrame {height:100svh;min-height:0}
+</style>
 </head>
 <body>
 <div id="startupSplash" hidden class="startup-splash" role="status" aria-label="جارٍ فتح سوق الشطرة"><img src="icons/basket-mascot-v69.png" alt="" fetchpriority="high"></div>
