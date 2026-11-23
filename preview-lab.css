@@ -177,9 +177,6 @@ html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav>button[ari
 html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav>button[aria-current=page] .navicon {color:white!important}
 html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav>button .navicon {margin-bottom:3px!important}
 html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav:has(.azure-nav-shape[hidden]) {background:white!important}
-html[data-shatra-ui][data-theme][lang][dir] body .app>.top :is(.desktop-search-row,.searchline) input {background:#EAF5FF!important}
-html[data-shatra-ui][data-theme][lang][dir] body .app>.top input:focus-visible {outline:2px solid #0878E8!important;outline-offset:1px}
-html[data-shatra-ui][data-theme][lang][dir] body #buyerFloating {background:#EAF5FF!important;color:#1B3555!important}
 #view :is(.category-card,.figma-product-card,.sq-store,.used-card,.sp-card) {animation:azure-enter .27s ease-out both;animation-delay:var(--az-delay,0ms)}
 #view:not(.azure-home) :is(.section-title,.sp-head) {animation:azure-enter .25s ease-out both}
 @keyframes azure-enter {from{opacity:0;translate:0 7px}to{opacity:1;translate:0 0}}
@@ -193,12 +190,7 @@ html[data-shatra-ui][data-theme][lang][dir] body :is(.hb-wrap,.banner-wrap) {bor
 @media(prefers-reduced-motion:reduce) {
  .azure-home :is(.section-title h2,.sq-title)::after,.azure-home .sq-store::after,#view :is(.category-card,.figma-product-card,.sq-store,.used-card,.sp-card,.section-title,.sp-head),.figma-product-hero>img {animation:none!important}
 }
-html[data-shatra-ui][data-theme][lang][dir] body .app>.top :is(.header-cart,.azure-favorites) {background:#EAF5FF!important;border-radius:50%!important}
 .azure-favorites{display:none}
-html[data-shatra-ui] .app:has(.azure-nav:not([hidden])) .azure-favorites {
- display:grid;place-items:center;flex:none;width:34px;height:34px;padding:6px;
-}
-.azure-favorites svg {width:22px;height:22px}
 .azure-home .sq-hint[hidden] {display:none!important}
 .hb-dots i.on {overflow:hidden}
 .hb-dots i.on::after {
@@ -207,3 +199,62 @@ html[data-shatra-ui] .app:has(.azure-nav:not([hidden])) .azure-favorites {
 }
 @keyframes azure-banner-progress {from{scale:0 1}to{scale:1 1}}
 @media(prefers-reduced-motion:reduce){.hb-dots i.on::after{animation:none}}
+
+/* Buyer preview header. Shared storefront, seller, and admin styles stay separate. */
+body.preview-lab:has(.azure-nav:not([hidden])) #previewToolbar {
+ border:0!important;box-shadow:none;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top {
+ background:#FFFFFF!important;border:0!important;box-shadow:none!important;
+}
+body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top :is(.topline,.desktop-search-row) {
+ direction:rtl;max-width:1320px!important;padding-inline:clamp(12px,4vw,48px)!important;
+}
+html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .topline {
+ box-shadow:none;background:none;border:0;
+}
+html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .topline::before,
+html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .topline::after {
+ content:none;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .header-brand :is(.header-logo,.figma-logo-frame) {
+ filter:none!important;box-shadow:none!important;background:none!important;
+}
+html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name * {
+ text-shadow:none!important;
+}
+body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .figma-header-actions {
+ display:flex;align-items:center;gap:8px;
+}
+html[data-shatra-ui] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top :is(#marketMenuToggle,#accountTrigger,.ac-inline) {
+ display:none!important;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden]))>.top .figma-header-actions :is(.header-cart,.azure-favorites) {
+ display:grid!important;place-items:center;flex:0 0 44px;
+ width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+ padding:0!important;border:0!important;border-radius:50%!important;
+ background:#EAF5FF!important;color:#0878E8!important;box-shadow:none!important;
+}
+body.preview-lab .azure-favorites svg {width:22px;height:22px}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch {
+ direction:rtl;display:grid!important;grid-template-columns:44px minmax(0,1fr) 44px;
+ align-items:center;gap:4px!important;min-height:48px;padding:0 4px!important;
+ border:2px solid transparent!important;border-radius:16px!important;
+ background:#EAF5FF!important;box-shadow:none!important;transition:border-color .15s ease;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch:has(#q:focus) {
+ border-color:#0878E8!important;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>#q {
+ grid-column:2;grid-row:1;width:100%;padding-inline:0!important;
+ background:transparent!important;border:0!important;outline:none!important;box-shadow:none!important;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>button {
+ grid-row:1;justify-self:center;width:44px;
+ padding:0!important;border:0!important;background:transparent!important;color:#1B3555!important;box-shadow:none!important;
+}
+body.preview-lab #buyerSearch>button[type=submit] {grid-column:1}
+body.preview-lab #buyerSearch>.market-filter-trigger {grid-column:3}
+@media(prefers-reduced-motion:reduce) {
+ html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch {transition:none}
+}
