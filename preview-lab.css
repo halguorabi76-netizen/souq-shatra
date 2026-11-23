@@ -254,7 +254,12 @@ html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not(
  padding:0!important;border:0!important;background:transparent!important;color:#1B3555!important;box-shadow:none!important;
 }
 body.preview-lab #buyerSearch>button[type=submit] {grid-column:1}
-body.preview-lab #buyerSearch>.market-filter-trigger {grid-column:3}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>.market-filter-trigger {
+ grid-column:3;display:grid!important;position:static!important;
+}
+html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch>button svg {
+ stroke:currentColor;
+}
 @media(prefers-reduced-motion:reduce) {
  html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch {transition:none}
 }
