@@ -263,3 +263,4 @@ html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not(
 @media(prefers-reduced-motion:reduce) {
  html[data-shatra-ui][data-theme][dir] body.preview-lab .app:has(>.azure-nav:not([hidden])) #buyerSearch {transition:none}
 }
+#previewToolbar[hidden] {display:none!important}
