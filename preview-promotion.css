@@ -112,6 +112,7 @@ html body .promo-editor {
 html[data-embedded-preview] body.preview-lab #view .preview-promotion {
  box-sizing:border-box;
  inline-size:min(100% - 24px,720px);
+ translate:var(--promo-center-offset,0px) 0;
  margin-inline:auto;
 }
 .promo-window {position:relative;overflow:hidden;border-radius:18px;perspective:950px}
