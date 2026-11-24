@@ -708,3 +708,14 @@ html body.preview-lab #view .azure-category-children button[aria-pressed="true"]
  .azure-category-page>.section-title,
  html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {animation:none!important}
 }
+
+/* The photo fills the circle while the white separator stays visible. */
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-categories .category-card>span:has(.azure-category-story):not(#_) {
+ background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#0878E8,#00E5AD) border-box!important;
+}
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-categories .azure-category-story {
+ position:absolute;inset:3px;width:auto;height:auto;border:0;border-radius:50%;
+ background-image:url("icons/preview-category-stories.webp")!important;
+ background-repeat:no-repeat!important;
+ background-size:600% 100%!important;
+}
