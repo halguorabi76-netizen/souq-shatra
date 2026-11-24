@@ -749,3 +749,10 @@ html[data-embedded-preview][data-theme="dark"] .azure-home .sq-store[data-azure-
 html[data-embedded-preview][data-theme="dark"] .azure-home .sq-store::before {background:#ffffff16}
 html[data-embedded-preview][data-theme="dark"] .azure-general-categories .azure-category-story {filter:none;opacity:1}
 html[data-embedded-preview][data-theme="dark"] #buyerSearch #q::placeholder {color:var(--ta-muted);opacity:1}
+/* Keep legacy light text rules from overriding secondary copy at night. */
+html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] body.preview-lab :is(.app,.sheet,#sheet) :is(p,small,li,label,.empty,.sq-empty,.note,.sw-muted,.mp-deal-note,.sq-hint,.dw-empty):not(#_):not(#_):not(#_) {
+ color:var(--ta-muted)!important;
+}
+html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] body.preview-lab .app .promo-stage .promo-copy p:not(#_):not(#_):not(#_) {
+ color:var(--promo-ink)!important;
+}
