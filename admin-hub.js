@@ -33,12 +33,10 @@ export async function bootAdminHub(){
  const header=document.createElement('header');header.id='adminTop';header.innerHTML=adminHubHeader(preview,all);document.getElementById('view').before(header);
  // The sections bar sticks right under the top bar, whatever height the top bar wraps to.
  const fit=()=>document.body.style.setProperty('--ad-top',Math.ceil(header.getBoundingClientRect().height)+'px');fit();if(typeof ResizeObserver==='function')new ResizeObserver(fit).observe(header);
- if(!preview){await import('./admin-app.js?v=216');return;}
+ if(!preview){await import('./admin-app.js?v=217');return;}
  document.body.classList.add('admin-preview-host');document.body.classList.remove('starting');document.getElementById('loading').hidden=true;
  header.querySelector('[data-a="toggleTheme"]').addEventListener('click',()=>window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark'));
  if(all){document.body.classList.add('admin-preview-all');const {mountPreviewAll}=await import('./preview-all.js?v=2');mountPreviewAll(document.getElementById('view'));return;}
- const editPromotion=document.createElement('button');editPromotion.type='button';editPromotion.className='admin-hub-tab';editPromotion.textContent='إدارة البنر الترويجي';editPromotion.disabled=true;
- header.querySelector('.admin-hub-tabs').append(editPromotion);
  const route=new URL('preview.html',location.href);params.delete('section');route.search=params.toString();
  const frame=document.createElement('iframe');frame.id='adminPreviewFrame';frame.title='معاينة واجهات سوق الشطرة المعزولة';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals');frame.src=route.href;
  function setImmersive(enabled) {
@@ -51,7 +49,6 @@ export async function bootAdminHub(){
   const doc=frame.contentDocument;
   if(!doc)return;
   setImmersive(header.hidden);
-  editPromotion.disabled=false;
   doc.addEventListener('click',event=>{
    if(event.target.closest?.('#previewToolbar,.promo-editor,.preview-promotion'))return;
    const enabled=!header.hidden;
@@ -61,7 +58,6 @@ export async function bootAdminHub(){
    if(event.key==='Escape'&&header.hidden)setImmersive(false);
   });
  });
- editPromotion.addEventListener('click',()=>frame.contentDocument?.dispatchEvent(new Event('souq:open-promotion-editor')));
  const view=document.getElementById('view');view.replaceChildren(frame);
 }
 

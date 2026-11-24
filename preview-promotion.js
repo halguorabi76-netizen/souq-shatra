@@ -8,7 +8,7 @@ const DEFAULTS=[
 const DURATION=6500;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const defaults=()=>DEFAULTS.map(([title,description],i)=>({
- title,description,cta:'تسوق الآن',palette:PALETTES[i],size:20,x:0,y:0,enabled:true,
+ title,description,cta:'تسوق الآن',palette:PALETTES[i],size:17,x:0,y:0,enabled:true,
  slots:Array.from({length:4},()=>({id:'',visible:true}))
 }));
 const bounded=(v,f,min,max)=>Number.isFinite(v)?Math.max(min,Math.min(max,v)):f;
@@ -21,7 +21,7 @@ function read() {
    if(!s)return base;
    return {...base,...Object.fromEntries(['title','description','cta'].map(k=>[k,typeof s[k]==='string'?s[k].slice(0,90):base[k]])),
     palette:PALETTES.includes(s.palette)?s.palette:base.palette,enabled:s.enabled!==false,
-    size:bounded(s.size,20,16,24),x:bounded(s.x,0,-8,8),y:bounded(s.y,0,-12,12),
+    size:bounded(s.size,17,14,20),x:bounded(s.x,0,-8,8),y:bounded(s.y,0,-12,12),
     slots:base.slots.map((slot,j)=>({id:String(s.slots?.[j]?.id||''),visible:s.slots?.[j]?.visible!==false}))};
   });
  }catch{return slides}
@@ -50,9 +50,10 @@ async function fetchProducts() {
 function stage(slide,products,editing=false) {
  const copy=['title','description','cta'].map((key,i)=>{
   const tag=['h2','p','span'][i],text='<'+tag+'>'+esc(slide[key])+'</'+tag+'>';
-  if(editing)return '<div class="promo-edit-line">'+(i===2?'<span class="promo-cta">'+text+'</span>':text)+'<button type="button" data-field="'+key+'" aria-label="تعديل '+['العنوان','الوصف','عبارة الزر'][i]+'">✎</button></div>';
+  if(editing&&i===2)return '<span class="promo-cta">'+text+'</span>';
   return i===2?'<button type="button" class="promo-cta" data-a="marketSection" data-v="materials">'+text+'</button>':text;
  }).join('');
+ const hasProducts=slide.slots.some(s=>s.visible&&products.some(p=>p.id===s.id));
  const slots=slide.slots.map((slot,i)=>{
   const product=products.find(p=>p.id===slot.id),n=i+1;
   const image=product?.img?'<img src="'+esc(product.img)+'" alt="" draggable="false">':'';
@@ -62,7 +63,7 @@ function stage(slide,products,editing=false) {
    product?'<button type="button" class="promo-product" data-a="promoProduct" data-v="'+esc(product.id)+'" aria-label="'+esc(product.name)+'">'+content+'</button>':'';
   return '<div class="promo-slot" style="--slot:'+i+'"'+(!slot.visible?(editing?' data-off="true"':' hidden'):'')+'>'+item+'<span class="promo-wood" aria-hidden="true"></span></div>';
  }).join('');
- return '<div class="promo-stage" data-palette="'+slide.palette+'"><div class="promo-copy" style="--title-size:'+slide.size+'px;--copy-x:'+slide.x+'px;--copy-y:'+slide.y+'px">'+copy+'</div><div class="promo-shelves">'+slots+'</div></div>';
+ return '<div class="promo-stage" data-palette="'+slide.palette+'"'+(!editing&&!hasProducts?' data-copy-only':'')+'><div class="promo-copy" style="--title-size:'+slide.size+'px;--copy-x:'+slide.x+'px;--copy-y:'+slide.y+'px">'+copy+'</div><div class="promo-shelves">'+slots+'</div></div>';
 }
 
 export function previewPromotionMarkup(){return '<section class="preview-promotion" aria-label="عروض سوق الشطرة"></section>'}
@@ -73,25 +74,35 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  const catalog=()=>[...new Map([...products(),...(publicProducts||[])].map(p=>[p.id,p])).values()];
  const available=()=>slides.flatMap((s,i)=>s.enabled?[i]:[]);
- function draw() {
+ function draw(direction=0) {
+  const previous=direction&&!reduced.matches?host?.querySelector('.promo-stage')?.cloneNode(true):null;
   if(!host?.isConnected)return;
   const indexes=available();
   if(indexes.length&&!indexes.includes(active))active=indexes[0];
   host.hidden=!indexes.length;
-  host.innerHTML=indexes.length?stage(slides[active],catalog())+(indexes.length>1?'<div class="promo-indicators" role="group" aria-label="الشرائح الترويجية">'+indexes.map(i=>'<button type="button" data-slide="'+i+'" aria-label="الشريحة '+(i+1)+'" aria-current="'+(i===active)+'"><i></i></button>').join('')+'</div>':''):'';
+  host.innerHTML=indexes.length?'<div class="promo-window">'+stage(slides[active],catalog())+'</div>'+(indexes.length>1?'<div class="promo-indicators" role="group" aria-label="الشرائح الترويجية">'+indexes.map(i=>'<button type="button" data-slide="'+i+'" aria-label="الشريحة '+(i+1)+'" aria-current="'+(i===active)+'"><i></i></button>').join('')+'</div>':''):'';
+  if(previous){
+   const incoming=host.querySelector('.promo-stage');
+   const carousel=host.querySelector('.promo-window');
+   previous.inert=true;previous.setAttribute('aria-hidden','true');previous.classList.add('promo-outgoing');
+   carousel.prepend(previous);
+   const options={duration:440,easing:'cubic-bezier(.25,.7,.25,1)'};
+   previous.animate([{transform:'translateX(0)'},{transform:'translateX('+(-direction*108)+'%) rotate('+(-direction*7)+'deg)'}],options).finished.finally(()=>previous.remove());
+   incoming.animate([{transform:'translateX('+(direction*100)+'%) rotate('+(direction*4)+'deg)'},{transform:'translateX(0)'}],options);
+  }
   elapsed=0;last=0;
   if(indexes.length>1&&!timer)timer=requestAnimationFrame(tick);
  }
  function step(direction) {
   const indexes=available();
   if(indexes.length<2)return;
-  active=indexes[(indexes.indexOf(active)+direction+indexes.length)%indexes.length];draw();
+  active=indexes[(indexes.indexOf(active)+direction+indexes.length)%indexes.length];draw(direction);
  }
  function tick(time) {
   timer=0;
   if(!host?.isConnected||available().length<2)return;
   if(last&&!document.hidden&&!hover&&!pointer&&!host.contains(document.activeElement)&&!dialog.open&&!reduced.matches){
-   elapsed+=Math.min(time-last,50);
+   elapsed+=time-last;
    if(elapsed>=DURATION){step(1);return}
   }
   last=time;
@@ -118,7 +129,7 @@ export function mountPreviewPromotion({products,format,openProduct}) {
   host.addEventListener('click',e=>{
    if(performance.now()<suppressUntil){e.stopPropagation();e.preventDefault();return}
    const slide=e.target.closest('[data-slide]');
-   if(slide){active=Number(slide.dataset.slide);draw();host.querySelector('[aria-current="true"]')?.focus()}
+   if(slide){const next=Number(slide.dataset.slide),direction=Math.sign(next-active);active=next;draw(direction);host.querySelector('[aria-current="true"]')?.focus()}
    const product=e.target.closest('[data-a="promoProduct"]');
    if(product){e.stopPropagation();openProduct(product.dataset.v)}
   },true);
@@ -139,25 +150,28 @@ export function mountPreviewPromotion({products,format,openProduct}) {
   bindHost();
  }).observe(view,{childList:true});
 
+ const inlineEditor=new URLSearchParams(location.search).get('bannerEditor')==='embedded';
  const dialog=document.createElement('dialog');
  dialog.className='promo-editor';
  dialog.setAttribute('aria-labelledby','promo-editor-label');
  dialog.innerHTML=`<header><div><h1 id="promo-editor-label">إدارة البنر الترويجي</h1><p>تُحفظ التعديلات محليًا في هذا المتصفح للمعاينة فقط.</p></div><button type="button" data-editor="close" aria-label="إغلاق المحرر">×</button></header>
  <div class="promo-editor-tabs" role="group" aria-label="اختيار الشريحة"></div>
- <div class="promo-editor-grid"><div><div class="promo-editor-stage"></div><div class="promo-editor-actions"><button type="button" data-editor="phone" aria-pressed="false">معاينة الهاتف</button><button type="button" data-editor="replay">إعادة الحركة</button></div></div>
+ <div class="promo-editor-grid"><div><div class="promo-editor-stage"></div><div class="promo-editor-actions"><button type="button" data-editor="phone" aria-pressed="false">معاينة الهاتف</button><button type="button" data-editor="replay">إعادة الحركة</button><button type="button" data-editor="text" aria-expanded="false" aria-controls="promo-copy-settings">✎ تعديل النص</button></div></div>
  <div class="promo-settings"></div></div>
  <section class="promo-picker" hidden><div class="promo-picker-head"><label for="promo-product-search">اختيار منتج</label><button type="button" data-editor="cancel-pick">إغلاق الاختيار</button></div><input id="promo-product-search" type="search" placeholder="ابحث باسم المنتج أو رمزه"><div class="promo-results" aria-live="polite"></div></section>`;
  document.body.append(dialog);
  function drawEditorStage(){dialog.querySelector('.promo-editor-stage').innerHTML=stage(slides[editorSlide],catalog(),true)}
  function drawEditor() {
+  const textOpen=dialog.querySelector('[data-editor="text"]').getAttribute('aria-expanded')==='true';
   const slide=slides[editorSlide];
   dialog.querySelector('.promo-editor-tabs').innerHTML=slides.map((s,i)=>'<button type="button" data-editor-slide="'+i+'" aria-pressed="'+(editorSlide===i)+'">الشريحة '+(i+1)+(s.enabled?'':' · مخفية')+'</button>').join('');
   drawEditorStage();
   dialog.querySelector('.promo-settings').innerHTML=`<div class="promo-text-controls">
   <label>لون الشريحة<select data-setting="palette">${PALETTES.map((p,i)=>'<option value="'+p+'" '+(p===slide.palette?'selected':'')+'>'+['لافندر','تركواز','برتقالي'][i]+'</option>').join('')}</select></label>
   <label class="promo-check"><input type="checkbox" data-setting="enabled" ${slide.enabled?'checked':''}>إظهار الشريحة</label>
+  </div><div id="promo-copy-settings" class="promo-text-controls promo-copy-settings" ${textOpen?'':'hidden'}>
   ${[['title','العنوان'],['description','الوصف'],['cta','عبارة الزر']].map(([k,label])=>'<label>'+label+'<input data-setting="'+k+'" maxlength="'+(k==='cta'?24:60)+'" value="'+esc(slide[k])+'"></label>').join('')}
-  ${[['size','حجم العنوان',16,24],['x','الموضع الأفقي',-8,8],['y','الموضع الرأسي',-12,12]].map(([k,label,min,max])=>'<label>'+label+'<input data-setting="'+k+'" type="range" min="'+min+'" max="'+max+'" value="'+slide[k]+'"></label>').join('')}</div>
+  ${[['size','حجم العنوان',14,20],['x','الموضع الأفقي',-8,8],['y','الموضع الرأسي',-12,12]].map(([k,label,min,max])=>'<label>'+label+'<input data-setting="'+k+'" type="range" min="'+min+'" max="'+max+'" value="'+slide[k]+'"></label>').join('')}</div>
   <div class="promo-slot-settings">${slide.slots.map((slot,i)=>{
    const p=catalog().find(p=>p.id===slot.id);
    return '<div><label><input type="checkbox" data-visible="'+i+'" '+(slot.visible?'checked':'')+'>اللوح '+(i+1)+'</label><span>'+esc(p?.name||(slot.id?'منتج مرتبط':'فارغ'))+'</span><button type="button" data-pick="'+i+'">'+(slot.id?'استبدال':'إضافة')+'</button>'+(slot.id?'<button type="button" data-remove="'+i+'">إزالة</button>':'')+'</div>'
@@ -189,7 +203,11 @@ export function mountPreviewPromotion({products,format,openProduct}) {
    b.setAttribute('aria-pressed',String(phone));
   }
   if(d.editorSlide!==undefined){editorSlide=Number(d.editorSlide);closePicker();drawEditor();dialog.querySelector('[data-editor-slide="'+editorSlide+'"]').focus()}
-  if(d.field)dialog.querySelector('[data-setting="'+d.field+'"]').focus();
+  if(d.editor==='text'){
+   const panel=dialog.querySelector('#promo-copy-settings');
+   panel.hidden=!panel.hidden;b.setAttribute('aria-expanded',String(!panel.hidden));
+   if(!panel.hidden)panel.querySelector('input').focus();
+  }
   if(d.pick!==undefined){
    pickedSlot=Number(d.pick);dialog.querySelector('.promo-picker').hidden=false;
    const search=dialog.querySelector('input[type="search"]');search.value='';search.focus();renderResults();void loadCatalog();
@@ -209,10 +227,13 @@ export function mountPreviewPromotion({products,format,openProduct}) {
   if(k==='enabled')dialog.querySelector('[data-editor-slide="'+editorSlide+'"]').textContent='الشريحة '+(editorSlide+1)+(el.checked?'':' · مخفية');
  });
  dialog.addEventListener('close',closePicker);
- document.addEventListener('souq:open-promotion-editor',()=>{
+ function openEditor(){
   if(dialog.open)return;
-  slides=read();drawEditor();dialog.showModal();void loadCatalog();
- });
+  slides=read();drawEditor();if(inlineEditor)dialog.show();else dialog.showModal();void loadCatalog();
+ }
+ document.addEventListener('souq:open-promotion-editor',openEditor);
+ if(inlineEditor){document.documentElement.classList.add('promo-admin-embed');openEditor()}
+ document.addEventListener('visibilitychange',()=>{last=0});
  window.addEventListener('storage',e=>{
   if(e.key!==KEY)return;
   slides=read();draw();if(dialog.open)drawEditor();
