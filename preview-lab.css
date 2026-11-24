@@ -606,10 +606,11 @@ html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-catego
  display:flex!important;flex-wrap:nowrap!important;gap:9px!important;
  padding:5px 3px 7px!important;overscroll-behavior-inline:contain;scroll-padding-inline:3px;
 }
-html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-card:not(#_) {
+html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-card:not(#_):not(#_) {
  --ring-size:clamp(80px,21vw,88px);
  flex:0 0 var(--ring-size)!important;min-inline-size:0!important;
- min-block-size:0;gap:5px;justify-content:flex-start;
+ min-block-size:0!important;gap:5px!important;justify-content:flex-start!important;
+ background:none!important;border:0!important;box-shadow:none!important;
  font:600 13px/1.25 Cairo,Tajawal,sans-serif!important;color:#1B3555!important;
 }
 html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-card>span:not(#_) {
