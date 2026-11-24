@@ -51,15 +51,12 @@ html body .promo-stage .promo-product:not(#_):not(#_),.promo-slot>.promo-product
 .promo-float {position:relative;display:grid;place-items:center;width:100%;height:100%;min-height:0;overflow:hidden;animation:promo-float 3.6s calc(.8s + var(--slot)*.21s) ease-in-out infinite}
 .promo-float img {display:block;width:100%;height:100%;min-height:0;object-fit:contain;filter:drop-shadow(0 3px 3px #31244b24)}
 .promo-glint {position:absolute;inset:0;background:linear-gradient(135deg,transparent 35%,#ffffff68 49%,transparent 63%);transform:translate(-110%,110%);animation:promo-glint 10s calc(1.2s + var(--slot)*.65s) infinite;pointer-events:none}
-.promo-indicators {display:flex;justify-content:center;gap:5px;margin-top:3px}
-html body .promo-indicators button:not(#_):not(#_) {
- display:grid;align-items:center;width:32px;height:26px;min-height:0;padding:0 3px;border:0;
- border-radius:0;background:none!important;box-shadow:none!important;
-}
-.promo-indicators i {display:block;height:4px;border-radius:30px;background:#DCE8F5;overflow:hidden}
-.promo-indicators i::before {content:"";display:block;height:100%;background:#0878E8;transform:scaleX(0);transform-origin:right}
-.promo-indicators [aria-current="true"] i::before {transform:scaleX(var(--progress,0))}
-.promo-indicators [aria-current="true"] i {background:#A7CFFF}
+.preview-promotion[data-palette="lavender"] {--promo-track:#E9DEFF;--promo-progress:#7050B9}
+.preview-promotion[data-palette="turquoise"] {--promo-track:#D5F5EE;--promo-progress:#257A70}
+.preview-promotion[data-palette="orange"] {--promo-track:#FFE5D1;--promo-progress:#B65D26}
+.promo-progress {width:64px;height:4px;margin:10px auto 7px;background:var(--promo-track);border-radius:99px;overflow:hidden}
+.promo-progress span {display:block;width:100%;height:100%;background:var(--promo-progress);transform:scaleX(var(--progress,0));transform-origin:right}
+.promo-window>.promo-stage:not(.promo-outgoing) {translate:var(--promo-drag,0px) 0}
 @keyframes promo-show {from{opacity:.55}to{opacity:1}}
 @keyframes promo-pop {0%{opacity:0;transform:scale(.12)}74%{opacity:1;transform:scale(1.06)}100%{transform:scale(1)}}
 @keyframes promo-float {50%{transform:translateY(-3px)}}
@@ -102,7 +99,7 @@ html body .promo-editor {
 @media(prefers-reduced-motion:reduce) {
  .promo-stage,.promo-product,.promo-float,.promo-glint,.promo-editor-stage .promo-slot>.promo-product {animation:none!important}
  .promo-glint {display:none}
- .promo-indicators [aria-current="true"] i::before {transform:scaleX(1)}
+ .promo-progress span {transform:scaleX(1)}
 }
 .promo-read-only :is(.pd-fav,.pd-qty,.pd-add,.va-choice,.detail-home) {display:none!important}
 .promo-product-name {font-size:11px;font-weight:700;line-height:1.15;color:var(--promo-ink);overflow-wrap:anywhere}

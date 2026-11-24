@@ -17,11 +17,11 @@ const preview=portalMain
  .replace(/const sellerResumeHint=[^\n]*\n/,'const sellerResumeHint=false;\n')
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
- .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261212"><link rel="stylesheet" href="preview-promotion.css?v=5">')
+ .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261212"><link rel="stylesheet" href="preview-promotion.css?v=7">')
  .replace('<script src="demo-lab.js?v=51"></script>','')
  .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261212";')
  .replace(/^function bannerHtml\(\).*$/m,'function bannerHtml(){return previewPromotionMarkup()}')
- .replace("db.preview?.init({sheet,", `import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=6";
+ .replace("db.preview?.init({sheet,", `import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=7";
 mountPreviewPromotion({
  products:()=>publicMarketplace().products.filter(p=>p.img),format:fmt,
  openProduct:id=>{
