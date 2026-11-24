@@ -34,7 +34,7 @@ window.addEventListener('blur',release);
 document.addEventListener('click',()=>{inputAt=performance.now();},true);
 const view=document.getElementById('view'),sheet=document.getElementById('sheet'),shade=document.getElementById('shade');
 // Observe only replaced page children. Typing, counters and background polls do not animate.
-if(view)new MutationObserver(()=>{if(performance.now()-inputAt<500)animate(view,'page');}).observe(view,{childList:true});
-if(sheet)new MutationObserver(()=>{if(shade&&!shade.hidden)animate(sheet,'panel');}).observe(sheet,{childList:true});
-if(shade)new MutationObserver(()=>{if(shade.hidden&&performance.now()-inputAt<500)animate(view,'page');}).observe(shade,{attributes:true,attributeFilter:['hidden']});
+if(!document.documentElement?.dataset?.embeddedPreview&&view)new MutationObserver(()=>{if(performance.now()-inputAt<500)animate(view,'page');}).observe(view,{childList:true});
+if(!document.documentElement?.dataset?.embeddedPreview&&sheet)new MutationObserver(()=>{if(shade&&!shade.hidden)animate(sheet,'panel');}).observe(sheet,{childList:true});
+if(!document.documentElement?.dataset?.embeddedPreview&&shade)new MutationObserver(()=>{if(shade.hidden&&performance.now()-inputAt<500)animate(view,'page');}).observe(shade,{attributes:true,attributeFilter:['hidden']});
 })();

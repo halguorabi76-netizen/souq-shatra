@@ -189,8 +189,8 @@ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab .app>.tabs.azure-na
  font:600 22px/1 Cairo,Tajawal,sans-serif!important;
 }
 html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav:has(.azure-nav-shape[hidden]) {background:white!important}
-#view :is(.category-card,.figma-product-card,.sq-store,.used-card,.sp-card) {animation:azure-enter .27s ease-out both;animation-delay:var(--az-delay,0ms)}
-#view:not(.azure-home) :is(.section-title,.sp-head) {animation:azure-enter .25s ease-out both}
+#view :is(.category-card,.figma-product-card,.sq-store,.used-card,.sp-card) {animation-delay:var(--az-delay,0ms)}
+#view:not(.azure-home) :is(.section-title,.sp-head) {}
 @keyframes azure-enter {from{opacity:0;translate:0 7px}to{opacity:1;translate:0 0}}
 html[data-shatra-ui][data-theme][lang][dir] body :is(.hb-wrap,.banner-wrap) {border-radius:22px;overflow:hidden}
 .hb-slide:nth-child(3n+1){background-color:#E9DEFF}
@@ -317,7 +317,7 @@ html[lang] body.preview-lab #shade #sheet:has(>.azure-favorites-page) {
 .azure-favorites-heading {
  position:sticky;top:0;z-index:4;display:grid;grid-template-columns:44px 1fr 44px;
  align-items:center;gap:8px;padding:12px clamp(14px,4vw,48px);background:#fff;border-bottom:1px solid #EAF5FF;
- animation:azure-favorite-enter .26s ease-out both;
+
 }
 .azure-favorites-heading h2 {display:flex;align-items:center;justify-content:center;gap:8px;margin:0;font-size:clamp(20px,4vw,26px);font-weight:800;color:#1B3555}
 #sheet .azure-favorites-heading button {
@@ -326,14 +326,14 @@ html[lang] body.preview-lab #shade #sheet:has(>.azure-favorites-page) {
 .azure-favorites-heading svg {width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .azure-favorites-heading h2 svg {width:17px;height:17px;color:#0878E8;fill:currentColor}
 .azure-favorites-content {max-width:1000px;margin:0 auto;padding:clamp(16px,4vw,32px)}
-.azure-favorites-info {display:flex;justify-content:space-between;gap:8px;margin-bottom:14px;animation:azure-favorite-enter .26s .06s ease-out both}
+.azure-favorites-info {display:flex;justify-content:space-between;gap:8px;margin-bottom:14px;}
 .azure-favorites-info span {color:#526e88}
 html[lang] body.preview-lab #sheet .azure-favorites-page .mp-products {
  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;
 }
 html[lang] body.preview-lab #sheet .azure-favorites-page .mp-product {
  min-width:0;background:#fff!important;border:1px solid #EAF5FF!important;border-radius:18px!important;
- box-shadow:0 4px 14px #1b35550a!important;animation:azure-favorite-enter .24s ease-out both;animation-delay:var(--favorite-delay,0ms);
+ box-shadow:0 4px 14px #1b35550a!important;animation-delay:var(--favorite-delay,0ms);
 }
 html[lang] body.preview-lab #sheet .azure-favorites-page .mp-card-photo {aspect-ratio:4/3;background:#F6FAFF!important}
 html[lang] body.preview-lab #sheet .azure-favorites-page .mp-card-photo img {width:100%;height:100%;object-fit:contain!important}
@@ -408,12 +408,12 @@ body.preview-lab .mp-product .mp-card-body .mp-card-cart {display:none}
 .azure-favorites-art::before {width:31px;height:31px;inset:9px auto auto -8px}
 .azure-favorites-art::after {width:22px;height:22px;inset:auto -4px 5px auto}
 .azure-favorites-art svg {width:49px;height:49px;fill:none;stroke:#0878E8;stroke-width:1.45;animation:azure-favorite-breathe 4s .36s ease-in-out infinite}
-.azure-favorites-empty h3 {margin:0;font-size:clamp(19px,4vw,24px);animation:azure-favorite-enter .27s .10s ease-out both}
-.azure-favorites-empty p {max-width:340px;margin:8px auto 20px;color:#526e88;animation:azure-favorite-enter .27s .17s ease-out both}
+.azure-favorites-empty h3 {margin:0;font-size:clamp(19px,4vw,24px);}
+.azure-favorites-empty p {max-width:340px;margin:8px auto 20px;color:#526e88;}
 html[lang] body.preview-lab #sheet .azure-favorites-explore {
  min-height:46px;padding:9px 24px;border:0;border-radius:24px;background:#0878E8!important;color:white!important;font-weight:700;
 }
-.azure-favorites-empty .azure-favorites-explore {animation:azure-favorite-enter .27s .24s ease-out both}
+.azure-favorites-empty .azure-favorites-explore {}
 @keyframes azure-favorite-enter {from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes azure-favorite-appear {from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
 @keyframes azure-favorite-breathe {50%{transform:scale(1.055)}}
@@ -693,12 +693,12 @@ html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-catego
 .azure-category-progress[hidden] {display:none}
 .azure-category-progress span {position:absolute;inset-block:0;inset-inline-start:var(--category-offset);inline-size:var(--category-thumb);background:#0878E8;border-radius:inherit}
 html body.preview-lab #view .azure-category-page {background:#FFF;border-color:var(--az-category-surface)}
-.azure-category-page>.section-title {animation:azure-enter .26s ease-out both;border:1px solid var(--az-category-surface)}
+.azure-category-page>.section-title {border:1px solid var(--az-category-surface)}
 .azure-category-children {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
 html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {
  border:1px solid var(--az-ring-a,#DCE8F5)!important;background:#FFF!important;color:#1B3555!important;
  border-radius:12px;padding:7px 12px;box-shadow:none!important;
- animation:azure-enter .24s var(--category-delay) both;
+
 }
 html body.preview-lab #view .azure-category-children button[aria-pressed="true"]:not(#_):not(#_) {
  background:var(--az-category-surface,#EAF5FF)!important;
@@ -709,12 +709,12 @@ html body.preview-lab #view .azure-category-children button[aria-pressed="true"]
  html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {animation:none!important}
 }
 
-/* General categories have one ring color and a dedicated photograph. */
+/* One shared story gradient frames each category photograph. */
 html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-general-categories .category-card>span:not(#_):not(#_) {
  position:relative;isolation:isolate;box-sizing:border-box;
  width:var(--ring-size,84px)!important;height:var(--ring-size,84px)!important;
- border:4px solid #0878E8!important;border-radius:50%!important;
- background:#fff!important;box-shadow:none!important;
+ border:4px solid transparent!important;border-radius:50%!important;
+ background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#0878e8,#00bde9 48%,#00e9ba) border-box!important;box-shadow:none!important;
 }
 html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-general-categories .azure-category-story {
  position:absolute;inset:3px;width:auto;height:auto;border:0;border-radius:50%;
