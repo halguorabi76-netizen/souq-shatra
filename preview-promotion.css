@@ -130,17 +130,19 @@ html.promo-admin-embed body .promo-editor {
 html.promo-admin-embed .promo-editor [data-editor="close"] {display:none}
 
 html[data-embedded-preview][data-theme="dark"] .promo-stage {
- --promo-base:#35305D;--promo-light:#4C426D;--promo-ink:#F2EAFF;
- --promo-cta-bg:#D9C7FF;--promo-cta-ink:#28194E;
+ --promo-base:#301280;--promo-light:#5526A3;--promo-ink:#F2EAFF;
+ --promo-cta-bg:#CBA4FF;--promo-cta-ink:#28194E;
 }
 html[data-embedded-preview][data-theme="dark"] .promo-stage[data-palette="turquoise"] {
- --promo-base:#21474E;--promo-light:#295B62;--promo-ink:#E2FFF9;
- --promo-cta-bg:#9EE8DD;--promo-cta-ink:#10353A;
+ --promo-base:#003C49;--promo-light:#005766;--promo-ink:#E2FFF9;
+ --promo-cta-bg:#64F8E3;--promo-cta-ink:#10353A;
 }
 html[data-embedded-preview][data-theme="dark"] .promo-stage[data-palette="orange"] {
- --promo-base:#553840;--promo-light:#684644;--promo-ink:#FFF0E4;
- --promo-cta-bg:#FFC5A0;--promo-cta-ink:#4A241F;
+ --promo-base:#642D17;--promo-light:#863F1E;--promo-ink:#FFF0E4;
+ --promo-cta-bg:#FFB77F;--promo-cta-ink:#4A241F;
 }
-html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="lavender"] {--promo-track:#393252;--promo-progress:#CEB5FF}
-html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="turquoise"] {--promo-track:#274951;--promo-progress:#94E5D9}
-html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="orange"] {--promo-track:#51363E;--promo-progress:#FFC39E}
+html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="lavender"] {--promo-track:#393252;--promo-progress:#C998FF}
+html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="turquoise"] {--promo-track:#274951;--promo-progress:#4CF8DB}
+html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="orange"] {--promo-track:#51363E;--promo-progress:#FFB978}
+
+html[data-embedded-preview][data-theme="dark"] .promo-progress {box-shadow:0 0 10px color-mix(in srgb,var(--promo-progress) 50%,transparent)}
