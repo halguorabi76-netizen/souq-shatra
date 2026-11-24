@@ -718,4 +718,5 @@ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-catego
  background-image:url("icons/preview-category-stories.webp")!important;
  background-repeat:no-repeat!important;
  background-size:600% 100%!important;
+ background-position:var(--story-position) center!important;
 }
