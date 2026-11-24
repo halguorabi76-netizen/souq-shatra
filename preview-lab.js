@@ -250,10 +250,53 @@ function mountAzurePreview() {
   align();
  }
  const categoryTone=[['أجهزة','tech'],['إلكترونيات','tech'],['هواتف','tech'],['ملابس','fashion'],['سيارات','gold'],['منزل','mint'],['خضار','mint'],['عطور','rose'],['تجميل','rose'],['أثاث','violet'],['رياضة','sport'],['تمور','gold']];
+ categoryTone.unshift(
+  ['حاسبات','indigo'],['حواسيب','indigo'],['تابلت','indigo'],['تلفزيونات','indigo'],
+  ['أجهزة كهربائية','mint'],['أحذية','amber'],['حقائب','amber'],['هدايا','floral'],['ورود','floral'],
+  ['أطفال','kids'],['كتب','paper'],['قرطاسية','paper'],['مواد غذائية','amber'],['مشروبات','kids']
+ );
  const tone=name=>categoryTone.find(([key])=>name.includes(key))?.[1]||'violet';
+ let categoryScroll=0,categoryPageScroll=null,categoryRow=null,categoryResize=null;
+ view.addEventListener('click',event=>{
+  if(event.target.closest('.azure-categories .category-card,.azure-categories button[data-v="categories"]'))categoryPageScroll=window.scrollY;
+ },true);
+ function attachCategoryRail(section) {
+  const row=section?.querySelector('.category-cards');
+  if(row===categoryRow)return;
+  categoryResize?.disconnect();
+  categoryRow=row;
+  if(!row)return;
+  row.setAttribute('aria-label','أقسام سوق الشطرة');
+  row.tabIndex=0;
+  const progress=document.createElement('div');
+  progress.className='azure-category-progress';
+  progress.setAttribute('aria-hidden','true');
+  progress.innerHTML='<span></span>';
+  row.after(progress);
+  const updateProgress=()=>{
+   const max=row.scrollWidth-row.clientWidth;
+   progress.hidden=max<=1;
+   if(max<=1)return;
+   const thumb=Math.max(.2,row.clientWidth/row.scrollWidth);
+   const offset=Math.min(1,Math.abs(row.scrollLeft)/max)*(1-thumb);
+   progress.style.setProperty('--category-thumb',100*thumb+'%');
+   progress.style.setProperty('--category-offset',100*offset+'%');
+  };
+  row.addEventListener('scroll',()=>{categoryScroll=row.scrollLeft;updateProgress()},{passive:true});
+  categoryResize=new ResizeObserver(updateProgress);
+  categoryResize.observe(row);
+  row.scrollLeft=categoryScroll;
+  if(categoryPageScroll!==null){
+   const position=categoryPageScroll;
+   categoryPageScroll=null;
+   requestAnimationFrame(()=>{if(row.isConnected)window.scrollTo(0,position)});
+  }
+  updateProgress();
+ }
  function decorateView() {
   const isHome=!!view.querySelector('.figma-section')&&!!view.querySelector('.sq-used');
   view.classList.toggle('azure-home',isHome);
+  attachCategoryRail(view.querySelector('.azure-categories'));
   for(const button of view.querySelectorAll('.category-card[data-v]'))button.dataset.azureTone=tone(button.dataset.v);
   const title=view.querySelector('.market-materials .section-title h1');
   view.dataset.azureTone=title?tone(title.textContent):'';
@@ -270,7 +313,13 @@ function mountAzurePreview() {
    if(heading)heading.textContent='منتجات جديدة';
    for(const btn of view.querySelectorAll('.sq-more,.section-title button[data-a]'))btn.textContent='عرض الكل';
   }
-  if(title&&!title.textContent.startsWith('نتائج البحث')&&view.querySelector('.category-card[data-v]')) {
+  const categoryPage=view.querySelector('.azure-category-children');
+  const currentCategory=new URLSearchParams(location.search).get('category');
+  if(currentCategory&&currentCategory!=='all'&&title?.textContent===currentCategory)title.closest('.market-materials').classList.add('azure-category-page');
+  if(categoryPage){
+   categoryPage.querySelectorAll('button').forEach((button,index)=>button.style.setProperty('--category-delay',Math.min(index,8)*40+'ms'));
+  }
+  if(categoryPage) {
    const empty=view.querySelector('.market-materials .empty');
    if(empty?.textContent.trim()){
     empty.textContent='لا توجد منتجات في هذه الفئة حالياً';

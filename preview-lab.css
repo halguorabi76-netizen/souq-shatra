@@ -587,3 +587,67 @@ html[data-shatra-ui][data-theme][lang][dir][data-embedded-preview] body.preview-
  color:#1B3555!important;
 }
 .azure-home :is(.section-title h2,.sq-title)::after {inline-size:65%;height:3.5px;margin-block-start:4px}
+
+/* Home categories keep the existing art and routes inside a single RTL rail. */
+[data-azure-tone="indigo"] {--az-ring-a:#49A7F8;--az-ring-b:#4F46E5;--az-category-surface:#E9E6FC}
+[data-azure-tone="amber"] {--az-ring-a:#FFCB66;--az-ring-b:#EE7F29;--az-category-surface:#FFF1D9}
+[data-azure-tone="floral"] {--az-ring-a:#FFBAD8;--az-ring-b:#D84969;--az-category-surface:#FFE3EC}
+[data-azure-tone="kids"] {--az-ring-a:#83E9FD;--az-ring-b:#AE86EE;--az-category-surface:#F0E9FF}
+[data-azure-tone="paper"] {--az-ring-a:#FFE381;--az-ring-b:#EB8C39;--az-category-surface:#FFF2D8}
+[data-azure-tone="fashion"] {--az-ring-a:#CAA9FF;--az-ring-b:#784BD1;--az-category-surface:#EFE3FF}
+
+html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view.azure-home .azure-categories .section-title h2::after {
+ inline-size:60%;block-size:3.5px;margin-inline:0 auto;
+}
+html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .section-title button:not(#_) {
+ color:#0878E8!important;font-size:12px!important;
+}
+html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-cards:not(#_) {
+ display:flex!important;flex-wrap:nowrap!important;gap:9px!important;
+ padding:5px 3px 7px!important;overscroll-behavior-inline:contain;scroll-padding-inline:3px;
+}
+html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-card:not(#_) {
+ --ring-size:clamp(80px,21vw,88px);
+ flex:0 0 var(--ring-size)!important;min-inline-size:0!important;
+ min-block-size:0;gap:5px;justify-content:flex-start;
+ font:600 13px/1.25 Cairo,Tajawal,sans-serif!important;color:#1B3555!important;
+}
+html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-card>span:not(#_) {
+ position:relative;box-sizing:border-box;isolation:isolate;margin:0;
+ width:var(--ring-size)!important;height:var(--ring-size)!important;
+ border:4px solid transparent!important;border-radius:50%!important;
+ background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,var(--az-ring-a,#00D8F5),var(--az-ring-b,#0878E8)) border-box!important;
+ box-shadow:none!important;
+}
+.azure-categories .category-card>span :is(img,picture) {
+ width:75%;height:75%;object-fit:contain;border-radius:50%;
+}
+.azure-categories .category-card>span::after {
+ content:"";position:absolute;inset:-4px;border:4px solid transparent;border-radius:50%;pointer-events:none;
+ border-top-color:#ffffffa8;border-inline-end-color:#ffffff45;
+ opacity:0;animation:category-glint 10s calc(var(--az-delay,0ms)*11) ease-in-out infinite;
+}
+@keyframes category-glint {
+ 0%,72%,100% {opacity:0;transform:rotate(-25deg)}
+ 77% {opacity:.85}
+ 87% {opacity:0;transform:rotate(115deg)}
+}
+.azure-category-progress {position:relative;width:62px;height:4px;margin:3px auto 2px;background:#E2EAF2;border-radius:8px;overflow:hidden}
+.azure-category-progress[hidden] {display:none}
+.azure-category-progress span {position:absolute;inset-block:0;inset-inline-start:var(--category-offset);inline-size:var(--category-thumb);background:#0878E8;border-radius:inherit}
+html body.preview-lab #view .azure-category-page {background:#FFF;border-color:var(--az-category-surface)}
+.azure-category-page>.section-title {animation:azure-enter .26s ease-out both;border:1px solid var(--az-category-surface)}
+.azure-category-children {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {
+ border:1px solid var(--az-ring-a,#DCE8F5)!important;background:#FFF!important;color:#1B3555!important;
+ border-radius:12px;padding:7px 12px;box-shadow:none!important;
+ animation:azure-enter .24s var(--category-delay) both;
+}
+html body.preview-lab #view .azure-category-children button[aria-pressed="true"]:not(#_):not(#_) {
+ background:var(--az-category-surface,#EAF5FF)!important;
+}
+@media(prefers-reduced-motion:reduce) {
+ .azure-categories .category-card>span::after,
+ .azure-category-page>.section-title,
+ html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {animation:none!important}
+}
