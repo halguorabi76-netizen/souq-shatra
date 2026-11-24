@@ -727,16 +727,16 @@ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-genera
 html[data-embedded-preview][data-theme="light"] {color-scheme:only light}
 html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] {
  color-scheme:only dark;
- --bg:#0B1424;--card:#152237;--paper:var(--bg);--surface:var(--card);--surface-2:#1D3049;
- --ta-white:var(--card);--ta-ink:#E9F2FF;--ta-muted:#AFBED4;--ta-primary:#78BCFF;
- --ta-ice:#203550;--ta-soft:#192A41;--ta-border:#344B66;
- --ta-nav:#15253A;--ta-nav-recess:#304B6C;
+ --bg:#000;--card:#080A0F;--paper:var(--bg);--surface:var(--card);--surface-2:#101827;
+ --ta-white:var(--card);--ta-ink:#EDF7FF;--ta-muted:#BED8F1;--ta-primary:#4DB9FF;
+ --ta-ice:#071929;--ta-soft:#090F1C;--ta-border:#234B73;
+ --ta-nav:#050608;--ta-nav-recess:#10345A;
  --ta-electronics:#203C56;--ta-fashion:#352D51;--ta-beauty:#4C3038;--ta-home:#203C3E;--ta-offers:#304124;--ta-promotions:#453923;
  --ink:var(--ta-ink);--ink-soft:var(--ta-muted);--navy:var(--ta-primary);
  --nx-ink:var(--ta-ink);--nx-navy:var(--ta-ink);--nx-bar:var(--card);
  --u-ink:var(--ta-ink);--u-soft:var(--ta-muted);--scene-bg:var(--bg);
- --az-heading:var(--ta-ink);--az-used:#3B3444;--az-new:#254260;--az-stores:#3B3154;--az-picks:#473344;
- --nx-btn:linear-gradient(135deg,#135DC1,#2446A8 65%,#4942B2);
+ --az-heading:var(--ta-ink);--az-used:#583C18;--az-new:#183D73;--az-stores:#48236D;--az-picks:#542642;
+ --nx-btn:linear-gradient(135deg,#0769EB,#2144C7 65%,#4B30AE);
 }
 html[data-embedded-preview][data-theme="dark"] [data-azure-tone] {
  --az-category-surface:var(--ta-ice);--az-ring-a:var(--ta-border);
@@ -755,4 +755,23 @@ html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] body.p
 }
 html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] body.preview-lab .app .promo-stage .promo-copy p:not(#_):not(#_):not(#_) {
  color:var(--promo-ink)!important;
+}
+
+/* Electric blue accents on black preview surfaces. */
+html[data-embedded-preview][data-theme="dark"][data-shatra-ui][lang][dir] body.preview-lab :is(.app,#view,#previewToolbar) {background:var(--bg)!important}
+html[data-embedded-preview][data-theme="dark"][data-shatra-ui][lang][dir] body.preview-lab #previewToolbar nav :is(a,button:not([aria-pressed=true])) {
+ background:var(--card)!important;color:var(--ta-ink)!important;border-color:var(--ta-border)!important;
+}
+html[data-embedded-preview][data-theme="dark"] .azure-nav-shape circle {fill:#1688FF;filter:drop-shadow(0 0 6px #1688FF99)}
+html[data-embedded-preview][data-theme="dark"] .azure-category-progress span {background:#24B5FF;box-shadow:0 0 8px #24B5FFB0}
+html[data-embedded-preview][data-theme="dark"] .azure-home :is(.section-title h2,.sq-title)::after {
+ background-image:linear-gradient(90deg,#2563FF,#24A7FF,#48EBFF,#6C70FF,#2563FF,#24A7FF,#48EBFF,#6C70FF,#2563FF);
+ box-shadow:0 0 9px #159AFFA0;
+}
+html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] body.preview-lab #view .azure-general-categories .category-card>span:not(#_):not(#_) {
+ background:linear-gradient(#05080F,#05080F) padding-box,linear-gradient(135deg,#2866FF,#28CFFF 48%,#27F5CA) border-box!important;
+ box-shadow:0 0 12px #0D9CFF65!important;
+}
+html[data-shatra-ui][data-embedded-preview][data-theme="dark"][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) > .top :is(.header-brand-name,.header-brand-name::before,.header-brand-name::after) {
+ text-shadow:0 0 11px #248CFF80!important;
 }
