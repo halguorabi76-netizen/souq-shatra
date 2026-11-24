@@ -202,14 +202,19 @@ function mountAzurePreview() {
  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
  const path=document.createElementNS(svg.namespaceURI,'path');
+ const recess=document.createElementNS(svg.namespaceURI,'path');
+ recess.classList.add('azure-nav-recess');
+ path.classList.add('azure-nav-surface');
  const disc=document.createElementNS(svg.namespaceURI,'circle');
  svg.classList.add('azure-nav-shape'); svg.setAttribute('aria-hidden','true');
- disc.setAttribute('cy','23');disc.setAttribute('r','20');svg.append(path,disc);
+ disc.setAttribute('cy','23');disc.setAttribute('r','20');svg.append(recess,path,disc);
  let center=null, frame=0;
  function paint(x,width,height,depth=1) {
   const y=20, a=Math.min(35,width/10), b=23, d=(Number(disc.getAttribute('cy'))+24-y)*depth;
   svg.setAttribute('viewBox',`0 0 ${width} ${height+18}`);
-  path.setAttribute('d',`M0 ${y} H${x-a} C${x-b} ${y} ${x-b} ${y+d} ${x} ${y+d} S${x+b} ${y} ${x+a} ${y} H${width} V${height+18} H0 Z`);
+  const curve=`C${x-b} ${y} ${x-b} ${y+d} ${x} ${y+d} S${x+b} ${y} ${x+a} ${y}`;
+  recess.setAttribute('d',`M${x-a} ${y} ${curve} Z`);
+  path.setAttribute('d',`M0 ${y} H${x-a} ${curve} H${width} V${height+18} H0 Z`);
   disc.setAttribute('cx',x);
   center=x;
  }
@@ -234,16 +239,16 @@ function mountAzurePreview() {
   frame=requestAnimationFrame(tick);
  }
  function decorateNavigation() {
-  const offer=nav.querySelector('.offers-tab');
+  const offer=nav.querySelector('.offers-tab,[data-a="offers"]');
   nav.classList.toggle('azure-nav',!!offer);
   if(!offer)return;
   if(offer.dataset.a!=='offers'){
-   offer.classList.remove('cart-centre','media-placeholder');
+   offer.classList.remove('cart-centre','media-placeholder','offers-tab');
    offer.dataset.a='offers';offer.setAttribute('aria-label','العروض');
    const icon=offer.querySelector('.navicon');
    icon.textContent='٪';
    offer.replaceChildren(icon,document.createTextNode('العروض'));
-   nav.append(nav.querySelector('[data-v="market"]'),nav.querySelector('[data-v="materials"]'),nav.querySelector('[data-v="stores"]'),offer,nav.querySelector('[data-v="profilePage"]'));
+   nav.append(nav.querySelector('[data-v="market"]'),nav.querySelector('[data-v="materials"]'),offer,nav.querySelector('[data-v="stores"]'),nav.querySelector('[data-v="profilePage"]'));
   }
   const offersPage=!!view.querySelector('.offers-page');
   if(offersPage)offer.setAttribute('aria-current','page');else offer.removeAttribute('aria-current');
