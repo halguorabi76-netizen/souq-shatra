@@ -66,7 +66,7 @@ function stage(slide,products,editing=false) {
  return '<div class="promo-stage" data-palette="'+slide.palette+'"'+(!editing&&!hasProducts?' data-copy-only':'')+'><div class="promo-copy" style="--title-size:'+slide.size+'px;--copy-x:'+slide.x+'px;--copy-y:'+slide.y+'px">'+copy+'</div><div class="promo-shelves">'+slots+'</div></div>';
 }
 
-export function previewPromotionMarkup(){return '<section class="preview-promotion" aria-label="عروض سوق الشطرة"></section>'}
+export function previewPromotionMarkup(){return '<section class="preview-promotion" data-no-swipe aria-label="عروض سوق الشطرة"></section>'}
 
 export function mountPreviewPromotion({products,format,openProduct}) {
  let slides=read(),active=0,editorSlide=0,pickedSlot=-1,host,elapsed=0,last=0,timer=0,hover=false,pointer=null,suppressUntil=0;
@@ -119,11 +119,11 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  function bindHost() {
   const next=document.querySelector('.preview-promotion');
   if(!next||next===host)return;
-  host=next;hover=false;pointer=null;centerBanner();draw();
+  host=next;hover=false;pointer=null;bannerOffset=0;draw();centerBanner();
   if(slides.some(s=>s.slots.some(slot=>slot.id)))void loadCatalog();
   host.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hover=true});
-  host.addEventListener('pointerleave',()=>{hover=false;pointer=null});
-  host.addEventListener('pointerdown',e=>{pointer={x:e.clientX,y:e.clientY,id:e.pointerId}});
+  host.addEventListener('pointerleave',()=>{hover=false});
+  host.addEventListener('pointerdown',e=>{if(e.isPrimary&&e.button===0)pointer={x:e.clientX,y:e.clientY,id:e.pointerId}});
   window.addEventListener('pointerup',onRelease,{signal:hostListeners.signal});
   host.addEventListener('pointercancel',()=>{pointer=null});
   host.addEventListener('click',e=>{
@@ -140,19 +140,23 @@ export function mountPreviewPromotion({products,format,openProduct}) {
   pointer=null;
   if(Math.abs(dx)<35||Math.abs(dx)<Math.abs(dy)*1.25)return;
   suppressUntil=performance.now()+350;
-  step(dx>0?1:-1);
+  step(dx<0?1:-1);
  }
  let hostListeners=new AbortController();
  const view=document.getElementById('view');
+ let bannerOffset=0;
  function centerBanner() {
   if(!host?.isConnected)return;
-  const viewport=document.documentElement;
-  const viewBounds=view.getBoundingClientRect();
-  const center=viewport.clientLeft+viewport.clientWidth/2;
-  host.style.setProperty('--promo-center-offset',Math.round(center-viewBounds.left-viewBounds.width/2)+'px');
+  const bounds=host.getBoundingClientRect();
+  if(!bounds.width)return;
+  const viewport=window.visualViewport;
+  const center=viewport?.scale===1?viewport.offsetLeft+viewport.width/2:window.innerWidth/2;
+  bannerOffset+=center-(bounds.left+bounds.width/2);
+  host.style.setProperty('--promo-center-offset',bannerOffset+'px');
  }
  if(typeof ResizeObserver==='function')new ResizeObserver(centerBanner).observe(view);
  window.addEventListener('resize',centerBanner);
+ window.visualViewport?.addEventListener('resize',centerBanner);
  new MutationObserver(()=>{
   if(document.querySelector('.preview-promotion')===host)return;
   hostListeners.abort();hostListeners=new AbortController();

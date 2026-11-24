@@ -1,4 +1,4 @@
-.preview-promotion {margin:8px auto 16px;width:min(calc(100% - 24px),720px)}
+.preview-promotion {touch-action:pan-y pinch-zoom;margin:8px auto 16px;width:min(calc(100% - 24px),720px)}
 .promo-stage {
  --promo-base:#C9B5F5;--promo-light:#E9DEFF;--promo-ink:#49328C;
  position:relative;isolation:isolate;overflow:hidden;border-radius:18px;
