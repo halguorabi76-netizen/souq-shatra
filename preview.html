@@ -21,13 +21,13 @@
 (()=>{
  const key='souq-preview-theme-v1';
  const set=(mode,persist=true)=>{
-  mode='light';document.documentElement.dataset.theme=mode;
+  mode=mode==='dark'?'dark':'light';document.documentElement.dataset.theme=mode;
   if(persist)try{localStorage.setItem(key,mode)}catch{}
   const toggle=document.getElementById('themeToggle');if(toggle){const label=mode==='dark'?'تفعيل الوضع الفاتح':'تفعيل الوضع الغامق';toggle.setAttribute('aria-label',label);toggle.title=label}
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta&&!document.body?.classList.contains('starting'))meta.content='#00126e';
+  if(meta&&!document.body?.classList.contains('starting'))meta.content=mode==='dark'?'#0B1424':'#00126e';
  };
- let saved='dark';try{saved=localStorage.getItem(key)||'dark'}catch{}
+ const preferred=matchMedia('(prefers-color-scheme: dark)');let saved;try{saved=localStorage.getItem(key)}catch{}const requested=new URLSearchParams(location.search).get('theme');const explicit=[requested,saved].find(mode=>mode==='light'||mode==='dark');saved=explicit||(preferred.matches?'dark':'light');if(!explicit)preferred.addEventListener('change',event=>set(event.matches?'dark':'light',false));
  window.SouqTheme={set,get:()=>document.documentElement.dataset.theme};set(saved,false);
 })();
 </script>
@@ -577,7 +577,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=174"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261214"><link rel="stylesheet" href="preview-promotion.css?v=8">
+<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261215"><link rel="stylesheet" href="preview-promotion.css?v=9">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=172">
 <style>
 .seller-preflight{display:none}

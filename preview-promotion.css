@@ -26,7 +26,7 @@ html body .promo-stage .promo-copy h2:not(#_):not(#_) {
 html body .promo-stage .promo-copy p:not(#_):not(#_) {margin:0;line-height:1.3;font-size:12px!important;color:var(--promo-ink)!important}
 html body .promo-stage .promo-copy .promo-cta:not(#_):not(#_) {
  min-height:34px;margin:3px 0 0;padding:5px 10px;border:0;border-radius:9px;
- color:#fff!important;background:var(--promo-ink)!important;box-shadow:none!important;font-size:12px!important;
+ color:var(--promo-cta-ink,#fff)!important;background:var(--promo-cta-bg,var(--promo-ink))!important;box-shadow:none!important;font-size:12px!important;
 }
 .promo-shelves {display:grid;grid-template:repeat(2,minmax(0,1fr))/repeat(2,minmax(0,1fr));gap:10px;padding:8px 12px 10px 10px}
 .promo-slot {position:relative;min-width:0;min-height:0;isolation:isolate}
@@ -128,3 +128,19 @@ html.promo-admin-embed body .promo-editor {
  position:relative;inset:auto;width:100%;max-height:none;margin:0;border:0;overflow:visible;
 }
 html.promo-admin-embed .promo-editor [data-editor="close"] {display:none}
+
+html[data-embedded-preview][data-theme="dark"] .promo-stage {
+ --promo-base:#35305D;--promo-light:#4C426D;--promo-ink:#F2EAFF;
+ --promo-cta-bg:#D9C7FF;--promo-cta-ink:#28194E;
+}
+html[data-embedded-preview][data-theme="dark"] .promo-stage[data-palette="turquoise"] {
+ --promo-base:#21474E;--promo-light:#295B62;--promo-ink:#E2FFF9;
+ --promo-cta-bg:#9EE8DD;--promo-cta-ink:#10353A;
+}
+html[data-embedded-preview][data-theme="dark"] .promo-stage[data-palette="orange"] {
+ --promo-base:#553840;--promo-light:#684644;--promo-ink:#FFF0E4;
+ --promo-cta-bg:#FFC5A0;--promo-cta-ink:#4A241F;
+}
+html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="lavender"] {--promo-track:#393252;--promo-progress:#CEB5FF}
+html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="turquoise"] {--promo-track:#274951;--promo-progress:#94E5D9}
+html[data-embedded-preview][data-theme="dark"] .preview-promotion[data-palette="orange"] {--promo-track:#51363E;--promo-progress:#FFC39E}
