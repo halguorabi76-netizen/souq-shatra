@@ -725,7 +725,7 @@ html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-genera
 
 /* The preview supplies its own night palette, including native form controls. */
 html[data-embedded-preview][data-theme="light"] {color-scheme:only light}
-html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] {
+html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir]:not(#_) {
  color-scheme:only dark;
  --bg:#000;--card:#080A0F;--paper:var(--bg);--surface:var(--card);--surface-2:#101827;
  --ta-white:var(--card);--ta-ink:#EDF7FF;--ta-muted:#BED8F1;--ta-primary:#4DB9FF;
