@@ -47,7 +47,6 @@ html body .promo-stage .promo-product:not(#_):not(#_),.promo-slot>.promo-product
  position:absolute;inset:0 8% 23%;width:84%;height:77%;padding:0;margin:0;border:0;
  background:none!important;box-shadow:none!important;border-radius:0;display:grid;place-items:center;
 }
-.promo-product {animation:promo-pop .6s calc(var(--slot)*105ms) both}
 .promo-float {position:relative;display:grid;place-items:center;width:100%;height:100%;min-height:0;overflow:hidden;animation:promo-float 3.6s calc(.8s + var(--slot)*.21s) ease-in-out infinite}
 .promo-float img {display:block;width:100%;height:100%;min-height:0;object-fit:contain;filter:drop-shadow(0 3px 3px #31244b24)}
 .promo-glint {position:absolute;inset:0;background:linear-gradient(135deg,transparent 35%,#ffffff68 49%,transparent 63%);transform:translate(-110%,110%);animation:promo-glint 10s calc(1.2s + var(--slot)*.65s) infinite;pointer-events:none}
@@ -58,7 +57,6 @@ html body .promo-stage .promo-product:not(#_):not(#_),.promo-slot>.promo-product
 .promo-progress span {display:block;width:100%;height:100%;background:var(--promo-progress);transform:scaleX(var(--progress,0));transform-origin:right}
 .promo-window>.promo-stage:not(.promo-outgoing) {translate:var(--promo-drag,0px) 0}
 @keyframes promo-show {from{opacity:.55}to{opacity:1}}
-@keyframes promo-pop {0%{opacity:0;transform:scale(.12)}74%{opacity:1;transform:scale(1.06)}100%{transform:scale(1)}}
 @keyframes promo-float {50%{transform:translateY(-3px)}}
 @keyframes promo-glint {0%,76%{transform:translate(-110%,110%)}86%,100%{transform:translate(110%,-110%)}}
 html body .promo-editor:not([open]),html body .promo-editor [hidden] {display:none!important}

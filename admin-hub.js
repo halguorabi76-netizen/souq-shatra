@@ -34,6 +34,8 @@ export async function bootAdminHub(){
  // The sections bar sticks right under the top bar, whatever height the top bar wraps to.
  const fit=()=>document.body.style.setProperty('--ad-top',Math.ceil(header.getBoundingClientRect().height)+'px');fit();if(typeof ResizeObserver==='function')new ResizeObserver(fit).observe(header);
  if(!preview){await import('./admin-app.js?v=218');return;}
+ const {mountAzureBloom}=await import('./azure-bloom.js?v=1');
+ mountAzureBloom();
  document.body.classList.add('admin-preview-host');document.body.classList.remove('starting');document.getElementById('loading').hidden=true;
  header.querySelector('[data-a="toggleTheme"]').addEventListener('click',()=>window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark'));
  if(all){document.body.classList.add('admin-preview-all');const {mountPreviewAll}=await import('./preview-all.js?v=2');mountPreviewAll(document.getElementById('view'),{src:role=>{const url=new URL('preview.html',location.href);url.search=new URLSearchParams({role,embed:'all',viewrev:params.get('viewrev')||'20261206'});return url.href}});return;}
