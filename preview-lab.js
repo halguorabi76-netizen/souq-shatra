@@ -208,7 +208,7 @@ function mountAzurePreview() {
  const disc=document.createElementNS(svg.namespaceURI,'circle');
  svg.classList.add('azure-nav-shape'); svg.setAttribute('aria-hidden','true');
  disc.setAttribute('cy','23');disc.setAttribute('r','20');svg.append(recess,path,disc);
- let center=null, frame=0;
+ let center=null, frame=0, iconCenters=[], litIcon=null;
  function paint(x,width,height,depth=1) {
   const y=20, a=Math.min(35,width/10), b=23, d=(Number(disc.getAttribute('cy'))+24-y)*depth;
   svg.setAttribute('viewBox',`0 0 ${width} ${height+18}`);
@@ -216,6 +216,12 @@ function mountAzurePreview() {
   recess.setAttribute('d',`M${x-a} ${y} ${curve} Z`);
   path.setAttribute('d',`M0 ${y} H${x-a} ${curve} H${width} V${height+18} H0 Z`);
   disc.setAttribute('cx',x);
+  const lit=iconCenters.find(({at})=>Math.abs(at-x)<=10)?.icon;
+  if(lit!==litIcon){
+   litIcon?.removeAttribute('data-azure-disc-icon');
+   lit?.setAttribute('data-azure-disc-icon','');
+   litIcon=lit;
+  }
   center=x;
  }
  function align() {
@@ -224,7 +230,15 @@ function mountAzurePreview() {
   cancelAnimationFrame(frame);
   if(!nav.classList.contains('azure-nav')||!bounds.width)return;
   if(svg.parentElement!==nav)nav.prepend(svg);
-  if(!icon){svg.hidden=true;return;}
+  if(!icon){
+   svg.hidden=true;
+   litIcon?.removeAttribute('data-azure-disc-icon');litIcon=null;
+   return;
+  }
+  iconCenters=[...nav.querySelectorAll('button .navicon')].map(icon=>{
+   const rect=icon.getBoundingClientRect();
+   return {icon,at:rect.left+rect.width/2-bounds.left};
+  });
   svg.hidden=false;
   const next=icon.left+icon.width/2-bounds.left;
   disc.setAttribute('cy',icon.top+icon.height/2-bounds.top+18);
