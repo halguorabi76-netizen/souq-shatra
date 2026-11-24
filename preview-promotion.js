@@ -56,9 +56,10 @@ function stage(slide,products,editing=false) {
  const slots=slide.slots.map((slot,i)=>{
   const product=products.find(p=>p.id===slot.id),n=i+1;
   const image=product?.img?'<img src="'+esc(product.img)+'" alt="" draggable="false">':'';
-  const content=image?'<span class="promo-float">'+image+'<i class="promo-glint" aria-hidden="true"></i></span>':'';
+  const content=image?'<span class="promo-float">'+image+'<i class="promo-glint" aria-hidden="true"></i></span>':
+   product?'<span class="promo-product-name">'+esc(product.name)+'</span>':'';
   const item=editing?((content&&'<span class="promo-product">'+content+'</span>')||'<button type="button" class="promo-slot-plus" data-pick="'+i+'" aria-label="إضافة منتج إلى اللوح '+n+'">+</button>'):
-   product&&image?'<button type="button" class="promo-product" data-a="promoProduct" data-v="'+esc(product.id)+'" aria-label="'+esc(product.name)+'">'+content+'</button>':'';
+   product?'<button type="button" class="promo-product" data-a="promoProduct" data-v="'+esc(product.id)+'" aria-label="'+esc(product.name)+'">'+content+'</button>':'';
   return '<div class="promo-slot" style="--slot:'+i+'"'+(!slot.visible?(editing?' data-off="true"':' hidden'):'')+'>'+item+'<span class="promo-wood" aria-hidden="true"></span></div>';
  }).join('');
  return '<div class="promo-stage" data-palette="'+slide.palette+'"><div class="promo-copy" style="--title-size:'+slide.size+'px;--copy-x:'+slide.x+'px;--copy-y:'+slide.y+'px">'+copy+'</div><div class="promo-shelves">'+slots+'</div></div>';
@@ -79,6 +80,7 @@ export function mountPreviewPromotion({products,format,openProduct}) {
   host.hidden=!indexes.length;
   host.innerHTML=indexes.length?stage(slides[active],catalog())+(indexes.length>1?'<div class="promo-indicators" role="group" aria-label="الشرائح الترويجية">'+indexes.map(i=>'<button type="button" data-slide="'+i+'" aria-label="الشريحة '+(i+1)+'" aria-current="'+(i===active)+'"><i></i></button>').join('')+'</div>':''):'';
   elapsed=0;last=0;
+  if(indexes.length>1&&!timer)timer=requestAnimationFrame(tick);
  }
  function step(direction) {
   const indexes=available();
@@ -87,10 +89,10 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  }
  function tick(time) {
   timer=0;
-  if(!host?.isConnected)return;
+  if(!host?.isConnected||available().length<2)return;
   if(last&&!document.hidden&&!hover&&!pointer&&!host.contains(document.activeElement)&&!dialog.open&&!reduced.matches){
    elapsed+=Math.min(time-last,50);
-   if(elapsed>=DURATION)step(1);
+   if(elapsed>=DURATION){step(1);return}
   }
   last=time;
   host.style.setProperty('--progress',String(elapsed/DURATION));
@@ -107,7 +109,6 @@ export function mountPreviewPromotion({products,format,openProduct}) {
   const next=document.querySelector('.preview-promotion');
   if(!next||next===host)return;
   host=next;hover=false;pointer=null;draw();
-  if(!timer)timer=requestAnimationFrame(tick);
   if(slides.some(s=>s.slots.some(slot=>slot.id)))void loadCatalog();
   host.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hover=true});
   host.addEventListener('pointerleave',()=>{hover=false;pointer=null});
@@ -170,10 +171,10 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  function renderResults() {
   if(pickedSlot<0)return;
   const q=dialog.querySelector('input[type="search"]').value.trim().toLocaleLowerCase();
-  const matches=catalog().filter(p=>p.img&&[p.name,p.sku,p.id].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
+  const matches=catalog().filter(p=>[p.name,p.sku,p.id].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
   dialog.querySelector('.promo-results').innerHTML=(loading?'<p>جارٍ تحميل المنتجات المنشورة…</p>':failed?'<p>تعذّر تحميل الكتالوج المنشور. <button type="button" data-editor="retry">إعادة المحاولة</button></p>':'')+
-  (matches.length?matches.slice(0,30).map(p=>'<button type="button" data-product="'+esc(p.id)+'"><img src="'+esc(p.img)+'" alt=""><span><b>'+esc(p.name)+'</b><small>'+esc(p.sku||p.id)+' · '+esc(format(p.price))+'</small></span></button>').join(''):
-   loading?'':'<p>لا توجد منتجات مطابقة لها صور.</p>');
+  (matches.length?matches.slice(0,30).map(p=>'<button type="button" data-product="'+esc(p.id)+'">'+(p.img?'<img src="'+esc(p.img)+'" alt="">':'')+'<span><b>'+esc(p.name)+'</b><small>'+esc(p.sku||p.id)+' · '+esc(format(p.price))+'</small></span></button>').join(''):
+   loading?'':q?'<p>لا توجد منتجات مطابقة.</p>':failed?'':'<p>لا توجد منتجات منشورة متاحة للربط حاليًا.</p>');
  }
  function closePicker(){pickedSlot=-1;dialog.querySelector('.promo-picker').hidden=true}
  dialog.addEventListener('click',e=>{
@@ -215,6 +216,7 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  window.addEventListener('storage',e=>{
   if(e.key!==KEY)return;
   slides=read();draw();if(dialog.open)drawEditor();
+  if(slides.some(s=>s.slots.some(slot=>slot.id)))void loadCatalog();
  });
  bindHost();
 }

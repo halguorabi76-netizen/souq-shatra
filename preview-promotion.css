@@ -105,3 +105,6 @@ html body .promo-editor {
  .promo-indicators [aria-current="true"] i::before {transform:scaleX(1)}
 }
 .promo-read-only :is(.pd-fav,.pd-qty,.pd-add,.va-choice,.detail-home) {display:none!important}
+.promo-product-name {font-size:11px;font-weight:700;line-height:1.15;color:var(--promo-ink);overflow-wrap:anywhere}
+.promo-slot-plus {z-index:2}
+.promo-slot-settings label {white-space:nowrap}
