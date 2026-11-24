@@ -577,7 +577,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=174"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261202"><link rel="stylesheet" href="preview-promotion.css?v=1">
+<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261202"><link rel="stylesheet" href="preview-promotion.css?v=2">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=172">
 <style>
 .seller-preflight{display:none}
@@ -2570,7 +2570,7 @@ async function paintInbox(){
 const activity=createActivityCenter({chat:v=>chat.open(v),db,esc,fmt,when,check,error,ordersChanged:syncNotifiedOrders,run:act,login:()=>A.enter('buyer'),get:()=>({user,profile,mode:viewMode,driver:driverAccount,adminPortal:ADMIN_PORTAL}),offers:rows=>{deliveryOffers=rows},driverOrders:()=>driverWorkspace.available(),product:id=>A.prod(id),order:showOrderNotice});
 const driverWorkspace=createDriverWorkspace({avatar:(id,name)=>avatars.html(id,name),db,esc,fmt,when,status:ST,bell:bellIcon,check,sheet,head,toast,refresh,run:act,noticeSync:()=>activity.sync(),tab:v=>{tab=v;render()},get:()=>({user,profile,driver:driverAccount,driverProfile,data:D,offers:deliveryOffers,payments:deliveryPayments,canReset})});
 const deliveryOps=createDeliveryOperations({db,esc,fmt,check,sheet,head,toast,refresh,error,reloadOrders:loadCustomerOrders,get:()=>({user,profile,store:ownStore,data:D})});
-import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=1";
+import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=2";
 mountPreviewPromotion({
  products:()=>publicMarketplace().products.filter(p=>p.img),format:fmt,
  openProduct:id=>{
