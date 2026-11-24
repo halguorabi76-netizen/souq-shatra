@@ -291,7 +291,7 @@ function mountAzurePreview() {
    if(index<0)continue;
    const art=document.createElement('span');
    art.className='azure-category-story';
-   art.style.backgroundPosition=index*20+'% center';
+   art.style.setProperty('--story-position',index*20+'%');
    button.firstElementChild?.append(art);
   }
   row.setAttribute('aria-label','أقسام سوق الشطرة');
