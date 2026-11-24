@@ -108,3 +108,27 @@ html body .promo-editor {
 .promo-product-name {font-size:11px;font-weight:700;line-height:1.15;color:var(--promo-ink);overflow-wrap:anywhere}
 .promo-slot-plus {z-index:2}
 .promo-slot-settings label {white-space:nowrap}
+
+html[data-embedded-preview] body.preview-lab #view .preview-promotion {
+ box-sizing:border-box;
+ inline-size:min(100% - 24px,720px);
+ margin-inline:auto;
+}
+.promo-window {position:relative;overflow:hidden;border-radius:18px;perspective:950px}
+.promo-window>.promo-stage {animation:none}
+.promo-window>.promo-outgoing {position:absolute;inset:0;z-index:2;pointer-events:none}
+.promo-stage {container-type:inline-size;grid-template-columns:minmax(0,49fr) minmax(0,51fr)}
+.promo-copy>* {overflow-wrap:break-word}
+html body .promo-stage .promo-copy h2:not(#_):not(#_) {
+ font-size:clamp(14px,4.9cqw,var(--title-size))!important;
+}
+.promo-stage[data-copy-only] {grid-template-columns:1fr;aspect-ratio:auto;min-height:148px;padding-block:8px}
+.promo-stage[data-copy-only] .promo-shelves {display:none}
+.promo-stage[data-copy-only] .promo-copy {align-items:center;text-align:center;padding-inline:20px}
+.promo-copy-settings {margin-block-start:10px;padding:8px;border-radius:10px;background:#F6F9FF}
+html.promo-admin-embed body>:not(.promo-editor) {display:none!important}
+html.promo-admin-embed body {background:#fff!important;overflow:auto!important}
+html.promo-admin-embed body .promo-editor {
+ position:relative;inset:auto;width:100%;max-height:none;margin:0;border:0;overflow:visible;
+}
+html.promo-admin-embed .promo-editor [data-editor="close"] {display:none}
