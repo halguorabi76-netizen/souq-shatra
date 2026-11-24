@@ -149,8 +149,7 @@ export function mountPreviewPromotion({products,format,openProduct}) {
   if(!host?.isConnected)return;
   const bounds=host.getBoundingClientRect();
   if(!bounds.width)return;
-  const viewport=window.visualViewport;
-  const center=viewport?.scale===1?viewport.offsetLeft+viewport.width/2:window.innerWidth/2;
+  const center=window.innerWidth/2;
   bannerOffset+=center-(bounds.left+bounds.width/2);
   host.style.setProperty('--promo-center-offset',bannerOffset+'px');
  }
