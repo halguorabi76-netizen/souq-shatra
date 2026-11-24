@@ -50,7 +50,8 @@ export async function bootAdminHub(){
   if(!doc)return;
   setImmersive(header.hidden);
   doc.addEventListener('click',event=>{
-   if(event.target.closest?.('#previewToolbar,.promo-editor,.preview-promotion'))return;
+   // Keep the phone frame in place when the click opens a destination.
+   if(event.target.closest?.('#previewToolbar,.promo-editor,.preview-promotion,.tabs,[data-a="marketSection"],[data-a="pickcat"],[data-a="prod"],[data-a="visitStore"],[data-a="storeFrom"],[data-a="storeSec"],[data-a="exploreSection"]'))return;
    const enabled=!header.hidden;
    requestAnimationFrame(()=>setImmersive(enabled));
   },true);
