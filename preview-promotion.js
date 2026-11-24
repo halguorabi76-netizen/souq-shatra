@@ -75,7 +75,7 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  const catalog=()=>[...new Map([...products(),...(publicProducts||[])].map(p=>[p.id,p])).values()];
  const available=()=>slides.flatMap((s,i)=>s.enabled?[i]:[]);
  function draw(direction=0) {
-  const previous=direction&&!reduced.matches?host?.querySelector('.promo-stage')?.cloneNode(true):null;
+  const previous=direction&&!reduced.matches?host?.querySelector('.promo-stage:not(.promo-outgoing)')?.cloneNode(true):null;
   if(!host?.isConnected)return;
   const indexes=available();
   if(indexes.length&&!indexes.includes(active))active=indexes[0];
@@ -119,7 +119,7 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  function bindHost() {
   const next=document.querySelector('.preview-promotion');
   if(!next||next===host)return;
-  host=next;hover=false;pointer=null;draw();
+  host=next;hover=false;pointer=null;centerBanner();draw();
   if(slides.some(s=>s.slots.some(slot=>slot.id)))void loadCatalog();
   host.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hover=true});
   host.addEventListener('pointerleave',()=>{hover=false;pointer=null});
@@ -144,6 +144,15 @@ export function mountPreviewPromotion({products,format,openProduct}) {
  }
  let hostListeners=new AbortController();
  const view=document.getElementById('view');
+ function centerBanner() {
+  if(!host?.isConnected)return;
+  const viewport=document.documentElement;
+  const viewBounds=view.getBoundingClientRect();
+  const center=viewport.clientLeft+viewport.clientWidth/2;
+  host.style.setProperty('--promo-center-offset',Math.round(center-viewBounds.left-viewBounds.width/2)+'px');
+ }
+ if(typeof ResizeObserver==='function')new ResizeObserver(centerBanner).observe(view);
+ window.addEventListener('resize',centerBanner);
  new MutationObserver(()=>{
   if(document.querySelector('.preview-promotion')===host)return;
   hostListeners.abort();hostListeners=new AbortController();
