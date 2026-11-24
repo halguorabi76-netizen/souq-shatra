@@ -17,9 +17,9 @@ const preview=portalMain
  .replace(/const sellerResumeHint=[^\n]*\n/,'const sellerResumeHint=false;\n')
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
- .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261212"><link rel="stylesheet" href="preview-promotion.css?v=7">')
+ .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261213"><link rel="stylesheet" href="preview-promotion.css?v=7">')
  .replace('<script src="demo-lab.js?v=51"></script>','')
- .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261212";')
+ .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261213";')
  .replace(/^function bannerHtml\(\).*$/m,'function bannerHtml(){return previewPromotionMarkup()}')
  .replace("db.preview?.init({sheet,", `import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=7";
 mountPreviewPromotion({
@@ -49,13 +49,35 @@ db.preview?.init({sheet,`)
  .replace("if(active)window.SouqMotion?.pulse(button);","if(active)window.SouqMotion?.pulse(button);else button.closest('.azure-favorites-page')?.dispatchEvent(new CustomEvent('souq-favorite-removed',{detail:button}));")
  .replace("cartNavigation()+customerOrderHub()+similarProducts()", '`<div class="azure-cart-orders">${cartNavigation()}${customerOrderHub()}${similarProducts()}</div>`')
  .replace('id="similarTitle">${title}</h2><button data-a="tab" data-v="market"', 'id="similarTitle">${title}</h2><button data-a="marketSection" data-v="materials"')
- .replace('CATS.slice(0,8).map','CATS.map')
- .replace(/\+'<button class="category-card" data-a="tab" data-v="categories"><span aria-hidden="true">'\+flowIcon\('grid'\)\+'<\/span>المزيد<\/button><\/div>'/, "+'</div>'")
+ .replace(/function categories\(\)\{[\s\S]*?\n\}(?=\nfunction myMarket)/, `const PREVIEW_GROUPS=[
+ ['الأغذية والمشروبات',['مواد غذائية','خضار وفواكه','تمور','مشروبات']],
+ ['الإلكترونيات',['أجهزة','حاسبات وتابلت','أجهزة كهربائية','تلفزيونات']],
+ ['الأزياء والإكسسوارات',['ملابس','أحذية','حقائب','مجوهرات وإكسسوارات','ساعات','نظارات']],
+ ['المنزل والحديقة',['منزلية','أثاث','منتجات تنظيف','زراعة وحدائق']],
+ ['الجمال والعناية',['عطور وتجميل']],
+ ['الأطفال',['ألعاب أطفال','مستلزمات أطفال']],
+ ['السيارات والأدوات',['قطع سيارات','إطارات وبطاريات','مواد بناء وأدوات']],
+ ['الهوايات والمتنوعات',['كتب وقرطاسية','رياضة','مستلزمات حيوانات','أخرى']]
+ ];
+ const previewGroupFor=name=>PREVIEW_GROUPS.find(([,members])=>members.includes(name))||PREVIEW_GROUPS.at(-1);
+ const previewGroupArt=i=>'<span aria-hidden="true"><span class="azure-category-story" style="--story-x:'+((i%4)*100/3)+'%;--story-y:'+(i<4?0:100)+'%"></span></span>';
+ const previewGroupCards=()=>PREVIEW_GROUPS.map(([name],i)=>'<button type="button" class="category-card" data-a="pickcat" data-v="'+esc(name)+'">'+previewGroupArt(i)+esc(name)+'</button>').join('');
+ function categories(){
+  $('#view').innerHTML='<div class="section-title"><h2>الأقسام</h2></div><div class="category-cards sx-sections azure-general-categories">'+previewGroupCards()+'</div>';
+ }`)
+ .replace(/^function materialCategories\(\).*$/m,`function materialCategories(){
+  if(tab!=='market'||cat!=='all'||q)return '';
+  return '<div class="category-cards azure-general-categories">'+previewGroupCards()+'</div>';
+ }`)
  .replace('<section class="figma-section"><div class="section-title"><div><h2>تسوّق حسب القسم</h2></div><button data-a="tab" data-v="categories">كل الأقسام ‹</button></div>', '<section class="figma-section azure-categories"><div class="section-title"><div><h2>الأقسام</h2></div><button data-a="tab" data-v="categories">عرض الكل</button></div>')
+ .replace(" const filtered=window.SouqCatalog.select(products,{category:cat", ` const group=PREVIEW_GROUPS.find(([name])=>name===cat);
+ const filtered=window.SouqCatalog.select(products,{category:group?'all':cat`)
  .replace(" const l=ui.searchProducts(filtered,stores,q),cards=", ` const parent=D.catalog?.find(c=>!c.parent_id&&c.active&&c.name===cat);
- const children=parent?D.catalog.filter(c=>c.active&&c.parent_id===parent.id):[];
+ const children=group?CATS.filter(name=>previewGroupFor(name)===group).map(name=>({id:name,name:name==='أجهزة'?'الهواتف والأجهزة الذكية':name})):
+  parent?D.catalog.filter(c=>c.active&&c.parent_id===parent.id):[];
  const leaf=!q&&children.find(c=>c.id===new URLSearchParams(location.search).get('subcategory'));
- const categoryProducts=leaf?filtered.filter(p=>p.catalog_category_id===leaf.id||p.attributes?.subcategory===leaf.name||p.attributes?._selling?.subcategory===leaf.name):filtered;
+ const categoryProducts=group?filtered.filter(p=>previewGroupFor(p.cat)===group&&(!leaf||p.cat===leaf.id)):
+  leaf?filtered.filter(p=>p.catalog_category_id===leaf.id||p.attributes?.subcategory===leaf.name||p.attributes?._selling?.subcategory===leaf.name):filtered;
  const subcategories=!q&&children.length?'<div class="azure-category-children" aria-label="الفئات الفرعية">'+[{id:'',name:'الكل'},...children].map(c=>'<button type="button" data-a="previewCategoryLeaf" data-v="'+esc(c.id)+'" aria-pressed="'+(c.id===(leaf?.id||''))+'">'+esc(c.name)+'</button>').join('')+'</div>':'';
  const l=ui.searchProducts(categoryProducts,stores,q),cards=`)
  .replace("' مادة</span></div>'+(materialResults", "' مادة</span></div>'+subcategories+(materialResults")

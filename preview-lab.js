@@ -285,15 +285,6 @@ function mountAzurePreview() {
   categoryResize?.disconnect();
   categoryRow=row;
   if(!row)return;
-  const stories=['مواد غذائية','خضار وفواكه','تمور','ملابس','أجهزة','منزلية'];
-  for(const button of row.querySelectorAll('.category-card')){
-   const index=stories.indexOf(button.dataset.v);
-   if(index<0)continue;
-   const art=document.createElement('span');
-   art.className='azure-category-story';
-   art.style.setProperty('--story-position',index*20+'%');
-   button.firstElementChild?.append(art);
-  }
   row.setAttribute('aria-label','أقسام سوق الشطرة');
   row.tabIndex=0;
   const progress=document.createElement('div');

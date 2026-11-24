@@ -236,7 +236,7 @@ html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:ha
 html[data-shatra-ui] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name,
 html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name::before,
 html[data-shatra-ui][data-theme][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .header-brand-name::after {
- color:#1B3555!important;-webkit-text-fill-color:#1B3555!important;text-shadow:none!important;
+ color:#0878E8!important;-webkit-text-fill-color:#0878E8!important;text-shadow:none!important;
 }
 body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden]))>.top .figma-header-actions {
  display:flex;align-items:center;gap:8px;
@@ -709,14 +709,16 @@ html body.preview-lab #view .azure-category-children button[aria-pressed="true"]
  html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {animation:none!important}
 }
 
-/* The photo fills the circle while the white separator stays visible. */
-html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-categories .category-card>span:has(.azure-category-story):not(#_) {
- background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#0878E8,#00E5AD) border-box!important;
+/* General categories have one ring color and a dedicated photograph. */
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-general-categories .category-card>span:not(#_):not(#_) {
+ position:relative;isolation:isolate;box-sizing:border-box;
+ width:var(--ring-size,84px)!important;height:var(--ring-size,84px)!important;
+ border:4px solid #0878E8!important;border-radius:50%!important;
+ background:#fff!important;box-shadow:none!important;
 }
-html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-categories .azure-category-story {
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-general-categories .azure-category-story {
  position:absolute;inset:3px;width:auto;height:auto;border:0;border-radius:50%;
- background-image:url("icons/preview-category-stories.webp")!important;
- background-repeat:no-repeat!important;
- background-size:600% 100%!important;
- background-position:var(--story-position) center!important;
+ background-image:url("icons/preview-general-category-stories.webp")!important;
+ background-repeat:no-repeat!important;background-size:400% 200%!important;
+ background-position:var(--story-x) var(--story-y)!important;
 }
