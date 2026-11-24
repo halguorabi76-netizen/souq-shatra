@@ -579,3 +579,11 @@ html[lang][dir][data-embedded-preview] body.preview-lab .app>.tabs button:not(#_
 html[lang][dir][data-embedded-preview] body.preview-lab .azure-cart-orders .chips>.chip:not(#_) {
  font-size:clamp(10px,2.8vw,12px)!important;
 }
+
+/* The home section underline starts at the right edge of its own title. */
+html[data-shatra-ui][data-theme][lang][dir][data-embedded-preview] body.preview-lab #view.azure-home :is(.section-title h2,.sq-title):not(#_) {
+ font-family:Cairo,Tajawal,sans-serif!important;
+ font-size:clamp(16px,4vw,18px)!important;
+ color:#1B3555!important;
+}
+.azure-home :is(.section-title h2,.sq-title)::after {inline-size:65%;height:3.5px;margin-block-start:4px}

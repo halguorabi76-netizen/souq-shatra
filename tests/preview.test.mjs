@@ -1,3 +1,4 @@
+import {previewPromotionMarkup} from '../preview-promotion.js';
 import {CATALOG_SEEDS} from '../category-seeds.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
@@ -35,14 +36,14 @@ test('generated preview boots the actual buyer, seller and driver interfaces wit
  const element=(id='')=>{const e={id,innerHTML:'',textContent:'',dataset:{},style:{setProperty(){}},classList:{add(){},remove(){},toggle(){},contains(){return false}},setAttribute(){},removeAttribute(){},addEventListener(){},focus(){},append(child){if(child.id)nodes.set('#'+child.id,child)},prepend(child){this.append(child)},before(){},remove(){nodes.delete('#'+e.id)},insertAdjacentHTML(_p,html){e.innerHTML+=html},querySelector(){return element()},querySelectorAll(){return []}};if(id)nodes.set('#'+id,e);return e;};
  const document={hidden:false,documentElement:{dataset:{portal:'preview'},style:{setProperty(){},getPropertyValue(){return ''}}},body:element('body'),createElement:()=>element(),getElementById:id=>nodes.get('#'+id)||null,querySelector:s=>nodes.get(s)||element(s.startsWith('#')?s.slice(1):s),querySelectorAll:()=>[],addEventListener(){}};
  const url=new URL('https://preview.invalid/preview.html'),context={TextEncoder,document,location:url,URL,URLSearchParams,structuredClone,crypto:{randomUUID:()=> 'a9999999-0000-4000-8000-'+String(Math.random()).slice(2,14).padEnd(12,'0')},navigator:{},history:{replaceState(){},pushState(){}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},sessionStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},matchMedia:()=>({matches:true}),setTimeout,clearTimeout,setInterval(){},scrollTo(){},alert(){throw new Error('Unexpected dialog')},confirm:()=>true,fetch(){throw new Error('Preview attempted a network request')}};
- context.CATALOG_SEEDS=CATALOG_SEEDS;context.window=context;context.addEventListener=()=>{};context.SouqTheme={get:()=> 'light',set(){}};
+ context.previewPromotionMarkup=previewPromotionMarkup;context.mountPreviewPromotion=()=>{};context.CATALOG_SEEDS=CATALOG_SEEDS;context.window=context;context.addEventListener=()=>{};context.SouqTheme={get:()=> 'light',set(){}};
  vm.createContext(context);
  const strip=code=>code.replace(/^import .*;$/gm,'').replace(/^export \{.*\} from .*;$/gm,'').replace(/export /g,'');
  for(const file of ['product-options.js','product-variants.js','product-editor.js']){const code=readFileSync(new URL('../'+file,import.meta.url),'utf8'),names=[...code.matchAll(/export (?:const|function|async function) ([a-zA-Z0-9_]+)/g)].map(m=>m[1]);vm.runInContext('{'+strip(code)+';Object.assign(globalThis,{'+names.join(',')+'});}',context);}
  for(const file of ['delivery-operations.js','delivery-zones.js','catalog-filter.js','marketplace.js','preview-lab.js','seller-records.js','seller-workspace.js','activity-center.js','delivery-workspace.js','chat.js','store-explorer.js','avatars.js'])vm.runInContext(readFileSync(new URL('../'+file,import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace(/export /g,''),context,{filename:file});
  const source=readFileSync(new URL('../preview.html',import.meta.url),'utf8').match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;$/gm,'');vm.runInContext(source,context,{filename:'preview.html'});
  const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();assert.match(nodes.get('#view').innerHTML,/أي واجهة تريد تجربتها/);
- vm.runInContext("db.preview.selectRole('buyer')",context);await settle();assert.match(nodes.get('#view').innerHTML,/المواد المعروضة|قميص تجريبي/);
+ vm.runInContext("db.preview.selectRole('buyer')",context);await settle();assert.match(nodes.get('#view').innerHTML,/المواد المعروضة|قميص تجريبي/);assert.match(nodes.get('#view').innerHTML,/class="preview-promotion"/);
  vm.runInContext("A.quickAdd(D.p[0].id);if(!cur.quickAdd||!cur.added||$('#shade').hidden)throw Error('quick add must keep product open');A.cartPane('items')",context);
  assert.match(nodes.get('#view').innerHTML,/cart-store/);assert.match(nodes.get('#view').innerHTML,/إتمام الشراء/);assert.equal(nodes.get('#shade').hidden,true);
  document.querySelector('#accountMenu').hidden=true;
