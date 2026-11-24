@@ -17,9 +17,9 @@ const preview=portalMain
  .replace(/const sellerResumeHint=[^\n]*\n/,'const sellerResumeHint=false;\n')
  .replace('<head>','<head><script>if(window.top===window.self){const route=new URL("admin.html",location.href);route.search=location.search;route.searchParams.set("section","preview");route.hash=location.hash;location.replace(route.href)}else{document.documentElement.dataset.embeddedPreview="true"}</script>')
  .replace('<title>سوق الشطرة</title>','<title>مختبر معاينة واجهات سوق الشطرة</title><meta name="robots" content="noindex,nofollow">')
- .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261202"><link rel="stylesheet" href="preview-promotion.css?v=4">')
+ .replace(/<link rel="stylesheet" href="operations\.css\?v=\d+">/,'$&<link rel="stylesheet" href="preview-lab.css?v=20261205"><link rel="stylesheet" href="preview-promotion.css?v=4">')
  .replace('<script src="demo-lab.js?v=51"></script>','')
- .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261128";')
+ .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261205";')
  .replace(/^function bannerHtml\(\).*$/m,'function bannerHtml(){return previewPromotionMarkup()}')
  .replace("db.preview?.init({sheet,", `import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=4";
 mountPreviewPromotion({
@@ -49,6 +49,23 @@ db.preview?.init({sheet,`)
  .replace("if(active)window.SouqMotion?.pulse(button);","if(active)window.SouqMotion?.pulse(button);else button.closest('.azure-favorites-page')?.dispatchEvent(new CustomEvent('souq-favorite-removed',{detail:button}));")
  .replace("cartNavigation()+customerOrderHub()+similarProducts()", '`<div class="azure-cart-orders">${cartNavigation()}${customerOrderHub()}${similarProducts()}</div>`')
  .replace('id="similarTitle">${title}</h2><button data-a="tab" data-v="market"', 'id="similarTitle">${title}</h2><button data-a="marketSection" data-v="materials"')
+ .replace('CATS.slice(0,8).map','CATS.map')
+ .replace(/\+'<button class="category-card" data-a="tab" data-v="categories"><span aria-hidden="true">'\+flowIcon\('grid'\)\+'<\/span>المزيد<\/button><\/div>'/, "+'</div>'")
+ .replace('<section class="figma-section"><div class="section-title"><div><h2>تسوّق حسب القسم</h2></div><button data-a="tab" data-v="categories">كل الأقسام ‹</button></div>', '<section class="figma-section azure-categories"><div class="section-title"><div><h2>الأقسام</h2></div><button data-a="tab" data-v="categories">عرض الكل</button></div>')
+ .replace(" const l=ui.searchProducts(filtered,stores,q),cards=", ` const parent=D.catalog?.find(c=>!c.parent_id&&c.active&&c.name===cat);
+ const children=parent?D.catalog.filter(c=>c.active&&c.parent_id===parent.id):[];
+ const leaf=!q&&children.find(c=>c.id===new URLSearchParams(location.search).get('subcategory'));
+ const categoryProducts=leaf?filtered.filter(p=>p.catalog_category_id===leaf.id||p.attributes?.subcategory===leaf.name||p.attributes?._selling?.subcategory===leaf.name):filtered;
+ const subcategories=!q&&children.length?'<div class="azure-category-children" aria-label="الفئات الفرعية">'+[{id:'',name:'الكل'},...children].map(c=>'<button type="button" data-a="previewCategoryLeaf" data-v="'+esc(c.id)+'" aria-pressed="'+(c.id===(leaf?.id||''))+'">'+esc(c.name)+'</button>').join('')+'</div>':'';
+ const l=ui.searchProducts(categoryProducts,stores,q),cards=`)
+ .replace("' مادة</span></div>'+(materialResults", "' مادة</span></div>'+subcategories+(materialResults")
+ .replace("  pickcat:v=>", `  previewCategoryLeaf:v=>{
+   const url=new URL('catalog.html',location.href);
+   url.searchParams.set('category',cat);
+   if(v)url.searchParams.set('subcategory',v);
+   db.preview.navigate(url);
+  },
+  pickcat:v=>`)
  .replaceAll('كل ما هو جديد','منتجات جديدة')
  .replaceAll('بضاعة جديدة من محلات الشطرة','منتجات جديدة من متاجر الشطرة')
  .replaceAll('أغراض من بيوت الشطرة','منتجات مستعملة من سكان الشطرة')

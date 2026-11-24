@@ -577,7 +577,7 @@ html[data-shatra-ui][data-theme] body #sheet .product-purchase .buy.added.added,
 </style>
 <link rel="stylesheet" href="seller-workspace.css?v=174"><link rel="stylesheet" href="store-explorer.css?v=1">
 <link rel="stylesheet" href="marketplace.css?v=94">
-<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261202"><link rel="stylesheet" href="preview-promotion.css?v=4">
+<link rel="stylesheet" href="operations.css?v=170"><link rel="stylesheet" href="preview-lab.css?v=20261205"><link rel="stylesheet" href="preview-promotion.css?v=4">
 <link rel="stylesheet" href="site-palette.css?v=56"><link rel="stylesheet" href="product-variants.css?v=110"><link rel="stylesheet" href="stable-viewport.css?v=65"><link rel="stylesheet" href="buyer-experience.css?v=87"><link rel="stylesheet" href="main-aurora.css?v=172">
 <style>
 .seller-preflight{display:none}
@@ -688,7 +688,7 @@ body.starting{overflow:hidden}
 
 
 <script type="module">
-import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261128";
+import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261205";
 
 import {signInProfessional,signInWithPhone} from "./professional-login.js?v=140";
 import {startWhatsappLogin,claimWhatsappLogin,whatsappLink,deleteMyAccount} from "./whatsapp-login.js?v=2";
@@ -1555,7 +1555,7 @@ function admin(){
  $('#adminAccountSearch')?.addEventListener('submit',e=>{e.preventDefault();adminSearch=val('adminQuery');admin()});
 }
 
-function materialCategories(){if(tab!=='market'||cat!=='all'||q)return '';return '<div class="category-cards">'+CATS.slice(0,8).map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'<button class="category-card" data-a="tab" data-v="categories"><span aria-hidden="true">'+flowIcon('grid')+'</span>المزيد</button></div>';}
+function materialCategories(){if(tab!=='market'||cat!=='all'||q)return '';return '<div class="category-cards">'+CATS.map((c,i)=>'<button class="category-card" data-a="pickcat" data-v="'+esc(c)+'" aria-pressed="'+(cat===c)+'"><span aria-hidden="true">'+catIcon(i)+'</span>'+esc(c)+'</button>').join('')+'</div>';}
 function publicMarketplace(){const stores=D.m.filter(m=>m.ok&&!m.removed),ids=new Set(stores.map(m=>m.id));return {stores,products:D.p.filter(p=>ids.has(p.mid)&&window.SouqMarketplace.forSale(p))};}
 function syncMarketSearch(){
  const input=$('#q'),panel=$('#marketSuggestions');if(!input)return;
@@ -1600,7 +1600,12 @@ function storePager(list,products){
 function market(){
  const ui=window.SouqFigmaUI||window.SouqMarketplace,{stores,products}=publicMarketplace();
  const filtered=window.SouqCatalog.select(products,{category:cat,query:'',min:filt.min,max:filt.max,sort:filt.sort,condition:filt.condition,saleMode:filt.condition==='new'?filt.saleMode:'all'});
- const l=ui.searchProducts(filtered,stores,q),cards=items=>ui.productCards(items,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()});
+ const parent=D.catalog?.find(c=>!c.parent_id&&c.active&&c.name===cat);
+ const children=parent?D.catalog.filter(c=>c.active&&c.parent_id===parent.id):[];
+ const leaf=!q&&children.find(c=>c.id===new URLSearchParams(location.search).get('subcategory'));
+ const categoryProducts=leaf?filtered.filter(p=>p.catalog_category_id===leaf.id||p.attributes?.subcategory===leaf.name||p.attributes?._selling?.subcategory===leaf.name):filtered;
+ const subcategories=!q&&children.length?'<div class="azure-category-children" aria-label="الفئات الفرعية">'+[{id:'',name:'الكل'},...children].map(c=>'<button type="button" data-a="previewCategoryLeaf" data-v="'+esc(c.id)+'" aria-pressed="'+(c.id===(leaf?.id||''))+'">'+esc(c.name)+'</button>').join('')+'</div>':'';
+ const l=ui.searchProducts(categoryProducts,stores,q),cards=items=>ui.productCards(items,{esc,fmt,thumb,mname,favorites:typeof activity==='undefined'?[]:activity.favorites()});
  const results=tab==='catalog'||cat!=='all'||!!q;
  if(tab==='catalog'&&cat==='all'&&!q){$('#view').innerHTML=materialsHome(stores,products,cards);return}
  if(results){
@@ -1608,12 +1613,12 @@ function market(){
   const materialResults=(grouped.length?ui.storeMatches(grouped,{esc,fmt,thumb,mname}):'')+(other.length?cards(other):'');
   const title=q?'نتائج البحث عن «'+q+'»':cat!=='all'?cat:filt.condition==='new'?'المواد الجديدة':filt.condition==='used'?'المستعمل من المتاجر':'المواد';
   const storeResults=tab==='market'&&q?ui.searchStores(stores,filtered,q):[];
-  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h1>'+esc(title)+'</h1><span class="note" role="status">'+l.length+' مادة</span></div>'+(materialResults||'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة متوفرة حاليًا.')+'</div>')+'</section>'+(storeResults.length?'<section class="market-stores"><div class="section-title"><h2>المتاجر المطابقة</h2></div>'+ui.storeMatches(storeResults,{esc,fmt,thumb,mname})+'</section>':'');
+  $('#view').innerHTML=materialCategories()+'<section class="market-materials"><div class="section-title"><h1>'+esc(title)+'</h1><span class="note" role="status">'+l.length+' مادة</span></div>'+subcategories+(materialResults||'<div class="empty">'+(!dataReady?'':'لا توجد مواد مطابقة متوفرة حاليًا.')+'</div>')+'</section>'+(storeResults.length?'<section class="market-stores"><div class="section-title"><h2>المتاجر المطابقة</h2></div>'+ui.storeMatches(storeResults,{esc,fmt,thumb,mname})+'</section>':'');
   return;
  }
  const offers=products.filter(p=>p.compare_at_price>p.price),pick=(offers.length?offers:l).slice(0,12);
  $('#view').innerHTML=bannerHtml()+
- '<section class="figma-section"><div class="section-title"><div><h2>تسوّق حسب الفئة</h2></div><button data-a="tab" data-v="categories">كل الأقسام ‹</button></div>'+materialCategories()+'</section>'+
+ '<section class="figma-section azure-categories"><div class="section-title"><div><h2>الأقسام</h2></div><button data-a="tab" data-v="categories">عرض الكل</button></div>'+materialCategories()+'</section>'+
  homeUsedBlock()+ui.switcher('home')+
  '<section class="market-materials"><div class="section-title"><div><h2 class="sq-title">منتجات جديدة</h2><p>'+(offers.length?'عروض ومنتجات جديدة من متاجر الشطرة':'منتجات جديدة من متاجر الشطرة، توصيل للبيت')+'</p></div><button data-a="marketSection" data-v="materials">الكل ‹</button></div>'+(pick.length?cards(pick):'<div class="empty">'+(!dataReady?'':'تظهر هنا منتجات التجار المعتمدين.')+'</div>')+'</section>'+
  '<section class="market-stores"><div class="section-title"><div><h2>متاجر الشطرة</h2></div><button data-a="marketSection" data-v="stores">كل المتاجر ‹</button></div>'+(stores.length?storeCircles(stores.slice(0,16)):'<div class="empty">'+(!dataReady?'':'تظهر هنا المتاجر المعتمدة.')+'</div>')+'</section>'+
@@ -2414,6 +2419,12 @@ const A={
   adminListFilter:v=>{adminFilter=v;admin();$('#adminResults')?.scrollIntoView({block:'start',behavior:'smooth'})},
   cat:v=>{cat=v;tab='catalog';render()},
   exploreSection:v=>{closeAccountMenu();cat=String(v||'');q='';publicStoreId=null;tab='explorer';render();scrollTo(0,0)},
+  previewCategoryLeaf:v=>{
+   const url=new URL('catalog.html',location.href);
+   url.searchParams.set('category',cat);
+   if(v)url.searchParams.set('subcategory',v);
+   db.preview.navigate(url);
+  },
   pickcat:v=>{cat=v;q='';filt.min='';filt.max='';filt.sort='newest';openCatalog()},
   storeCategory:v=>{cat=v;render();},
   allcat:()=>{cat='all';tab='catalog';render()},
