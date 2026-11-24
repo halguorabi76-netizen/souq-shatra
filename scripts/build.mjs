@@ -21,7 +21,7 @@ const preview=portalMain
  .replace('<script src="demo-lab.js?v=51"></script>','')
  .replace(/<script src="vendor\/supabase\/supabase-2\.(?:57\.0|117\.3)\.js"><\/script>/,'').replace('const {createClient}=window.supabase;','import {createPreviewClient,openPreviewFavorites} from "./preview-lab.js?v=20261205";')
  .replace(/^function bannerHtml\(\).*$/m,'function bannerHtml(){return previewPromotionMarkup()}')
- .replace("db.preview?.init({sheet,", `import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=5";
+ .replace("db.preview?.init({sheet,", `import {mountPreviewPromotion,previewPromotionMarkup,promotionProduct} from "./preview-promotion.js?v=6";
 mountPreviewPromotion({
  products:()=>publicMarketplace().products.filter(p=>p.img),format:fmt,
  openProduct:id=>{
