@@ -124,13 +124,6 @@ html[data-shatra-ui][data-theme][lang][dir] .azure-home :is(.sq-used,.market-mat
 html[data-shatra-ui][data-theme][lang][dir] body .used-page .used-hero {background:color-mix(in srgb,var(--az-used) 85%,var(--card))!important;color:var(--ta-ink)!important}
 html[data-shatra-ui][data-theme][lang][dir] body :is(.azure-home .sq-used,.used-page) .used-card {background:var(--card)!important;border-color:var(--az-used)!important}
 html[data-shatra-ui][data-theme][lang][dir] .azure-home .market-materials .figma-product-card {background:var(--card)!important;border-color:var(--az-new)!important}
-[data-azure-tone="tech"] {--az-ring-a:#00C9FF;--az-ring-b:#2563EB;--az-category-surface:#EAF5FF}
-[data-azure-tone="fashion"] {--az-ring-a:#FFB157;--az-ring-b:#D66028;--az-category-surface:#FFE9D7}
-[data-azure-tone="gold"] {--az-ring-a:#FFE064;--az-ring-b:#C88512;--az-category-surface:#FFF4C8}
-[data-azure-tone="mint"] {--az-ring-a:#6CE9C1;--az-ring-b:#0E9274;--az-category-surface:#D5F5E8}
-[data-azure-tone="rose"] {--az-ring-a:#FFA1BC;--az-ring-b:#BD3C79;--az-category-surface:#FFE1E7}
-[data-azure-tone="violet"] {--az-ring-a:#BB93FF;--az-ring-b:#6744CD;--az-category-surface:#E9DEFF}
-[data-azure-tone="sport"] {--az-ring-a:#C2F357;--az-ring-b:#4F992E;--az-category-surface:#EDF9D6}
 html[data-shatra-ui][data-theme][lang][dir] body .azure-home .category-cards {
  display:flex!important;overflow-x:auto!important;gap:16px!important;padding:6px 4px 12px!important;
 }
@@ -139,8 +132,8 @@ html[data-shatra-ui][data-theme][lang][dir] body .azure-home .category-card {
 }
 html[data-shatra-ui][data-theme][lang][dir] body .azure-home .category-card>span {
  width:66px!important;height:66px!important;border-radius:50%!important;border:3px solid transparent!important;
- background:linear-gradient(white,white) padding-box,linear-gradient(135deg,var(--az-ring-a,#00D8F5),var(--az-ring-b,#0878E8)) border-box!important;
- box-shadow:0 3px 11px color-mix(in srgb,var(--az-ring-a,#00D8F5) 34%,transparent)!important;
+ background:linear-gradient(var(--az-ring-gap),var(--az-ring-gap)) padding-box,var(--az-ring-gradient) border-box!important;
+ box-shadow:0 3px 11px color-mix(in srgb,var(--az-ring-cyan) 34%,transparent)!important;
 }
 html[data-shatra-ui][data-theme][lang][dir] body .category-card:active,
 html[data-shatra-ui][data-theme][lang][dir] body .sq-store:active {scale:.97}
@@ -151,13 +144,11 @@ html[data-shatra-ui][data-theme][lang][dir] body .azure-home .sq-stores {
  display:flex!important;gap:12px;overflow-x:auto;scroll-snap-type:none;overscroll-behavior-inline:contain;
 }
 .azure-home .sq-store {
- --az-store-card:#F0E7FF;--az-store-text:#563898;position:relative;isolation:isolate;overflow:hidden;
+ --az-default-store-card:#F0E7FF;--az-default-store-text:#563898;position:relative;isolation:isolate;overflow:hidden;
  display:grid;justify-items:center;align-content:center;gap:8px;flex:0 0 145px;min-height:130px;
- padding:12px;border-radius:16px;border:1px solid #fff;background:var(--az-store-card)!important;color:var(--az-store-text)!important;
+ padding:12px;border-radius:16px;border:1px solid #fff;background:var(--az-store-card,var(--az-default-store-card))!important;color:var(--az-store-text,var(--az-default-store-text))!important;
 }
-.azure-home .sq-store[data-azure-card="1"]{--az-store-card:#DDF5EE;--az-store-text:#245F51}
-.azure-home .sq-store[data-azure-card="2"]{--az-store-card:#FFE5DB;--az-store-text:#873E32}
-.azure-home .sq-store b{color:var(--az-store-text)!important;z-index:1}
+.azure-home .sq-store b{color:var(--az-store-text,var(--az-default-store-text))!important;z-index:1}
 .azure-home .sq-store::before {content:"";position:absolute;top:-35px;inset-inline-start:-25px;width:115px;height:100px;border-radius:35px;background:#fff7;transform:rotate(-26deg);z-index:-1}
 .azure-home .sq-store::after {content:"";pointer-events:none;position:absolute;inset:-45%;background:linear-gradient(135deg,transparent 43%,#ffffff55 50%,transparent 57%);transform:translate(-70%,-65%);animation:azure-shine 8s ease-in-out infinite;animation-delay:calc(var(--az-delay,0ms)*9)}
 @keyframes azure-shine {16%,100%{transform:translate(70%,65%)}}
@@ -169,7 +160,7 @@ html[data-shatra-ui][data-theme][lang][dir] body .app>.tabs.azure-nav:not([hidde
 .azure-nav-shape {width:100%;height:calc(100% + 18px);position:absolute;top:-18px;left:0;overflow:visible;pointer-events:none;z-index:-1}
 .azure-nav-shape[hidden]{display:none}
 .azure-nav-shape .azure-nav-surface {fill:var(--ta-nav,#FFFFFF)}
-.azure-nav-shape .azure-nav-recess {fill:var(--ta-nav-recess,#D6E9FC)}
+.azure-nav-shape .azure-nav-recess {fill:var(--ta-nav-recess,var(--az-nav-recess))}
 .azure-nav-shape circle {fill:#0878E8}
 html[data-shatra-ui][data-theme][lang][dir] body.preview-lab .app>.tabs.azure-nav>button:not(#_):not(#_) {
  position:relative;width:100%!important;min-height:52px!important;height:52px!important;margin:0!important;
@@ -644,12 +635,6 @@ html[data-shatra-ui][data-theme][lang][dir][data-embedded-preview] body.preview-
 .azure-home :is(.section-title h2,.sq-title)::after {inline-size:65%;height:3.5px;margin-block-start:4px}
 
 /* Home categories keep the existing art and routes inside a single RTL rail. */
-[data-azure-tone="indigo"] {--az-ring-a:#49A7F8;--az-ring-b:#4F46E5;--az-category-surface:#E9E6FC}
-[data-azure-tone="amber"] {--az-ring-a:#FFCB66;--az-ring-b:#EE7F29;--az-category-surface:#FFF1D9}
-[data-azure-tone="floral"] {--az-ring-a:#FFBAD8;--az-ring-b:#D84969;--az-category-surface:#FFE3EC}
-[data-azure-tone="kids"] {--az-ring-a:#83E9FD;--az-ring-b:#AE86EE;--az-category-surface:#F0E9FF}
-[data-azure-tone="paper"] {--az-ring-a:#FFE381;--az-ring-b:#EB8C39;--az-category-surface:#FFF2D8}
-[data-azure-tone="fashion"] {--az-ring-a:#CAA9FF;--az-ring-b:#784BD1;--az-category-surface:#EFE3FF}
 
 html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view.azure-home .azure-categories .section-title h2::after {
  inline-size:60%;block-size:3.5px;margin-inline:0 auto;
@@ -662,7 +647,7 @@ html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-catego
  padding:5px 3px 7px!important;overscroll-behavior-inline:contain;scroll-padding-inline:3px;
 }
 html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-card:not(#_):not(#_) {
- --ring-size:clamp(80px,21vw,88px);
+ --ring-size:var(--az-ring-size);
  flex:0 0 var(--ring-size)!important;min-inline-size:0!important;
  min-block-size:0!important;gap:5px!important;justify-content:flex-start!important;
  background:none!important;border:0!important;box-shadow:none!important;
@@ -671,14 +656,14 @@ html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-catego
 html[lang][dir][data-shatra-ui][data-theme] body.preview-lab #view .azure-categories .category-card>span:not(#_) {
  position:relative;box-sizing:border-box;isolation:isolate;margin:0;
  width:var(--ring-size)!important;height:var(--ring-size)!important;
- border:4px solid transparent!important;border-radius:50%!important;
- background:linear-gradient(var(--ta-white),var(--ta-white)) padding-box,linear-gradient(135deg,var(--az-ring-a,#00D8F5),var(--az-ring-b,#0878E8)) border-box!important;
+ border:var(--az-ring-width) solid transparent!important;border-radius:50%!important;
+ background:linear-gradient(var(--az-ring-gap),var(--az-ring-gap)) padding-box,var(--az-ring-gradient) border-box!important;
  box-shadow:none!important;
 }
 .azure-categories .category-card>span :is(img,picture) {
  width:75%;height:75%;object-fit:contain;border-radius:50%;
 }
-.azure-categories .category-card>span::after {
+#view .category-card>span[aria-hidden="true"]::after {
  content:"";position:absolute;inset:-4px;border:4px solid transparent;border-radius:50%;pointer-events:none;
  border-top-color:#ffffffa8;border-inline-end-color:#ffffff45;
  opacity:0;animation:category-glint 10s calc(var(--az-delay,0ms)*11) ease-in-out infinite;
@@ -695,7 +680,7 @@ html body.preview-lab #view .azure-category-page {background:var(--card);border-
 .azure-category-page>.section-title {border:1px solid var(--az-category-surface)}
 .azure-category-children {display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
 html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {
- border:1px solid var(--az-ring-a,#DCE8F5)!important;background:var(--card)!important;color:var(--ta-ink)!important;
+ border:1px solid var(--az-category-accent,var(--az-border))!important;background:var(--card)!important;color:var(--ta-ink)!important;
  border-radius:12px;padding:7px 12px;box-shadow:none!important;
 
 }
@@ -703,17 +688,17 @@ html body.preview-lab #view .azure-category-children button[aria-pressed="true"]
  background:var(--az-category-surface,#EAF5FF)!important;
 }
 @media(prefers-reduced-motion:reduce) {
- .azure-categories .category-card>span::after,
+ #view .category-card>span[aria-hidden="true"]::after,
  .azure-category-page>.section-title,
  html body.preview-lab #view .azure-category-children button:not(#_):not(#_) {animation:none!important}
 }
 
-/* Category tones frame the existing photographs. */
-html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-general-categories .category-card>span:not(#_):not(#_) {
+/* The same ring frames existing category images and icons in every list. */
+html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .category-card>span[aria-hidden="true"]:not(#_):not(#_) {
  position:relative;isolation:isolate;box-sizing:border-box;
- width:var(--ring-size,84px)!important;height:var(--ring-size,84px)!important;
- border:4px solid transparent!important;border-radius:50%!important;
- background:linear-gradient(var(--ta-white),var(--ta-white)) padding-box,linear-gradient(135deg,var(--az-ring-a,#0878e8),var(--az-ring-b,#00e9ba)) border-box!important;box-shadow:none!important;
+ width:var(--az-ring-size)!important;height:var(--az-ring-size)!important;
+ border:var(--az-ring-width) solid transparent!important;border-radius:50%!important;
+ background:linear-gradient(var(--az-ring-gap),var(--az-ring-gap)) padding-box,var(--az-ring-gradient) border-box!important;box-shadow:none!important;
 }
 html[data-shatra-ui][data-theme][lang][dir] body.preview-lab #view .azure-general-categories .azure-category-story {
  position:absolute;inset:3px;width:auto;height:auto;border:0;border-radius:50%;
@@ -737,14 +722,9 @@ html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir]:not(#_
  --az-heading:var(--ta-ink);
  --nx-btn:linear-gradient(135deg,#0769EB,#2144C7 65%,#4B30AE);
 }
-html[data-embedded-preview][data-theme="dark"] [data-azure-tone] {
- --az-category-surface:color-mix(in srgb,var(--az-ring-a) 18%,var(--az-surface));
-}
 html[data-embedded-preview][data-theme="dark"] .azure-home .sq-store {
- --az-store-card:#2D294B;--az-store-text:#E4D7FF;border-color:var(--ta-border);
+ --az-default-store-card:#2D294B;--az-default-store-text:#E4D7FF;border-color:var(--ta-border);
 }
-html[data-embedded-preview][data-theme="dark"] .azure-home .sq-store[data-azure-card="1"] {--az-store-card:#204146;--az-store-text:#CBF4EA}
-html[data-embedded-preview][data-theme="dark"] .azure-home .sq-store[data-azure-card="2"] {--az-store-card:#462F3B;--az-store-text:#FFE1D7}
 html[data-embedded-preview][data-theme="dark"] .azure-home .sq-store::before {background:#ffffff16}
 html[data-embedded-preview][data-theme="dark"] .azure-general-categories .azure-category-story {filter:none;opacity:1}
 html[data-embedded-preview][data-theme="dark"] #buyerSearch #q::placeholder {color:var(--ta-muted);opacity:1}
@@ -767,8 +747,8 @@ html[data-embedded-preview][data-theme="dark"] .azure-home :is(.section-title h2
  background-image:linear-gradient(90deg,#2563FF,#24A7FF,#48EBFF,#6C70FF,#2563FF,#24A7FF,#48EBFF,#6C70FF,#2563FF);
  box-shadow:0 0 9px #159AFFA0;
 }
-html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] body.preview-lab #view .azure-general-categories .category-card>span:not(#_):not(#_) {
- background:linear-gradient(#05080F,#05080F) padding-box,linear-gradient(135deg,var(--az-ring-a,#2866FF),var(--az-ring-b,#27F5CA)) border-box!important;
+html[data-shatra-ui][data-embedded-preview][data-theme="dark"][lang][dir] body.preview-lab #view .category-card>span[aria-hidden="true"]:not(#_):not(#_) {
+ background:linear-gradient(var(--az-ring-gap),var(--az-ring-gap)) padding-box,var(--az-ring-gradient) border-box!important;
  box-shadow:0 0 12px #0D9CFF65!important;
 }
 html[data-shatra-ui][data-embedded-preview][data-theme="dark"][dir] body.preview-lab #previewToolbar ~ .app:has(>.azure-nav:not([hidden])) > .top :is(.header-brand-name,.header-brand-name::before,.header-brand-name::after) {

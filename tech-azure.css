@@ -25,6 +25,7 @@ html[data-tech-azure][lang][dir]:not(#_) {
   --az-radius-card: 16px;
   --az-radius-panel: 22px;
   --az-shadow: 0 2px 10px #1b35550c;
+  /* Brand */
   --az-action: #0878E8;
   --az-action-hover: #0667CA;
   --az-action-active: #0759AE;
@@ -47,6 +48,23 @@ html[data-tech-azure][lang][dir]:not(#_) {
   --az-warning-surface: #fff3d9;
   --az-danger: #b4232d;
   --az-danger-surface: #ffecef;
+  --az-nav-recess: #D6E9FC;
+
+  /* Category rings are independent from the active category accent. */
+  --az-ring-primary: #0878E8;
+  --az-ring-cyan: #00D8F5;
+  --az-ring-royal: #2563EB;
+  --az-ring-light: #60A5FA;
+  --az-ring-indigo: #4F46E5;
+  --az-ring-gradient: linear-gradient(135deg, var(--az-ring-indigo), var(--az-ring-royal) 24%, var(--az-ring-primary) 48%, var(--az-ring-light) 72%, var(--az-ring-cyan));
+  --az-ring-gap: #FFFFFF;
+  --az-ring-width: 4px;
+  --az-ring-size: clamp(80px, 21vw, 88px);
+
+  /* Market sections and promotions */
+  --az-banner-lavender: #C9B5F5;
+  --az-banner-turquoise: #8EDFD5;
+  --az-banner-orange: #FFBC85;
   --az-used: #F0D9C0;
   --az-new: #DCEBFF;
   --az-stores: #E9DEFF;
@@ -246,3 +264,18 @@ html[data-tech-azure][lang][dir] body.admin-portal :is(th,td) {
   font-size: var(--az-caption);
   padding-block: var(--az-space-2);
 }
+
+/* Inner category accents never feed the ring gradient. */
+html[data-tech-azure] [data-azure-tone="tech"] {--az-category-accent:#00C9FF;--az-category-surface:#EAF5FF}
+html[data-tech-azure] [data-azure-tone="fashion"] {--az-category-accent:#CAA9FF;--az-category-surface:#EFE3FF}
+html[data-tech-azure] [data-azure-tone="gold"] {--az-category-accent:#FFE064;--az-category-surface:#FFF4C8}
+html[data-tech-azure] [data-azure-tone="mint"] {--az-category-accent:#6CE9C1;--az-category-surface:#D5F5E8}
+html[data-tech-azure] [data-azure-tone="rose"] {--az-category-accent:#FFA1BC;--az-category-surface:#FFE1E7}
+html[data-tech-azure] [data-azure-tone="violet"] {--az-category-accent:#BB93FF;--az-category-surface:#E9DEFF}
+html[data-tech-azure] [data-azure-tone="sport"] {--az-category-accent:#C2F357;--az-category-surface:#EDF9D6}
+html[data-tech-azure] [data-azure-tone="indigo"] {--az-category-accent:#49A7F8;--az-category-surface:#E9E6FC}
+html[data-tech-azure] [data-azure-tone="amber"] {--az-category-accent:#FFCB66;--az-category-surface:#FFF1D9}
+html[data-tech-azure] [data-azure-tone="floral"] {--az-category-accent:#FFBAD8;--az-category-surface:#FFE3EC}
+html[data-tech-azure] [data-azure-tone="kids"] {--az-category-accent:#83E9FD;--az-category-surface:#F0E9FF}
+html[data-tech-azure] [data-azure-tone="paper"] {--az-category-accent:#FFE381;--az-category-surface:#FFF2D8}
+html[data-tech-azure][data-theme="dark"] [data-azure-tone] {--az-category-surface:color-mix(in srgb,var(--az-category-accent,var(--az-link)) 18%,var(--az-surface))}
