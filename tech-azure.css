@@ -1,0 +1,248 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap");
+
+/* The preview storefront and the opt-in administration view share these tokens. */
+html[data-tech-azure][lang][dir]:not(#_) {
+  --az-font: Cairo, system-ui, sans-serif;
+  --az-regular: 400;
+  --az-semibold: 600;
+  --az-bold: 700;
+  --az-page-title: clamp(18px, 1rem + .6vw, 22px);
+  --az-section-title: clamp(16px, .95rem + .4vw, 19px);
+  --az-card-title: 14px;
+  --az-body-size: 14px;
+  --az-caption: 12px;
+  --az-price: 15px;
+  --az-icon: 22px;
+  --az-space-1: 4px;
+  --az-space-2: 8px;
+  --az-space-3: 12px;
+  --az-space-4: 16px;
+  --az-space-5: 20px;
+  --az-space-6: 24px;
+  --az-space-8: 32px;
+  --az-radius-small: 9px;
+  --az-radius-control: 13px;
+  --az-radius-card: 16px;
+  --az-radius-panel: 22px;
+  --az-shadow: 0 2px 10px #1b35550c;
+  --az-action: #0878E8;
+  --az-action-hover: #0667CA;
+  --az-action-active: #0759AE;
+  --az-blue: #2563EB;
+  --az-cyan: #00D8F5;
+  --az-indigo: #4F46E5;
+  --az-on-action: #FFFFFF;
+  --az-link: #0667CA;
+  --az-focus: #0878E8;
+  --az-background: #FFFFFF;
+  --az-surface: #FFFFFF;
+  --az-subtle: #F6F9FF;
+  --az-tint: #EAF5FF;
+  --az-border: #DCE8F5;
+  --az-text: #1B3555;
+  --az-secondary: #61758D;
+  --az-success: #17745d;
+  --az-success-surface: #e4f7ef;
+  --az-warning: #82500e;
+  --az-warning-surface: #fff3d9;
+  --az-danger: #b4232d;
+  --az-danger-surface: #ffecef;
+  --az-used: #F0D9C0;
+  --az-new: #DCEBFF;
+  --az-stores: #E9DEFF;
+  --az-picks: #FFE1E7;
+  --az-gradient: linear-gradient(90deg, var(--az-action), var(--az-cyan), var(--az-blue), var(--az-indigo), var(--az-action), var(--az-cyan), var(--az-blue), var(--az-indigo), var(--az-action));
+  --az-bloom-duration: 450ms;
+  --az-bloom-stagger: 45ms;
+  --az-bloom-easing: cubic-bezier(0.2, 0.75, 0.25, 1);
+  color-scheme: only light;
+}
+
+html[data-tech-azure][data-theme=dark][lang][dir]:not(#_) {
+  color-scheme: only dark;
+  --az-background: #000000;
+  --az-surface: #080A0F;
+  --az-subtle: #090F1C;
+  --az-tint: #071929;
+  --az-border: #234B73;
+  --az-text: #EDF7FF;
+  --az-secondary: #BED8F1;
+  --az-link: #4DB9FF;
+  --az-focus: #329BFF;
+  --az-shadow: 0 1px 8px #0006;
+  --az-success: #75e2bc;
+  --az-success-surface: #102e25;
+  --az-warning: #ffce7e;
+  --az-warning-surface: #372810;
+  --az-danger: #ffa4a8;
+  --az-danger-surface: #381921;
+  --az-used: #583C18;
+  --az-new: #183D73;
+  --az-stores: #48236D;
+  --az-picks: #542642;
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal) {
+  font-family: var(--az-font);
+  font-size: var(--az-body-size);
+  font-weight: var(--az-regular);
+}
+
+/* Older marketplace and admin styles assign fonts on individual elements. */
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(h1,h2,h3,h4,h5,h6,p,small,strong,b,span,a,button,label,input,select,textarea,summary,li,th,td,dt,dd):where(:not(.header-brand,.header-brand *,.admin-mark,.admin-mark *,.sw-brand,.sw-brand *,.sw-sitebrand,.sw-sitebrand *,.welcome-logo,.welcome-logo *,.header-brand-name,.gate-mark,.gate-mark *,.ss-name,.ss-name *)):not(#_):not(#_) {
+  font-family: var(--az-font) !important;
+}
+
+html[data-tech-azure] body:is(.preview-lab,.admin-portal)
+  :is(h1,.flow-heading h2,.azure-favorites-heading h2,.admin-page-title h1):not(#_):not(#_) {
+  font-size: var(--az-page-title) !important;
+  font-weight: var(--az-bold) !important;
+  color: var(--az-text) !important;
+}
+
+html[data-tech-azure] body:is(.preview-lab,.admin-portal)
+  :is(.section-title h2,.sq-title,.sq-head h2,.admin-panel h2,.sw-card h2,.dw-card h2):not(#_):not(#_) {
+  font-size: var(--az-section-title) !important;
+  font-weight: var(--az-bold) !important;
+  color: var(--az-text) !important;
+}
+
+html[data-tech-azure] body :is(.mp-product,.used-card,.figma-product-card,.sm-card,.sw-product,.sw-ptile,.mp-store-card,.sx-card,.sp-card,.sq-store,.cart-line)
+  :is(h2,h3,.product-title-open,.sq-store-name):not(#_):not(#_) {
+  font-size: var(--az-card-title) !important;
+  font-weight: var(--az-semibold) !important;
+}
+
+html[data-tech-azure] body :is(.mp-price strong,.used-price,.figma-price,.sm-price,.pd-owner-price,.pd-total b,.buyer-total b):not(#_) {
+  font-size: var(--az-price);
+  font-weight: var(--az-bold) !important;
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(.flow-heading,.azure-favorites-heading,.mc-head,.buyer-cart-heading,.profile-heading,.sw-sitebar,.dw-header) {
+  gap: var(--az-space-2);
+  color: var(--az-text);
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(.mp-product,.figma-product-card,.used-card,.cart-line,.sw-ptile,.sw-product,.boutique-store-product,.sm-card,.sw-card,.dw-card,.admin-panel,.admin-record,.admin-queue-row,.profile-card,.buyer-checkout-card):not(#_):not(#_) {
+  border: 1px solid var(--az-component-border,var(--az-border)) !important;
+  background: var(--az-surface) !important;
+  color: var(--az-text) !important;
+  border-radius: var(--az-radius-card) !important;
+  box-shadow: var(--az-shadow) !important;
+}
+
+/* Store colors keep their existing source and remain separate from product surfaces. */
+html[data-tech-azure][lang][dir] body.preview-lab
+  :is(.mp-store-card,.sp-card,.sx-card,.sm-store,.sm-head):not(#_):not(#_) {
+  background: var(--az-store-card, color-mix(in srgb, var(--az-stores) 45%, var(--az-surface))) !important;
+  border-color: var(--az-stores) !important;
+  border-radius: var(--az-radius-panel) !important;
+  color: var(--az-store-text,var(--az-text)) !important;
+  box-shadow: var(--az-shadow) !important;
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(button,input,select,textarea):not(.header-brand,.sw-brand,.gate-mark) {
+  font-weight: var(--az-semibold);
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(.buy,.sw-primary,.auth-submit,.mc-checkout,.pd-add,.btn-primary):not(:disabled,.added,.danger,[data-danger]):not(#_):not(#_) {
+  background: var(--az-action) !important;
+  color: var(--az-on-action) !important;
+  border-radius: var(--az-radius-control) !important;
+  box-shadow: var(--az-shadow) !important;
+}
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(.buy,.sw-primary,.auth-submit,.mc-checkout,.pd-add,.btn-primary):not(:disabled,.added,.danger,[data-danger]):not(#_):not(#_):hover {
+  background: var(--az-action-hover) !important;
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(button.alt,button.chip,.profile-action,.admin-back,.admin-tool-link,.sw-icon,.azure-search-back):not([aria-pressed=true],[aria-current=page],.active,.danger):not(#_):not(#_) {
+  background: var(--az-tint) !important;
+  color: var(--az-text) !important;
+  border: 1px solid var(--az-border) !important;
+  border-radius: var(--az-radius-control);
+  box-shadow: none !important;
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=hidden]),select,textarea):not(#q):not(#_):not(#_) {
+  background: var(--az-subtle) !important;
+  color: var(--az-text) !important;
+  border: 1px solid var(--az-border) !important;
+  border-radius: var(--az-radius-control) !important;
+  font-weight: var(--az-regular);
+}
+html[data-tech-azure] body :is(input,textarea)::placeholder {color: var(--az-secondary);opacity: 1}
+html[data-tech-azure] body :is(input,select,textarea,button,a):focus-visible:not(#_):not(#_) {
+  outline: 2px solid var(--az-focus);
+  outline-offset: 2px;
+}
+
+html[data-tech-azure][lang][dir] body:is(.preview-lab,.admin-portal)
+  :is(.sheet,.auth-sheet,.confirm-card,.account-popover,.sw-dialog,.promo-editor,.promo-picker,.admin-dialog,dialog):not(#_):not(#_) {
+  background: var(--az-surface) !important;
+  border-color: var(--az-border) !important;
+  border-radius: var(--az-radius-panel);
+  color: var(--az-text) !important;
+  box-shadow: var(--az-shadow) !important;
+}
+
+html[data-tech-azure] body
+  :is(.empty,.sq-empty,.sx-empty,.sm-empty,.sw-empty,.dw-empty,.admin-empty,.flow-empty):not(.loading,[role=status],[role=alert],.buyer-checkout-card):not(#_):not(#_) {
+  margin-block: var(--az-space-3);
+  padding: var(--az-space-6) var(--az-space-4);
+  border: 1px solid var(--az-border);
+  border-radius: var(--az-radius-card);
+  background: var(--az-subtle) !important;
+  color: var(--az-secondary) !important;
+}
+html[data-tech-azure] body :is(.admin-alert,.admin-empty)[role=alert] {
+  color: var(--az-danger);
+  background: var(--az-danger-surface);
+}
+html[data-tech-azure] body :is(.section-title button,.sq-more,.sx-all,.sp-more):not(#_):not(#_) {
+  font-size: var(--az-caption) !important;
+  color: var(--az-link) !important;
+}
+html[data-tech-azure] body .azure-nav > button:not(#_):not(#_) {font-size: var(--az-caption) !important}
+html[data-tech-azure] body .azure-nav .navicon svg {width: var(--az-icon);height: var(--az-icon)}
+html[data-tech-azure] body #buyerSearch:focus-within:not(#_):not(#_) {border-color: var(--az-focus) !important}
+
+html[data-tech-azure][lang][dir] body.admin-portal {
+  --ad-bg: var(--az-background);
+  --ad-page: var(--az-background);
+  --ad-bar: var(--az-surface);
+  --ad-card: var(--az-surface);
+  --ad-ink: var(--az-text);
+  --ad-mut: var(--az-secondary);
+  --ad-line: var(--az-border);
+  --ad-soft: var(--az-tint);
+  --ad-primary: var(--az-link);
+  --ad-accent-2: var(--az-blue);
+  --ad-btn: var(--az-action);
+  --ad-hero: linear-gradient(145deg,#0878E8,#174EB8);
+  --ad-shadow: var(--az-shadow);
+  --ad-glow: var(--az-shadow);
+  --ad-green: var(--az-success);
+  --ad-green-bg: var(--az-success-surface);
+  --ad-amber: var(--az-warning);
+  --ad-amber-bg: var(--az-warning-surface);
+  --ad-red: var(--az-danger);
+  --ad-red-bg: var(--az-danger-surface);
+  --ad-blue: var(--az-link);
+  --ad-blue-bg: var(--az-tint);
+}
+html[data-tech-azure][lang][dir] body.admin-portal :is(.admin-table-wrap,table) {
+  border-color: var(--az-border);
+  color: var(--az-text);
+}
+html[data-tech-azure][lang][dir] body.admin-portal :is(th,td) {
+  font-size: var(--az-caption);
+  padding-block: var(--az-space-2);
+}

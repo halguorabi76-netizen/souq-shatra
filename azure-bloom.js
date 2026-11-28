@@ -19,13 +19,17 @@ const groups = [
   '.sw-sitebar,.sw-header,.sw-card,.sw-toolbar,.sw-fold,.sw-dialog,.sw-drawer,.se-section,.dw-header,.dw-card,.dw-today,.dw-wallet',
   '.post-card,.post-actions,.pe-header,.filter-group,.filter-actions,.confirm-card,.confirm-actions',
   '.promo-editor-tabs,.promo-editor-stage,.promo-editor-actions,.promo-settings,.promo-picker-head,.promo-results > button',
-  '.pa-bar,.pa-phone,.admin-hub-tabs,.admin-brand,.admin-tool-link,table',
+  '.pa-bar,.pa-phone,.admin-hub-tabs,.admin-brand,.admin-tool-link,.admin-page-title,.admin-panel,.admin-record,.admin-stat-link,.admin-queue-row,table',
   '.pl-role-cards > button,.promo-product,#toast,dialog[open],details[open] > :not(summary)'
 ].join(',');
 const candidates = cards + ',' + groups;
 
 export function mountAzureBloom() {
   if (!('IntersectionObserver' in window) || !Element.prototype.animate) return;
+  const theme = getComputedStyle(document.documentElement);
+  const duration = parseFloat(theme.getPropertyValue('--az-bloom-duration')) || bloom.duration;
+  const stagger = parseFloat(theme.getPropertyValue('--az-bloom-stagger')) || bloom.stagger;
+  const easing = theme.getPropertyValue('--az-bloom-easing').trim() || bloom.easing;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const running = new Map();
   const shown = new Map();
@@ -47,7 +51,7 @@ export function mountAzureBloom() {
     if (blur) keyframes.forEach((frame, index) => { frame.filter = `blur(${index ? 0 : blur}px)`; });
     // No backwards fill: delayed controls stay available and visible while waiting.
     const animation = element.animate(keyframes, {
-      duration:gentle ? 300 : bloom.duration, delay, easing:bloom.easing
+      duration:gentle ? 300 : duration, delay, easing
     });
     running.set(element, animation);
     animation.finished.catch(() => {}).finally(() => {
@@ -81,7 +85,7 @@ export function mountAzureBloom() {
       if (key) keys.add(key);
       seen.add(element);
       if (reduced.matches || document.hidden || element.contains(document.activeElement)) return;
-      animate(element, Math.min(index * bloom.stagger, bloom.maximumDelay),
+      animate(element, Math.min(index * stagger, bloom.maximumDelay),
         !!element.closest('.admin-preview-host,.promo-editor,.sw-shell,.dw-shell,.pd-bar') || element.id === 'toast');
     });
   }, {threshold:.05});
