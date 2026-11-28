@@ -40,7 +40,7 @@ export async function bootAdminHub(){
   if(theme==='light'||theme==='dark')window.SouqTheme.set(theme,false);
   root.setAttribute('data-tech-azure','');
   const stylesheet=document.createElement('link');
-  stylesheet.rel='stylesheet';stylesheet.href='tech-azure.css?v=1';
+  stylesheet.rel='stylesheet';stylesheet.href='tech-azure.css?v=2';
   const ready=new Promise(resolve=>{stylesheet.onload=resolve;stylesheet.onerror=resolve;});
   document.head.append(stylesheet);
   const [{mountAzureBloom}]=await Promise.all([import('./azure-bloom.js?v=2'),ready]);
@@ -48,7 +48,12 @@ export async function bootAdminHub(){
  }
  if(!preview){await import('./admin-app.js?v=218');return;}
  document.body.classList.add('admin-preview-host');document.body.classList.remove('starting');document.getElementById('loading').hidden=true;
- header.querySelector('[data-a="toggleTheme"]').addEventListener('click',()=>window.SouqTheme.set(window.SouqTheme.get()==='dark'?'light':'dark'));
+ header.querySelector('[data-a="toggleTheme"]').addEventListener('click',()=>{
+  const mode=window.SouqTheme.get()==='dark'?'light':'dark';
+  window.SouqTheme.set(mode);
+  const url=new URL(location.href);url.searchParams.set('theme',mode);history.replaceState(history.state,'',url);
+  document.querySelectorAll('#adminPreviewFrame,.pa-screen iframe').forEach(frame=>frame.contentWindow?.SouqTheme?.set(mode,false));
+ });
  if(all){document.body.classList.add('admin-preview-all');const {mountPreviewAll}=await import('./preview-all.js?v=2');mountPreviewAll(document.getElementById('view'),{src:role=>{const url=new URL('preview.html',location.href);url.search=new URLSearchParams({role,embed:'all',viewrev:params.get('viewrev')||'20261219'});const theme=params.get('theme');if(theme)url.searchParams.set('theme',theme);return url.href}});return;}
  const route=new URL('preview.html',location.href);params.delete('section');route.search=params.toString();
  const frame=document.createElement('iframe');frame.id='adminPreviewFrame';frame.title='معاينة واجهات سوق الشطرة المعزولة';frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals');frame.src=route.href;
