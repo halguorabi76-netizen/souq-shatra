@@ -246,3 +246,14 @@ html[data-tech-azure][lang][dir] body.admin-portal :is(th,td) {
   font-size: var(--az-caption);
   padding-block: var(--az-space-2);
 }
+
+/* The shared preview chrome supersedes the old white text used over a neon bar. */
+html[data-tech-azure][lang][dir] body.admin-portal #adminTop :is(.admin-hub-tab,.admin-icon-btn):not(#_):not(#_) {
+  color: var(--az-text) !important;
+  background: var(--az-tint) !important;
+  border-color: var(--az-border) !important;
+}
+html[data-tech-azure][lang][dir] body.admin-portal #adminTop .admin-hub-tab[aria-current=page]:not(#_):not(#_) {
+  color: var(--az-on-action) !important;
+  background: var(--az-action) !important;
+}
