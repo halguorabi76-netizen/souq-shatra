@@ -351,7 +351,6 @@ function mountAzurePreview() {
   }
   view.querySelectorAll('.category-card,.figma-product-card,.sq-store,.used-card,.sp-card').forEach((element,index)=>{
    element.style.setProperty('--az-delay',Math.min(index,9)*40+'ms');
-   if(element.classList.contains('sq-store')&&!element.dataset.azureCard)element.dataset.azureCard=String(index%3);
   });
  }
  let pending=false;
